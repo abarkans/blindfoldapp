@@ -6,7 +6,9 @@ import Link from "next/link";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
 
@@ -18,15 +20,12 @@ export default async function DashboardPage() {
 
   if (!profile?.onboarding_complete) redirect("/onboarding");
 
-  // Calculate next date based on cadence
-  const now = new Date();
-  const nextDate = new Date(now);
-  switch (profile.cadence) {
-    case "weekly": nextDate.setDate(now.getDate() + 7); break;
-    case "biweekly": nextDate.setDate(now.getDate() + 14); break;
-    case "monthly": nextDate.setMonth(now.getMonth() + 1); break;
-    default: nextDate.setDate(now.getDate() + Math.floor(Math.random() * 10) + 3);
-  }
+  const cadenceLabel: Record<string, string> = {
+    weekly: "Weekly",
+    biweekly: "Bi-weekly",
+    monthly: "Monthly",
+    spontaneous: "Spontaneous",
+  };
 
   return (
     <div className="min-h-screen bg-[#0d0d14] p-4">
@@ -40,7 +39,8 @@ export default async function DashboardPage() {
             <div>
               <p className="text-xs text-white/40">Hey there,</p>
               <p className="text-sm font-bold text-white">
-                {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}
+                {profile.partner_names.partner1} &amp;{" "}
+                {profile.partner_names.partner2}
               </p>
             </div>
           </div>
@@ -63,15 +63,20 @@ export default async function DashboardPage() {
         {/* Date Card */}
         <DateCard
           partnerNames={profile.partner_names}
-          nextDateDate={nextDate.toISOString()}
+          cadence={profile.cadence}
+          revealedAt={profile.revealed_at ?? null}
+          dateIdea={profile.date_idea as Parameters<typeof DateCard>[0]["dateIdea"]}
         />
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mt-6">
           {[
             { label: "Budget", value: `€${profile.constraints.budget_max}` },
-            { label: "Frequency", value: profile.cadence.charAt(0).toUpperCase() + profile.cadence.slice(1) },
-            { label: "Interests", value: `${profile.interests.length} topics` },
+            {
+              label: "Frequency",
+              value: cadenceLabel[profile.cadence] ?? profile.cadence,
+            },
+            { label: "Interests", value: `${profile.interests.length} picks` },
           ].map(({ label, value }) => (
             <div
               key={label}

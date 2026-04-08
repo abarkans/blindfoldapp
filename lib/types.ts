@@ -15,6 +15,16 @@ export interface Database {
           };
           cadence: string;
           onboarding_complete: boolean;
+          revealed_at: string | null;
+          date_idea: {
+            title: string;
+            description: string;
+            emoji: string;
+            vibe: string;
+            duration: string;
+            budget_range: string;
+            tags: string[];
+          } | null;
           created_at: string;
           updated_at: string;
         };
@@ -29,6 +39,8 @@ export interface Database {
           };
           cadence?: string;
           onboarding_complete?: boolean;
+          revealed_at?: string | null;
+          date_idea?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -43,6 +55,8 @@ export interface Database {
           };
           cadence?: string;
           onboarding_complete?: boolean;
+          revealed_at?: string | null;
+          date_idea?: Json | null;
           created_at?: string;
           updated_at?: string;
         };

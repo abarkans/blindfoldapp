@@ -1,22 +1,81 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Lock, Sparkles, Calendar, Clock } from "lucide-react";
+import { useState, useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { revealDate } from "@/app/actions/reveal";
+
+interface DateIdea {
+  title: string;
+  description: string;
+  emoji: string;
+  vibe: string;
+  duration: string;
+  budget_range: string;
+  tags: string[];
+}
 
 interface DateCardProps {
   partnerNames: { partner1: string; partner2: string };
-  nextDateDate?: string;
+  cadence: string;
+  revealedAt: string | null;
+  dateIdea: DateIdea | null;
 }
 
-export default function DateCard({ partnerNames, nextDateDate }: DateCardProps) {
-  const formattedDate = nextDateDate
-    ? new Date(nextDateDate).toLocaleDateString("en-GB", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      })
-    : "Coming soon...";
+function getNextRevealDate(revealedAt: string, cadence: string): Date {
+  const cadenceDays: Record<string, number> = {
+    weekly: 7,
+    biweekly: 14,
+    monthly: 30,
+    spontaneous: 3,
+  };
+  const days = cadenceDays[cadence] ?? 7;
+  const next = new Date(revealedAt);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function isRevealAvailable(revealedAt: string | null, cadence: string): boolean {
+  if (!revealedAt) return true;
+  return new Date() >= getNextRevealDate(revealedAt, cadence);
+}
+
+function formatRelative(date: Date): string {
+  const diffMs = date.getTime() - Date.now();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) return "today";
+  if (diffDays === 1) return "tomorrow";
+  return `in ${diffDays} days`;
+}
+
+export default function DateCard({
+  partnerNames,
+  cadence,
+  revealedAt,
+  dateIdea,
+}: DateCardProps) {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState("");
+  const [revealed, setRevealed] = useState(
+    // show as revealed if date_idea exists and cooldown hasn't passed
+    !!dateIdea && !!revealedAt && !isRevealAvailable(revealedAt, cadence)
+  );
+
+  const canReveal = isRevealAvailable(revealedAt, cadence);
+  const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
+
+  function handleReveal() {
+    setError("");
+    startTransition(async () => {
+      try {
+        await revealDate();
+        setRevealed(true);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong");
+      }
+    });
+  }
 
   return (
     <motion.div
@@ -25,68 +84,175 @@ export default function DateCard({ partnerNames, nextDateDate }: DateCardProps) 
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 backdrop-blur-sm"
     >
-      {/* Glow effect */}
+      {/* Glow */}
       <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-pink-500/20 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
 
       <div className="relative p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-pink-400" />
             <span className="text-xs font-semibold text-pink-400 uppercase tracking-widest">
               Mystery Date
             </span>
           </div>
-          <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1">
-            <Clock className="w-3 h-3 text-white/50" />
-            <span className="text-xs text-white/50">{formattedDate}</span>
-          </div>
+          {nextRevealDate && !canReveal && (
+            <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1">
+              <Clock className="w-3 h-3 text-white/50" />
+              <span className="text-xs text-white/50">
+                Next {formatRelative(nextRevealDate)}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Blurred mystery content */}
-        <div className="relative rounded-2xl overflow-hidden mb-6">
-          <div className="bg-gradient-to-br from-pink-500/20 to-purple-600/20 p-6 text-center">
-            {/* Fake blurred content lines */}
-            <div className="flex flex-col items-center gap-3 blur-sm select-none pointer-events-none">
-              <div className="h-6 w-48 rounded-full bg-white/20" />
-              <div className="h-4 w-36 rounded-full bg-white/15" />
-              <div className="h-4 w-44 rounded-full bg-white/10" />
-            </div>
-          </div>
-
-          {/* Lock overlay */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+        <AnimatePresence mode="wait">
+          {/* ── REVEALED STATE ── */}
+          {revealed && dateIdea ? (
             <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-              className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm"
+              key="revealed"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             >
-              <Lock className="w-6 h-6 text-pink-300" />
+              {/* Emoji + title */}
+              <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/10 rounded-2xl p-5 mb-4 text-center border border-pink-500/20">
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
+                  className="text-5xl mb-3"
+                >
+                  {dateIdea.emoji}
+                </motion.div>
+                <h3 className="text-xl font-bold text-white mb-1">{dateIdea.title}</h3>
+                <p className="text-xs text-pink-300 font-medium">{dateIdea.vibe}</p>
+              </div>
+
+              {/* Description */}
+              <p className="text-white/60 text-sm leading-relaxed mb-4">
+                {dateIdea.description}
+              </p>
+
+              {/* Details row */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {[
+                  { icon: Timer, value: dateIdea.duration },
+                  { icon: Wallet, value: dateIdea.budget_range },
+                  { icon: MapPin, value: dateIdea.tags[0] ?? "Anywhere" },
+                ].map(({ icon: Icon, value }) => (
+                  <div
+                    key={value}
+                    className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8"
+                  >
+                    <Icon className="w-3.5 h-3.5 text-pink-400" />
+                    <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-1.5 mb-5">
+                {dateIdea.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-xs text-pink-300"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* Next date available footer */}
+              {nextRevealDate && (
+                <div className="text-center py-3 border-t border-white/8">
+                  <p className="text-xs text-white/30">
+                    Next mystery date available{" "}
+                    <span className="text-white/50 font-medium">
+                      {nextRevealDate.toLocaleDateString("en-GB", {
+                        weekday: "long",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </p>
+                </div>
+              )}
             </motion.div>
-            <p className="text-white/60 text-sm font-medium">Your next date is a mystery</p>
-            <p className="text-white/30 text-xs">
-              {partnerNames.partner1} &amp; {partnerNames.partner2}&apos;s surprise awaits
-            </p>
-          </div>
-        </div>
-
-        {/* Date hint chips */}
-        <div className="flex gap-2 mb-6">
-          {["Outdoor", "€20–50", "2–3 hrs"].map((hint) => (
-            <div
-              key={hint}
-              className="px-3 py-1 rounded-full bg-white/8 border border-white/10 text-xs text-white/40 blur-[2px]"
+          ) : (
+            /* ── LOCKED STATE ── */
+            <motion.div
+              key="locked"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              {hint}
-            </div>
-          ))}
-        </div>
+              {/* Blurred preview */}
+              <div className="relative rounded-2xl overflow-hidden mb-5">
+                <div className="bg-gradient-to-br from-pink-500/20 to-purple-600/20 p-6 text-center">
+                  <div className="flex flex-col items-center gap-3 blur-sm select-none pointer-events-none">
+                    <div className="h-10 w-10 rounded-full bg-white/20" />
+                    <div className="h-5 w-40 rounded-full bg-white/20" />
+                    <div className="h-3 w-32 rounded-full bg-white/15" />
+                    <div className="h-3 w-44 rounded-full bg-white/10" />
+                  </div>
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                  <motion.div
+                    animate={canReveal ? { y: [0, -5, 0] } : {}}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm"
+                  >
+                    {canReveal ? (
+                      <Unlock className="w-6 h-6 text-pink-300" />
+                    ) : (
+                      <Lock className="w-6 h-6 text-white/40" />
+                    )}
+                  </motion.div>
+                  <p className="text-white/60 text-sm font-medium">
+                    {canReveal ? "Ready to reveal!" : "Your date is brewing…"}
+                  </p>
+                  <p className="text-white/30 text-xs">
+                    {partnerNames.partner1} &amp; {partnerNames.partner2}
+                  </p>
+                </div>
+              </div>
 
-        <Button size="lg" className="w-full" disabled>
-          <Calendar className="w-4 h-4 mr-2" />
-          Reveal on Date Day
-        </Button>
+              {/* Hint chips (blurred) */}
+              <div className="flex gap-2 mb-5">
+                {["Surprise", "??–?? hrs", "€??"].map((hint) => (
+                  <div
+                    key={hint}
+                    className="px-3 py-1 rounded-full bg-white/8 border border-white/10 text-xs text-white/30 blur-[2px]"
+                  >
+                    {hint}
+                  </div>
+                ))}
+              </div>
+
+              {error && (
+                <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
+              )}
+
+              <Button
+                size="lg"
+                className="w-full"
+                disabled={!canReveal}
+                loading={isPending}
+                onClick={canReveal ? handleReveal : undefined}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {canReveal
+                  ? "Reveal Mystery Date"
+                  : nextRevealDate
+                  ? `Available ${formatRelative(nextRevealDate)}`
+                  : "Not available yet"}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
