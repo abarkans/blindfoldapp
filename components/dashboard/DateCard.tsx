@@ -1,10 +1,21 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { revealDate } from "@/app/actions/reveal";
+
+const LOADING_MESSAGES = [
+  "Consulting the stars for your perfect night...",
+  "Sprinkling a little magic on your evening...",
+  "Whispering to the city about your vibes...",
+  "Crafting something deliciously unexpected...",
+  "Personalising your next adventure...",
+  "The universe is planning something special...",
+  "Reading your love language...",
+  "Mixing mystery with a dash of romance...",
+];
 
 interface DateIdea {
   title: string;
@@ -57,6 +68,7 @@ export default function DateCard({
 }: DateCardProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [revealed, setRevealed] = useState(
     // show as revealed if date_idea exists and cooldown hasn't passed
     !!dateIdea && !!revealedAt && !isRevealAvailable(revealedAt, cadence)
@@ -64,6 +76,15 @@ export default function DateCard({
 
   const canReveal = isRevealAvailable(revealedAt, cadence);
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
+
+  useEffect(() => {
+    if (!isPending) return;
+    setLoadingMsgIndex(Math.floor(Math.random() * LOADING_MESSAGES.length));
+    const interval = setInterval(() => {
+      setLoadingMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [isPending]);
 
   function handleReveal() {
     setError("");
@@ -236,20 +257,51 @@ export default function DateCard({
                 <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
               )}
 
-              <Button
-                size="lg"
-                className="w-full"
-                disabled={!canReveal}
-                loading={isPending}
-                onClick={canReveal ? handleReveal : undefined}
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {canReveal
-                  ? "Reveal Mystery Date"
-                  : nextRevealDate
-                  ? `Available ${formatRelative(nextRevealDate)}`
-                  : "Not available yet"}
-              </Button>
+              {isPending ? (
+                <div className="flex flex-col items-center gap-3 py-4">
+                  <div className="flex gap-1.5">
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-2 h-2 rounded-full bg-pink-400"
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{
+                          duration: 0.9,
+                          repeat: Infinity,
+                          delay: i * 0.18,
+                          ease: "easeInOut",
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={loadingMsgIndex}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.4 }}
+                      className="text-sm text-white/50 text-center px-4"
+                    >
+                      {LOADING_MESSAGES[loadingMsgIndex]}
+                    </motion.p>
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <Button
+                  size="lg"
+                  className="w-full"
+                  disabled={!canReveal}
+                  onClick={canReveal ? handleReveal : undefined}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {canReveal
+                    ? "Reveal Mystery Date"
+                    : nextRevealDate
+                    ? `Available ${formatRelative(nextRevealDate)}`
+                    : "Not available yet"}
+                </Button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
