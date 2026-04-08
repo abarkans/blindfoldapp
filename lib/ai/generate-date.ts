@@ -19,8 +19,6 @@ const DateIdeaSchema = z.object({
     .describe("Budget range in euros, e.g. '€20–40'. Must fit within budget_max"),
   tags: z
     .array(z.string())
-    .min(2)
-    .max(4)
     .describe("2-4 short tags like 'Indoor', 'Evening', 'Active', 'Romantic'"),
 });
 
