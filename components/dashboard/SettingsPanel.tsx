@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Save, User, Tag, Sliders, Calendar } from "lucide-react";
+import { Save, User, Tag, Sliders, Calendar, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
 import type { Profile } from "@/lib/types";
@@ -39,6 +40,13 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+  }
 
   const {
     register,
@@ -209,6 +217,15 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
           {saved ? "Saved!" : "Save Changes"}
         </Button>
       </motion.div>
+
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20 transition-all text-sm"
+      >
+        <LogOut className="w-4 h-4" />
+        Sign out
+      </button>
     </form>
   );
 }
