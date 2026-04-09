@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2 } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -62,6 +62,98 @@ function formatRelative(date: Date): string {
   if (diffDays <= 0) return "today";
   if (diffDays === 1) return "tomorrow";
   return `in ${diffDays} days`;
+}
+
+const HOLD_DURATION = 3000;
+
+function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
+  const [progress, setProgress] = useState(0);
+  const [isPressing, setIsPressing] = useState(false);
+  const startTimeRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  function startHold(e: React.MouseEvent | React.TouchEvent) {
+    e.preventDefault();
+    setIsPressing(true);
+    startTimeRef.current = Date.now();
+
+    const tick = () => {
+      if (!startTimeRef.current) return;
+      const elapsed = Date.now() - startTimeRef.current;
+      const p = Math.min(elapsed / HOLD_DURATION, 1);
+      setProgress(p);
+      if (p < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        rafRef.current = null;
+        startTimeRef.current = null;
+        setIsPressing(false);
+        setProgress(0);
+        onComplete();
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }
+
+  function cancelHold() {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    startTimeRef.current = null;
+    setIsPressing(false);
+    setProgress(0);
+  }
+
+  const label = isPressing
+    ? progress > 0.75
+      ? "Almost there…"
+      : "Keep holding…"
+    : "Hold to mark as done";
+
+  return (
+    <button
+      className="relative w-full h-12 rounded-2xl overflow-hidden select-none cursor-pointer"
+      style={{ WebkitUserSelect: "none", touchAction: "none" }}
+      onMouseDown={startHold}
+      onMouseUp={cancelHold}
+      onMouseLeave={cancelHold}
+      onTouchStart={startHold}
+      onTouchEnd={cancelHold}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {/* Track background */}
+      <div className="absolute inset-0 rounded-2xl bg-orange-500/15 border border-orange-500/30" />
+      {/* Fill — reveals gradient from left via clip-path */}
+      <div
+        className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 shadow-md shadow-orange-500/30"
+        style={{
+          clipPath: `inset(0 ${(1 - progress) * 100}% 0 0 round 16px)`,
+        }}
+      />
+      {/* Label */}
+      <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
+        <CheckCircle2
+          className={`w-4 h-4 transition-colors duration-150 ${
+            progress > 0.5 ? "text-white" : "text-orange-400"
+          }`}
+        />
+        <span
+          className={`text-sm font-semibold transition-colors duration-150 ${
+            progress > 0.5 ? "text-white" : "text-orange-300"
+          }`}
+        >
+          {label}
+        </span>
+      </div>
+    </button>
+  );
 }
 
 export default function DateCard({
@@ -216,29 +308,17 @@ export default function DateCard({
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span className="text-emerald-400 font-medium">Date completed!</span>
                   </div>
+                ) : isCompletePending ? (
+                  <div className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/30">
+                    <motion.div
+                      className="w-3.5 h-3.5 rounded-full border-2 border-orange-400/40 border-t-orange-400"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                    />
+                    <span className="text-sm font-semibold text-orange-300">Saving...</span>
+                  </div>
                 ) : (
-                  <Button
-                    size="lg"
-                    className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 border-0 shadow-md shadow-orange-500/30"
-                    disabled={isCompletePending}
-                    onClick={handleComplete}
-                  >
-                    {isCompletePending ? (
-                      <span className="flex items-center gap-2">
-                        <motion.div
-                          className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
-                        />
-                        Saving...
-                      </span>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        We did it! Complete Date
-                      </>
-                    )}
-                  </Button>
+                  <HoldToCompleteButton onComplete={handleComplete} />
                 )}
 
                 {/* Next date available footer */}
