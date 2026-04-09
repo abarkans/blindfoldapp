@@ -68,10 +68,10 @@ export default function StepInterests({ defaultValues = [], onNext, onBack }: St
                 "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200",
                 isSelected
                   ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
-                  : "bg-white/5 border-white/10 text-white/50 hover:border-white/30 hover:text-white/80",
+                  : "bg-white/5 border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200",
               ].join(" ")}
             >
-              <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : ""}`} />
+              <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : "text-slate-400"}`} />
               <span className="text-xs font-medium leading-tight">{label}</span>
             </motion.button>
           );
