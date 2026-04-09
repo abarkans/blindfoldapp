@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
+import { searchNearbyVenues } from "@/lib/places/search";
 
 export async function revealDate() {
   const supabase = await createClient();
@@ -14,7 +15,7 @@ export async function revealDate() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("partner_names, interests, constraints, cadence, revealed_at")
+    .select("partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius")
     .eq("id", user.id)
     .single();
 
@@ -26,7 +27,6 @@ export async function revealDate() {
       weekly: 7,
       biweekly: 14,
       monthly: 30,
-      spontaneous: 3,
     };
     const days = cadenceDays[profile.cadence] ?? 7;
     const nextAvailable = new Date(profile.revealed_at);
@@ -36,34 +36,57 @@ export async function revealDate() {
     }
   }
 
-  // Fetch last 50 idea titles to avoid repeats
-  const { data: pastIdeas } = await supabase
-    .from("date_ideas")
-    .select("idea")
-    .eq("user_id", user.id)
-    .order("generated_at", { ascending: false })
-    .limit(50);
-
-  const previousTitles = (pastIdeas ?? [])
-    .map((row) => (row.idea as { title?: string })?.title)
-    .filter(Boolean) as string[];
-
   const constraints = profile.constraints as {
     budget_max: number;
     has_car: boolean;
     prefers_walking: boolean;
   };
 
-  const idea = await generateAIDateIdea({
-    partnerNames: profile.partner_names as { partner1: string; partner2: string },
-    interests: profile.interests,
-    budgetMax: constraints.budget_max,
-    hasCar: constraints.has_car,
-    prefersWalking: constraints.prefers_walking,
-    previousTitles,
-  });
-
   const now = new Date().toISOString();
+  let idea: object;
+
+  if (profile.last_lat && profile.last_long) {
+    // Venue-based: fetch previously visited place IDs to avoid repeats
+    const { data: pastIdeas } = await supabase
+      .from("date_ideas")
+      .select("idea")
+      .eq("user_id", user.id)
+      .order("generated_at", { ascending: false })
+      .limit(50);
+
+    const previousPlaceIds = (pastIdeas ?? [])
+      .map((row) => (row.idea as { place_id?: string })?.place_id)
+      .filter(Boolean) as string[];
+
+    idea = await searchNearbyVenues({
+      interests: profile.interests,
+      lat: profile.last_lat,
+      lng: profile.last_long,
+      radiusMeters: profile.preferred_radius ?? 10000,
+      previousPlaceIds,
+    });
+  } else {
+    // AI fallback: no location set
+    const { data: pastIdeas } = await supabase
+      .from("date_ideas")
+      .select("idea")
+      .eq("user_id", user.id)
+      .order("generated_at", { ascending: false })
+      .limit(50);
+
+    const previousTitles = (pastIdeas ?? [])
+      .map((row) => (row.idea as { title?: string })?.title)
+      .filter(Boolean) as string[];
+
+    idea = await generateAIDateIdea({
+      partnerNames: profile.partner_names as { partner1: string; partner2: string },
+      interests: profile.interests,
+      budgetMax: constraints.budget_max,
+      hasCar: constraints.has_car,
+      prefersWalking: constraints.prefers_walking,
+      previousTitles,
+    });
+  }
 
   // Insert into date_ideas history
   await supabase.from("date_ideas").insert({

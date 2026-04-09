@@ -8,8 +8,10 @@ import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
 import StepInterests from "./steps/StepInterests";
 import StepLogistics from "./steps/StepLogistics";
+import StepLocation from "./steps/StepLocation";
 import StepFrequency from "./steps/StepFrequency";
 import type { IdentityFormData, LogisticsFormData, FrequencyFormData } from "@/lib/schemas/onboarding";
+import type { LocationFormData } from "./steps/StepLocation";
 
 type OnboardingData = {
   partner1?: string;
@@ -18,10 +20,13 @@ type OnboardingData = {
   budget_max?: number;
   has_car?: boolean;
   prefers_walking?: boolean;
+  lat?: number;
+  lng?: number;
+  preferred_radius?: number;
   cadence?: string;
 };
 
-const STEP_LABELS = ["Identity", "Interests", "Logistics", "Frequency"];
+const STEP_LABELS = ["Identity", "Interests", "Logistics", "Location", "Frequency"];
 
 const slideVariants = {
   enter: (dir: number) => ({
@@ -76,6 +81,9 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
         prefers_walking: data.prefers_walking ?? false,
       },
       cadence: freq.cadence,
+      last_lat: data.lat ?? null,
+      last_long: data.lng ?? null,
+      preferred_radius: data.preferred_radius ?? 10000,
       onboarding_complete: true,
     });
 
@@ -90,7 +98,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
 
   return (
     <div className="flex flex-col gap-6 w-full">
-      <ProgressBar current={step} total={4} labels={STEP_LABELS} />
+      <ProgressBar current={step} total={5} labels={STEP_LABELS} />
 
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
@@ -141,6 +149,23 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
               />
             )}
             {step === 4 && (
+              <StepLocation
+                defaultValues={{
+                  lat: data.lat,
+                  lng: data.lng,
+                  preferred_radius: data.preferred_radius,
+                }}
+                onNext={(d: LocationFormData) =>
+                  goNext({
+                    lat: d.lat,
+                    lng: d.lng,
+                    preferred_radius: d.preferred_radius,
+                  })
+                }
+                onBack={goBack}
+              />
+            )}
+            {step === 5 && (
               <StepFrequency
                 defaultValues={{ cadence: data.cadence as FrequencyFormData["cadence"] }}
                 onNext={handleFinish}

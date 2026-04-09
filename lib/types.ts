@@ -120,6 +120,9 @@ export interface Database {
           } | null;
           total_xp: number;
           dates_completed_count: number;
+          preferred_radius: number;
+          last_lat: number | null;
+          last_long: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -138,6 +141,9 @@ export interface Database {
           date_idea?: Json | null;
           total_xp?: number;
           dates_completed_count?: number;
+          preferred_radius?: number;
+          last_lat?: number | null;
+          last_long?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -156,6 +162,9 @@ export interface Database {
           date_idea?: Json | null;
           total_xp?: number;
           dates_completed_count?: number;
+          preferred_radius?: number;
+          last_lat?: number | null;
+          last_long?: number | null;
           created_at?: string;
           updated_at?: string;
         };

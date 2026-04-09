@@ -28,6 +28,12 @@ export const frequencySchema = z.object({
   cadence: z.enum(["weekly", "biweekly", "monthly"]),
 });
 
+export const locationSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+  preferred_radius: z.number().min(1000).max(30000),
+});
+
 export const fullOnboardingSchema = z.object({
   partner1: identitySchema.shape.partner1,
   partner2: identitySchema.shape.partner2,
@@ -36,10 +42,14 @@ export const fullOnboardingSchema = z.object({
   has_car: logisticsSchema.shape.has_car,
   prefers_walking: logisticsSchema.shape.prefers_walking,
   cadence: frequencySchema.shape.cadence,
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  preferred_radius: z.number().optional(),
 });
 
 export type IdentityFormData = z.infer<typeof identitySchema>;
 export type InterestsFormData = z.infer<typeof interestsSchema>;
 export type LogisticsFormData = z.infer<typeof logisticsSchema>;
 export type FrequencyFormData = z.infer<typeof frequencySchema>;
+export type LocationFormData = z.infer<typeof locationSchema>;
 export type FullOnboardingData = z.infer<typeof fullOnboardingSchema>;

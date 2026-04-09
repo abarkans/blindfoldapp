@@ -2,25 +2,27 @@
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock } from "lucide-react";
+import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { revealDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
+import { getPriceLevelLabel } from "@/lib/places/search";
 
 const LOADING_MESSAGES = [
-  "Consulting the stars for your perfect night...",
-  "Sprinkling a little magic on your evening...",
-  "Whispering to the city about your vibes...",
+  "Scanning the city for your perfect spot...",
+  "Checking out hidden gems near you...",
+  "Finding venues with a little magic...",
   "Crafting something deliciously unexpected...",
   "Personalising your next adventure...",
-  "The universe is planning something special...",
+  "The city has something special planned...",
   "Reading your love language...",
   "Mixing mystery with a dash of romance...",
 ];
 
-interface DateIdea {
+// AI-generated idea shape
+interface AIDateIdea {
   title: string;
   description: string;
   emoji: string;
@@ -28,6 +30,23 @@ interface DateIdea {
   duration: string;
   budget_range: string;
   tags: string[];
+}
+
+// Google Places venue shape
+interface VenueDateIdea {
+  type: "venue";
+  place_id: string;
+  display_name: string;
+  formatted_address: string;
+  photo_name: string | null;
+  rating: number;
+  price_level: string;
+}
+
+type DateIdea = AIDateIdea | VenueDateIdea;
+
+function isVenue(idea: DateIdea): idea is VenueDateIdea {
+  return (idea as VenueDateIdea).type === "venue";
 }
 
 interface DateCardProps {
@@ -285,18 +304,83 @@ export default function DateCard({
                 {completed ? (
                   /* ── COMPLETED: collapsed view ── */
                   <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-4 py-4">
-                    <span className="text-3xl shrink-0">{dateIdea.emoji}</span>
+                    {isVenue(dateIdea) ? (
+                      <MapPin className="w-7 h-7 text-pink-400 shrink-0" />
+                    ) : (
+                      <span className="text-3xl shrink-0">{dateIdea.emoji}</span>
+                    )}
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{dateIdea.title}</p>
-                      <p className="text-xs text-white/40 mt-0.5">{dateIdea.vibe}</p>
+                      <p className="text-sm font-bold text-white truncate">
+                        {isVenue(dateIdea) ? dateIdea.display_name : dateIdea.title}
+                      </p>
+                      <p className="text-xs text-white/40 mt-0.5">
+                        {isVenue(dateIdea) ? dateIdea.formatted_address : dateIdea.vibe}
+                      </p>
                     </div>
                     <div className="ml-auto flex items-center gap-1.5 shrink-0">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span className="text-xs font-semibold text-emerald-400">Done</span>
                     </div>
                   </div>
+                ) : isVenue(dateIdea) ? (
+                  /* ── ACTIVE VENUE: venue card ── */
+                  <>
+                    {/* Photo or placeholder */}
+                    <div className="relative rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/8">
+                      {dateIdea.photo_name ? (
+                        <img
+                          src={`/api/place-photo?ref=${encodeURIComponent(dateIdea.photo_name)}`}
+                          alt={dateIdea.display_name}
+                          className="w-full h-48 object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-48 flex items-center justify-center">
+                          <MapPin className="w-10 h-10 text-white/20" />
+                        </div>
+                      )}
+                      {/* Rating badge */}
+                      <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
+                        <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                        <span className="text-xs font-bold text-white">{dateIdea.rating.toFixed(1)}</span>
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white mb-1">{dateIdea.display_name}</h3>
+                    <p className="text-sm text-white/50 mb-1">{dateIdea.formatted_address}</p>
+                    {getPriceLevelLabel(dateIdea.price_level) && (
+                      <p className="text-xs text-pink-300 font-medium mb-4">{getPriceLevelLabel(dateIdea.price_level)}</p>
+                    )}
+
+                    {/* Navigate button */}
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full h-11 rounded-2xl bg-blue-500/15 border border-blue-500/30 text-blue-300 text-sm font-semibold mb-4 hover:bg-blue-500/25 transition-colors"
+                    >
+                      <Navigation className="w-4 h-4" />
+                      Navigate to Date
+                    </a>
+
+                    {/* Complete Date button */}
+                    {error && (
+                      <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
+                    )}
+                    {isCompletePending ? (
+                      <div className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/30">
+                        <motion.div
+                          className="w-3.5 h-3.5 rounded-full border-2 border-orange-400/40 border-t-orange-400"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                        />
+                        <span className="text-sm font-semibold text-orange-300">Saving...</span>
+                      </div>
+                    ) : (
+                      <HoldToCompleteButton onComplete={handleComplete} />
+                    )}
+                  </>
                 ) : (
-                  /* ── ACTIVE: full view ── */
+                  /* ── ACTIVE AI: full view ── */
                   <>
                     {/* Emoji + title */}
                     <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/10 rounded-2xl p-5 mb-4 text-center border border-pink-500/20">
