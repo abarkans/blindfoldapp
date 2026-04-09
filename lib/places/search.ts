@@ -78,7 +78,7 @@ export async function searchNearbyVenues({
     locationRestriction: {
       circle: {
         center: { latitude: lat, longitude: lng },
-        radius: radiusMeters,
+        radius: Math.min(radiusMeters, 50000), // Google Places API max is 50km
       },
     },
   };
