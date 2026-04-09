@@ -278,7 +278,7 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
           value={radiusKm}
           onChange={setRadiusKm}
           min={1}
-          max={100}
+          max={50}
           step={1}
           formatValue={(v) => `${v} km`}
         />

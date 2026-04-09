@@ -31,7 +31,7 @@ export const frequencySchema = z.object({
 export const locationSchema = z.object({
   lat: z.number(),
   lng: z.number(),
-  preferred_radius: z.number().min(1000).max(100000),
+  preferred_radius: z.number().min(1000).max(50000),
 });
 
 export const fullOnboardingSchema = z.object({
