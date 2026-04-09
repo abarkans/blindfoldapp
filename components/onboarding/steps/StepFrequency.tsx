@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Calendar, CalendarDays, CalendarRange, Sparkles, ArrowLeft } from "lucide-react";
+import { Calendar, CalendarDays, CalendarRange, ArrowLeft } from "lucide-react";
 import { frequencySchema, type FrequencyFormData } from "@/lib/schemas/onboarding";
 import Button from "@/components/ui/Button";
 
@@ -25,12 +25,6 @@ const OPTIONS = [
     label: "Monthly",
     sublabel: "One special date a month",
     icon: CalendarRange,
-  },
-  {
-    value: "spontaneous",
-    label: "Spontaneous",
-    sublabel: "Surprise me anytime!",
-    icon: Sparkles,
   },
 ] as const;
 
@@ -72,15 +66,15 @@ export default function StepFrequency({ defaultValues, onNext, onBack, loading }
               "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-200",
               selected === value
                 ? "bg-gradient-to-r from-pink-500/20 to-rose-500/10 border-pink-500 text-white"
-                : "bg-white/5 border-white/10 text-white/50 hover:border-white/30 hover:text-white/80",
+                : "bg-white/5 border-white/10 text-slate-300 hover:border-white/30",
             ].join(" ")}
           >
             <div className={`p-2 rounded-xl ${selected === value ? "bg-pink-500/30" : "bg-white/10"}`}>
-              <Icon className={`w-5 h-5 ${selected === value ? "text-pink-300" : ""}`} />
+              <Icon className={`w-5 h-5 ${selected === value ? "text-pink-300" : "text-slate-400"}`} />
             </div>
             <div>
               <p className="font-semibold text-sm">{label}</p>
-              <p className="text-xs opacity-60">{sublabel}</p>
+              <p className="text-xs text-slate-500">{sublabel}</p>
             </div>
             {selected === value && (
               <div className="ml-auto w-2 h-2 rounded-full bg-pink-400" />

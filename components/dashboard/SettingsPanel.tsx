@@ -29,7 +29,6 @@ const CADENCE_OPTIONS = [
   { value: "weekly", label: "Weekly" },
   { value: "biweekly", label: "Bi-weekly" },
   { value: "monthly", label: "Monthly" },
-  { value: "spontaneous", label: "Spontaneous" },
 ];
 
 interface SettingsPanelProps {

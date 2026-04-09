@@ -25,7 +25,7 @@ export const logisticsSchema = z.object({
 });
 
 export const frequencySchema = z.object({
-  cadence: z.enum(["weekly", "biweekly", "monthly", "spontaneous"]),
+  cadence: z.enum(["weekly", "biweekly", "monthly"]),
 });
 
 export const fullOnboardingSchema = z.object({

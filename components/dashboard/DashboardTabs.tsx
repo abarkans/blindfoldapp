@@ -161,7 +161,6 @@ function DateTabContent({
     weekly: "Weekly",
     biweekly: "Bi-weekly",
     monthly: "Monthly",
-    spontaneous: "Spontaneous",
   };
 
   return (
