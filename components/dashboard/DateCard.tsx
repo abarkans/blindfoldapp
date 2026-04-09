@@ -193,6 +193,7 @@ export default function DateCard({
       try {
         await revealDate();
         setRevealed(true);
+        setCompleted(false);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       }
