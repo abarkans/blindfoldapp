@@ -160,10 +160,12 @@ function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
 function useCountdown(target: Date | null) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
+  const targetMs = target?.getTime() ?? null;
+
   useEffect(() => {
-    if (!target) return;
+    if (!targetMs) return;
     function update() {
-      const diff = target.getTime() - Date.now();
+      const diff = targetMs! - Date.now();
       if (diff <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
@@ -177,7 +179,7 @@ function useCountdown(target: Date | null) {
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, [target]);
+  }, [targetMs]);
 
   return timeLeft;
 }
