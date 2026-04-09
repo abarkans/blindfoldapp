@@ -50,17 +50,17 @@ export default async function HomePage() {
           revealed only when you're ready.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
           <Link
             href="/register"
-            className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50"
           >
             Get started free
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/login"
-            className="text-sm text-white font-semibold border border-pink-500 hover:border-pink-400 hover:bg-pink-500/10 px-6 h-12 inline-flex items-center rounded-2xl transition-all"
+            className="w-full sm:w-auto text-sm text-white font-semibold border border-pink-500 hover:border-pink-400 hover:bg-pink-500/10 px-6 h-12 flex items-center justify-center rounded-2xl transition-all"
           >
             Already have an account
           </Link>
