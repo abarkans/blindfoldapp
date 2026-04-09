@@ -64,7 +64,7 @@ function formatRelative(date: Date): string {
   return `in ${diffDays} days`;
 }
 
-const HOLD_DURATION = 3000;
+const HOLD_DURATION = 2000;
 
 function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
