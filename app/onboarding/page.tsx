@@ -17,6 +17,14 @@ export default async function OnboardingPage() {
 
   if (profile?.onboarding_complete) redirect("/dashboard");
 
+  // Pre-fill partner1 from Google OAuth metadata if available
+  const meta = user.user_metadata as Record<string, string> | undefined;
+  const firstName =
+    meta?.given_name ||
+    meta?.full_name?.split(" ")[0] ||
+    meta?.name?.split(" ")[0] ||
+    "";
+
   return (
     <div className="min-h-screen bg-[#0d0d14] flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
@@ -31,7 +39,7 @@ export default async function OnboardingPage() {
           </div>
         </div>
 
-        <OnboardingFlow />
+        <OnboardingFlow initialPartner1={firstName} />
       </div>
     </div>
   );

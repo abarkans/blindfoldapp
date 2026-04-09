@@ -35,11 +35,11 @@ const slideVariants = {
   }),
 };
 
-export default function OnboardingFlow() {
+export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartner1?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
-  const [data, setData] = useState<OnboardingData>({});
+  const [data, setData] = useState<OnboardingData>({ partner1: initialPartner1 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
