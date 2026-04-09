@@ -263,6 +263,44 @@ export default function DateCard({
 
   return (
     <>
+      {/* Countdown card — shown first when date is completed */}
+      {completed && countdown && nextRevealDate && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="bg-white/5 border border-white/10 rounded-3xl p-5 mb-4"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <CalendarClock className="w-4 h-4 text-pink-400" />
+            <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Next mystery date</p>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { value: countdown.days, label: "Days" },
+              { value: countdown.hours, label: "Hours" },
+              { value: countdown.minutes, label: "Mins" },
+              { value: countdown.seconds, label: "Secs" },
+            ].map(({ value, label }) => (
+              <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3 text-center">
+                <p className="text-2xl font-black text-white tabular-nums">
+                  {String(value).padStart(2, "0")}
+                </p>
+                <p className="text-[10px] text-white/35 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-white/25 text-center mt-3">
+            Available on{" "}
+            {nextRevealDate.toLocaleDateString("en-GB", {
+              weekday: "long",
+              day: "numeric",
+              month: "short",
+            })}
+          </p>
+        </motion.div>
+      )}
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -303,58 +341,24 @@ export default function DateCard({
                 transition={{ duration: 0.5, ease: "easeOut" }}
               >
                 {completed ? (
-                  /* ── COMPLETED: countdown first, last date below ── */
-                  <div className="flex flex-col gap-4">
-                    {/* Countdown */}
-                    {countdown && nextRevealDate && (
-                      <>
-                        <div className="flex items-center gap-2">
-                          <CalendarClock className="w-4 h-4 text-pink-400" />
-                          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Next mystery date</p>
-                        </div>
-                        <div className="grid grid-cols-4 gap-2">
-                          {[
-                            { value: countdown.days, label: "Days" },
-                            { value: countdown.hours, label: "Hours" },
-                            { value: countdown.minutes, label: "Mins" },
-                            { value: countdown.seconds, label: "Secs" },
-                          ].map(({ value, label }) => (
-                            <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3 text-center">
-                              <p className="text-2xl font-black text-white tabular-nums">
-                                {String(value).padStart(2, "0")}
-                              </p>
-                              <p className="text-[10px] text-white/35 mt-0.5">{label}</p>
-                            </div>
-                          ))}
-                        </div>
-                        <p className="text-xs text-white/25 text-center -mt-2">
-                          Available on{" "}
-                          {nextRevealDate.toLocaleDateString("en-GB", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "short",
-                          })}
-                        </p>
-                      </>
+                  /* ── COMPLETED: collapsed date card ── */
+                  <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-4 py-4">
+                    {isVenue(dateIdea) ? (
+                      <MapPin className="w-7 h-7 text-pink-400 shrink-0" />
+                    ) : (
+                      <span className="text-3xl shrink-0">{dateIdea.emoji}</span>
                     )}
-
-                    {/* Last completed date */}
-                    <div className="flex items-center gap-3 border-t border-white/8 pt-4">
-                      {isVenue(dateIdea) ? (
-                        <MapPin className="w-5 h-5 text-white/20 shrink-0" />
-                      ) : (
-                        <span className="text-xl shrink-0">{dateIdea.emoji}</span>
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-xs text-white/30">Last date</p>
-                        <p className="text-sm font-semibold text-white/60 truncate">
-                          {isVenue(dateIdea) ? dateIdea.display_name : dateIdea.title}
-                        </p>
-                      </div>
-                      <div className="ml-auto flex items-center gap-1.5 shrink-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-xs text-emerald-400">Done</span>
-                      </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate">
+                        {isVenue(dateIdea) ? dateIdea.display_name : dateIdea.title}
+                      </p>
+                      <p className="text-xs text-white/40 mt-0.5">
+                        {isVenue(dateIdea) ? dateIdea.formatted_address : dateIdea.vibe}
+                      </p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-1.5 shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs font-semibold text-emerald-400">Done</span>
                     </div>
                   </div>
                 ) : isVenue(dateIdea) ? (
