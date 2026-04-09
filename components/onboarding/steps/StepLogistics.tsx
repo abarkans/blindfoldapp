@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Car, Footprints } from "lucide-react";
+import { Car, Footprints, ArrowLeft } from "lucide-react";
 import { logisticsSchema, type LogisticsFormData } from "@/lib/schemas/onboarding";
 import Slider from "@/components/ui/Slider";
 import Button from "@/components/ui/Button";
@@ -100,8 +100,8 @@ export default function StepLogistics({ defaultValues, onNext, onBack }: StepLog
       </div>
 
       <div className="flex gap-3 mt-2">
-        <Button type="button" variant="secondary" size="lg" className="flex-1" onClick={onBack}>
-          Back
+        <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
+          <ArrowLeft className="w-5 h-5" />
         </Button>
         <Button type="submit" size="lg" className="flex-1">
           Continue

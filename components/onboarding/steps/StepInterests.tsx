@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Utensils, Music, TreePine, Palette, Dumbbell, Film,
-  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart,
+  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ArrowLeft,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 
@@ -81,8 +81,8 @@ export default function StepInterests({ defaultValues = [], onNext, onBack }: St
       {error && <p className="text-xs text-red-400">{error}</p>}
 
       <div className="flex gap-3 mt-2">
-        <Button type="button" variant="secondary" size="lg" className="flex-1" onClick={onBack}>
-          Back
+        <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
+          <ArrowLeft className="w-5 h-5" />
         </Button>
         <Button type="button" size="lg" className="flex-1" onClick={handleSubmit}>
           Continue ({selected.length})

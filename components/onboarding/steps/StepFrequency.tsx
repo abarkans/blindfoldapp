@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Calendar, CalendarDays, CalendarRange, Sparkles } from "lucide-react";
+import { Calendar, CalendarDays, CalendarRange, Sparkles, ArrowLeft } from "lucide-react";
 import { frequencySchema, type FrequencyFormData } from "@/lib/schemas/onboarding";
 import Button from "@/components/ui/Button";
 
@@ -94,8 +94,8 @@ export default function StepFrequency({ defaultValues, onNext, onBack, loading }
       )}
 
       <div className="flex gap-3 mt-2">
-        <Button type="button" variant="secondary" size="lg" className="flex-1" onClick={onBack}>
-          Back
+        <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
+          <ArrowLeft className="w-5 h-5" />
         </Button>
         <Button type="submit" size="lg" className="flex-1" loading={loading}>
           Finish Setup
