@@ -36,6 +36,7 @@ interface DateCardProps {
   revealedAt: string | null;
   dateIdea: DateIdea | null;
   isDateCompleted: boolean;
+  onGoToProgress: () => void;
 }
 
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
@@ -162,6 +163,7 @@ export default function DateCard({
   revealedAt,
   dateIdea,
   isDateCompleted,
+  onGoToProgress,
 }: DateCardProps) {
   const [isPending, startTransition] = useTransition();
   const [isCompletePending, startCompleteTransition] = useTransition();
@@ -452,6 +454,7 @@ export default function DateCard({
           newLevel={modalData.newLevel}
           newBadges={modalData.newBadges}
           onClose={() => setModalData(null)}
+          onGoToProgress={() => { setModalData(null); onGoToProgress(); }}
         />
       )}
     </>

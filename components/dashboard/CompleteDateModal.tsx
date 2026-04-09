@@ -18,6 +18,7 @@ interface CompleteDateModalProps {
   newLevel: number;
   newBadges: NewBadge[];
   onClose: () => void;
+  onGoToProgress: () => void;
 }
 
 export default function CompleteDateModal({
@@ -27,6 +28,7 @@ export default function CompleteDateModal({
   newLevel,
   newBadges,
   onClose,
+  onGoToProgress,
 }: CompleteDateModalProps) {
   // Trigger confetti when the modal opens
   useEffect(() => {
@@ -153,6 +155,12 @@ export default function CompleteDateModal({
               <Button size="lg" className="w-full" onClick={onClose}>
                 Awesome!
               </Button>
+              <button
+                onClick={onGoToProgress}
+                className="mt-3 w-full text-sm text-white/40 hover:text-white/70 transition-colors duration-150"
+              >
+                View my progress →
+              </button>
             </div>
           </motion.div>
         </>

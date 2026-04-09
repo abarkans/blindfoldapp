@@ -90,7 +90,11 @@ export default function DashboardTabs({
               transition={{ duration: 0.15, ease: "easeOut" }}
             >
               {activeTab === "date" && (
-                <DateTabContent profile={profile} isDateCompleted={isDateCompleted} />
+                <DateTabContent
+                  profile={profile}
+                  isDateCompleted={isDateCompleted}
+                  onGoToProgress={() => setActiveTab("progress")}
+                />
               )}
               {activeTab === "progress" && (
                 <ProgressTabContent profile={profile} earnedBadges={earnedBadges} />
@@ -147,9 +151,11 @@ export default function DashboardTabs({
 function DateTabContent({
   profile,
   isDateCompleted,
+  onGoToProgress,
 }: {
   profile: Profile;
   isDateCompleted: boolean;
+  onGoToProgress: () => void;
 }) {
   const cadenceLabel: Record<string, string> = {
     weekly: "Weekly",
@@ -171,6 +177,7 @@ function DateTabContent({
         revealedAt={profile.revealed_at ?? null}
         dateIdea={profile.date_idea as Parameters<typeof DateCard>[0]["dateIdea"]}
         isDateCompleted={isDateCompleted}
+        onGoToProgress={onGoToProgress}
       />
 
       <div className="grid grid-cols-3 gap-3 mt-5">
