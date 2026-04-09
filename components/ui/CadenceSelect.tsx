@@ -69,12 +69,12 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
             className={[
               "flex flex-col items-start gap-0.5 p-4 rounded-2xl border text-left transition-all duration-200",
               value === v
-                ? "bg-pink-500/20 border-pink-500 text-white"
-                : "bg-white/5 border-white/10 text-slate-300 hover:border-white/30",
+                ? "bg-pink-500/20 border-pink-500"
+                : "bg-white/5 border-white/10 hover:border-white/30",
             ].join(" ")}
           >
-            <p className="font-semibold text-sm">{label}</p>
-            <p className={`text-xs ${value === v ? "text-pink-300/70" : "text-slate-500"}`}>{sublabel}</p>
+            <p className={`font-semibold text-sm ${value === v ? "text-white" : "text-white/80"}`}>{label}</p>
+            <p className={`text-xs ${value === v ? "text-pink-300/70" : "text-white/35"}`}>{sublabel}</p>
           </button>
         ))}
       </div>
