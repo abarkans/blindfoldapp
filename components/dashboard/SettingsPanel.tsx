@@ -100,6 +100,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
       setError("Failed to save. Please try again.");
     } else {
       setSaved(true);
+      router.refresh();
       setTimeout(() => setSaved(false), 3000);
     }
     setSaving(false);
