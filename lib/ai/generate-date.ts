@@ -31,6 +31,7 @@ export async function generateAIDateIdea({
   hasCar,
   prefersWalking,
   previousTitles = [],
+  venue,
 }: {
   partnerNames: { partner1: string; partner2: string };
   interests: string[];
@@ -38,6 +39,12 @@ export async function generateAIDateIdea({
   hasCar: boolean;
   prefersWalking: boolean;
   previousTitles?: string[];
+  venue?: {
+    name: string;
+    address: string;
+    rating: number;
+    price_level: string;
+  };
 }): Promise<GeneratedDateIdea> {
   const avoidClause =
     previousTitles.length > 0
@@ -50,17 +57,30 @@ export async function generateAIDateIdea({
     ? "They prefer walking — keep destinations within walking distance."
     : "They have no car — keep destinations reachable by public transport.";
 
-  const { output } = await generateText({
-    model: anthropic("claude-haiku-4-5-20251001"),
-    output: Output.object({ schema: DateIdeaSchema }),
-    prompt: `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
+  const prompt = venue
+    ? `You are a creative date planner. Write a mystery date description for a specific venue.
+
+Venue: ${venue.name}
+Address: ${venue.address}
+Rating: ${venue.rating}/5
+Couple: ${partnerNames.partner1} & ${partnerNames.partner2}
+Interests: ${interests.join(", ")}
+Max budget: €${budgetMax}
+
+Write a short catchy title (max 5 words), a playful 2-3 sentence description of what a date at this specific venue would feel like (second person, warm and romantic tone). Pick an emoji that fits the venue's vibe, a 2-4 word vibe label, estimated duration, rough budget range, and 2-4 tags. Make it feel exciting and personal — reference the type of place and what they could do there.`
+    : `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
 
 Couple: ${partnerNames.partner1} & ${partnerNames.partner2}
 Interests: ${interests.join(", ")}
 Max budget: €${budgetMax}
 ${transportNote}${avoidClause}
 
-The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.`,
+The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.`;
+
+  const { output } = await generateText({
+    model: anthropic("claude-haiku-4-5-20251001"),
+    output: Output.object({ schema: DateIdeaSchema }),
+    prompt,
   });
 
   return output;

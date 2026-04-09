@@ -1,3 +1,13 @@
+export interface VenueAIEnrichment {
+  title: string;
+  description: string;
+  emoji: string;
+  vibe: string;
+  duration: string;
+  budget_range: string;
+  tags: string[];
+}
+
 export interface VenueDateIdea {
   type: "venue";
   place_id: string;
@@ -6,6 +16,7 @@ export interface VenueDateIdea {
   photo_name: string | null;
   rating: number;
   price_level: string;
+  ai: VenueAIEnrichment | null;
 }
 
 const INTEREST_TO_PLACE_TYPES: Record<string, string[]> = {
@@ -121,12 +132,13 @@ export async function searchNearbyVenues({
   const place = pool[Math.floor(Math.random() * pool.length)];
 
   return {
-    type: "venue",
+    type: "venue" as const,
     place_id: place.id,
     display_name: place.displayName.text,
     formatted_address: place.formattedAddress,
     photo_name: place.photos?.[0]?.name ?? null,
     rating: place.rating ?? 0,
     price_level: place.priceLevel ?? "PRICE_LEVEL_UNSPECIFIED",
+    ai: null,
   };
 }

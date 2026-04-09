@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Search, ArrowLeft, Navigation, AlertCircle } from "lucide-react";
 import Slider from "@/components/ui/Slider";
@@ -19,25 +19,74 @@ interface StepLocationProps {
   loading?: boolean;
 }
 
+interface NominatimResult {
+  lat: string;
+  lon: string;
+  display_name: string;
+}
+
 type Status = "idle" | "requesting" | "granted" | "denied" | "fallback";
+
+async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      { headers: { "Accept-Language": "en" } }
+    );
+    const data = await res.json();
+    const a = data.address ?? {};
+    return a.city || a.town || a.village || a.county || data.display_name?.split(",")[0] || `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+  } catch {
+    return `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+  }
+}
 
 export default function StepLocation({ defaultValues, onNext, onBack, loading }: StepLocationProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [lat, setLat] = useState<number | null>(defaultValues?.lat ?? null);
   const [lng, setLng] = useState<number | null>(defaultValues?.lng ?? null);
+  const [locationLabel, setLocationLabel] = useState("");
   const [radiusKm, setRadiusKm] = useState(
     defaultValues?.preferred_radius ? defaultValues.preferred_radius / 1000 : 10
   );
   const [cityInput, setCityInput] = useState("");
-  const [cityLoading, setCityLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [cityError, setCityError] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced autocomplete
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const trimmed = cityInput.trim();
+    if (trimmed.length < 2) { setSuggestions([]); return; }
+
+    debounceRef.current = setTimeout(async () => {
+      setSuggestionsLoading(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=5&featuretype=city`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const results: NominatimResult[] = await res.json();
+        setSuggestions(results);
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setSuggestionsLoading(false);
+      }
+    }, 350);
+  }, [cityInput]);
 
   function handleAllowLocation() {
     setStatus("requesting");
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLat(pos.coords.latitude);
-        setLng(pos.coords.longitude);
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setLat(latitude);
+        setLng(longitude);
+        const label = await reverseGeocode(latitude, longitude);
+        setLocationLabel(label);
         setStatus("granted");
       },
       () => {
@@ -47,29 +96,18 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
     );
   }
 
-  async function handleCitySearch() {
-    const trimmed = cityInput.trim();
-    if (!trimmed) return;
-    setCityLoading(true);
+  function selectSuggestion(result: NominatimResult) {
+    const parsedLat = parseFloat(result.lat);
+    const parsedLng = parseFloat(result.lon);
+    setLat(parsedLat);
+    setLng(parsedLng);
+    // Use the first meaningful part of display_name as label
+    const label = result.display_name.split(",").slice(0, 2).join(",").trim();
+    setLocationLabel(label);
+    setCityInput("");
+    setSuggestions([]);
     setCityError("");
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=1`,
-        { headers: { "Accept-Language": "en" } }
-      );
-      const results = await res.json();
-      if (!results.length) {
-        setCityError("Location not found. Try a different city or zip code.");
-        return;
-      }
-      setLat(parseFloat(results[0].lat));
-      setLng(parseFloat(results[0].lon));
-      setStatus("granted");
-    } catch {
-      setCityError("Could not look up that location. Check your connection.");
-    } finally {
-      setCityLoading(false);
-    }
+    setStatus("granted");
   }
 
   function handleSubmit() {
@@ -164,13 +202,11 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
             </div>
             <div>
               <p className="text-sm font-medium text-white/80">Location set!</p>
-              <p className="text-xs text-white/40 mt-0.5">
-                {lat.toFixed(4)}, {lng!.toFixed(4)}
-              </p>
+              <p className="text-xs text-white/40 mt-0.5">{locationLabel}</p>
             </div>
             <button
               type="button"
-              onClick={() => { setStatus("fallback"); setLat(null); setLng(null); }}
+              onClick={() => { setStatus("fallback"); setLat(null); setLng(null); setLocationLabel(""); }}
               className="ml-auto text-xs text-white/30 hover:text-white/60 transition-colors"
             >
               Change
@@ -186,31 +222,52 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col gap-2"
         >
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="City name or zip code…"
-                value={cityInput}
-                onChange={(e) => setCityInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCitySearch()}
-                className="w-full pl-9 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-pink-500/60 transition-colors"
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+            {suggestionsLoading && (
+              <motion.div
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
               />
-            </div>
-            <Button
-              type="button"
-              size="lg"
-              onClick={handleCitySearch}
-              loading={cityLoading}
-              className="px-4 shrink-0"
-            >
-              Go
-            </Button>
+            )}
+            <input
+              type="text"
+              placeholder="Search city or town…"
+              value={cityInput}
+              onChange={(e) => { setCityInput(e.target.value); setCityError(""); }}
+              className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-pink-500/60 transition-colors"
+            />
           </div>
-          {cityError && (
-            <p className="text-xs text-red-400">{cityError}</p>
-          )}
+
+          {/* Suggestions dropdown */}
+          <AnimatePresence>
+            {suggestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+                className="bg-[#1a1a2e] border border-white/10 rounded-2xl overflow-hidden"
+              >
+                {suggestions.map((s, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => selectSuggestion(s)}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-white/30 shrink-0" />
+                    <span className="text-sm text-white/70 truncate">
+                      {s.display_name.split(",").slice(0, 3).join(",")}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {cityError && <p className="text-xs text-red-400">{cityError}</p>}
         </motion.div>
       )}
 

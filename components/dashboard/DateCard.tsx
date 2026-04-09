@@ -8,7 +8,7 @@ import { revealDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
-import { getPriceLevelLabel } from "@/lib/places/search";
+import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
 
 const LOADING_MESSAGES = [
   "Scanning the city for your perfect spot...",
@@ -41,6 +41,7 @@ interface VenueDateIdea {
   photo_name: string | null;
   rating: number;
   price_level: string;
+  ai: VenueAIEnrichment | null;
 }
 
 type DateIdea = AIDateIdea | VenueDateIdea;
@@ -345,10 +346,53 @@ export default function DateCard({
                       </div>
                     </div>
 
-                    <h3 className="text-xl font-bold text-white mb-1">{dateIdea.display_name}</h3>
-                    <p className="text-sm text-white/50 mb-1">{dateIdea.formatted_address}</p>
-                    {getPriceLevelLabel(dateIdea.price_level) && (
-                      <p className="text-xs text-pink-300 font-medium mb-4">{getPriceLevelLabel(dateIdea.price_level)}</p>
+                    {/* AI enrichment header */}
+                    {dateIdea.ai ? (
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-2xl">{dateIdea.ai.emoji}</span>
+                          <h3 className="text-xl font-bold text-white">{dateIdea.ai.title}</h3>
+                        </div>
+                        <p className="text-xs text-pink-300 font-medium mb-1">{dateIdea.ai.vibe}</p>
+                        <p className="text-sm text-white/50">{dateIdea.display_name} · {dateIdea.formatted_address}</p>
+                      </div>
+                    ) : (
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-white mb-1">{dateIdea.display_name}</h3>
+                        <p className="text-sm text-white/50">{dateIdea.formatted_address}</p>
+                      </div>
+                    )}
+
+                    {/* AI description */}
+                    {dateIdea.ai?.description && (
+                      <p className="text-white/60 text-sm leading-relaxed mb-4">{dateIdea.ai.description}</p>
+                    )}
+
+                    {/* Details row */}
+                    {dateIdea.ai && (
+                      <div className="grid grid-cols-3 gap-2 mb-4">
+                        {[
+                          { icon: Timer, value: dateIdea.ai.duration },
+                          { icon: Wallet, value: dateIdea.ai.budget_range || getPriceLevelLabel(dateIdea.price_level) },
+                          { icon: Star, value: `${dateIdea.rating.toFixed(1)} ★` },
+                        ].map(({ icon: Icon, value }) => (
+                          <div key={value} className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8">
+                            <Icon className="w-3.5 h-3.5 text-pink-400" />
+                            <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Tags */}
+                    {dateIdea.ai?.tags && (
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {dateIdea.ai.tags.map((tag) => (
+                          <span key={tag} className="px-2.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-xs text-pink-300">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     )}
 
                     {/* Navigate button */}

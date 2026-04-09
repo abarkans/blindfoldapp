@@ -58,13 +58,30 @@ export async function revealDate() {
       .map((row) => (row.idea as { place_id?: string })?.place_id)
       .filter(Boolean) as string[];
 
-    idea = await searchNearbyVenues({
+    const venue = await searchNearbyVenues({
       interests: profile.interests,
       lat: profile.last_lat,
       lng: profile.last_long,
       radiusMeters: profile.preferred_radius ?? 10000,
       previousPlaceIds,
     });
+
+    // Enrich the venue with AI-generated description, vibe, tags etc.
+    const aiEnrichment = await generateAIDateIdea({
+      partnerNames: profile.partner_names as { partner1: string; partner2: string },
+      interests: profile.interests,
+      budgetMax: constraints.budget_max,
+      hasCar: constraints.has_car,
+      prefersWalking: constraints.prefers_walking,
+      venue: {
+        name: venue.display_name,
+        address: venue.formatted_address,
+        rating: venue.rating,
+        price_level: venue.price_level,
+      },
+    });
+
+    idea = { ...venue, ai: aiEnrichment };
   } else {
     // AI fallback: no location set
     const { data: pastIdeas } = await supabase
