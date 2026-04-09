@@ -24,7 +24,7 @@ export default async function HomePage() {
         </div>
         <Link
           href="/login"
-          className="text-sm text-white/60 hover:text-white border border-white/20 hover:border-white/40 px-4 py-2 rounded-xl transition-all"
+          className="text-sm text-white font-semibold border border-pink-500/50 hover:border-pink-400 hover:bg-pink-500/10 px-6 h-12 inline-flex items-center rounded-2xl transition-all"
         >
           Sign in
         </Link>
@@ -60,9 +60,9 @@ export default async function HomePage() {
           </Link>
           <Link
             href="/login"
-            className="text-sm text-white/60 hover:text-white border border-white/20 hover:border-white/40 px-6 py-3 rounded-2xl transition-all"
+            className="text-sm text-white font-semibold border border-pink-500/50 hover:border-pink-400 hover:bg-pink-500/10 px-6 h-14 inline-flex items-center rounded-2xl transition-all"
           >
-            Already have an account →
+            Already have an account
           </Link>
         </div>
       </section>
