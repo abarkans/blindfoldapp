@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Check } from "lucide-react";
 
@@ -17,23 +17,47 @@ interface CadenceSelectProps {
   onChange: (value: CadenceValue) => void;
 }
 
+const SWIPE_CLOSE_THRESHOLD = 80; // px dragged down to trigger close
+
 export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const dragStartY = useRef<number | null>(null);
   const selected = CADENCE_OPTIONS.find((o) => o.value === value);
 
-  // Lock body scroll when sheet is open
   useEffect(() => {
-    if (sheetOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = sheetOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [sheetOpen]);
 
+  function closeSheet() {
+    setDragY(0);
+    setSheetOpen(false);
+  }
+
   function select(v: CadenceValue) {
     onChange(v);
-    setSheetOpen(false);
+    closeSheet();
+  }
+
+  function onPointerDown(e: React.PointerEvent) {
+    dragStartY.current = e.clientY;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (dragStartY.current === null) return;
+    const delta = e.clientY - dragStartY.current;
+    setDragY(Math.max(0, delta)); // only allow downward drag
+  }
+
+  function onPointerUp() {
+    if (dragY >= SWIPE_CLOSE_THRESHOLD) {
+      closeSheet();
+    } else {
+      setDragY(0);
+    }
+    dragStartY.current = null;
   }
 
   return (
@@ -83,26 +107,32 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
       <AnimatePresence>
         {sheetOpen && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop — fades out as user drags */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: 1 - dragY / 300 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-              onClick={() => setSheetOpen(false)}
+              onClick={closeSheet}
             />
 
             {/* Sheet */}
             <motion.div
               key="sheet"
               initial={{ y: "100%" }}
-              animate={{ y: 0 }}
+              animate={{ y: dragY }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 400, damping: 40 }}
-              className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#13131f] border-t border-white/10 rounded-t-3xl px-4 pb-safe"
-              style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)" }}
+              transition={dragY > 0
+                ? { type: "tween", duration: 0 }          // instant follow while dragging
+                : { type: "spring", stiffness: 400, damping: 40 }
+              }
+              className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#13131f] border-t border-white/10 rounded-t-3xl px-4"
+              style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)", touchAction: "none" }}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
             >
               {/* Handle */}
               <div className="flex justify-center pt-3 pb-5">
@@ -118,6 +148,7 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
                   <button
                     key={v}
                     type="button"
+                    onPointerDown={(e) => e.stopPropagation()} // prevent drag hijack on option tap
                     onClick={() => select(v)}
                     className={[
                       "flex items-center gap-4 p-4 rounded-2xl border transition-all duration-150",
