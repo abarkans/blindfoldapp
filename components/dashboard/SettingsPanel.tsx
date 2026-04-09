@@ -12,6 +12,7 @@ import type { Profile } from "@/lib/types";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Slider from "@/components/ui/Slider";
+import CadenceSelect, { type CadenceValue } from "@/components/ui/CadenceSelect";
 
 const INTERESTS_LIST = [
   "food", "music", "nature", "art", "fitness", "cinema",
@@ -25,11 +26,6 @@ const INTEREST_LABELS: Record<string, string> = {
   gaming: "Gaming", romance: "Romance",
 };
 
-const CADENCE_OPTIONS = [
-  { value: "weekly", label: "Weekly" },
-  { value: "biweekly", label: "Bi-weekly" },
-  { value: "monthly", label: "Monthly" },
-];
 
 interface SettingsPanelProps {
   profile: Profile;
@@ -189,23 +185,10 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
 
       {/* Frequency */}
       <Section icon={<Calendar className="w-4 h-4" />} title="Frequency">
-        <div className="grid grid-cols-2 gap-2">
-          {CADENCE_OPTIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setValue("cadence", value as FullOnboardingData["cadence"])}
-              className={[
-                "py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
-                selectedCadence === value
-                  ? "bg-pink-500/20 border-pink-500 text-pink-300"
-                  : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
-              ].join(" ")}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <CadenceSelect
+          value={selectedCadence as CadenceValue}
+          onChange={(v) => setValue("cadence", v)}
+        />
       </Section>
 
       <motion.div
