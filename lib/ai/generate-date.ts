@@ -41,7 +41,7 @@ export async function generateAIDateIdea({
 }): Promise<GeneratedDateIdea> {
   const avoidClause =
     previousTitles.length > 0
-      ? `\nAvoid repeating these past date ideas: ${previousTitles.join(", ")}.`
+      ? `\nYou MUST NOT generate any of the following past date ideas — they are strictly forbidden: ${previousTitles.join(", ")}. The new idea must be meaningfully different in activity type, not just renamed.`
       : "";
 
   const transportNote = hasCar

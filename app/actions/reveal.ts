@@ -36,13 +36,13 @@ export async function revealDate() {
     }
   }
 
-  // Fetch last 10 idea titles to avoid repeats
+  // Fetch last 50 idea titles to avoid repeats
   const { data: pastIdeas } = await supabase
     .from("date_ideas")
     .select("idea")
     .eq("user_id", user.id)
     .order("generated_at", { ascending: false })
-    .limit(10);
+    .limit(50);
 
   const previousTitles = (pastIdeas ?? [])
     .map((row) => (row.idea as { title?: string })?.title)
