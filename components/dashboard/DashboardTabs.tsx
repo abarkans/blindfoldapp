@@ -34,7 +34,16 @@ export default function DashboardTabs({
   earnedBadges,
   isDateCompleted,
 }: DashboardTabsProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("date");
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    if (typeof window === "undefined") return "date";
+    const stored = localStorage.getItem("dashboard-tab");
+    return (stored === "date" || stored === "progress" || stored === "settings") ? stored : "date";
+  });
+
+  function switchTab(tab: Tab) {
+    setActiveTab(tab);
+    localStorage.setItem("dashboard-tab", tab);
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0d14] flex flex-col">
@@ -59,7 +68,7 @@ export default function DashboardTabs({
             {TABS.map(({ id, label }) => (
               <button
                 key={id}
-                onClick={() => setActiveTab(id)}
+                onClick={() => switchTab(id)}
                 className={`relative pb-0.5 text-sm font-medium transition-colors duration-150 ${
                   activeTab === id ? "text-white" : "text-white/35 hover:text-white/65"
                 }`}
@@ -93,7 +102,7 @@ export default function DashboardTabs({
                 <DateTabContent
                   profile={profile}
                   isDateCompleted={isDateCompleted}
-                  onGoToProgress={() => setActiveTab("progress")}
+                  onGoToProgress={() => switchTab("progress")}
                 />
               )}
               {activeTab === "progress" && (
@@ -116,7 +125,7 @@ export default function DashboardTabs({
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id)}
+              onClick={() => switchTab(id)}
               className="relative flex-1 flex flex-col items-center justify-center gap-1 group active:scale-95 transition-transform"
             >
               {activeTab === id && (
