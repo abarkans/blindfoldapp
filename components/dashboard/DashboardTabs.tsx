@@ -55,26 +55,23 @@ export default function DashboardTabs({
           </div>
 
           {/* Desktop tab navigation — hidden on mobile */}
-          <nav className="hidden md:flex items-center gap-1 bg-white/5 rounded-2xl p-1">
-            {TABS.map(({ id, label, icon: Icon }) => (
+          <nav className="hidden md:flex items-center gap-6">
+            {TABS.map(({ id, label }) => (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-150 ${
-                  activeTab === id
-                    ? "text-white"
-                    : "text-white/40 hover:text-white/70"
+                className={`relative pb-0.5 text-sm font-medium transition-colors duration-150 ${
+                  activeTab === id ? "text-white" : "text-white/35 hover:text-white/65"
                 }`}
               >
+                {label}
                 {activeTab === id && (
                   <motion.div
-                    layoutId="desktop-tab-bg"
-                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500/20 to-rose-500/10 border border-pink-500/20"
+                    layoutId="desktop-tab-underline"
+                    className="absolute -bottom-[13px] left-0 right-0 h-px bg-gradient-to-r from-pink-500 to-rose-500"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
-                <Icon className={`relative w-4 h-4 ${activeTab === id ? "text-pink-400" : ""}`} />
-                <span className="relative">{label}</span>
               </button>
             ))}
           </nav>
