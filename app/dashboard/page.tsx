@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DateCard from "@/components/dashboard/DateCard";
-import { Heart, Settings } from "lucide-react";
-import Link from "next/link";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -12,11 +10,17 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: currentDateIdea }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase
+      .from("date_ideas")
+      .select("id, status")
+      .eq("user_id", user.id)
+      .eq("status", "revealed")
+      .order("revealed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   if (!profile?.onboarding_complete) redirect("/onboarding");
 
@@ -27,66 +31,45 @@ export default async function DashboardPage() {
     spontaneous: "Spontaneous",
   };
 
+  const isDateCompleted = !currentDateIdea;
+
   return (
-    <div className="min-h-screen bg-[#0d0d14] p-4">
-      <div className="max-w-sm mx-auto">
-        {/* Nav */}
-        <div className="flex items-center justify-between mb-8 pt-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-md shadow-pink-500/40">
-              <Heart className="w-4 h-4 text-white fill-white" />
-            </div>
-            <div>
-              <p className="text-xs text-white/40">Hey there,</p>
-              <p className="text-sm font-bold text-white">
-                {profile.partner_names.partner1} &amp;{" "}
-                {profile.partner_names.partner2}
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/dashboard/settings"
-            className="w-10 h-10 rounded-2xl bg-white/8 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/15 transition-all"
+    <div>
+      {/* Tab heading */}
+      <div className="mb-5">
+        <h2 className="text-2xl font-bold text-white">Your next adventure</h2>
+        <p className="text-white/40 text-sm mt-1">
+          A mystery date is waiting for you two.
+        </p>
+      </div>
+
+      {/* Date card */}
+      <DateCard
+        partnerNames={profile.partner_names}
+        cadence={profile.cadence}
+        revealedAt={profile.revealed_at ?? null}
+        dateIdea={profile.date_idea as Parameters<typeof DateCard>[0]["dateIdea"]}
+        isDateCompleted={isDateCompleted}
+      />
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3 mt-5">
+        {[
+          { label: "Budget", value: `€${profile.constraints.budget_max}` },
+          {
+            label: "Frequency",
+            value: cadenceLabel[profile.cadence] ?? profile.cadence,
+          },
+          { label: "Interests", value: `${profile.interests.length} picks` },
+        ].map(({ label, value }) => (
+          <div
+            key={label}
+            className="bg-white/5 border border-white/8 rounded-2xl p-3 text-center"
           >
-            <Settings className="w-4 h-4" />
-          </Link>
-        </div>
-
-        {/* Greeting */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white">Your next adventure</h2>
-          <p className="text-white/40 text-sm mt-1">
-            A mystery date is waiting for you two.
-          </p>
-        </div>
-
-        {/* Date Card */}
-        <DateCard
-          partnerNames={profile.partner_names}
-          cadence={profile.cadence}
-          revealedAt={profile.revealed_at ?? null}
-          dateIdea={profile.date_idea as Parameters<typeof DateCard>[0]["dateIdea"]}
-        />
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mt-6">
-          {[
-            { label: "Budget", value: `€${profile.constraints.budget_max}` },
-            {
-              label: "Frequency",
-              value: cadenceLabel[profile.cadence] ?? profile.cadence,
-            },
-            { label: "Interests", value: `${profile.interests.length} picks` },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="bg-white/5 border border-white/8 rounded-2xl p-3 text-center"
-            >
-              <p className="text-white font-bold text-sm">{value}</p>
-              <p className="text-white/40 text-xs mt-0.5">{label}</p>
-            </div>
-          ))}
-        </div>
+            <p className="text-white font-bold text-sm">{value}</p>
+            <p className="text-white/40 text-xs mt-0.5">{label}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

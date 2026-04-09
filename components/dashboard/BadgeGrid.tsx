@@ -1,0 +1,110 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+// Static list mirrors the milestones seeded in migration 004
+const ALL_MILESTONES = [
+  {
+    name: "First Spark",
+    description: "Complete your first mystery date",
+    icon_emoji: "✨",
+    required_dates: 1,
+  },
+  {
+    name: "Triple Threat",
+    description: "Complete 3 mystery dates",
+    icon_emoji: "🔥",
+    required_dates: 3,
+  },
+  {
+    name: "High Five",
+    description: "Complete 5 mystery dates",
+    icon_emoji: "🖐️",
+    required_dates: 5,
+  },
+  {
+    name: "Perfect 10",
+    description: "Complete 10 mystery dates",
+    icon_emoji: "💎",
+    required_dates: 10,
+  },
+];
+
+interface EarnedBadge {
+  name: string;
+  earned_at: string;
+}
+
+interface BadgeGridProps {
+  earnedBadges: EarnedBadge[];
+}
+
+export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
+  const earnedNames = new Set(earnedBadges.map((b) => b.name));
+
+  return (
+    <div className="mt-6">
+      <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
+        Trophy Room
+      </h3>
+      <div className="grid grid-cols-2 gap-3">
+        {ALL_MILESTONES.map((milestone, i) => {
+          const earned = earnedNames.has(milestone.name);
+          return (
+            <motion.div
+              key={milestone.name}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.07, duration: 0.4 }}
+              className={`relative rounded-2xl p-4 border text-center transition-colors ${
+                earned
+                  ? "bg-gradient-to-br from-amber-500/15 to-orange-500/8 border-amber-500/25"
+                  : "bg-white/3 border-white/8"
+              }`}
+            >
+              {/* Earned checkmark */}
+              {earned && (
+                <motion.div
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-white shadow-md shadow-amber-400/40"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, delay: i * 0.07 + 0.25 }}
+                >
+                  ✓
+                </motion.div>
+              )}
+
+              {/* Emoji — grayscale + dim until earned */}
+              <motion.div
+                className={`text-3xl mb-2 transition-all duration-500 ${
+                  earned ? "" : "grayscale opacity-25"
+                }`}
+                animate={earned ? { scale: [1, 1.15, 1] } : {}}
+                transition={{ duration: 0.5, delay: i * 0.07 + 0.1 }}
+              >
+                {milestone.icon_emoji}
+              </motion.div>
+
+              <p
+                className={`text-xs font-semibold mb-0.5 ${
+                  earned ? "text-white" : "text-white/25"
+                }`}
+              >
+                {milestone.name}
+              </p>
+              <p
+                className={`text-[10px] leading-tight ${
+                  earned ? "text-white/45" : "text-white/18"
+                }`}
+              >
+                {earned
+                  ? milestone.description
+                  : `${milestone.required_dates} date${milestone.required_dates > 1 ? "s" : ""}`}
+              </p>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

@@ -38,6 +38,64 @@ export interface Database {
         };
         Relationships: [];
       };
+      milestones: {
+        Row: {
+          id: string;
+          name: string;
+          description: string;
+          icon_emoji: string;
+          required_dates: number;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description: string;
+          icon_emoji: string;
+          required_dates: number;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          icon_emoji?: string;
+          required_dates?: number;
+        };
+        Relationships: [];
+      };
+      user_badges: {
+        Row: {
+          id: string;
+          user_id: string;
+          milestone_id: string;
+          earned_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          milestone_id: string;
+          earned_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          milestone_id?: string;
+          earned_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_badges_milestone_id_fkey";
+            columns: ["milestone_id"];
+            referencedRelation: "milestones";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       profiles: {
         Row: {
           id: string;
@@ -60,6 +118,8 @@ export interface Database {
             budget_range: string;
             tags: string[];
           } | null;
+          total_xp: number;
+          dates_completed_count: number;
           created_at: string;
           updated_at: string;
         };
@@ -76,6 +136,8 @@ export interface Database {
           onboarding_complete?: boolean;
           revealed_at?: string | null;
           date_idea?: Json | null;
+          total_xp?: number;
+          dates_completed_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -92,6 +154,8 @@ export interface Database {
           onboarding_complete?: boolean;
           revealed_at?: string | null;
           date_idea?: Json | null;
+          total_xp?: number;
+          dates_completed_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -105,3 +169,12 @@ export interface Database {
 }
 
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type Milestone = Database["public"]["Tables"]["milestones"]["Row"];
+export type UserBadge = Database["public"]["Tables"]["user_badges"]["Row"];
+
+export interface CompleteDateResult {
+  xpGained: number;
+  newTotalXp: number;
+  newLevel: number;
+  newBadges: { name: string; description: string; icon_emoji: string }[];
+}
