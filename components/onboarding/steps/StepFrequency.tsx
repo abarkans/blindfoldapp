@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import { frequencySchema, type FrequencyFormData } from "@/lib/schemas/onboarding";
 import Button from "@/components/ui/Button";
-import CadenceSelect, { type CadenceValue } from "@/components/ui/CadenceSelect";
+import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 
 interface StepFrequencyProps {
   defaultValues?: Partial<FrequencyFormData>;
@@ -34,10 +34,29 @@ export default function StepFrequency({ defaultValues, onNext, onBack, loading }
         <p className="text-white/50 text-sm">How frequently should we reveal a new mystery date?</p>
       </div>
 
-      <CadenceSelect
-        value={selected as CadenceValue}
-        onChange={(v) => setValue("cadence", v, { shouldValidate: true })}
-      />
+      <div className="flex flex-col gap-2.5">
+        {CADENCE_OPTIONS.map(({ value, label, sublabel }) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setValue("cadence", value, { shouldValidate: true })}
+            className={[
+              "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-200",
+              selected === value
+                ? "bg-gradient-to-r from-pink-500/20 to-rose-500/10 border-pink-500 text-white"
+                : "bg-white/5 border-white/10 text-white/80 hover:border-white/30",
+            ].join(" ")}
+          >
+            <div className="flex-1">
+              <p className="font-semibold text-sm">{label}</p>
+              <p className={`text-xs mt-0.5 ${selected === value ? "text-pink-300/70" : "text-white/35"}`}>{sublabel}</p>
+            </div>
+            {selected === value && (
+              <div className="w-2 h-2 rounded-full bg-pink-400 shrink-0" />
+            )}
+          </button>
+        ))}
+      </div>
 
       {errors.cadence && (
         <p className="text-xs text-red-400">{errors.cadence.message}</p>
