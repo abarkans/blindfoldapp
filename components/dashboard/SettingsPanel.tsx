@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation, AlertCircle } from "lucide-react";
+import { Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation, AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film, BookOpen, Coffee, Waves, Camera, Gamepad2, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
@@ -14,17 +14,20 @@ import Button from "@/components/ui/Button";
 import Slider from "@/components/ui/Slider";
 import CadenceSelect, { type CadenceValue } from "@/components/ui/CadenceSelect";
 
-const INTERESTS_LIST = [
-  "food", "music", "nature", "art", "fitness", "cinema",
-  "books", "coffee", "beach", "photography", "gaming", "romance",
+const INTERESTS = [
+  { id: "food", label: "Food & Dining", icon: Utensils },
+  { id: "music", label: "Live Music", icon: Music },
+  { id: "nature", label: "Nature", icon: TreePine },
+  { id: "art", label: "Art & Culture", icon: Palette },
+  { id: "fitness", label: "Fitness", icon: Dumbbell },
+  { id: "cinema", label: "Cinema", icon: Film },
+  { id: "books", label: "Books", icon: BookOpen },
+  { id: "coffee", label: "Coffee", icon: Coffee },
+  { id: "beach", label: "Beach & Water", icon: Waves },
+  { id: "photography", label: "Photography", icon: Camera },
+  { id: "gaming", label: "Gaming", icon: Gamepad2 },
+  { id: "romance", label: "Romance", icon: Heart },
 ];
-
-const INTEREST_LABELS: Record<string, string> = {
-  food: "Food & Dining", music: "Live Music", nature: "Nature",
-  art: "Art & Culture", fitness: "Fitness", cinema: "Cinema",
-  books: "Books", coffee: "Coffee", beach: "Beach", photography: "Photography",
-  gaming: "Gaming", romance: "Romance",
-};
 
 interface NominatimResult {
   lat: string;
@@ -148,9 +151,10 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const selectedCadence = watch("cadence");
 
   function toggleInterest(id: string) {
-    const next = interests.includes(id)
-      ? interests.filter((i) => i !== id)
-      : [...interests, id];
+    const current = interests ?? [];
+    const next = current.includes(id)
+      ? current.filter((i) => i !== id)
+      : [...current, id];
     setValue("interests", next);
   }
 
@@ -209,21 +213,25 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
       {/* Interests */}
       <Section icon={<Tag className="w-4 h-4" />} title="Interests">
         <div className="grid grid-cols-3 gap-2">
-          {INTERESTS_LIST.map((id) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => toggleInterest(id)}
-              className={[
-                "py-2 px-2 rounded-xl border text-xs font-medium transition-all",
-                interests?.includes(id)
-                  ? "bg-pink-500/20 border-pink-500 text-pink-300"
-                  : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
-              ].join(" ")}
-            >
-              {INTEREST_LABELS[id]}
-            </button>
-          ))}
+          {INTERESTS.map(({ id, label, icon: Icon }) => {
+            const isSelected = interests?.includes(id);
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => toggleInterest(id)}
+                className={[
+                  "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
+                  isSelected
+                    ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
+                    : "bg-white/5 border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200",
+                ].join(" ")}
+              >
+                <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : "text-slate-400"}`} />
+                <span className="text-xs font-medium leading-tight">{label}</span>
+              </button>
+            );
+          })}
         </div>
         {errors.interests && (
           <p className="text-xs text-red-400 mt-1">{errors.interests.message}</p>
