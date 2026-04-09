@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2 } from "lucide-react";
+import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { revealDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
@@ -157,6 +157,31 @@ function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
   );
 }
 
+function useCountdown(target: Date | null) {
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
+  useEffect(() => {
+    if (!target) return;
+    function update() {
+      const diff = target.getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft({ days, hours, minutes, seconds });
+    }
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [target]);
+
+  return timeLeft;
+}
+
 export default function DateCard({
   partnerNames,
   cadence,
@@ -177,6 +202,7 @@ export default function DateCard({
 
   const canReveal = isRevealAvailable(revealedAt, cadence);
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
+  const countdown = useCountdown(completed && nextRevealDate ? nextRevealDate : null);
 
   useEffect(() => {
     if (!isPending) return;
@@ -254,90 +280,87 @@ export default function DateCard({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
               >
-                {/* Emoji + title */}
-                <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/10 rounded-2xl p-5 mb-4 text-center border border-pink-500/20">
-                  <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
-                    className="text-5xl mb-3"
-                  >
-                    {dateIdea.emoji}
-                  </motion.div>
-                  <h3 className="text-xl font-bold text-white mb-1">{dateIdea.title}</h3>
-                  <p className="text-xs text-pink-300 font-medium">{dateIdea.vibe}</p>
-                </div>
-
-                {/* Description */}
-                <p className="text-white/60 text-sm leading-relaxed mb-4">
-                  {dateIdea.description}
-                </p>
-
-                {/* Details row */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  {[
-                    { icon: Timer, value: dateIdea.duration },
-                    { icon: Wallet, value: dateIdea.budget_range },
-                    { icon: MapPin, value: dateIdea.tags[0] ?? "Anywhere" },
-                  ].map(({ icon: Icon, value }) => (
-                    <div
-                      key={value}
-                      className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8"
-                    >
-                      <Icon className="w-3.5 h-3.5 text-pink-400" />
-                      <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 mb-5">
-                  {dateIdea.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-xs text-pink-300"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Complete Date button / completed state */}
-                {error && (
-                  <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
-                )}
                 {completed ? (
-                  <div className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-white/5 border border-white/8 text-white/40 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span className="text-emerald-400 font-medium">Date completed!</span>
-                  </div>
-                ) : isCompletePending ? (
-                  <div className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/30">
-                    <motion.div
-                      className="w-3.5 h-3.5 rounded-full border-2 border-orange-400/40 border-t-orange-400"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
-                    />
-                    <span className="text-sm font-semibold text-orange-300">Saving...</span>
+                  /* ── COMPLETED: collapsed view ── */
+                  <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-4 py-4">
+                    <span className="text-3xl shrink-0">{dateIdea.emoji}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{dateIdea.title}</p>
+                      <p className="text-xs text-white/40 mt-0.5">{dateIdea.vibe}</p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-1.5 shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs font-semibold text-emerald-400">Done</span>
+                    </div>
                   </div>
                 ) : (
-                  <HoldToCompleteButton onComplete={handleComplete} />
-                )}
+                  /* ── ACTIVE: full view ── */
+                  <>
+                    {/* Emoji + title */}
+                    <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/10 rounded-2xl p-5 mb-4 text-center border border-pink-500/20">
+                      <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
+                        className="text-5xl mb-3"
+                      >
+                        {dateIdea.emoji}
+                      </motion.div>
+                      <h3 className="text-xl font-bold text-white mb-1">{dateIdea.title}</h3>
+                      <p className="text-xs text-pink-300 font-medium">{dateIdea.vibe}</p>
+                    </div>
 
-                {/* Next date available footer */}
-                {nextRevealDate && (
-                  <div className="text-center py-3 mt-3 border-t border-white/8">
-                    <p className="text-xs text-white/30">
-                      Next mystery date available{" "}
-                      <span className="text-white/50 font-medium">
-                        {nextRevealDate.toLocaleDateString("en-GB", {
-                          weekday: "long",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
+                    {/* Description */}
+                    <p className="text-white/60 text-sm leading-relaxed mb-4">
+                      {dateIdea.description}
                     </p>
-                  </div>
+
+                    {/* Details row */}
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {[
+                        { icon: Timer, value: dateIdea.duration },
+                        { icon: Wallet, value: dateIdea.budget_range },
+                        { icon: MapPin, value: dateIdea.tags[0] ?? "Anywhere" },
+                      ].map(({ icon: Icon, value }) => (
+                        <div
+                          key={value}
+                          className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8"
+                        >
+                          <Icon className="w-3.5 h-3.5 text-pink-400" />
+                          <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1.5 mb-5">
+                      {dateIdea.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-xs text-pink-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Complete Date button */}
+                    {error && (
+                      <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
+                    )}
+                    {isCompletePending ? (
+                      <div className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/30">
+                        <motion.div
+                          className="w-3.5 h-3.5 rounded-full border-2 border-orange-400/40 border-t-orange-400"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                        />
+                        <span className="text-sm font-semibold text-orange-300">Saving...</span>
+                      </div>
+                    ) : (
+                      <HoldToCompleteButton onComplete={handleComplete} />
+                    )}
+                  </>
                 )}
               </motion.div>
             ) : (
@@ -445,6 +468,44 @@ export default function DateCard({
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Countdown card — shown after date is completed */}
+      {completed && countdown && nextRevealDate && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
+          className="mt-4 bg-white/5 border border-white/10 rounded-3xl p-5"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <CalendarClock className="w-4 h-4 text-pink-400" />
+            <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Next mystery date</p>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { value: countdown.days, label: "Days" },
+              { value: countdown.hours, label: "Hours" },
+              { value: countdown.minutes, label: "Mins" },
+              { value: countdown.seconds, label: "Secs" },
+            ].map(({ value, label }) => (
+              <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3 text-center">
+                <p className="text-2xl font-black text-white tabular-nums">
+                  {String(value).padStart(2, "0")}
+                </p>
+                <p className="text-[10px] text-white/35 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-white/25 text-center mt-3">
+            Available on{" "}
+            {nextRevealDate.toLocaleDateString("en-GB", {
+              weekday: "long",
+              day: "numeric",
+              month: "short",
+            })}
+          </p>
+        </motion.div>
+      )}
 
       {/* Success modal — rendered outside the card so it can cover full screen */}
       {modalData && (
