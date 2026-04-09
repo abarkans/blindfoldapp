@@ -278,13 +278,13 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
           value={radiusKm}
           onChange={setRadiusKm}
           min={1}
-          max={30}
+          max={100}
           step={1}
           formatValue={(v) => `${v} km`}
         />
         <div className="flex justify-between text-[10px] text-white/25 px-1">
           <span>Walking distance</span>
-          <span>Driving / Public transport</span>
+          <span>Long drive / Countryside</span>
         </div>
       </div>
 
