@@ -35,7 +35,7 @@ export default function Slider({
           </span>
         </div>
       )}
-      <div className="relative h-6 flex items-center">
+      <div className="relative h-11 flex items-center">
         <div className="relative w-full h-2 rounded-full bg-white/10">
           <div
             className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500 transition-all"
@@ -50,6 +50,7 @@ export default function Slider({
           value={value ?? min}
           onChange={(e) => onChange(Number(e.target.value))}
           className="absolute inset-0 w-full opacity-0 cursor-pointer h-full"
+          style={{ touchAction: "none" }}
         />
         <div
           className="absolute w-5 h-5 rounded-full bg-white shadow-lg shadow-pink-500/40 border-2 border-pink-500 pointer-events-none transition-all"
