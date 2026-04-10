@@ -10,7 +10,15 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) redirect("/dashboard");
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_complete")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.onboarding_complete) redirect("/dashboard");
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0d14] text-white overflow-x-hidden">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
@@ -47,6 +48,12 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
   const [data, setData] = useState<OnboardingData>({ partner1: initialPartner1 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  async function handleExitToHome() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.replace("/");
+  }
 
   function goNext(newData: Partial<OnboardingData>) {
     setData((prev) => ({ ...prev, ...newData }));
@@ -99,6 +106,20 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
 
   return (
     <div className="flex flex-col gap-6 w-full">
+      <button
+        onClick={handleExitToHome}
+        className="flex items-center gap-3 mb-2 group w-fit"
+        aria-label="Go back to home"
+      >
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/40 group-hover:brightness-110 transition-all">
+          <Heart className="w-5 h-5 text-white fill-white" />
+        </div>
+        <div className="text-left">
+          <h1 className="text-base font-bold text-white">Blindfold</h1>
+          <p className="text-white/40 text-xs">Let&apos;s set up your dates</p>
+        </div>
+      </button>
+
       <ProgressBar current={step} total={5} labels={STEP_LABELS} />
 
       {error && (

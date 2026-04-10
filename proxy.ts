@@ -38,9 +38,19 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Authenticated → landing/auth pages → send to dashboard
-  if (user && (pathname === "/" || pathname === "/login" || pathname === "/register")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  // Authenticated → auth pages → send to dashboard only if onboarding is done.
+  // Users with incomplete onboarding can visit /login and /register freely
+  // (e.g. to switch accounts or after navigating back from the landing page).
+  if (user && (pathname === "/login" || pathname === "/register")) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_complete")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.onboarding_complete) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   return supabaseResponse;

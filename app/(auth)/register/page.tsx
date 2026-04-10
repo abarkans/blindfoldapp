@@ -110,6 +110,9 @@ export default function RegisterPage() {
           {error && (
             <div className="mb-4 bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
               {error}
+              {error === "User already registered" && (
+                <> — <Link href="/login" className="underline hover:text-red-300">Sign in</Link></>
+              )}
             </div>
           )}
 
