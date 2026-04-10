@@ -88,6 +88,13 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [signOutConfirm, setSignOutConfirm] = useState(false);
   const router = useRouter();
 
+  // Lock background scroll while sign-out confirm is open
+  useEffect(() => {
+    if (!signOutConfirm) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [signOutConfirm]);
+
   // Location state — managed outside react-hook-form since it's async
   const [lat, setLat] = useState<number | null>(profile.last_lat ?? null);
   const [lng, setLng] = useState<number | null>(profile.last_long ?? null);

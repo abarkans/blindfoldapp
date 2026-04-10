@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useMotionValue, useSpring, PanInfo } from "framer-motion";
 import { Lock, X } from "lucide-react";
@@ -56,6 +56,12 @@ interface OpenBadge {
 function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void }) {
   const rotateY = useMotionValue(0);
   const springRotateY = useSpring(rotateY, { stiffness: 80, damping: 12 });
+
+  // Lock background scroll for the duration this modal is mounted
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
 
   function handleDragEnd(_: unknown, info: PanInfo) {
     const velocity = info.velocity.x;

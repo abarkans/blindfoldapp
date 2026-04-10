@@ -38,6 +38,13 @@ export default function CompleteDateModal({
   onClose,
   onGoToProgress,
 }: CompleteDateModalProps) {
+  // Lock background scroll while modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
+
   // Trigger confetti when the modal opens
   useEffect(() => {
     if (!isOpen) return;

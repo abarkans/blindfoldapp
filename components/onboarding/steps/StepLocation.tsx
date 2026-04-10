@@ -56,10 +56,13 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cityInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Auto-focus city input when switching to manual entry
+  // Auto-focus city input when switching to manual entry.
+  // The longer delay lets the Framer Motion animation settle before focusing,
+  // which is needed for the keyboard to appear on some Android browsers.
+  // On iOS Safari, autoFocus on the input handles it via the user-gesture chain.
   useEffect(() => {
     if (status === "fallback" || status === "denied") {
-      const t = setTimeout(() => cityInputRef.current?.focus(), 50);
+      const t = setTimeout(() => cityInputRef.current?.focus(), 150);
       return () => clearTimeout(t);
     }
   }, [status]);
@@ -248,6 +251,7 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
               onChange={(e) => { setCityInput(e.target.value); setCityError(""); }}
               className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-pink-500/60 transition-colors"
               style={{ fontSize: "16px" }}
+              autoFocus
             />
           </div>
 

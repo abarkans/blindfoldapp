@@ -39,14 +39,18 @@ export default function DashboardTabs({
 
   useEffect(() => {
     const stored = localStorage.getItem("dashboard-tab");
-    if (stored === "date" || stored === "progress" || stored === "settings") {
+    // Never restore "settings" — users should always land on Date after login
+    if (stored === "date" || stored === "progress") {
       setActiveTab(stored);
     }
   }, []);
 
   function switchTab(tab: Tab) {
     setActiveTab(tab);
-    localStorage.setItem("dashboard-tab", tab);
+    // Don't persist settings — it's not needed (no server reloads happen there)
+    if (tab !== "settings") {
+      localStorage.setItem("dashboard-tab", tab);
+    }
     mainRef.current?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 });
   }
