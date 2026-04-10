@@ -304,7 +304,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                     onClick={() => setSignOutConfirm(false)}
                   />
                   <motion.div
-                    className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-60 w-full max-w-xs px-4"
+                    className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-xs px-4"
                     initial={{ opacity: 0, scale: 0.88, y: 16 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.92, y: 8 }}
