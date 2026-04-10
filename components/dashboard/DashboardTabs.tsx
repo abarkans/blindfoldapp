@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Star, Settings, Heart, Zap, CalendarCheck } from "lucide-react";
 import DateCard from "@/components/dashboard/DateCard";
@@ -34,11 +34,14 @@ export default function DashboardTabs({
   earnedBadges,
   isDateCompleted,
 }: DashboardTabsProps) {
-  const [activeTab, setActiveTab] = useState<Tab>(() => {
-    if (typeof window === "undefined") return "date";
+  const [activeTab, setActiveTab] = useState<Tab>("date");
+
+  useEffect(() => {
     const stored = localStorage.getItem("dashboard-tab");
-    return (stored === "date" || stored === "progress" || stored === "settings") ? stored : "date";
-  });
+    if (stored === "date" || stored === "progress" || stored === "settings") {
+      setActiveTab(stored);
+    }
+  }, []);
 
   function switchTab(tab: Tab) {
     setActiveTab(tab);
@@ -232,6 +235,8 @@ function ProgressTabContent({
         <p className="text-white/40 text-sm mt-1">Every date counts.</p>
       </div>
 
+      <XPProgressBar totalXp={totalXp} />
+
       {/* Hero stats */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="bg-gradient-to-br from-orange-500/15 to-amber-500/8 border border-orange-500/20 rounded-2xl p-4 text-center">
@@ -249,8 +254,6 @@ function ProgressTabContent({
           <p className="text-xs text-white/40">Dates done</p>
         </div>
       </div>
-
-      <XPProgressBar totalXp={totalXp} />
 
       {/* Next milestone nudge */}
       {nextMilestone && (

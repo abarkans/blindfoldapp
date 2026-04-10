@@ -13,7 +13,7 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
   const xpToNext = required - current;
 
   return (
-    <div className="bg-white/5 border border-white/8 rounded-2xl p-4 mb-4">
+    <div className="mb-4">
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-md shadow-orange-500/30">

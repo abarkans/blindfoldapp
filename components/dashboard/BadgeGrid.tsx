@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 // Static list mirrors the milestones seeded in migration 004
@@ -8,24 +9,28 @@ const ALL_MILESTONES = [
     name: "First Spark",
     description: "Complete your first mystery date",
     icon_emoji: "✨",
+    image: "/badges/First_Spark.png",
     required_dates: 1,
   },
   {
     name: "Triple Threat",
     description: "Complete 3 mystery dates",
     icon_emoji: "🔥",
+    image: "/badges/Triple_Threat.png",
     required_dates: 3,
   },
   {
     name: "High Five",
     description: "Complete 5 mystery dates",
     icon_emoji: "🖐️",
+    image: "/badges/High_Five.png",
     required_dates: 5,
   },
   {
     name: "Perfect 10",
     description: "Complete 10 mystery dates",
     icon_emoji: "💎",
+    image: "/badges/Perfect_Ten.png",
     required_dates: 10,
   },
 ];
@@ -47,7 +52,7 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
       <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
         Trophy Room
       </h3>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {ALL_MILESTONES.map((milestone, i) => {
           const earned = earnedNames.has(milestone.name);
           return (
@@ -56,11 +61,7 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, duration: 0.4 }}
-              className={`relative rounded-2xl p-4 border text-center transition-colors ${
-                earned
-                  ? "bg-gradient-to-br from-amber-500/15 to-orange-500/8 border-amber-500/25"
-                  : "bg-white/3 border-white/8"
-              }`}
+              className="relative p-4 text-center"
             >
               {/* Earned checkmark */}
               {earned && (
@@ -74,15 +75,21 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
                 </motion.div>
               )}
 
-              {/* Emoji — grayscale + dim until earned */}
+              {/* Badge image — grayscale + dim until earned */}
               <motion.div
-                className={`text-3xl mb-2 transition-all duration-500 ${
+                className={`w-32 h-32 mx-auto mb-2 transition-all duration-500 ${
                   earned ? "" : "grayscale opacity-25"
                 }`}
-                animate={earned ? { scale: [1, 1.15, 1] } : {}}
+                animate={earned ? { scale: [1, 1.12, 1] } : {}}
                 transition={{ duration: 0.5, delay: i * 0.07 + 0.1 }}
               >
-                {milestone.icon_emoji}
+                <Image
+                  src={milestone.image}
+                  alt={milestone.name}
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-contain"
+                />
               </motion.div>
 
               <p

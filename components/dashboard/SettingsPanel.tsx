@@ -73,6 +73,12 @@ const slideVariants = {
   exit: (dir: number) => ({ opacity: 0, x: -dir * 40 }),
 };
 
+const noAnimation = {
+  enter: { opacity: 1, x: 0 },
+  center: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 0 },
+};
+
 export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [view, setView] = useState<SettingsView>("list");
   const [direction, setDirection] = useState(1);
@@ -250,7 +256,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
           <motion.div
             key="list"
             custom={direction}
-            variants={slideVariants}
+            variants={noAnimation}
             initial="enter"
             animate="center"
             exit="exit"

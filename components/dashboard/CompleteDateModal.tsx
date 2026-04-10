@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Zap } from "lucide-react";
 import Button from "@/components/ui/Button";
+
+const BADGE_IMAGES: Record<string, string> = {
+  "First Spark": "/badges/First_Spark.png",
+  "Triple Threat": "/badges/Triple_Threat.png",
+  "High Five": "/badges/High_Five.png",
+  "Perfect 10": "/badges/Perfect_Ten.png",
+};
 
 interface NewBadge {
   name: string;
@@ -141,7 +149,17 @@ export default function CompleteDateModal({
                           delay: 0.38 + i * 0.1,
                         }}
                       >
-                        <span className="text-2xl flex-shrink-0">{badge.icon_emoji}</span>
+                        {BADGE_IMAGES[badge.name] ? (
+                          <Image
+                            src={BADGE_IMAGES[badge.name]}
+                            alt={badge.name}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 object-contain flex-shrink-0"
+                          />
+                        ) : (
+                          <span className="text-2xl flex-shrink-0">{badge.icon_emoji}</span>
+                        )}
                         <div>
                           <p className="text-sm font-bold text-white">{badge.name}</p>
                           <p className="text-xs text-white/45">{badge.description}</p>
