@@ -73,28 +73,18 @@ export async function searchNearbyVenues({
   }
 
   // Exclude accommodation and event-venue types that are not suitable for dates
+  // Only using type names confirmed in the Places API (New) type table
   const EXCLUDED_TYPES = [
-    "lodging",
     "hotel",
     "motel",
     "hostel",
-    "guest_house",
-    "bed_and_breakfast",
     "extended_stay_hotel",
     "resort_hotel",
     "campground",
-    "rv_park",
+    "bed_and_breakfast",
+    "guest_house",
     "wedding_venue",
     "event_venue",
-    "banquet_hall",
-    "convention_center",
-    "meeting_room",
-    "conference_center",
-    "rental_car_company",
-    "real_estate_agency",
-    "storage",
-    "apartment_complex",
-    "apartment_building",
   ];
 
   const body = {
