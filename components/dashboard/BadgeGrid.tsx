@@ -63,18 +63,6 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
               transition={{ delay: i * 0.07, duration: 0.4 }}
               className="relative p-4 text-center"
             >
-              {/* Earned checkmark */}
-              {earned && (
-                <motion.div
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-white shadow-md shadow-amber-400/40"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, delay: i * 0.07 + 0.25 }}
-                >
-                  ✓
-                </motion.div>
-              )}
-
               {/* Badge image — grayscale + dim until earned */}
               <motion.div
                 className={`w-32 h-32 mx-auto mb-2 transition-all duration-500 ${

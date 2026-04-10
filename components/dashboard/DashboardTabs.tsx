@@ -193,19 +193,6 @@ function DateTabContent({
         isDateCompleted={isDateCompleted}
         onGoToProgress={onGoToProgress}
       />
-
-      <div className="grid grid-cols-3 gap-3 mt-5">
-        {[
-          { label: "Budget", value: `€${profile.constraints.budget_max}` },
-          { label: "Frequency", value: cadenceLabel[profile.cadence] ?? profile.cadence },
-          { label: "Interests", value: `${profile.interests.length} picks` },
-        ].map(({ label, value }) => (
-          <div key={label} className="bg-white/5 border border-white/8 rounded-2xl p-3 text-center">
-            <p className="text-white font-bold text-sm">{value}</p>
-            <p className="text-white/40 text-xs mt-0.5">{label}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

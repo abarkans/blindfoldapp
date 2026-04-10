@@ -85,6 +85,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [signOutConfirm, setSignOutConfirm] = useState(false);
   const router = useRouter();
 
   // Location state — managed outside react-hook-form since it's async
@@ -284,12 +285,58 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
 
             <button
               type="button"
-              onClick={handleSignOut}
+              onClick={() => setSignOutConfirm(true)}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20 transition-all text-sm mt-6"
             >
               <LogOut className="w-4 h-4" />
               Sign out
             </button>
+
+            {/* Sign-out confirmation modal */}
+            <AnimatePresence>
+              {signOutConfirm && (
+                <>
+                  <motion.div
+                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setSignOutConfirm(false)}
+                  />
+                  <motion.div
+                    className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-60 w-full max-w-xs px-4"
+                    initial={{ opacity: 0, scale: 0.88, y: 16 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.92, y: 8 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                  >
+                    <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+                      <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                        <LogOut className="w-5 h-5 text-red-400" />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
+                      <p className="text-sm text-white/40 mb-6">You can always sign back in to continue your mystery dates.</p>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          type="button"
+                          onClick={handleSignOut}
+                          className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors"
+                        >
+                          Yes, sign out
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSignOutConfirm(false)}
+                          className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </motion.div>
         ) : (
           <motion.div
