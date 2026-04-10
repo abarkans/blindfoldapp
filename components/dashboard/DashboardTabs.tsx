@@ -140,12 +140,12 @@ export default function DashboardTabs({
               )}
               <Icon
                 className={`w-5 h-5 transition-colors duration-150 ${
-                  activeTab === id ? "text-pink-400" : "text-white/30 group-hover:text-white/55"
+                  activeTab === id ? "text-pink-400" : "text-slate-400 group-hover:text-slate-200"
                 }`}
               />
               <span
                 className={`text-[10px] font-semibold tracking-wide transition-colors duration-150 ${
-                  activeTab === id ? "text-pink-400" : "text-white/30 group-hover:text-white/55"
+                  activeTab === id ? "text-pink-400" : "text-slate-400 group-hover:text-slate-200"
                 }`}
               >
                 {label}
