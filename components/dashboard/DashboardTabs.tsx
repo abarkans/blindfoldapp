@@ -227,24 +227,6 @@ function ProgressTabContent({
 
       <XPProgressBar totalXp={totalXp} />
 
-      {/* Hero stats */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
-        <div className="bg-gradient-to-br from-orange-500/15 to-amber-500/8 border border-orange-500/20 rounded-2xl p-4 text-center">
-          <div className="flex items-center justify-center gap-1.5 mb-1">
-            <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
-            <span className="text-2xl font-black text-white">{totalXp}</span>
-          </div>
-          <p className="text-xs text-white/40">Total XP</p>
-        </div>
-        <div className="bg-gradient-to-br from-pink-500/15 to-rose-500/8 border border-pink-500/20 rounded-2xl p-4 text-center">
-          <div className="flex items-center justify-center gap-1.5 mb-1">
-            <CalendarCheck className="w-4 h-4 text-pink-400" />
-            <span className="text-2xl font-black text-white">{datesCompleted}</span>
-          </div>
-          <p className="text-xs text-white/40">Dates done</p>
-        </div>
-      </div>
-
       {/* Next milestone nudge */}
       {nextMilestone && (
         <div className="bg-white/4 border border-white/8 rounded-2xl p-3.5 mb-2 flex items-center gap-3">

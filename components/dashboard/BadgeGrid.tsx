@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { Lock } from "lucide-react";
 
 // Static list mirrors the milestones seeded in migration 004
 const ALL_MILESTONES = [
@@ -63,11 +64,9 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
               transition={{ delay: i * 0.07, duration: 0.4 }}
               className="relative p-4 text-center"
             >
-              {/* Badge image — grayscale + dim until earned */}
+              {/* Badge image — blurred + lock icon when locked */}
               <motion.div
-                className={`w-32 h-32 mx-auto mb-2 transition-all duration-500 ${
-                  earned ? "" : "grayscale opacity-25"
-                }`}
+                className="relative w-32 h-32 mx-auto mb-2"
                 animate={earned ? { scale: [1, 1.12, 1] } : {}}
                 transition={{ duration: 0.5, delay: i * 0.07 + 0.1 }}
               >
@@ -76,8 +75,17 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
                   alt={milestone.name}
                   width={128}
                   height={128}
-                  className="w-full h-full object-contain"
+                  className={`w-full h-full object-contain transition-all duration-500 ${
+                    earned ? "" : "grayscale blur-sm opacity-40"
+                  }`}
                 />
+                {!earned && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                      <Lock className="w-4 h-4 text-white/70" />
+                    </div>
+                  </div>
+                )}
               </motion.div>
 
               <p
