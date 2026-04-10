@@ -93,6 +93,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
       return;
     }
 
+    localStorage.setItem("dashboard-tab", "date");
     router.replace("/dashboard");
   }
 

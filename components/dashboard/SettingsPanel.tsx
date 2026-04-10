@@ -343,10 +343,10 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                             "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                             isSelected
                               ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
-                              : "bg-white/5 border-white/10 text-white/50 hover:border-white/30 hover:text-white/80",
+                              : "bg-white/5 border-white/10 text-white/70 hover:border-white/30 hover:text-white",
                           ].join(" ")}
                         >
-                          <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : "text-white/40"}`} />
+                          <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : "text-white/70"}`} />
                           <span className="text-xs font-medium leading-tight">{label}</span>
                         </button>
                       );

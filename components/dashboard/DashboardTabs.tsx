@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Star, Settings, Heart, Zap, CalendarCheck } from "lucide-react";
+import { Sparkles, Medal, Settings, Heart, Zap, CalendarCheck } from "lucide-react";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
@@ -25,7 +25,7 @@ interface DashboardTabsProps {
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "date", label: "Date", icon: Sparkles },
-  { id: "progress", label: "Progress", icon: Star },
+  { id: "progress", label: "Progress", icon: Medal },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
