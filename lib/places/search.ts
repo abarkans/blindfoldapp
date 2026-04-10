@@ -72,8 +72,34 @@ export async function searchNearbyVenues({
     throw new Error("No place types could be mapped from your interests.");
   }
 
+  // Exclude accommodation and event-venue types that are not suitable for dates
+  const EXCLUDED_TYPES = [
+    "lodging",
+    "hotel",
+    "motel",
+    "hostel",
+    "guest_house",
+    "bed_and_breakfast",
+    "extended_stay_hotel",
+    "resort_hotel",
+    "campground",
+    "rv_park",
+    "wedding_venue",
+    "event_venue",
+    "banquet_hall",
+    "convention_center",
+    "meeting_room",
+    "conference_center",
+    "rental_car_company",
+    "real_estate_agency",
+    "storage",
+    "apartment_complex",
+    "apartment_building",
+  ];
+
   const body = {
     includedTypes: types,
+    excludedTypes: EXCLUDED_TYPES,
     maxResultCount: 20,
     locationRestriction: {
       circle: {
