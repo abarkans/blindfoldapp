@@ -48,6 +48,7 @@ export default function DashboardTabs({
     setActiveTab(tab);
     localStorage.setItem("dashboard-tab", tab);
     mainRef.current?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 });
   }
 
   return (
