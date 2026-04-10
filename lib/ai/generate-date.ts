@@ -125,7 +125,7 @@ ${transportNote}${avoidClause}
 The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.`;
 
   const { output } = await generateText({
-    model: anthropic("claude-haiku-4.5"),
+    model: anthropic("claude-haiku-4-5-20251001"),
     output: Output.object({ schema: DateIdeaSchema }),
     prompt,
   });
