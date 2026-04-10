@@ -54,14 +54,15 @@ interface OpenBadge {
 }
 
 function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void }) {
-  const rotate = useMotionValue(0);
-  const springRotate = useSpring(rotate, { stiffness: 120, damping: 18 });
+  const rotateY = useMotionValue(0);
+  const springRotateY = useSpring(rotateY, { stiffness: 80, damping: 12 });
 
   function handleDragEnd(_: unknown, info: PanInfo) {
     const velocity = info.velocity.x;
-    if (Math.abs(velocity) > 100) {
-      // Spin in swipe direction proportional to velocity
-      rotate.set(rotate.get() + velocity * 0.4);
+    if (Math.abs(velocity) > 80) {
+      // Flip in swipe direction — add multiple full rotations for coin-toss feel
+      const flips = Math.sign(velocity) * (360 * Math.ceil(Math.abs(velocity) / 400));
+      rotateY.set(rotateY.get() + flips);
     }
   }
 
@@ -99,25 +100,27 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
           <X className="w-5 h-5 text-white/70" />
         </button>
 
-        {/* Badge — draggable for spin */}
-        <motion.div
-          className="pointer-events-auto cursor-grab active:cursor-grabbing select-none"
-          style={{ rotate: springRotate }}
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.05}
-          onDragEnd={handleDragEnd}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Image
-            src={badge.image}
-            alt={badge.name}
-            width={240}
-            height={240}
-            className="w-56 h-56 md:w-64 md:h-64 object-contain drop-shadow-2xl"
-            draggable={false}
-          />
-        </motion.div>
+        {/* Badge — draggable for Y-axis flip */}
+        <div style={{ perspective: 800 }} className="pointer-events-auto">
+          <motion.div
+            className="cursor-grab active:cursor-grabbing select-none"
+            style={{ rotateY: springRotateY }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.05}
+            onDragEnd={handleDragEnd}
+            whileTap={{ scale: 0.97 }}
+          >
+            <Image
+              src={badge.image}
+              alt={badge.name}
+              width={240}
+              height={240}
+              className="w-56 h-56 md:w-64 md:h-64 object-contain drop-shadow-2xl"
+              draggable={false}
+            />
+          </motion.div>
+        </div>
 
         {/* Title + date */}
         <motion.div
@@ -128,7 +131,7 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
         >
           <p className="text-xl font-bold text-white mb-1">{badge.name}</p>
           <p className="text-sm text-white/40">Unlocked on {earnedDate}</p>
-          <p className="text-xs text-white/25 mt-4">Swipe to spin ✦</p>
+          <p className="text-xs text-white/25 mt-4">Swipe to flip ✦</p>
         </motion.div>
       </motion.div>
     </>
