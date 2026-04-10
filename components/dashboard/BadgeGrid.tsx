@@ -76,8 +76,9 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
                   width={128}
                   height={128}
                   className={`w-full h-full object-contain transition-all duration-500 ${
-                    earned ? "" : "grayscale blur-sm opacity-40"
+                    earned ? "" : "grayscale opacity-40"
                   }`}
+                  style={earned ? {} : { filter: "grayscale(1) blur(2px)" }}
                 />
                 {!earned && (
                   <div className="absolute inset-0 flex items-center justify-center">
