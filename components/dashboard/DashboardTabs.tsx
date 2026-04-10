@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Medal, Settings, Heart, Zap, CalendarCheck } from "lucide-react";
 import DateCard from "@/components/dashboard/DateCard";
@@ -35,6 +35,7 @@ export default function DashboardTabs({
   isDateCompleted,
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
+  const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("dashboard-tab");
@@ -46,6 +47,7 @@ export default function DashboardTabs({
   function switchTab(tab: Tab) {
     setActiveTab(tab);
     localStorage.setItem("dashboard-tab", tab);
+    mainRef.current?.scrollTo({ top: 0 });
   }
 
   return (
@@ -91,7 +93,7 @@ export default function DashboardTabs({
       </header>
 
       {/* Tab content — wider container on desktop */}
-      <main className="flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
+      <main ref={mainRef} className="flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
         <div className="max-w-sm md:max-w-2xl mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
