@@ -44,6 +44,23 @@ export async function generateAIDateIdea({
     address: string;
     rating: number;
     price_level: string;
+    meta?: {
+      primary_type_display_name?: string;
+      editorial_summary?: string;
+      user_rating_count?: number;
+      reviews?: string[];
+      outdoor_seating?: boolean;
+      live_music?: boolean;
+      serves_cocktails?: boolean;
+      serves_beer?: boolean;
+      serves_wine?: boolean;
+      serves_breakfast?: boolean;
+      serves_brunch?: boolean;
+      serves_lunch?: boolean;
+      serves_dinner?: boolean;
+      takeout?: boolean;
+      reservable?: boolean;
+    };
   };
 }): Promise<GeneratedDateIdea> {
   const avoidClause =
@@ -57,17 +74,55 @@ export async function generateAIDateIdea({
     ? "They prefer walking — keep destinations within walking distance."
     : "They have no car — keep destinations reachable by public transport.";
 
-  const prompt = venue
-    ? `You are a creative date planner. Write a mystery date description for a specific venue.
+  const venueAttributes = venue?.meta
+    ? Object.entries({
+        outdoorSeating: venue.meta.outdoor_seating,
+        liveMusic: venue.meta.live_music,
+        servesCocktails: venue.meta.serves_cocktails,
+        servesBeer: venue.meta.serves_beer,
+        servesWine: venue.meta.serves_wine,
+        servesBreakfast: venue.meta.serves_breakfast,
+        servesBrunch: venue.meta.serves_brunch,
+        servesLunch: venue.meta.serves_lunch,
+        servesDinner: venue.meta.serves_dinner,
+        takeout: venue.meta.takeout,
+        reservable: venue.meta.reservable,
+      })
+        .filter(([, v]) => v === true)
+        .map(([k]) => k)
+        .join(", ") || "not available"
+    : "not available";
 
-Venue: ${venue.name}
-Address: ${venue.address}
-Rating: ${venue.rating}/5
-Couple: ${partnerNames.partner1} & ${partnerNames.partner2}
+  const prompt = venue
+    ? `You are writing a date hype description for a couples app called Blindfold.
+The couple just revealed their date destination. Make them excited to go.
+
+PLACE DATA:
+Name: ${venue.name}
+Type: ${venue.meta?.primary_type_display_name ?? "not available"}
+Price level: ${venue.price_level} (PRICE_LEVEL_INEXPENSIVE=budget, PRICE_LEVEL_VERY_EXPENSIVE=luxury)
+Rating: ${venue.rating}/5${venue.meta?.user_rating_count ? ` from ${venue.meta.user_rating_count} reviews` : ""}
+Editorial summary: ${venue.meta?.editorial_summary ?? "not available"}
+Attributes: ${venueAttributes}
+Review excerpts: ${venue.meta?.reviews?.join(" | ") ?? "not available"}
+
+COUPLE CONTEXT:
+Names: ${partnerNames.partner1} & ${partnerNames.partner2}
 Interests: ${interests.join(", ")}
 Max budget: €${budgetMax}
 
-Write a short catchy title (max 5 words), a playful 2-3 sentence description of what a date at this specific venue would feel like (second person, warm and romantic tone). Pick an emoji that fits the venue's vibe, a 2-4 word vibe label, estimated duration, rough budget range, and 2-4 tags. Make it feel exciting and personal — reference the type of place and what they could do there.`
+DESCRIPTION RULES:
+1. Use only what's in the data — never invent specifics
+2. You CAN use the place name naturally in the text
+3. Write exactly 2 sentences for the description:
+   - Sentence 1: what makes this place worth going to (atmosphere, vibe, reputation)
+   - Sentence 2: one concrete thing they'll likely do, eat, drink, or experience there
+4. Banned words: charming, cozy, vibrant, perfect, hidden gem, delightful, lovely, unique, amazing
+5. If reviews are missing, rely only on type + attributes + price level
+6. Tone: a friend who's been there, genuinely excited for them — not a travel brochure
+7. If the place is a Bar, Family restaurant, or Hamburger restaurant, do not mention intimate atmosphere or romance
+
+Also provide: a short catchy title (max 5 words), a single emoji that captures the vibe, a 2-4 word vibe label, estimated duration, rough budget range within €${budgetMax}, and 2-4 tags.`
     : `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
 
 Couple: ${partnerNames.partner1} & ${partnerNames.partner2}
@@ -78,7 +133,7 @@ ${transportNote}${avoidClause}
 The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.`;
 
   const { output } = await generateText({
-    model: anthropic("claude-haiku-4-5-20251001"),
+    model: anthropic("claude-haiku-4.5"),
     output: Output.object({ schema: DateIdeaSchema }),
     prompt,
   });

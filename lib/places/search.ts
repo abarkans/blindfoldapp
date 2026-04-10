@@ -8,6 +8,24 @@ export interface VenueAIEnrichment {
   tags: string[];
 }
 
+export interface VenueMeta {
+  primary_type_display_name?: string;
+  editorial_summary?: string;
+  user_rating_count?: number;
+  reviews?: string[];
+  outdoor_seating?: boolean;
+  live_music?: boolean;
+  serves_cocktails?: boolean;
+  serves_beer?: boolean;
+  serves_wine?: boolean;
+  serves_breakfast?: boolean;
+  serves_brunch?: boolean;
+  serves_lunch?: boolean;
+  serves_dinner?: boolean;
+  takeout?: boolean;
+  reservable?: boolean;
+}
+
 export interface VenueDateIdea {
   type: "venue";
   place_id: string;
@@ -16,6 +34,7 @@ export interface VenueDateIdea {
   photo_name: string | null;
   rating: number;
   price_level: string;
+  meta: VenueMeta;
   ai: VenueAIEnrichment | null;
 }
 
@@ -107,7 +126,7 @@ export async function searchNearbyVenues({
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.photos,places.rating,places.priceLevel",
+          "places.id,places.displayName,places.formattedAddress,places.photos,places.rating,places.priceLevel,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesBreakfast,places.servesBrunch,places.servesLunch,places.servesDinner,places.takeout,places.reservable",
       },
       body: JSON.stringify(body),
     }
@@ -126,6 +145,21 @@ export async function searchNearbyVenues({
     photos?: { name: string }[];
     rating?: number;
     priceLevel?: string;
+    primaryTypeDisplayName?: { text: string };
+    editorialSummary?: { text: string };
+    userRatingCount?: number;
+    reviews?: { text?: { text: string } }[];
+    outdoorSeating?: boolean;
+    liveMusic?: boolean;
+    servesCocktails?: boolean;
+    servesBeer?: boolean;
+    servesWine?: boolean;
+    servesBreakfast?: boolean;
+    servesBrunch?: boolean;
+    servesLunch?: boolean;
+    servesDinner?: boolean;
+    takeout?: boolean;
+    reservable?: boolean;
   }[] = data.places ?? [];
 
   // Filter: rating >= 4.0 and not previously visited
@@ -147,6 +181,29 @@ export async function searchNearbyVenues({
 
   const place = pool[Math.floor(Math.random() * pool.length)];
 
+  const reviews = (place.reviews ?? [])
+    .map((r) => r.text?.text)
+    .filter(Boolean)
+    .slice(0, 2) as string[];
+
+  const meta: VenueMeta = {
+    primary_type_display_name: place.primaryTypeDisplayName?.text,
+    editorial_summary: place.editorialSummary?.text,
+    user_rating_count: place.userRatingCount,
+    reviews: reviews.length > 0 ? reviews : undefined,
+    outdoor_seating: place.outdoorSeating || undefined,
+    live_music: place.liveMusic || undefined,
+    serves_cocktails: place.servesCocktails || undefined,
+    serves_beer: place.servesBeer || undefined,
+    serves_wine: place.servesWine || undefined,
+    serves_breakfast: place.servesBreakfast || undefined,
+    serves_brunch: place.servesBrunch || undefined,
+    serves_lunch: place.servesLunch || undefined,
+    serves_dinner: place.servesDinner || undefined,
+    takeout: place.takeout || undefined,
+    reservable: place.reservable || undefined,
+  };
+
   return {
     type: "venue" as const,
     place_id: place.id,
@@ -155,6 +212,7 @@ export async function searchNearbyVenues({
     photo_name: place.photos?.[0]?.name ?? null,
     rating: place.rating ?? 0,
     price_level: place.priceLevel ?? "PRICE_LEVEL_UNSPECIFIED",
+    meta,
     ai: null,
   };
 }

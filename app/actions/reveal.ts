@@ -78,6 +78,7 @@ export async function revealDate() {
         address: venue.formatted_address,
         rating: venue.rating,
         price_level: venue.price_level,
+        meta: venue.meta,
       },
     });
 
