@@ -18,11 +18,7 @@ export interface VenueMeta {
   serves_cocktails?: boolean;
   serves_beer?: boolean;
   serves_wine?: boolean;
-  serves_breakfast?: boolean;
-  serves_brunch?: boolean;
-  serves_lunch?: boolean;
   serves_dinner?: boolean;
-  takeout?: boolean;
   reservable?: boolean;
 }
 
@@ -126,7 +122,7 @@ export async function searchNearbyVenues({
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.photos,places.rating,places.priceLevel,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesBreakfast,places.servesBrunch,places.servesLunch,places.servesDinner,places.takeout,places.reservable",
+          "places.id,places.displayName,places.formattedAddress,places.photos,places.rating,places.priceLevel,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
       },
       body: JSON.stringify(body),
     }
@@ -154,11 +150,7 @@ export async function searchNearbyVenues({
     servesCocktails?: boolean;
     servesBeer?: boolean;
     servesWine?: boolean;
-    servesBreakfast?: boolean;
-    servesBrunch?: boolean;
-    servesLunch?: boolean;
     servesDinner?: boolean;
-    takeout?: boolean;
     reservable?: boolean;
   }[] = data.places ?? [];
 
@@ -196,11 +188,7 @@ export async function searchNearbyVenues({
     serves_cocktails: place.servesCocktails || undefined,
     serves_beer: place.servesBeer || undefined,
     serves_wine: place.servesWine || undefined,
-    serves_breakfast: place.servesBreakfast || undefined,
-    serves_brunch: place.servesBrunch || undefined,
-    serves_lunch: place.servesLunch || undefined,
     serves_dinner: place.servesDinner || undefined,
-    takeout: place.takeout || undefined,
     reservable: place.reservable || undefined,
   };
 

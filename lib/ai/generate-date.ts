@@ -54,11 +54,7 @@ export async function generateAIDateIdea({
       serves_cocktails?: boolean;
       serves_beer?: boolean;
       serves_wine?: boolean;
-      serves_breakfast?: boolean;
-      serves_brunch?: boolean;
-      serves_lunch?: boolean;
       serves_dinner?: boolean;
-      takeout?: boolean;
       reservable?: boolean;
     };
   };
@@ -81,11 +77,7 @@ export async function generateAIDateIdea({
         servesCocktails: venue.meta.serves_cocktails,
         servesBeer: venue.meta.serves_beer,
         servesWine: venue.meta.serves_wine,
-        servesBreakfast: venue.meta.serves_breakfast,
-        servesBrunch: venue.meta.serves_brunch,
-        servesLunch: venue.meta.serves_lunch,
         servesDinner: venue.meta.serves_dinner,
-        takeout: venue.meta.takeout,
         reservable: venue.meta.reservable,
       })
         .filter(([, v]) => v === true)
