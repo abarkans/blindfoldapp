@@ -54,6 +54,15 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [cityError, setCityError] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cityInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Auto-focus city input when switching to manual entry
+  useEffect(() => {
+    if (status === "fallback" || status === "denied") {
+      const t = setTimeout(() => cityInputRef.current?.focus(), 50);
+      return () => clearTimeout(t);
+    }
+  }, [status]);
 
   // Debounced autocomplete
   useEffect(() => {
@@ -149,7 +158,7 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
             <button
               type="button"
               onClick={() => setStatus("fallback")}
-              className="text-xs text-white/35 hover:text-white/60 transition-colors text-center"
+              className="h-8 flex items-center justify-center text-xs text-white/35 hover:text-white/60 transition-colors cursor-pointer"
             >
               Enter city manually instead
             </button>
@@ -232,11 +241,13 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
               />
             )}
             <input
+              ref={cityInputRef}
               type="text"
               placeholder="Search city or town…"
               value={cityInput}
               onChange={(e) => { setCityInput(e.target.value); setCityError(""); }}
               className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-pink-500/60 transition-colors"
+              style={{ fontSize: "16px" }}
             />
           </div>
 

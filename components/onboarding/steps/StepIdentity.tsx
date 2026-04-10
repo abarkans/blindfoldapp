@@ -31,14 +31,14 @@ export default function StepIdentity({ defaultValues, onNext }: StepIdentityProp
 
       <div className="flex flex-col gap-4">
         <Input
-          label="Partner 1"
+          label="My name"
           placeholder="e.g. Alex"
           icon={<User className="w-4 h-4" />}
           error={errors.partner1?.message}
           {...register("partner1")}
         />
         <Input
-          label="Partner 2"
+          label="Partner name"
           placeholder="e.g. Jamie"
           icon={<User className="w-4 h-4" />}
           error={errors.partner2?.message}

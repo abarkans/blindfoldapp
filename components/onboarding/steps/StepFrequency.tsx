@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { frequencySchema, type FrequencyFormData } from "@/lib/schemas/onboarding";
 import Button from "@/components/ui/Button";
 import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
@@ -52,7 +52,7 @@ export default function StepFrequency({ defaultValues, onNext, onBack, loading }
               <p className={`text-xs mt-0.5 ${selected === value ? "text-pink-300/70" : "text-white/35"}`}>{sublabel}</p>
             </div>
             {selected === value && (
-              <div className="w-2 h-2 rounded-full bg-pink-400 shrink-0" />
+              <Check className="w-4 h-4 text-pink-400 shrink-0" />
             )}
           </button>
         ))}

@@ -13,6 +13,21 @@ body {
   min-height: 100%;
 }
 
+/* Pointer cursor on all clickable elements.
+   Unlayered CSS beats all named @layer rules (including Tailwind utilities),
+   so :disabled is explicitly excluded to let disabled:cursor-not-allowed still work. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a,
+label[for],
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+summary {
+  cursor: pointer;
+}
+
 /* Custom range input track */
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
