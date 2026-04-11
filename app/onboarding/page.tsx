@@ -25,7 +25,7 @@ export default async function OnboardingPage() {
     "";
 
   return (
-    <div className="min-h-screen bg-[#0d0d14] flex items-start pt-10 md:items-center md:pt-0 justify-center p-4">
+    <div className="min-h-dvh bg-[#0d0d14] flex items-start pt-10 md:items-center md:pt-0 justify-center p-4">
       <div className="w-full max-w-sm">
         <OnboardingFlow initialPartner1={firstName} />
       </div>

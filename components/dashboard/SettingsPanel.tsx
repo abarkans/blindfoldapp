@@ -533,6 +533,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
                           className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-pink-500/60 transition-colors"
+                          style={{ fontSize: "16px" }}
                         />
                       </div>
                       <AnimatePresence>

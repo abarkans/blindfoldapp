@@ -56,7 +56,7 @@ export default function DashboardTabs({
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d14] flex flex-col">
+    <div className="min-h-dvh bg-[#0d0d14] flex flex-col">
       {/* Sticky header — logo + names on both breakpoints; tab nav injected on desktop */}
       <header className="sticky top-0 z-30 bg-[#0d0d14]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
