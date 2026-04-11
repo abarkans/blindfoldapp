@@ -10,6 +10,7 @@ export interface Database {
           idea: {
             title: string;
             description: string;
+            mission?: string;
             emoji: string;
             vibe: string;
             duration: string;
@@ -112,6 +113,7 @@ export interface Database {
           date_idea: {
             title: string;
             description: string;
+            mission?: string;
             emoji: string;
             vibe: string;
             duration: string;

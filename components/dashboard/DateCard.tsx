@@ -25,6 +25,7 @@ const LOADING_MESSAGES = [
 interface AIDateIdea {
   title: string;
   description: string;
+  mission?: string;
   emoji: string;
   vibe: string;
   duration: string;
@@ -406,6 +407,14 @@ export default function DateCard({
                       <p className="text-white/60 text-sm leading-relaxed mb-4">{dateIdea.ai.description}</p>
                     )}
 
+                    {/* Mission */}
+                    {dateIdea.ai?.mission && (
+                      <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Your mission</p>
+                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.mission}</p>
+                      </div>
+                    )}
+
                     {/* Details row */}
                     {dateIdea.ai && (
                       <div className="grid grid-cols-3 gap-2 mb-4">
@@ -482,6 +491,14 @@ export default function DateCard({
                     <p className="text-white/60 text-sm leading-relaxed mb-4">
                       {dateIdea.description}
                     </p>
+
+                    {/* Mission */}
+                    {dateIdea.mission && (
+                      <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Your mission</p>
+                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.mission}</p>
+                      </div>
+                    )}
 
                     {/* Details row */}
                     <div className="grid grid-cols-3 gap-2 mb-4">

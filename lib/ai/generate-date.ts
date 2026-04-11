@@ -9,7 +9,12 @@ const DateIdeaSchema = z.object({
   description: z
     .string()
     .describe(
-      "2-3 sentence description of the date experience, written in second person, playful and exciting tone"
+      "Exactly 1 sentence, max 20 words — use the place name naturally, focus on atmosphere or what makes it distinctly worth visiting"
+    ),
+  mission: z
+    .string()
+    .describe(
+      "2-3 sentences: a fun challenge the couple does TOGETHER at this specific place. Slightly competitive, silly, or requires vulnerability. Tone: a friend daring you, not a life coach."
     ),
   emoji: z.string().describe("Single emoji that captures the vibe"),
   vibe: z.string().describe("2-4 word vibe label, e.g. 'Romantic & Adventurous'"),
@@ -23,6 +28,29 @@ const DateIdeaSchema = z.object({
 });
 
 export type GeneratedDateIdea = z.infer<typeof DateIdeaSchema>;
+
+const VENUE_SYSTEM_PROMPT = `You are a date experience writer for Blindfold, a couples date app.
+
+DESCRIPTION RULES:
+- Exactly 1 sentence, maximum 20 words
+- Use the place name naturally
+- Focus on atmosphere or what makes it distinctly worth visiting
+- If reviews are missing, rely only on type + attributes + price level
+- If the place is a Bar, Family restaurant, or Hamburger restaurant, do not mention intimate atmosphere or romance
+- Banned words: charming, cozy, vibrant, perfect, hidden gem, delightful, lovely, unique, amazing, wonderful
+
+MISSION RULES:
+- 2-3 sentences max
+- A fun challenge the couple does TOGETHER at this specific place
+- Must start immediately, zero preparation needed
+- Must be specific to this venue type — never generic
+- Slightly competitive OR silly OR requires vulnerability
+- Forbidden: "take a photo together", "share a dessert", "hold hands", anything wellness or therapy-adjacent
+- Tone: a fun friend daring you, not a life coach assigning homework
+
+GLOBAL RULES:
+- Use only the place data provided — never invent specific menu items, staff names, or room details
+- Tone: a friend who's been there, genuinely excited for them — not a travel brochure`;
 
 export async function generateAIDateIdea({
   partnerNames,
@@ -59,6 +87,50 @@ export async function generateAIDateIdea({
     };
   };
 }): Promise<GeneratedDateIdea> {
+  if (venue) {
+    const venueAttributes = venue.meta
+      ? Object.entries({
+          outdoorSeating: venue.meta.outdoor_seating,
+          liveMusic: venue.meta.live_music,
+          servesCocktails: venue.meta.serves_cocktails,
+          servesBeer: venue.meta.serves_beer,
+          servesWine: venue.meta.serves_wine,
+          servesDinner: venue.meta.serves_dinner,
+          reservable: venue.meta.reservable,
+        })
+          .filter(([, v]) => v === true)
+          .map(([k]) => k)
+          .join(", ") || "not available"
+      : "not available";
+
+    const userPrompt = `Generate a date idea for this destination.
+
+Name: ${venue.name}
+Type: ${venue.meta?.primary_type_display_name ?? "not available"}
+Price level: ${venue.price_level} (PRICE_LEVEL_INEXPENSIVE=budget, PRICE_LEVEL_VERY_EXPENSIVE=luxury)
+Rating: ${venue.rating}/5${venue.meta?.user_rating_count ? ` from ${venue.meta.user_rating_count} reviews` : ""}
+Editorial summary: ${venue.meta?.editorial_summary ?? "not available"}
+Attributes: ${venueAttributes}
+Review excerpts: ${venue.meta?.reviews?.join(" | ") ?? "not available"}
+
+Couple context:
+Names: ${partnerNames.partner1} & ${partnerNames.partner2}
+Interests: ${interests.join(", ")}
+Max budget: €${budgetMax}
+
+Also provide: a short catchy title (max 5 words), a single emoji, a 2-4 word vibe label, estimated duration, rough budget range within €${budgetMax}, and 2-4 tags.`;
+
+    const { output } = await generateText({
+      model: anthropic("claude-haiku-4-5-20251001"),
+      output: Output.object({ schema: DateIdeaSchema }),
+      system: VENUE_SYSTEM_PROMPT,
+      prompt: userPrompt,
+    });
+
+    return output;
+  }
+
+  // Pure AI fallback — no venue
   const avoidClause =
     previousTitles.length > 0
       ? `\nYou MUST NOT generate any of the following past date ideas — they are strictly forbidden: ${previousTitles.join(", ")}. The new idea must be meaningfully different in activity type, not just renamed.`
@@ -70,64 +142,19 @@ export async function generateAIDateIdea({
     ? "They prefer walking — keep destinations within walking distance."
     : "They have no car — keep destinations reachable by public transport.";
 
-  const venueAttributes = venue?.meta
-    ? Object.entries({
-        outdoorSeating: venue.meta.outdoor_seating,
-        liveMusic: venue.meta.live_music,
-        servesCocktails: venue.meta.serves_cocktails,
-        servesBeer: venue.meta.serves_beer,
-        servesWine: venue.meta.serves_wine,
-        servesDinner: venue.meta.serves_dinner,
-        reservable: venue.meta.reservable,
-      })
-        .filter(([, v]) => v === true)
-        .map(([k]) => k)
-        .join(", ") || "not available"
-    : "not available";
-
-  const prompt = venue
-    ? `You are writing a date hype description for a couples app called Blindfold.
-The couple just revealed their date destination. Make them excited to go.
-
-PLACE DATA:
-Name: ${venue.name}
-Type: ${venue.meta?.primary_type_display_name ?? "not available"}
-Price level: ${venue.price_level} (PRICE_LEVEL_INEXPENSIVE=budget, PRICE_LEVEL_VERY_EXPENSIVE=luxury)
-Rating: ${venue.rating}/5${venue.meta?.user_rating_count ? ` from ${venue.meta.user_rating_count} reviews` : ""}
-Editorial summary: ${venue.meta?.editorial_summary ?? "not available"}
-Attributes: ${venueAttributes}
-Review excerpts: ${venue.meta?.reviews?.join(" | ") ?? "not available"}
-
-COUPLE CONTEXT:
-Names: ${partnerNames.partner1} & ${partnerNames.partner2}
-Interests: ${interests.join(", ")}
-Max budget: €${budgetMax}
-
-DESCRIPTION RULES:
-1. Use only what's in the data — never invent specifics
-2. You CAN use the place name naturally in the text
-3. Write exactly 2 sentences for the description:
-   - Sentence 1: what makes this place worth going to (atmosphere, vibe, reputation)
-   - Sentence 2: one concrete thing they'll likely do, eat, drink, or experience there
-4. Banned words: charming, cozy, vibrant, perfect, hidden gem, delightful, lovely, unique, amazing
-5. If reviews are missing, rely only on type + attributes + price level
-6. Tone: a friend who's been there, genuinely excited for them — not a travel brochure
-7. If the place is a Bar, Family restaurant, or Hamburger restaurant, do not mention intimate atmosphere or romance
-
-Also provide: a short catchy title (max 5 words), a single emoji that captures the vibe, a 2-4 word vibe label, estimated duration, rough budget range within €${budgetMax}, and 2-4 tags.`
-    : `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
+  const { output } = await generateText({
+    model: anthropic("claude-haiku-4-5-20251001"),
+    output: Output.object({ schema: DateIdeaSchema }),
+    prompt: `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
 
 Couple: ${partnerNames.partner1} & ${partnerNames.partner2}
 Interests: ${interests.join(", ")}
 Max budget: €${budgetMax}
 ${transportNote}${avoidClause}
 
-The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.`;
+The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.
 
-  const { output } = await generateText({
-    model: anthropic("claude-haiku-4-5-20251001"),
-    output: Output.object({ schema: DateIdeaSchema }),
-    prompt,
+Also write a mission: a fun challenge the couple does TOGETHER at this type of place. Must start immediately, no prep needed. Slightly competitive or silly. Forbidden: "take a photo together", "share a dessert", anything wellness-adjacent. Tone: a friend daring you.`,
   });
 
   return output;

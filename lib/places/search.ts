@@ -1,6 +1,7 @@
 export interface VenueAIEnrichment {
   title: string;
   description: string;
+  mission: string;
   emoji: string;
   vibe: string;
   duration: string;
