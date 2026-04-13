@@ -65,7 +65,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d14] flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -73,7 +73,7 @@ export default function RegisterPage() {
         className="w-full max-w-sm"
       >
         <Link href="/" className="flex flex-col items-center gap-3 mb-8 group">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/40 group-hover:brightness-110 transition-all">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
             <Heart className="w-7 h-7 text-white fill-white" />
           </div>
           <div className="text-center">
@@ -149,7 +149,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-white/30 text-sm mt-6">
           Already have an account?{" "}
-          <Link href="/login" className="text-pink-400 hover:text-pink-300 font-semibold">
+          <Link href="/login" className="text-rose-400 hover:text-rose-300 font-semibold">
             Sign in
           </Link>
         </p>

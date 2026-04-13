@@ -56,13 +56,13 @@ export default function DashboardTabs({
   }
 
   return (
-    <div className="min-h-dvh bg-[#0d0d14] flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       {/* Sticky header — logo + names on both breakpoints; tab nav injected on desktop */}
-      <header className="sticky top-0 z-30 bg-[#0d0d14]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
+      <header className="sticky top-0 z-30 bg-[#08080f]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-md shadow-pink-500/40">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-md shadow-rose-500/40">
               <Heart className="w-4 h-4 text-white fill-white" />
             </div>
             <div>
@@ -87,7 +87,7 @@ export default function DashboardTabs({
                 {activeTab === id && (
                   <motion.div
                     layoutId="desktop-tab-underline"
-                    className="absolute -bottom-[13px] left-0 right-0 h-px bg-gradient-to-r from-pink-500 to-rose-500"
+                    className="absolute -bottom-[13px] left-0 right-0 h-px bg-gradient-to-r from-rose-500 to-violet-600"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
@@ -128,7 +128,7 @@ export default function DashboardTabs({
 
       {/* Bottom nav — mobile only */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0d0d14]/95 backdrop-blur-xl border-t border-white/8"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#08080f]/95 backdrop-blur-xl border-t border-white/8"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="max-w-sm mx-auto flex items-stretch h-16">
@@ -141,18 +141,18 @@ export default function DashboardTabs({
               {activeTab === id && (
                 <motion.div
                   layoutId="tab-indicator"
-                  className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500"
+                  className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-gradient-to-r from-rose-500 to-violet-600"
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}
               <Icon
                 className={`w-5 h-5 transition-colors duration-150 ${
-                  activeTab === id ? "text-pink-400" : "text-slate-400 group-hover:text-slate-200"
+                  activeTab === id ? "text-rose-400" : "text-slate-400 group-hover:text-slate-200"
                 }`}
               />
               <span
                 className={`text-[10px] font-semibold tracking-wide transition-colors duration-150 ${
-                  activeTab === id ? "text-pink-400" : "text-slate-400 group-hover:text-slate-200"
+                  activeTab === id ? "text-rose-400" : "text-slate-400 group-hover:text-slate-200"
                 }`}
               >
                 {label}
@@ -241,7 +241,7 @@ function ProgressTabContent({
             <p className="text-xs font-semibold text-white">
               {nextMilestone.threshold - datesCompleted} date
               {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
-              <span className="text-pink-400">{nextMilestone.name}</span>
+              <span className="text-rose-400">{nextMilestone.name}</span>
             </p>
             <p className="text-[10px] text-white/35 mt-0.5">Keep going — you&apos;re on a roll!</p>
           </div>

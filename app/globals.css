@@ -11,6 +11,9 @@
 html,
 body {
   min-height: 100%;
+  background-color: #08080f;
+  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, #1a0826 0%, transparent 65%);
+  background-attachment: fixed;
 }
 
 /* Pointer cursor on all clickable elements.

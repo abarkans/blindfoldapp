@@ -111,7 +111,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
         className="flex items-center gap-3 mb-2 group w-fit"
         aria-label="Go back to home"
       >
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/40 group-hover:brightness-110 transition-all">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
           <Heart className="w-5 h-5 text-white fill-white" />
         </div>
         <div className="text-left">
