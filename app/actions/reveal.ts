@@ -22,13 +22,19 @@ export async function revealDate() {
   if (!profile) throw new Error("Profile not found");
 
   // Guard: check cooldown server-side
+  const cadenceDays: Record<string, number> = {
+    weekly: 7,
+    biweekly: 14,
+    monthly: 30,
+    spontaneous: 3,
+  };
+
+  if (!Object.hasOwn(cadenceDays, profile.cadence)) {
+    throw new Error("Invalid cadence value");
+  }
+
   if (profile.revealed_at) {
-    const cadenceDays: Record<string, number> = {
-      weekly: 7,
-      biweekly: 14,
-      monthly: 30,
-    };
-    const days = cadenceDays[profile.cadence] ?? 7;
+    const days = cadenceDays[profile.cadence];
     const nextAvailable = new Date(profile.revealed_at);
     nextAvailable.setDate(nextAvailable.getDate() + days);
     if (new Date() < nextAvailable) {
@@ -41,6 +47,13 @@ export async function revealDate() {
     has_car: boolean;
     prefers_walking: boolean;
   };
+
+  // Server-side allowlist: reject interests that weren't set via the legitimate onboarding UI
+  const VALID_INTERESTS = new Set([
+    "food", "music", "nature", "art", "fitness", "cinema",
+    "books", "coffee", "beach", "photography", "gaming", "romance",
+  ]);
+  const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
 
   const now = new Date().toISOString();
   let idea: object;
@@ -59,7 +72,7 @@ export async function revealDate() {
       .filter(Boolean) as string[];
 
     const venue = await searchNearbyVenues({
-      interests: profile.interests,
+      interests: safeInterests,
       lat: profile.last_lat,
       lng: profile.last_long,
       radiusMeters: profile.preferred_radius ?? 10000,
@@ -69,7 +82,7 @@ export async function revealDate() {
     // Enrich the venue with AI-generated description, vibe, tags etc.
     const aiEnrichment = await generateAIDateIdea({
       partnerNames: profile.partner_names as { partner1: string; partner2: string },
-      interests: profile.interests,
+      interests: safeInterests,
       budgetMax: constraints.budget_max,
       hasCar: constraints.has_car,
       prefersWalking: constraints.prefers_walking,
@@ -98,7 +111,7 @@ export async function revealDate() {
 
     idea = await generateAIDateIdea({
       partnerNames: profile.partner_names as { partner1: string; partner2: string },
-      interests: profile.interests,
+      interests: safeInterests,
       budgetMax: constraints.budget_max,
       hasCar: constraints.has_car,
       prefersWalking: constraints.prefers_walking,

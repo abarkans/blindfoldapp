@@ -4,6 +4,19 @@ import { generateText, Output } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 
+/**
+ * Strip characters that could be used to break out of XML tags or inject new
+ * prompt sections, then hard-cap length. Applied to all user-derived strings
+ * and untrusted third-party content (Google reviews) before they enter prompts.
+ */
+function sanitize(value: string, maxLen = 200): string {
+  return value
+    .replace(/[<>]/g, "") // strip XML tag delimiters
+    .replace(/\n{3,}/g, "\n\n") // collapse excessive newlines
+    .trim()
+    .slice(0, maxLen);
+}
+
 const DateIdeaSchema = z.object({
   title: z.string().describe("Short catchy name for the date, max 5 words"),
   description: z
@@ -103,20 +116,28 @@ export async function generateAIDateIdea({
           .join(", ") || "not available"
       : "not available";
 
+    const safeReviews = (venue.meta?.reviews ?? [])
+      .map((r) => sanitize(r, 200))
+      .filter(Boolean)
+      .join(" | ");
+
     const userPrompt = `Generate a date idea for this destination.
 
-Name: ${venue.name}
-Type: ${venue.meta?.primary_type_display_name ?? "not available"}
+<venue_data>
+Name: ${sanitize(venue.name, 100)}
+Type: ${sanitize(venue.meta?.primary_type_display_name ?? "not available", 80)}
 Price level: ${venue.price_level} (PRICE_LEVEL_INEXPENSIVE=budget, PRICE_LEVEL_VERY_EXPENSIVE=luxury)
 Rating: ${venue.rating}/5${venue.meta?.user_rating_count ? ` from ${venue.meta.user_rating_count} reviews` : ""}
-Editorial summary: ${venue.meta?.editorial_summary ?? "not available"}
-Attributes: ${venueAttributes}
-Review excerpts: ${venue.meta?.reviews?.join(" | ") ?? "not available"}
+Editorial summary: ${sanitize(venue.meta?.editorial_summary ?? "not available", 300)}
+Attributes: ${sanitize(venueAttributes, 200)}
+Review excerpts: ${safeReviews || "not available"}
+</venue_data>
 
-Couple context:
-Names: ${partnerNames.partner1} & ${partnerNames.partner2}
-Interests: ${interests.join(", ")}
+<couple_context>
+Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
+Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget: €${budgetMax}
+</couple_context>
 
 Also provide: a short catchy title (max 5 words), a single emoji, a 2-4 word vibe label, estimated duration, rough budget range within €${budgetMax}, and 2-4 tags.`;
 
@@ -147,10 +168,13 @@ Also provide: a short catchy title (max 5 words), a single emoji, a 2-4 word vib
     output: Output.object({ schema: DateIdeaSchema }),
     prompt: `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
 
-Couple: ${partnerNames.partner1} & ${partnerNames.partner2}
-Interests: ${interests.join(", ")}
+<couple_context>
+Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
+Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget: €${budgetMax}
-${transportNote}${avoidClause}
+Transport: ${transportNote}
+</couple_context>
+${avoidClause}
 
 The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.
 

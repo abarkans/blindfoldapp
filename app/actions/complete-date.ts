@@ -14,41 +14,21 @@ export async function completeDate(): Promise<CompleteDateResult> {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  // Fetch current XP state
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("total_xp, dates_completed_count")
-    .eq("id", user.id)
-    .single();
+  // Atomically: find the revealed idea (with row lock), mark it completed,
+  // and increment XP + count in a single DB round-trip.
+  // This eliminates the read-then-write race that previously allowed double XP
+  // from concurrent requests. The DB trigger award_milestone_badges() still fires.
+  const { data: result, error } = await supabase.rpc("complete_date_atomic", {
+    p_user_id: user.id,
+    p_xp_gain: XP_PER_DATE,
+  });
 
-  if (!profile) throw new Error("Profile not found");
+  if (error) throw new Error(error.message);
 
-  // Guard: prevent completing a date that is already completed
-  const { data: revealedIdea } = await supabase
-    .from("date_ideas")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("status", "revealed")
-    .order("revealed_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (!revealedIdea) throw new Error("No active date to complete");
-
-  // Mark the date as completed
-  await supabase
-    .from("date_ideas")
-    .update({ status: "completed" })
-    .eq("id", revealedIdea.id);
-
-  const newXp = (profile.total_xp ?? 0) + XP_PER_DATE;
-  const newCount = (profile.dates_completed_count ?? 0) + 1;
-
-  // Update profile — the DB trigger fires award_milestone_badges() automatically
-  await supabase
-    .from("profiles")
-    .update({ total_xp: newXp, dates_completed_count: newCount })
-    .eq("id", user.id);
+  const { total_xp: newXp, dates_completed_count: newCount } = result as {
+    total_xp: number;
+    dates_completed_count: number;
+  };
 
   // Fetch badges earned within the last 10 seconds (just awarded by the trigger)
   const cutoff = new Date(Date.now() - 10_000).toISOString();
