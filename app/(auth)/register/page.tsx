@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Heart } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { isDisposableEmail } from "@/lib/utils/disposable-emails";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
@@ -39,6 +40,13 @@ export default function RegisterPage() {
   async function onSubmit(values: RegisterFormData) {
     setLoading(true);
     setError("");
+
+    if (isDisposableEmail(values.email)) {
+      setError("Disposable email addresses are not allowed. Please use a real email.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
 
     const { error: signUpError } = await supabase.auth.signUp({
