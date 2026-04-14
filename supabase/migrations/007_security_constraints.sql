@@ -5,9 +5,17 @@
 -- L9: Add a CHECK constraint on the cadence column so invalid values are
 --     rejected at the database level regardless of the calling client.
 --     Prevents direct API / SQL injection from setting arbitrary cadence values.
-alter table public.profiles
-  add constraint if not exists profiles_cadence_check
-  check (cadence in ('weekly', 'biweekly', 'monthly', 'spontaneous'));
+--     Wrapped in a DO block so re-running the migration is safe.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'profiles_cadence_check'
+  ) then
+    alter table public.profiles
+      add constraint profiles_cadence_check
+      check (cadence in ('weekly', 'biweekly', 'monthly', 'spontaneous'));
+  end if;
+end $$;
 
 
 -- L3: Harden complete_date_atomic() with a caller identity check.
