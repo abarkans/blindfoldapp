@@ -147,12 +147,14 @@ export async function revealDate() {
     revealed_at: now,
   });
 
-  // Update profile with current idea + timestamp
+  // Update profile with current idea + timestamp.
+  // Reset notification_sent_at so the next cron cycle sends a fresh notification.
   await supabase
     .from("profiles")
     .update({
       revealed_at: now,
       date_idea: idea as unknown as import("@/lib/types").Json,
+      notification_sent_at: null,
     })
     .eq("id", user.id);
 
