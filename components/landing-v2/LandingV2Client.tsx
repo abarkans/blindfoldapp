@@ -104,7 +104,7 @@ export default function LandingV2Client() {
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40">
             <Heart className="w-4 h-4 text-white fill-white" />
           </div>
-          <span className="font-bold text-white text-lg tracking-tight">blindfold</span>
+          <span className="font-bold text-white text-lg tracking-tight">BlindfoldDate</span>
         </div>
         <div className="relative flex items-center gap-3">
           <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors font-medium">
@@ -402,7 +402,7 @@ export default function LandingV2Client() {
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center">
               <Heart className="w-3 h-3 text-white fill-white" />
             </div>
-            <span className="text-white/30 text-sm font-medium">blindfold</span>
+            <span className="text-white/30 text-sm font-medium">BlindfoldDate</span>
           </div>
           <p className="text-white/15 text-xs">Mystery dates for curious couples</p>
         </div>
