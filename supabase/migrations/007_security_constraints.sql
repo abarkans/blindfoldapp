@@ -11,6 +11,12 @@ begin
   if not exists (
     select 1 from pg_constraint where conname = 'profiles_cadence_check'
   ) then
+    -- Normalise any legacy / invalid cadence values before adding the constraint.
+    -- Rows with an unrecognised value are reset to 'weekly' (the safest default).
+    update public.profiles
+      set cadence = 'weekly'
+    where cadence not in ('weekly', 'biweekly', 'monthly', 'spontaneous');
+
     alter table public.profiles
       add constraint profiles_cadence_check
       check (cadence in ('weekly', 'biweekly', 'monthly', 'spontaneous'));
