@@ -1,14 +1,21 @@
 import { z } from "zod";
 
+// Unicode-aware: allows letters from any script (Latin, CJK, Arabic, etc.),
+// combining marks, spaces, hyphens, apostrophes, and dots (e.g. "O'Brien",
+// "Mary-Jane", "J.K."). Blocks control characters and injection characters.
+const nameRegex = /^[\p{L}\p{M}\s'\-.]+$/u;
+
 export const identitySchema = z.object({
   partner1: z
     .string()
     .min(1, "Partner 1 name is required")
-    .max(50, "Name too long"),
+    .max(50, "Name too long")
+    .regex(nameRegex, "Name contains invalid characters"),
   partner2: z
     .string()
     .min(1, "Partner 2 name is required")
-    .max(50, "Name too long"),
+    .max(50, "Name too long")
+    .regex(nameRegex, "Name contains invalid characters"),
 });
 
 export const interestsSchema = z.object({
@@ -25,7 +32,7 @@ export const logisticsSchema = z.object({
 });
 
 export const frequencySchema = z.object({
-  cadence: z.enum(["weekly", "biweekly", "monthly"]),
+  cadence: z.enum(["weekly", "biweekly", "monthly", "spontaneous"]),
 });
 
 export const locationSchema = z.object({

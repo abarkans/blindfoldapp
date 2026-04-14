@@ -10,6 +10,7 @@ import {
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight, ArrowLeft,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
 import type { Profile } from "@/lib/types";
@@ -41,11 +42,29 @@ const CADENCE_LABEL: Record<string, string> = Object.fromEntries(
   CADENCE_OPTIONS.map(({ value, label }) => [value, label])
 );
 
-interface NominatimResult {
-  lat: string;
-  lon: string;
-  display_name: string;
-}
+// Zod schemas to validate Nominatim API responses before trusting coordinates
+// or display names. Prevents malformed/injected data reaching the DB or UI.
+const nominatimSearchSchema = z.array(
+  z.object({
+    lat: z.string().regex(/^-?\d{1,3}\.\d+$/),
+    lon: z.string().regex(/^-?\d{1,3}\.\d+$/),
+    display_name: z.string().max(500),
+  })
+);
+
+const nominatimReverseSchema = z.object({
+  display_name: z.string().max(500).optional(),
+  address: z
+    .object({
+      city: z.string().max(100).optional(),
+      town: z.string().max(100).optional(),
+      village: z.string().max(100).optional(),
+      county: z.string().max(100).optional(),
+    })
+    .optional(),
+});
+
+type NominatimResult = z.infer<typeof nominatimSearchSchema>[number];
 
 async function reverseGeocode(lat: number, lng: number): Promise<string> {
   try {
@@ -53,7 +72,8 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
       { headers: { "Accept-Language": "en" } }
     );
-    const data = await res.json();
+    const raw = await res.json();
+    const data = nominatimReverseSchema.parse(raw);
     const a = data.address ?? {};
     return a.city || a.town || a.village || a.county || data.display_name?.split(",")[0] || `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
   } catch {
@@ -84,6 +104,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [direction, setDirection] = useState(1);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [clearingLocation, setClearingLocation] = useState(false);
   const [error, setError] = useState("");
   const [signOutConfirm, setSignOutConfirm] = useState(false);
   const router = useRouter();
@@ -124,7 +145,10 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
           `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=5&featuretype=city`,
           { headers: { "Accept-Language": "en" } }
         );
-        setSuggestions(await res.json());
+        const raw = await res.json();
+        // Validate response shape before trusting lat/lon values
+        const parsed = nominatimSearchSchema.safeParse(raw);
+        setSuggestions(parsed.success ? parsed.data : []);
       } catch {
         setSuggestions([]);
       } finally {
@@ -148,9 +172,33 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     );
   }
 
+  // L7: Give users explicit control over their stored location (GDPR data minimisation)
+  async function clearLocation() {
+    setClearingLocation(true);
+    setError("");
+    const supabase = createClient();
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ last_lat: null, last_long: null })
+      .eq("id", profile.id);
+    if (updateError) {
+      setError("Failed to clear location. Please try again.");
+    } else {
+      setLat(null);
+      setLng(null);
+      setLocationLabel("");
+      setLocStatus("idle");
+      router.refresh();
+    }
+    setClearingLocation(false);
+  }
+
   function selectSuggestion(result: NominatimResult) {
+    // Nominatim is already validated via nominatimSearchSchema, but parse
+    // once more here to be explicit about safe numeric conversion.
     const parsedLat = parseFloat(result.lat);
     const parsedLng = parseFloat(result.lon);
+    if (!isFinite(parsedLat) || !isFinite(parsedLng)) return;
     setLat(parsedLat);
     setLng(parsedLng);
     setLocationLabel(result.display_name.split(",").slice(0, 2).join(",").trim());
@@ -467,13 +515,23 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                       >
                         <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
                         <p className="text-sm text-white/80 flex-1 truncate">{locationLabel}</p>
-                        <button
-                          type="button"
-                          onClick={() => { setLocStatus("search"); setLat(null); setLng(null); setLocationLabel(""); }}
-                          className="text-xs text-white/30 hover:text-white/60 transition-colors shrink-0"
-                        >
-                          Change
-                        </button>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => { setLocStatus("search"); setLat(null); setLng(null); setLocationLabel(""); }}
+                            className="text-xs text-white/30 hover:text-white/60 transition-colors"
+                          >
+                            Change
+                          </button>
+                          <button
+                            type="button"
+                            onClick={clearLocation}
+                            disabled={clearingLocation}
+                            className="text-xs text-red-400/50 hover:text-red-400 transition-colors disabled:opacity-40"
+                          >
+                            {clearingLocation ? "Clearing…" : "Remove"}
+                          </button>
+                        </div>
                       </motion.div>
                     ) : locStatus === "requesting" ? (
                       <motion.div key="requesting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}

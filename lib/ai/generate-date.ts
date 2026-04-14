@@ -11,8 +11,9 @@ import { z } from "zod";
  */
 function sanitize(value: string, maxLen = 200): string {
   return value
-    .replace(/[<>]/g, "") // strip XML tag delimiters
-    .replace(/\n{3,}/g, "\n\n") // collapse excessive newlines
+    .replace(/[<>]/g, "")   // strip XML tag delimiters (prevents breaking out of <venue_data> etc.)
+    .replace(/\n/g, " ")    // flatten ALL newlines → space (prevents "Ignore prior instructions\n..." injections)
+    .replace(/ {3,}/g, "  ") // collapse runs of 3+ spaces left behind by newline replacement
     .trim()
     .slice(0, maxLen);
 }

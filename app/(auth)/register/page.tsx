@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { Mail, Lock, Heart } from "lucide-react";
+import { Mail, Lock, Heart, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { isDisposableEmail } from "@/lib/utils/disposable-emails";
@@ -30,6 +30,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailSent, setEmailSent] = useState("");
 
   const {
     register,
@@ -61,7 +62,11 @@ export default function RegisterPage() {
       return;
     }
 
-    router.replace("/onboarding");
+    // Don't redirect yet — Supabase requires email confirmation before the
+    // session is active. Show a holding screen; the auth callback handles
+    // the final redirect once the user clicks the confirmation link.
+    setEmailSent(values.email);
+    setLoading(false);
   }
 
   async function handleGoogle() {
@@ -70,6 +75,39 @@ export default function RegisterPage() {
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
+  }
+
+  if (emailSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-full max-w-sm text-center"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-8 h-8 text-emerald-400" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Check your email</h2>
+          <p className="text-white/50 text-sm mb-1">
+            We sent a confirmation link to
+          </p>
+          <p className="text-white font-semibold text-sm mb-6">{emailSent}</p>
+          <p className="text-white/30 text-xs">
+            Click the link in the email to activate your account and start your mystery journey.
+            The link expires in 24 hours.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
+            className="mt-8 text-xs text-white/30 hover:text-white/60 transition-colors"
+          >
+            Back to sign in
+          </button>
+        </motion.div>
+      </div>
+    );
   }
 
   return (

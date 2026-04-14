@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { calcLevel } from "@/lib/utils";
 import type { CompleteDateResult } from "@/lib/types";
+import { checkCompleteRateLimit } from "@/lib/rate-limit";
 
 const XP_PER_DATE = 100;
 
@@ -12,7 +13,12 @@ export async function completeDate(): Promise<CompleteDateResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  if (!user) {
+    console.warn("[audit] complete: unauthenticated attempt");
+    throw new Error("Not authenticated");
+  }
+
+  await checkCompleteRateLimit(user.id);
 
   // Atomically: find the revealed idea (with row lock), mark it completed,
   // and increment XP + count in a single DB round-trip.
@@ -23,7 +29,10 @@ export async function completeDate(): Promise<CompleteDateResult> {
     p_xp_gain: XP_PER_DATE,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error(`[audit] complete: rpc error uid=${user.id} msg=${error.message}`);
+    throw new Error(error.message);
+  }
 
   const { total_xp: newXp, dates_completed_count: newCount } = result as {
     total_xp: number;
@@ -38,6 +47,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
     .eq("user_id", user.id)
     .gte("earned_at", cutoff);
 
+  console.info(`[audit] complete: success uid=${user.id} xp=${newXp} dates=${newCount}`);
   revalidatePath("/dashboard");
 
   return {

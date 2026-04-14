@@ -30,10 +30,18 @@ export async function GET(request: NextRequest) {
   if (!res.ok) return new Response("Photo not found", { status: 404 });
 
   const buffer = await res.arrayBuffer();
+
+  // Allowlist the content type — never blindly forward an arbitrary value from
+  // a third party (e.g. text/html would allow XSS if the browser renders it).
+  const rawType = res.headers.get("Content-Type") ?? "";
+  const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const contentType = ALLOWED_IMAGE_TYPES.includes(rawType) ? rawType : "image/jpeg";
+
   return new Response(buffer, {
     headers: {
-      "Content-Type": res.headers.get("Content-Type") ?? "image/jpeg",
+      "Content-Type": contentType,
       "Cache-Control": "public, max-age=86400",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

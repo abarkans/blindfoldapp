@@ -1,9 +1,28 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
+import { checkRevealRateLimit } from "@/lib/rate-limit";
+
+// Validate the shape of the profile row fetched from the DB.
+// Prevents compromised/malformed data from reaching AI prompts or place searches.
+const profileSchema = z.object({
+  partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
+  interests: z.array(z.string()),
+  constraints: z.object({
+    budget_max: z.number().min(10).max(200),
+    has_car: z.boolean(),
+    prefers_walking: z.boolean(),
+  }),
+  cadence: z.enum(["weekly", "biweekly", "monthly", "spontaneous"]),
+  revealed_at: z.string().nullable(),
+  last_lat: z.number().nullable(),
+  last_long: z.number().nullable(),
+  preferred_radius: z.number().nullable(),
+});
 
 export async function revealDate() {
   const supabase = await createClient();
@@ -11,15 +30,23 @@ export async function revealDate() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Not authenticated");
+  if (!user) {
+    console.warn("[audit] reveal: unauthenticated attempt");
+    throw new Error("Not authenticated");
+  }
 
-  const { data: profile } = await supabase
+  await checkRevealRateLimit(user.id);
+
+  const { data: raw } = await supabase
     .from("profiles")
     .select("partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius")
     .eq("id", user.id)
     .single();
 
-  if (!profile) throw new Error("Profile not found");
+  if (!raw) throw new Error("Profile not found");
+
+  // Validate + type the profile row at the server trust boundary
+  const profile = profileSchema.parse(raw);
 
   // Guard: check cooldown server-side
   const cadenceDays: Record<string, number> = {
@@ -29,24 +56,17 @@ export async function revealDate() {
     spontaneous: 3,
   };
 
-  if (!Object.hasOwn(cadenceDays, profile.cadence)) {
-    throw new Error("Invalid cadence value");
-  }
-
   if (profile.revealed_at) {
     const days = cadenceDays[profile.cadence];
     const nextAvailable = new Date(profile.revealed_at);
     nextAvailable.setDate(nextAvailable.getDate() + days);
     if (new Date() < nextAvailable) {
+      console.warn(`[audit] reveal: cooldown violation uid=${user.id} next=${nextAvailable.toISOString()}`);
       throw new Error("Next date not available yet");
     }
   }
 
-  const constraints = profile.constraints as {
-    budget_max: number;
-    has_car: boolean;
-    prefers_walking: boolean;
-  };
+  const { constraints } = profile;
 
   // Server-side allowlist: reject interests that weren't set via the legitimate onboarding UI
   const VALID_INTERESTS = new Set([
@@ -81,7 +101,7 @@ export async function revealDate() {
 
     // Enrich the venue with AI-generated description, vibe, tags etc.
     const aiEnrichment = await generateAIDateIdea({
-      partnerNames: profile.partner_names as { partner1: string; partner2: string },
+      partnerNames: profile.partner_names,
       interests: safeInterests,
       budgetMax: constraints.budget_max,
       hasCar: constraints.has_car,
@@ -110,7 +130,7 @@ export async function revealDate() {
       .filter(Boolean) as string[];
 
     idea = await generateAIDateIdea({
-      partnerNames: profile.partner_names as { partner1: string; partner2: string },
+      partnerNames: profile.partner_names,
       interests: safeInterests,
       budgetMax: constraints.budget_max,
       hasCar: constraints.has_car,
@@ -136,5 +156,6 @@ export async function revealDate() {
     })
     .eq("id", user.id);
 
+  console.info(`[audit] reveal: success uid=${user.id} mode=${profile.last_lat ? "venue" : "ai"}`);
   revalidatePath("/dashboard");
 }
