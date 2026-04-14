@@ -66,7 +66,7 @@ export default function DashboardTabs({
               <Heart className="w-4 h-4 text-white fill-white" />
             </div>
             <div>
-              <p className="text-[10px] text-white/40 uppercase tracking-widest">Blindfold</p>
+              <p className="text-[10px] text-white/40 uppercase tracking-widest">BlindfoldDate</p>
               <p className="text-sm font-bold text-white leading-tight">
                 {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}
               </p>

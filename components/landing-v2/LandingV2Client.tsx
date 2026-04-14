@@ -31,7 +31,7 @@ const TESTIMONIALS = [
     emoji: "🥂",
   },
   {
-    quote: "He's terrible at planning and I always end up choosing. Blindfold fixed us. I literally gasped when it revealed a rooftop jazz bar.",
+    quote: "He's terrible at planning and I always end up choosing. BlindfoldDate fixed us. I literally gasped when it revealed a rooftop jazz bar.",
     names: "Sofia & Luca",
     location: "Milan",
     dates: "7 mystery dates",
@@ -139,7 +139,7 @@ export default function LandingV2Client() {
         </motion.h1>
 
         <motion.p {...fadeUp(0.2)} className="text-white/50 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-          Blindfold plans your perfect mystery date — real venues, AI-crafted story, complete surprise.
+          BlindfoldDate plans your perfect mystery date — real venues, AI-crafted story, complete surprise.
           You just show up and fall in love all over again.
         </motion.p>
 

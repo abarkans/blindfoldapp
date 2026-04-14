@@ -2,4 +2,4 @@ import { Resend } from "resend";
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const FROM_ADDRESS = "Blindfold <onboarding@resend.dev>";
+export const FROM_ADDRESS = "BlindfoldDate <onboarding@resend.dev>";

@@ -45,7 +45,7 @@ export function dateReadyEmail({ partner1, partner2 }: DateReadyEmailProps): {
 
               <!-- Body -->
               <p style="margin:0 0 28px;text-align:center;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6);">
-                A mystery date has been lined up for you. Head over to Blindfold to reveal where the night takes you.
+                A mystery date has been lined up for you. Head over to BlindfoldDate to reveal where the night takes you.
               </p>
 
               <!-- CTA -->
@@ -66,8 +66,8 @@ export function dateReadyEmail({ partner1, partner2 }: DateReadyEmailProps): {
           <tr>
             <td align="center" style="padding-top:24px;">
               <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.3);">
-                You're receiving this because you have a Blindfold account.<br />
-                © ${new Date().getFullYear()} Blindfold
+                You're receiving this because you have a BlindfoldDate account.<br />
+                © ${new Date().getFullYear()} BlindfoldDate
               </p>
             </td>
           </tr>

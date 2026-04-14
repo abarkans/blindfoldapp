@@ -115,7 +115,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
           <Heart className="w-5 h-5 text-white fill-white" />
         </div>
         <div className="text-left">
-          <h1 className="text-base font-bold text-white">Blindfold</h1>
+          <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
           <p className="text-white/40 text-xs">Let&apos;s set up your dates</p>
         </div>
       </button>

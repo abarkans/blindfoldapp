@@ -123,7 +123,7 @@ export default function RegisterPage() {
             <Heart className="w-7 h-7 text-white fill-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-xl font-bold text-white">Blindfold</h1>
+            <h1 className="text-xl font-bold text-white">BlindfoldDate</h1>
             <p className="text-white/40 text-sm">Start your mystery journey</p>
           </div>
         </Link>
