@@ -318,7 +318,7 @@ export default function DateCard({
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-rose-400" />
               <span className="text-xs font-semibold text-rose-400 uppercase tracking-widest">
-                {completed ? "Completed Date" : "Mystery Date"}
+                Mystery Date
               </span>
             </div>
             {nextRevealDate && !canReveal && (
