@@ -11,6 +11,7 @@ import {
   Sparkles, Lock, Check, Zap, Crown,
 } from "lucide-react";
 import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
+import { updatePlanType } from "@/app/actions/update-plan";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
@@ -109,13 +110,9 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [clearingLocation, setClearingLocation] = useState(false);
   const [error, setError] = useState("");
   const [signOutConfirm, setSignOutConfirm] = useState(false);
-  const [planType, setPlanType] = useState<PlanId>(() => {
-    try {
-      const stored = localStorage.getItem("user-plan");
-      if (stored) return (JSON.parse(stored) as { planType: PlanId }).planType ?? "free";
-    } catch {}
-    return "free";
-  });
+  const [planType, setPlanType] = useState<PlanId>(
+    (profile.plan_type as PlanId) ?? "free"
+  );
   const router = useRouter();
 
   // Lock background scroll while sign-out confirm is open
@@ -287,10 +284,13 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     router.push("/");
   }
 
-  function handleUpgradePlan() {
-    // TODO: Integrate Stripe Checkout
-    const newPlan = { planType: "subscription" as PlanId, dateFrequency: "monthly" };
-    localStorage.setItem("user-plan", JSON.stringify(newPlan));
+  async function handleUpgradePlan() {
+    // TODO: Integrate Stripe Checkout before enabling subscription
+    const { error: updateError } = await updatePlanType("subscription");
+    if (updateError) {
+      setError("Failed to update plan. Please try again.");
+      return;
+    }
     setPlanType("subscription");
   }
 

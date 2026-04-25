@@ -126,6 +126,7 @@ export interface Database {
           last_lat: number | null;
           last_long: number | null;
           notification_sent_at: string | null;
+          plan_type: string;
           created_at: string;
           updated_at: string;
         };
@@ -148,6 +149,7 @@ export interface Database {
           last_lat?: number | null;
           last_long?: number | null;
           notification_sent_at?: string | null;
+          plan_type?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -170,6 +172,7 @@ export interface Database {
           last_lat?: number | null;
           last_long?: number | null;
           notification_sent_at?: string | null;
+          plan_type?: string;
           created_at?: string;
           updated_at?: string;
         };

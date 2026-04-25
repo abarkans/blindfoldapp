@@ -91,6 +91,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
         prefers_walking: data.prefers_walking ?? false,
       },
       cadence: data.cadence ?? "monthly",
+      plan_type: data.plan_type ?? "free",
       last_lat: loc.lat,
       last_long: loc.lng,
       preferred_radius: loc.preferred_radius,

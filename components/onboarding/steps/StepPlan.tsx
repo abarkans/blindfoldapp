@@ -6,7 +6,6 @@ import { Check, ArrowLeft, Lock, Sparkles, Zap } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { PLANS, type PlanId } from "@/lib/plans";
 import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
-import type { UserPlan } from "@/lib/types";
 
 interface StepPlanProps {
   onNext: (data: { plan_type: PlanId; cadence: string }) => void;
@@ -30,9 +29,6 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
     setSelectedPlan(planId);
 
     if (planId === "free") {
-      // TODO: Integrate Stripe Checkout
-      const userPlan: UserPlan = { planType: "free", dateFrequency: "monthly" };
-      localStorage.setItem("user-plan", JSON.stringify(userPlan));
       onNext({ plan_type: "free", cadence: "monthly" });
     } else {
       setSubStep("frequency");
@@ -45,8 +41,6 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
       return;
     }
     // TODO: Integrate Stripe Checkout
-    const userPlan: UserPlan = { planType: "subscription", dateFrequency: selectedCadence };
-    localStorage.setItem("user-plan", JSON.stringify(userPlan));
     onNext({ plan_type: "subscription", cadence: selectedCadence });
   }
 
