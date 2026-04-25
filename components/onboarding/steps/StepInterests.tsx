@@ -4,7 +4,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Utensils, Music, TreePine, Palette, Dumbbell, Film,
-  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ArrowLeft, Lock,
+  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ArrowLeft,
+  Sparkles, Check, ArrowRight,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
@@ -24,6 +25,12 @@ const INTERESTS = [
   { id: "romance", label: "Romance", icon: Heart },
 ];
 
+const UNLOCK_FEATURES = [
+  { text: "All 12 interest categories", key: true },
+  { text: "Weekly, Bi-weekly, or Monthly dates", key: true },
+  { text: "Full customization & enhanced AI", key: false },
+];
+
 interface StepInterestsProps {
   defaultValues?: string[];
   planType?: PlanId;
@@ -36,13 +43,11 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
   const [error, setError] = useState("");
 
   const isFree = planType === "free";
-
-  function isLocked(id: string): boolean {
-    return isFree && !(FREE_INTERESTS as readonly string[]).includes(id);
-  }
+  const visibleInterests = isFree
+    ? INTERESTS.filter(({ id }) => (FREE_INTERESTS as readonly string[]).includes(id))
+    : INTERESTS;
 
   function toggle(id: string) {
-    if (isLocked(id)) return;
     setError("");
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
@@ -63,46 +68,67 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
         <h2 className="text-2xl font-bold text-white">What do you love?</h2>
         <p className="text-white/50 text-sm">
           {isFree
-            ? "Free plan includes Food, Nature & Romance. Upgrade for all 12 categories."
+            ? "Your free plan includes these categories."
             : "Pick interests to help us craft perfect mystery dates."}
         </p>
       </div>
 
       <div className="grid grid-cols-3 gap-2.5">
-        {INTERESTS.map(({ id, label, icon: Icon }) => {
+        {visibleInterests.map(({ id, label, icon: Icon }) => {
           const isSelected = selected.includes(id);
-          const locked = isLocked(id);
           return (
             <motion.button
               key={id}
               type="button"
-              whileTap={locked ? {} : { scale: 0.93 }}
+              whileTap={{ scale: 0.93 }}
               onClick={() => toggle(id)}
               className={[
-                "relative flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200",
-                locked
-                  ? "bg-white/[0.02] border-white/5 cursor-not-allowed opacity-40"
-                  : isSelected
-                    ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
-                    : "bg-white/5 border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200",
+                "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200",
+                isSelected
+                  ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
+                  : "bg-white/5 border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200",
               ].join(" ")}
-              disabled={locked}
-              aria-label={locked ? `${label} — subscription only` : label}
             >
-              {locked && (
-                <Lock className="absolute top-1.5 right-1.5 w-2.5 h-2.5 text-white/20" />
-              )}
-              <Icon className={`w-5 h-5 ${locked ? "text-white/20" : isSelected ? "text-pink-400" : "text-slate-400"}`} />
+              <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : "text-slate-400"}`} />
               <span className="text-xs font-medium leading-tight">{label}</span>
             </motion.button>
           );
         })}
       </div>
 
+      {/* Upgrade card — free plan only */}
       {isFree && (
-        <p className="text-[11px] text-white/25 text-center -mt-2">
-          🔒 9 categories unlocked with Subscription
-        </p>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="bg-gradient-to-br from-pink-500/15 to-violet-500/10 border border-pink-500/40 rounded-2xl p-4 flex flex-col gap-3"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-pink-500/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+            </div>
+            <p className="text-sm font-bold text-white">Unlock all 12 categories</p>
+          </div>
+
+          <ul className="flex flex-col gap-1.5">
+            {UNLOCK_FEATURES.map(({ text, key }) => (
+              <li key={text} className="flex items-start gap-2">
+                <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${key ? "text-pink-400" : "text-emerald-400/70"}`} />
+                <span className={`text-xs ${key ? "text-white font-semibold" : "text-white/55"}`}>{text}</span>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-pink-500/20 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
+          >
+            Switch to Subscription
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </motion.div>
       )}
 
       {error && <p className="text-xs text-red-400">{error}</p>}

@@ -8,7 +8,9 @@ import {
   Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight, ArrowLeft,
+  Sparkles, Lock, Check, Zap, Crown,
 } from "lucide-react";
+import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
@@ -81,7 +83,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
   }
 }
 
-type SettingsView = "list" | "partners" | "interests" | "logistics" | "location" | "frequency";
+type SettingsView = "list" | "partners" | "interests" | "logistics" | "location" | "frequency" | "plan";
 
 interface SettingsPanelProps {
   profile: Profile;
@@ -107,6 +109,13 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [clearingLocation, setClearingLocation] = useState(false);
   const [error, setError] = useState("");
   const [signOutConfirm, setSignOutConfirm] = useState(false);
+  const [planType, setPlanType] = useState<PlanId>(() => {
+    try {
+      const stored = localStorage.getItem("user-plan");
+      if (stored) return (JSON.parse(stored) as { planType: PlanId }).planType ?? "free";
+    } catch {}
+    return "free";
+  });
   const router = useRouter();
 
   // Lock background scroll while sign-out confirm is open
@@ -278,6 +287,13 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     router.push("/");
   }
 
+  function handleUpgradePlan() {
+    // TODO: Integrate Stripe Checkout
+    const newPlan = { planType: "subscription" as PlanId, dateFrequency: "monthly" };
+    localStorage.setItem("user-plan", JSON.stringify(newPlan));
+    setPlanType("subscription");
+  }
+
   // Summary strings shown on the list view
   const interestsSummary = interests?.length > 0
     ? interests.slice(0, 2).map((id) => INTEREST_LABEL[id] ?? id).join(", ") +
@@ -295,7 +311,10 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     { id: "interests", label: "Interests", icon: Tag, summary: interestsSummary },
     { id: "logistics", label: "Logistics", icon: Sliders, summary: logisticsSummary },
     { id: "location", label: "Location", icon: MapPin, summary: locationLabel || "Not set" },
-    { id: "frequency", label: "Date frequency", icon: Calendar, summary: CADENCE_LABEL[selectedCadence] ?? selectedCadence },
+    ...(planType === "subscription"
+      ? [{ id: "frequency" as SettingsView, label: "Date frequency", icon: Calendar, summary: CADENCE_LABEL[selectedCadence] ?? selectedCadence }]
+      : []),
+    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? "Subscription · €9.99/mo" : "Free · Upgrade available" },
   ];
 
   function navigate(to: SettingsView) {
@@ -433,8 +452,19 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
               {/* Section: Interests */}
               {view === "interests" && (
                 <>
+                  {planType === "free" && (
+                    <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-3">
+                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <p className="text-xs text-amber-300/80">
+                        Free plan includes Food, Nature & Romance. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> for all 12.
+                      </p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-3 gap-2">
-                    {INTERESTS.map(({ id, label, icon: Icon }) => {
+                    {(planType === "free"
+                      ? INTERESTS.filter(({ id }) => (FREE_INTERESTS as readonly string[]).includes(id))
+                      : INTERESTS
+                    ).map(({ id, label, icon: Icon }) => {
                       const isSelected = interests?.includes(id);
                       return (
                         <button
@@ -643,16 +673,94 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                 />
               )}
 
-              <motion.div
-                animate={saved ? { scale: [1, 1.02, 1] } : {}}
-                transition={{ duration: 0.3 }}
-                className="mt-6"
-              >
-                <Button type="submit" size="lg" className="w-full" loading={saving}>
-                  <Save className="w-4 h-4 mr-2" />
-                  {saved ? "Saved!" : "Save Changes"}
-                </Button>
-              </motion.div>
+              {/* Section: Plan */}
+              {view === "plan" && (
+                <div className="flex flex-col gap-3">
+                  {/* Current plan badge */}
+                  <div className={[
+                    "flex items-center gap-3 rounded-2xl border p-4",
+                    planType === "subscription"
+                      ? "bg-gradient-to-br from-pink-500/15 to-violet-500/10 border-pink-500/40"
+                      : "bg-white/5 border-white/10",
+                  ].join(" ")}>
+                    <div className={[
+                      "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+                      planType === "subscription" ? "bg-pink-500/20" : "bg-white/8",
+                    ].join(" ")}>
+                      {planType === "subscription"
+                        ? <Crown className="w-4 h-4 text-pink-400" />
+                        : <Lock className="w-4 h-4 text-white/40" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white">
+                        {planType === "subscription" ? "Subscription" : "Free"}
+                      </p>
+                      <p className="text-xs text-white/40 mt-0.5">
+                        {planType === "subscription"
+                          ? "€9.99/month · Cancel anytime"
+                          : "1 date/month · Limited categories"}
+                      </p>
+                    </div>
+                    {planType === "subscription" && (
+                      <span className="ml-auto text-[10px] font-bold text-pink-400 bg-pink-500/15 border border-pink-500/30 px-2 py-0.5 rounded-full">
+                        Active
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Upgrade card — free users only */}
+                  {planType === "free" && (
+                    <div className="bg-gradient-to-br from-pink-500/15 to-violet-500/10 border border-pink-500/40 rounded-2xl p-5 flex flex-col gap-4">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-pink-400" />
+                        <p className="text-sm font-bold text-white">Unlock Subscription</p>
+                        <span className="ml-auto text-base font-black text-white">€9.99<span className="text-xs font-normal text-white/40">/mo</span></span>
+                      </div>
+                      <ul className="flex flex-col gap-2">
+                        {[
+                          { text: "Weekly, Bi-weekly, or Monthly dates", key: true },
+                          { text: "All 12 interest categories", key: true },
+                          { text: "Full customization", key: true },
+                          { text: "Enhanced AI personalization", key: false },
+                        ].map(({ text, key }) => (
+                          <li key={text} className="flex items-start gap-2">
+                            <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${key ? "text-pink-400" : "text-emerald-400/70"}`} />
+                            <span className={`text-xs ${key ? "text-white font-semibold" : "text-white/55"}`}>{text}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        type="button"
+                        onClick={handleUpgradePlan}
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-sm font-bold shadow-lg shadow-pink-500/25 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
+                      >
+                        <Zap className="w-4 h-4 text-rose-200" />
+                        Subscribe · €9.99/mo
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Subscription active info */}
+                  {planType === "subscription" && (
+                    <p className="text-xs text-white/30 text-center px-2">
+                      To manage or cancel your subscription, visit your account billing settings.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {view !== "plan" && (
+                <motion.div
+                  animate={saved ? { scale: [1, 1.02, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                  className="mt-6"
+                >
+                  <Button type="submit" size="lg" className="w-full" loading={saving}>
+                    <Save className="w-4 h-4 mr-2" />
+                    {saved ? "Saved!" : "Save Changes"}
+                  </Button>
+                </motion.div>
+              )}
             </form>
           </motion.div>
         )}
