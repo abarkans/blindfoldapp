@@ -2,10 +2,12 @@
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star } from "lucide-react";
+import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { revealDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
+import { acceptDate } from "@/app/actions/accept-date";
+import { rerollDate } from "@/app/actions/reroll";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
@@ -19,6 +21,14 @@ const LOADING_MESSAGES = [
   "The city has something special planned...",
   "Reading your love language...",
   "Mixing mystery with a dash of romance...",
+];
+
+const REROLL_MESSAGES = [
+  "Shuffling the deck...",
+  "Finding something even better...",
+  "Rolling the dice...",
+  "Conjuring a new mystery...",
+  "Searching for the perfect swap...",
 ];
 
 // AI-generated idea shape
@@ -58,6 +68,10 @@ interface DateCardProps {
   dateIdea: DateIdea | null;
   isDateCompleted: boolean;
   onGoToProgress: () => void;
+  planType: string;
+  totalRerollsUsed: number;
+  currentDateRerolled: boolean;
+  dateAcceptedAt: string | null;
 }
 
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
@@ -150,27 +164,16 @@ function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
       onTouchEnd={cancelHold}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {/* Track background */}
       <div className="absolute inset-0 rounded-2xl bg-green-500/15 border border-green-500/30" />
-      {/* Fill — reveals gradient from left via clip-path */}
       <div
         className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 shadow-md shadow-green-500/30"
-        style={{
-          clipPath: `inset(0 ${(1 - progress) * 100}% 0 0 round 16px)`,
-        }}
+        style={{ clipPath: `inset(0 ${(1 - progress) * 100}% 0 0 round 16px)` }}
       />
-      {/* Label */}
       <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
         <CheckCircle2
-          className={`w-4 h-4 transition-colors duration-150 ${
-            progress > 0.5 ? "text-white" : "text-green-400"
-          }`}
+          className={`w-4 h-4 transition-colors duration-150 ${progress > 0.5 ? "text-white" : "text-green-400"}`}
         />
-        <span
-          className={`text-sm font-semibold transition-colors duration-150 ${
-            progress > 0.5 ? "text-white" : "text-green-300"
-          }`}
-        >
+        <span className={`text-sm font-semibold transition-colors duration-150 ${progress > 0.5 ? "text-white" : "text-green-300"}`}>
           {label}
         </span>
       </div>
@@ -180,17 +183,13 @@ function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
 
 function useCountdown(target: Date | null) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
-
   const targetMs = target?.getTime() ?? null;
 
   useEffect(() => {
     if (!targetMs) return;
     function update() {
       const diff = targetMs! - Date.now();
-      if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
+      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return; }
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -212,29 +211,45 @@ export default function DateCard({
   dateIdea,
   isDateCompleted,
   onGoToProgress,
+  planType,
+  totalRerollsUsed,
+  currentDateRerolled,
+  dateAcceptedAt,
 }: DateCardProps) {
   const [isPending, startTransition] = useTransition();
   const [isCompletePending, startCompleteTransition] = useTransition();
+  const [isRerollPending, startRerollTransition] = useTransition();
   const [error, setError] = useState("");
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [revealed, setRevealed] = useState(
     !!dateIdea && !!revealedAt && !isRevealAvailable(revealedAt, cadence)
   );
   const [completed, setCompleted] = useState(isDateCompleted);
+  const [accepted, setAccepted] = useState(!!dateAcceptedAt);
+  const [rerollModalOpen, setRerollModalOpen] = useState(false);
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
+
+  // Sync accepted state when the server updates dateAcceptedAt (after reroll resets it)
+  useEffect(() => { setAccepted(!!dateAcceptedAt); }, [dateAcceptedAt]);
+
+  const isFree = planType !== "subscription";
+  const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
 
   const canReveal = isRevealAvailable(revealedAt, cadence);
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
   const countdown = useCountdown(completed && nextRevealDate ? nextRevealDate : null);
 
+  const isLoading = isPending || isRerollPending;
+
   useEffect(() => {
-    if (!isPending) return;
+    if (!isLoading) return;
     setLoadingMsgIndex(Math.floor(Math.random() * LOADING_MESSAGES.length));
+    const messages = isRerollPending ? REROLL_MESSAGES : LOADING_MESSAGES;
     const interval = setInterval(() => {
-      setLoadingMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+      setLoadingMsgIndex((i) => (i + 1) % messages.length);
     }, 2500);
     return () => clearInterval(interval);
-  }, [isPending]);
+  }, [isLoading, isRerollPending]);
 
   function handleReveal() {
     setError("");
@@ -243,6 +258,25 @@ export default function DateCard({
         await revealDate();
         setRevealed(true);
         setCompleted(false);
+        setAccepted(false);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong");
+      }
+    });
+  }
+
+  function handleAccept() {
+    setAccepted(true); // optimistic — server confirms via revalidatePath
+    acceptDate().catch(() => setAccepted(false));
+  }
+
+  function handleRerollConfirm() {
+    setRerollModalOpen(false);
+    setError("");
+    startRerollTransition(async () => {
+      try {
+        await rerollDate();
+        // dateIdea prop updates via RSC re-render; accepted syncs via useEffect
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       }
@@ -284,20 +318,14 @@ export default function DateCard({
               { value: countdown.seconds, label: "Secs" },
             ].map(({ value, label }) => (
               <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3 text-center">
-                <p className="text-2xl font-black text-white tabular-nums">
-                  {String(value).padStart(2, "0")}
-                </p>
+                <p className="text-2xl font-black text-white tabular-nums">{String(value).padStart(2, "0")}</p>
                 <p className="text-[10px] text-white/35 mt-0.5">{label}</p>
               </div>
             ))}
           </div>
           <p className="text-xs text-white/25 text-center mt-3">
             Available on{" "}
-            {nextRevealDate.toLocaleDateString("en-GB", {
-              weekday: "long",
-              day: "numeric",
-              month: "short",
-            })}
+            {nextRevealDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" })}
           </p>
         </motion.div>
       )}
@@ -324,9 +352,7 @@ export default function DateCard({
             {nextRevealDate && !canReveal && (
               <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1">
                 <Clock className="w-3 h-3 text-white/50" />
-                <span className="text-xs text-white/50">
-                  Next {formatRelative(nextRevealDate)}
-                </span>
+                <span className="text-xs text-white/50">Next {formatRelative(nextRevealDate)}</span>
               </div>
             )}
           </div>
@@ -342,7 +368,7 @@ export default function DateCard({
                 transition={{ duration: 0.5, ease: "easeOut" }}
               >
                 {completed ? (
-                  /* ── COMPLETED: collapsed date card ── */
+                  /* ── COMPLETED: collapsed card ── */
                   <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-4 py-4">
                     {isVenue(dateIdea) ? (
                       <MapPin className="w-7 h-7 text-pink-400 shrink-0" />
@@ -362,10 +388,115 @@ export default function DateCard({
                       <span className="text-xs font-semibold text-emerald-400">Done</span>
                     </div>
                   </div>
+
+                ) : isRerollPending ? (
+                  /* ── REROLLING: loading state ── */
+                  <div className="flex flex-col items-center gap-3 py-8">
+                    <div className="flex gap-1.5">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="w-2 h-2 rounded-full bg-rose-400"
+                          animate={{ y: [0, -8, 0] }}
+                          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+                        />
+                      ))}
+                    </div>
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={loadingMsgIndex}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.4 }}
+                        className="text-sm text-white/50 text-center px-4"
+                      >
+                        {REROLL_MESSAGES[loadingMsgIndex % REROLL_MESSAGES.length]}
+                      </motion.p>
+                    </AnimatePresence>
+                  </div>
+
+                ) : !accepted ? (
+                  /* ── ACCEPT / RE-ROLL CHOICE ── */
+                  <motion.div
+                    key="choice"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col gap-4"
+                  >
+                    {/* Peek preview */}
+                    <div className="bg-gradient-to-br from-rose-500/15 to-violet-600/10 border border-rose-500/20 rounded-2xl p-4 text-center">
+                      {isVenue(dateIdea) ? (
+                        <>
+                          <div className="w-12 h-12 rounded-xl bg-rose-500/20 flex items-center justify-center mx-auto mb-3">
+                            <MapPin className="w-6 h-6 text-rose-400" />
+                          </div>
+                          <p className="text-base font-bold text-white mb-1">{dateIdea.display_name}</p>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                            <span className="text-xs text-white/50">{dateIdea.rating.toFixed(1)}</span>
+                            {dateIdea.ai?.vibe && (
+                              <>
+                                <span className="text-white/20">·</span>
+                                <span className="text-xs text-rose-300">{dateIdea.ai.vibe}</span>
+                              </>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-4xl mb-3">{dateIdea.emoji}</div>
+                          <p className="text-base font-bold text-white mb-1">{dateIdea.title}</p>
+                          <p className="text-xs text-rose-300">{dateIdea.vibe}</p>
+                        </>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-white/35 text-center">
+                      Does this date spark your interest, or shall we roll the dice again?
+                    </p>
+
+                    {error && <p className="text-xs text-red-400 text-center">{error}</p>}
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Re-roll button */}
+                      <button
+                        type="button"
+                        disabled={!canReroll}
+                        onClick={() => canReroll && setRerollModalOpen(true)}
+                        className={[
+                          "flex flex-col items-center gap-1.5 py-3.5 rounded-2xl border text-sm font-semibold transition-all active:scale-95",
+                          canReroll
+                            ? "bg-white/5 border-white/15 text-white/70 hover:border-white/30 hover:text-white"
+                            : "bg-white/3 border-white/8 text-white/25 cursor-not-allowed",
+                        ].join(" ")}
+                      >
+                        <Shuffle className="w-4 h-4" />
+                        Re-roll
+                        <span className={`text-[10px] font-normal ${canReroll ? "text-white/35" : "text-white/20"}`}>
+                          {isFree
+                            ? totalRerollsUsed >= 1 ? "No rolls left" : "1 left (lifetime)"
+                            : currentDateRerolled ? "Used for this date" : "1 per date"}
+                        </span>
+                      </button>
+
+                      {/* Accept button */}
+                      <button
+                        type="button"
+                        onClick={handleAccept}
+                        className="flex flex-col items-center gap-1.5 py-3.5 rounded-2xl border bg-gradient-to-br from-pink-500/20 to-rose-500/10 border-pink-500/50 text-pink-200 text-sm font-semibold hover:from-pink-500/30 hover:border-pink-400/60 transition-all active:scale-95"
+                      >
+                        <Check className="w-4 h-4" />
+                        Accept Date
+                        <span className="text-[10px] font-normal text-pink-300/50">Let&apos;s do this!</span>
+                      </button>
+                    </div>
+                  </motion.div>
+
                 ) : isVenue(dateIdea) ? (
-                  /* ── ACTIVE VENUE: venue card ── */
+                  /* ── ACCEPTED VENUE ── */
                   <>
-                    {/* Photo or placeholder */}
                     <div className="relative rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/8">
                       {dateIdea.photo_name ? (
                         <img
@@ -378,14 +509,12 @@ export default function DateCard({
                           <MapPin className="w-10 h-10 text-white/20" />
                         </div>
                       )}
-                      {/* Rating badge */}
                       <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
                         <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
                         <span className="text-xs font-bold text-white">{dateIdea.rating.toFixed(1)}</span>
                       </div>
                     </div>
 
-                    {/* AI enrichment header */}
                     {dateIdea.ai ? (
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-1">
@@ -402,12 +531,10 @@ export default function DateCard({
                       </div>
                     )}
 
-                    {/* AI description */}
                     {dateIdea.ai?.description && (
                       <p className="text-white/60 text-sm leading-relaxed mb-4">{dateIdea.ai.description}</p>
                     )}
 
-                    {/* Mission */}
                     {dateIdea.ai?.mission && (
                       <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">Your mission</p>
@@ -415,7 +542,6 @@ export default function DateCard({
                       </div>
                     )}
 
-                    {/* Details row */}
                     {dateIdea.ai && (
                       <div className="grid grid-cols-3 gap-2 mb-4">
                         {[
@@ -431,18 +557,14 @@ export default function DateCard({
                       </div>
                     )}
 
-                    {/* Tags */}
                     {dateIdea.ai?.tags && (
                       <div className="flex flex-wrap gap-1.5 mb-4">
                         {dateIdea.ai.tags.map((tag) => (
-                          <span key={tag} className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">
-                            {tag}
-                          </span>
+                          <span key={tag} className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">{tag}</span>
                         ))}
                       </div>
                     )}
 
-                    {/* Navigate button */}
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
                       target="_blank"
@@ -453,10 +575,7 @@ export default function DateCard({
                       Navigate to Date
                     </a>
 
-                    {/* Complete Date button */}
-                    {error && (
-                      <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
-                    )}
+                    {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-2xl bg-green-500/20 border border-green-500/30">
                         <motion.div
@@ -470,10 +589,10 @@ export default function DateCard({
                       <HoldToCompleteButton onComplete={handleComplete} />
                     )}
                   </>
+
                 ) : (
-                  /* ── ACTIVE AI: full view ── */
+                  /* ── ACCEPTED AI ── */
                   <>
-                    {/* Emoji + title */}
                     <div className="bg-gradient-to-br from-rose-500/20 to-violet-600/10 rounded-2xl p-5 mb-4 text-center border border-rose-500/20">
                       <motion.div
                         initial={{ scale: 0.5, opacity: 0 }}
@@ -487,12 +606,8 @@ export default function DateCard({
                       <p className="text-xs text-rose-300 font-medium">{dateIdea.vibe}</p>
                     </div>
 
-                    {/* Description */}
-                    <p className="text-white/60 text-sm leading-relaxed mb-4">
-                      {dateIdea.description}
-                    </p>
+                    <p className="text-white/60 text-sm leading-relaxed mb-4">{dateIdea.description}</p>
 
-                    {/* Mission */}
                     {dateIdea.mission && (
                       <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">Your mission</p>
@@ -500,39 +615,26 @@ export default function DateCard({
                       </div>
                     )}
 
-                    {/* Details row */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {[
                         { icon: Timer, value: dateIdea.duration },
                         { icon: Wallet, value: dateIdea.budget_range },
                         { icon: MapPin, value: dateIdea.tags[0] ?? "Anywhere" },
                       ].map(({ icon: Icon, value }) => (
-                        <div
-                          key={value}
-                          className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8"
-                        >
+                        <div key={value} className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8">
                           <Icon className="w-3.5 h-3.5 text-rose-400" />
                           <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
                         </div>
                       ))}
                     </div>
 
-                    {/* Tags */}
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {dateIdea.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300"
-                        >
-                          {tag}
-                        </span>
+                        <span key={tag} className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">{tag}</span>
                       ))}
                     </div>
 
-                    {/* Complete Date button */}
-                    {error && (
-                      <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
-                    )}
+                    {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-2xl bg-green-500/20 border border-green-500/30">
                         <motion.div
@@ -550,13 +652,7 @@ export default function DateCard({
               </motion.div>
             ) : (
               /* ── LOCKED STATE ── */
-              <motion.div
-                key="locked"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                {/* Blurred preview */}
+              <motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="relative rounded-2xl overflow-hidden mb-5">
                   <div className="bg-gradient-to-br from-rose-500/20 to-violet-600/20 p-6 text-center">
                     <div className="flex flex-col items-center gap-3 blur-sm select-none pointer-events-none">
@@ -572,36 +668,22 @@ export default function DateCard({
                       transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                       className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm"
                     >
-                      {canReveal ? (
-                        <Unlock className="w-6 h-6 text-rose-300" />
-                      ) : (
-                        <Lock className="w-6 h-6 text-white/40" />
-                      )}
+                      {canReveal ? <Unlock className="w-6 h-6 text-rose-300" /> : <Lock className="w-6 h-6 text-white/40" />}
                     </motion.div>
                     <p className="text-white/60 text-sm font-medium">
                       {canReveal ? "Ready to reveal!" : "Your date is brewing…"}
                     </p>
-                    <p className="text-white/30 text-xs">
-                      {partnerNames.partner1} &amp; {partnerNames.partner2}
-                    </p>
+                    <p className="text-white/30 text-xs">{partnerNames.partner1} &amp; {partnerNames.partner2}</p>
                   </div>
                 </div>
 
-                {/* Hint chips (blurred) */}
                 <div className="flex gap-2 mb-5">
                   {["Surprise", "??–?? hrs", "€??"].map((hint) => (
-                    <div
-                      key={hint}
-                      className="px-3 py-1 rounded-full bg-white/8 border border-white/10 text-xs text-white/30 blur-[2px]"
-                    >
-                      {hint}
-                    </div>
+                    <div key={hint} className="px-3 py-1 rounded-full bg-white/8 border border-white/10 text-xs text-white/30 blur-[2px]">{hint}</div>
                   ))}
                 </div>
 
-                {error && (
-                  <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
-                )}
+                {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
 
                 {isPending ? (
                   <div className="flex flex-col items-center gap-3 py-4">
@@ -611,12 +693,7 @@ export default function DateCard({
                           key={i}
                           className="w-2 h-2 rounded-full bg-rose-400"
                           animate={{ y: [0, -8, 0] }}
-                          transition={{
-                            duration: 0.9,
-                            repeat: Infinity,
-                            delay: i * 0.18,
-                            ease: "easeInOut",
-                          }}
+                          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
                         />
                       ))}
                     </div>
@@ -634,12 +711,7 @@ export default function DateCard({
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <Button
-                    size="lg"
-                    className="w-full"
-                    disabled={!canReveal}
-                    onClick={canReveal ? handleReveal : undefined}
-                  >
+                  <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleReveal : undefined}>
                     <Sparkles className="w-4 h-4 mr-2" />
                     {canReveal
                       ? "Reveal Mystery Date"
@@ -654,7 +726,80 @@ export default function DateCard({
         </div>
       </motion.div>
 
-      {/* Success modal — rendered outside the card so it can cover full screen */}
+      {/* ── RE-ROLL CONFIRMATION MODAL ── */}
+      <AnimatePresence>
+        {rerollModalOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setRerollModalOpen(false)}
+            />
+            <motion.div
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-xs px-4"
+              initial={{ opacity: 0, scale: 0.88, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
+            >
+              <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/60">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 rounded-2xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
+                    <Shuffle className="w-5 h-5 text-violet-400" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRerollModalOpen(false)}
+                    className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  >
+                    <X className="w-4 h-4 text-white/40" />
+                  </button>
+                </div>
+
+                <h3 className="text-lg font-bold text-white mb-2">Re-roll this date?</h3>
+
+                {isFree ? (
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
+                    <p className="text-xs text-amber-300 leading-relaxed">
+                      <span className="font-semibold">Free plan:</span> You only get{" "}
+                      <span className="font-bold">1 re-roll for life</span>. Once used, future dates can&apos;t be changed.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-white/50 mb-4 leading-relaxed">
+                    You get <span className="text-white font-medium">1 re-roll per date</span> as a subscriber. A brand-new mystery date will be generated.
+                  </p>
+                )}
+
+                <p className="text-xs text-white/30 mb-5">
+                  The current date idea will be saved so you won&apos;t see it again.
+                </p>
+
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={handleRerollConfirm}
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold text-sm shadow-lg shadow-violet-500/20 hover:from-violet-400 hover:to-purple-500 transition-all active:scale-[0.98]"
+                  >
+                    {isFree ? "Use my re-roll" : "Re-roll date"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRerollModalOpen(false)}
+                    className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
+                  >
+                    Keep this date
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Success modal */}
       {modalData && (
         <CompleteDateModal
           isOpen={!!modalData}

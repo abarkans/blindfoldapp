@@ -127,6 +127,9 @@ export interface Database {
           last_long: number | null;
           notification_sent_at: string | null;
           plan_type: string;
+          total_rerolls_used: number;
+          current_date_rerolled: boolean;
+          date_accepted_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -150,6 +153,9 @@ export interface Database {
           last_long?: number | null;
           notification_sent_at?: string | null;
           plan_type?: string;
+          total_rerolls_used?: number;
+          current_date_rerolled?: boolean;
+          date_accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -173,6 +179,9 @@ export interface Database {
           last_long?: number | null;
           notification_sent_at?: string | null;
           plan_type?: string;
+          total_rerolls_used?: number;
+          current_date_rerolled?: boolean;
+          date_accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

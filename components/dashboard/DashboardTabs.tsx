@@ -196,6 +196,10 @@ function DateTabContent({
         dateIdea={profile.date_idea as Parameters<typeof DateCard>[0]["dateIdea"]}
         isDateCompleted={isDateCompleted}
         onGoToProgress={onGoToProgress}
+        planType={profile.plan_type ?? "free"}
+        totalRerollsUsed={profile.total_rerolls_used ?? 0}
+        currentDateRerolled={profile.current_date_rerolled ?? false}
+        dateAcceptedAt={profile.date_accepted_at ?? null}
       />
     </div>
   );

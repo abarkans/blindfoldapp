@@ -5,11 +5,11 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
-import { checkRevealRateLimit } from "@/lib/rate-limit";
 
-// Validate the shape of the profile row fetched from the DB.
-// Prevents compromised/malformed data from reaching AI prompts or place searches.
 const profileSchema = z.object({
+  plan_type: z.string(),
+  total_rerolls_used: z.number(),
+  current_date_rerolled: z.boolean(),
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
   interests: z.array(z.string()),
   constraints: z.object({
@@ -17,69 +17,45 @@ const profileSchema = z.object({
     has_car: z.boolean(),
     prefers_walking: z.boolean(),
   }),
-  cadence: z.enum(["weekly", "biweekly", "monthly", "spontaneous"]),
-  revealed_at: z.string().nullable(),
   last_lat: z.number().nullable(),
   last_long: z.number().nullable(),
   preferred_radius: z.number().nullable(),
 });
 
-export async function revealDate() {
+export async function rerollDate(): Promise<void> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    console.warn("[audit] reveal: unauthenticated attempt");
-    throw new Error("Not authenticated");
-  }
-
-  await checkRevealRateLimit(user.id);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
 
   const { data: raw } = await supabase
     .from("profiles")
-    .select("partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius")
+    .select("plan_type, total_rerolls_used, current_date_rerolled, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
     .eq("id", user.id)
     .single();
 
   if (!raw) throw new Error("Profile not found");
 
-  // Validate + type the profile row at the server trust boundary
   const profile = profileSchema.parse(raw);
 
-  // Guard: check cooldown server-side
-  const cadenceDays: Record<string, number> = {
-    weekly: 7,
-    biweekly: 14,
-    monthly: 30,
-    spontaneous: 3,
-  };
-
-  if (profile.revealed_at) {
-    const days = cadenceDays[profile.cadence];
-    const nextAvailable = new Date(profile.revealed_at);
-    nextAvailable.setDate(nextAvailable.getDate() + days);
-    if (new Date() < nextAvailable) {
-      console.warn(`[audit] reveal: cooldown violation uid=${user.id} next=${nextAvailable.toISOString()}`);
-      throw new Error("Next date not available yet");
-    }
+  // Eligibility check
+  const isFree = profile.plan_type !== "subscription";
+  if (isFree && profile.total_rerolls_used >= 1) {
+    throw new Error("No re-rolls remaining on the free plan");
+  }
+  if (!isFree && profile.current_date_rerolled) {
+    throw new Error("Already re-rolled this date");
   }
 
-  const { constraints } = profile;
-
-  // Server-side allowlist: reject interests that weren't set via the legitimate onboarding UI
   const VALID_INTERESTS = new Set([
     "food", "music", "nature", "art", "fitness", "cinema",
     "books", "coffee", "beach", "photography", "gaming", "romance",
   ]);
   const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
+  const { constraints } = profile;
 
-  const now = new Date().toISOString();
   let idea: object;
 
   if (profile.last_lat && profile.last_long) {
-    // Venue-based: fetch previously visited place IDs to avoid repeats
     const { data: pastIdeas } = await supabase
       .from("date_ideas")
       .select("idea")
@@ -99,7 +75,6 @@ export async function revealDate() {
       previousPlaceIds,
     });
 
-    // Enrich the venue with AI-generated description, vibe, tags etc.
     const aiEnrichment = await generateAIDateIdea({
       partnerNames: profile.partner_names,
       interests: safeInterests,
@@ -117,7 +92,6 @@ export async function revealDate() {
 
     idea = { ...venue, ai: aiEnrichment };
   } else {
-    // AI fallback: no location set
     const { data: pastIdeas } = await supabase
       .from("date_ideas")
       .select("idea")
@@ -139,27 +113,24 @@ export async function revealDate() {
     });
   }
 
-  // Insert into date_ideas history
+  // Insert new idea into history so it won't repeat in future reveals/rerolls
   await supabase.from("date_ideas").insert({
     user_id: user.id,
     idea: idea as unknown as import("@/lib/types").Json,
     status: "revealed",
-    revealed_at: now,
+    revealed_at: new Date().toISOString(),
   });
 
-  // Update profile with current idea + timestamp.
-  // Reset notification_sent_at so the next cron cycle sends a fresh notification.
+  // Update profile: new idea, reset accepted, mark rerolled
   await supabase
     .from("profiles")
     .update({
-      revealed_at: now,
       date_idea: idea as unknown as import("@/lib/types").Json,
-      notification_sent_at: null,
-      current_date_rerolled: false,
       date_accepted_at: null,
+      current_date_rerolled: true,
+      total_rerolls_used: profile.total_rerolls_used + 1,
     })
     .eq("id", user.id);
 
-  console.info(`[audit] reveal: success uid=${user.id} mode=${profile.last_lat ? "venue" : "ai"}`);
   revalidatePath("/dashboard");
 }
