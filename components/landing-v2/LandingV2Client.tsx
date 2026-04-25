@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
   Sparkles,
@@ -11,7 +12,11 @@ import {
   MapPin,
   Zap,
   ChevronDown,
+  Check,
+  Menu,
+  X,
 } from "lucide-react";
+import { PLANS } from "@/lib/plans";
 import { MysteryCard, CountdownBadge } from "@/components/landing-v2/MysteryCard";
 import DateCarousel from "@/components/landing/DateCarousel";
 
@@ -86,6 +91,8 @@ const FEATURES = [
 ];
 
 export default function LandingV2Client() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen text-white overflow-x-hidden">
       {/* Subtle grid overlay */}
@@ -98,26 +105,92 @@ export default function LandingV2Client() {
       />
 
       {/* ── Nav ── */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
+      <div className="sticky top-0 z-50">
         <div className="absolute inset-0 bg-[#08080f]/80 backdrop-blur-xl border-b border-white/5" />
-        <div className="relative flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40">
-            <Heart className="w-4 h-4 text-white fill-white" />
+        <nav className="relative flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40">
+              <Heart className="w-4 h-4 text-white fill-white" />
+            </div>
+            <span className="font-bold text-white text-lg tracking-tight">BlindfoldDate</span>
           </div>
-          <span className="font-bold text-white text-lg tracking-tight">BlindfoldDate</span>
-        </div>
-        <div className="relative flex items-center gap-3">
-          <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors font-medium">
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="text-sm text-white font-semibold bg-gradient-to-r from-rose-600 to-violet-600 hover:from-rose-500 hover:to-violet-500 px-5 h-9 inline-flex items-center rounded-xl transition-all shadow-lg shadow-rose-500/20"
+
+          {/* Desktop nav items */}
+          <div className="hidden sm:flex items-center gap-7">
+            <a href="#plans" className="text-sm text-white/60 hover:text-white transition-colors font-medium">
+              Plans
+            </a>
+            <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors font-medium">
+              Sign in
+            </Link>
+            <Link
+              href="/register"
+              className="text-sm text-white font-semibold bg-gradient-to-r from-rose-600 to-violet-600 hover:from-rose-500 hover:to-violet-500 px-5 h-9 inline-flex items-center rounded-xl transition-all shadow-lg shadow-rose-500/20"
+            >
+              Get started
+            </Link>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="sm:hidden relative w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
-            Get started
-          </Link>
-        </div>
-      </nav>
+            <AnimatePresence mode="wait" initial={false}>
+              {menuOpen ? (
+                <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                  <X className="w-4 h-4" />
+                </motion.span>
+              ) : (
+                <motion.span key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                  <Menu className="w-4 h-4" />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        </nav>
+
+        {/* Mobile dropdown */}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="sm:hidden absolute top-full left-0 right-0 bg-[#08080f]/95 backdrop-blur-xl border-b border-white/8 px-6 py-4 flex flex-col gap-1"
+            >
+              <a
+                href="#plans"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center h-11 text-sm font-medium text-white/70 hover:text-white transition-colors"
+              >
+                Plans
+              </a>
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center h-11 text-sm font-medium text-white/70 hover:text-white transition-colors"
+              >
+                Sign in
+              </Link>
+              <div className="pt-2 pb-1">
+                <Link
+                  href="/register"
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-rose-600 to-violet-600 hover:from-rose-500 hover:to-violet-500 h-11 rounded-xl transition-all shadow-lg shadow-rose-500/20"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+                  Get started
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* ── Hero ── */}
       <section className="relative px-6 pt-20 pb-16 max-w-5xl mx-auto text-center">
@@ -323,6 +396,97 @@ export default function LandingV2Client() {
               <span className="text-3xl mb-3 block">{f.emoji}</span>
               <h3 className="font-bold text-white mb-1.5">{f.title}</h3>
               <p className="text-white/40 text-sm leading-relaxed">{f.body}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section id="plans" className="px-6 py-20 max-w-5xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <p className="text-xs text-rose-400 font-semibold uppercase tracking-widest mb-3">Pricing</p>
+          <h2 className="text-3xl sm:text-4xl font-black">
+            Simple, honest pricing.
+            <br />
+            <span className="text-white/40">No surprises on the bill.</span>
+          </h2>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
+          {PLANS.map((plan, i) => (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.12 }}
+              className={[
+                "relative flex flex-col gap-6 rounded-3xl border p-7",
+                plan.highlighted
+                  ? "bg-gradient-to-br from-pink-500/15 to-violet-500/10 border-pink-500/50"
+                  : "bg-white/[0.03] border-white/8",
+              ].join(" ")}
+            >
+              {plan.highlighted && (
+                <div className="absolute -top-3.5 left-6">
+                  <span className="inline-flex items-center gap-1 bg-gradient-to-r from-pink-500 to-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
+                    <Zap className="w-2.5 h-2.5" />
+                    Most popular
+                  </span>
+                </div>
+              )}
+
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className={[
+                    "w-8 h-8 rounded-xl flex items-center justify-center",
+                    plan.highlighted ? "bg-pink-500/20" : "bg-white/8",
+                  ].join(" ")}>
+                    {plan.highlighted
+                      ? <Sparkles className="w-4 h-4 text-pink-400" />
+                      : <Lock className="w-4 h-4 text-white/40" />}
+                  </div>
+                  <p className="font-bold text-white text-lg">{plan.name}</p>
+                </div>
+                <p className={`text-3xl font-black ${plan.highlighted ? "text-white" : "text-white/70"}`}>
+                  {plan.priceLine.split("/")[0].trim()}
+                </p>
+                {plan.highlighted && (
+                  <p className="text-xs text-white/35 mt-1">per month · cancel anytime</p>
+                )}
+                <p className="text-sm text-white/40 mt-2">{plan.tagline}</p>
+              </div>
+
+              <ul className="flex flex-col gap-2.5 flex-1">
+                {plan.features.map((feat) => {
+                  const isKey = feat.includes("Full customization") || feat.includes("Weekly");
+                  return (
+                    <li key={feat} className="flex items-start gap-2.5">
+                      <Check className={`w-4 h-4 shrink-0 mt-0.5 ${isKey && plan.highlighted ? "text-pink-400" : "text-emerald-400/70"}`} />
+                      <span className={`text-sm ${isKey && plan.highlighted ? "text-white font-semibold" : "text-white/55"}`}>
+                        {feat}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <Link
+                href="/register"
+                className={[
+                  "w-full text-center py-3 rounded-2xl text-sm font-bold transition-all",
+                  plan.highlighted
+                    ? "bg-gradient-to-r from-pink-500 to-violet-600 text-white shadow-lg shadow-pink-500/25 hover:from-pink-400 hover:to-violet-500"
+                    : "bg-white/8 text-white/70 border border-white/10 hover:bg-white/12 hover:text-white",
+                ].join(" ")}
+              >
+                {plan.cta}
+              </Link>
             </motion.div>
           ))}
         </div>

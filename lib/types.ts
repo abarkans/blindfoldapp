@@ -191,6 +191,13 @@ export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Milestone = Database["public"]["Tables"]["milestones"]["Row"];
 export type UserBadge = Database["public"]["Tables"]["user_badges"]["Row"];
 
+export type PlanType = "free" | "subscription";
+
+export interface UserPlan {
+  planType: PlanType;
+  dateFrequency?: "weekly" | "biweekly" | "monthly";
+}
+
 export interface CompleteDateResult {
   xpGained: number;
   newTotalXp: number;

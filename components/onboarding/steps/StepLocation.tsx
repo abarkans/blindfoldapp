@@ -17,6 +17,7 @@ interface StepLocationProps {
   onNext: (data: LocationFormData) => void;
   onBack: () => void;
   loading?: boolean;
+  isLast?: boolean;
 }
 
 interface NominatimResult {
@@ -41,7 +42,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
   }
 }
 
-export default function StepLocation({ defaultValues, onNext, onBack, loading }: StepLocationProps) {
+export default function StepLocation({ defaultValues, onNext, onBack, loading, isLast }: StepLocationProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [lat, setLat] = useState<number | null>(defaultValues?.lat ?? null);
   const [lng, setLng] = useState<number | null>(defaultValues?.lng ?? null);
@@ -314,7 +315,7 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading }:
           loading={loading}
           onClick={handleSubmit}
         >
-          Continue
+          {isLast ? "Finish Setup" : "Continue"}
         </Button>
       </div>
     </div>

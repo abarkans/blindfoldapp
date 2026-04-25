@@ -54,6 +54,18 @@ export const fullOnboardingSchema = z.object({
   preferred_radius: z.number().optional(),
 });
 
+export const planSchema = z
+  .object({
+    plan_type: z.enum(["free", "subscription"]),
+    cadence: z.enum(["weekly", "biweekly", "monthly"]).optional(),
+  })
+  .refine(
+    (d) => d.plan_type !== "subscription" || d.cadence !== undefined,
+    { message: "Please select a frequency", path: ["cadence"] }
+  );
+
+export type PlanFormData = z.infer<typeof planSchema>;
+
 export type IdentityFormData = z.infer<typeof identitySchema>;
 export type InterestsFormData = z.infer<typeof interestsSchema>;
 export type LogisticsFormData = z.infer<typeof logisticsSchema>;

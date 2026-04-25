@@ -7,16 +7,18 @@ import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
+import StepPlan from "./steps/StepPlan";
 import StepInterests from "./steps/StepInterests";
 import StepLogistics from "./steps/StepLogistics";
 import StepLocation from "./steps/StepLocation";
-import StepFrequency from "./steps/StepFrequency";
-import type { IdentityFormData, LogisticsFormData, FrequencyFormData } from "@/lib/schemas/onboarding";
+import type { IdentityFormData, LogisticsFormData } from "@/lib/schemas/onboarding";
 import type { LocationFormData } from "./steps/StepLocation";
+import type { PlanId } from "@/lib/plans";
 
 type OnboardingData = {
   partner1?: string;
   partner2?: string;
+  plan_type?: PlanId;
   interests?: string[];
   budget_max?: number;
   has_car?: boolean;
@@ -27,7 +29,8 @@ type OnboardingData = {
   cadence?: string;
 };
 
-const STEP_LABELS = ["Identity", "Interests", "Logistics", "Location", "Frequency"];
+// New 5-step flow: Identity → Plan → Interests → Logistics → Location
+const STEP_LABELS = ["Identity", "Plan", "Interests", "Logistics", "Location"];
 
 const slideVariants = {
   enter: (dir: number) => ({
@@ -66,7 +69,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
     setStep((s) => s - 1);
   }
 
-  async function handleFinish(freq: FrequencyFormData) {
+  async function handleFinish(loc: LocationFormData) {
     setLoading(true);
     setError("");
     const supabase = createClient();
@@ -87,10 +90,10 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
         has_car: data.has_car ?? false,
         prefers_walking: data.prefers_walking ?? false,
       },
-      cadence: freq.cadence,
-      last_lat: data.lat ?? null,
-      last_long: data.lng ?? null,
-      preferred_radius: data.preferred_radius ?? 10000,
+      cadence: data.cadence ?? "monthly",
+      last_lat: loc.lat,
+      last_long: loc.lng,
+      preferred_radius: loc.preferred_radius,
       onboarding_complete: true,
     });
 
@@ -147,13 +150,20 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
               />
             )}
             {step === 2 && (
-              <StepInterests
-                defaultValues={data.interests}
-                onNext={(d) => goNext({ interests: d.interests })}
+              <StepPlan
+                onNext={(d) => goNext({ plan_type: d.plan_type, cadence: d.cadence })}
                 onBack={goBack}
               />
             )}
             {step === 3 && (
+              <StepInterests
+                defaultValues={data.interests}
+                planType={data.plan_type}
+                onNext={(d) => goNext({ interests: d.interests })}
+                onBack={goBack}
+              />
+            )}
+            {step === 4 && (
               <StepLogistics
                 defaultValues={{
                   budget_max: data.budget_max,
@@ -170,29 +180,17 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
                 onBack={goBack}
               />
             )}
-            {step === 4 && (
+            {step === 5 && (
               <StepLocation
                 defaultValues={{
                   lat: data.lat,
                   lng: data.lng,
                   preferred_radius: data.preferred_radius,
                 }}
-                onNext={(d: LocationFormData) =>
-                  goNext({
-                    lat: d.lat,
-                    lng: d.lng,
-                    preferred_radius: d.preferred_radius,
-                  })
-                }
-                onBack={goBack}
-              />
-            )}
-            {step === 5 && (
-              <StepFrequency
-                defaultValues={{ cadence: data.cadence as FrequencyFormData["cadence"] }}
                 onNext={handleFinish}
                 onBack={goBack}
                 loading={loading}
+                isLast
               />
             )}
           </motion.div>
