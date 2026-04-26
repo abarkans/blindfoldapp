@@ -303,6 +303,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     const res = await fetch("/api/stripe/portal", { method: "POST" });
     const { url, error: portalError } = await res.json();
     if (portalError || !url) {
+      console.error("[stripe portal]", portalError);
       setError("Failed to open subscription management. Please try again.");
       return;
     }
