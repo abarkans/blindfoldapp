@@ -23,8 +23,8 @@ export const PLANS = [
   {
     id: "subscription" as const,
     name: "Plus",
-    price: 9.99,
-    priceLine: "€9.99 / month",
+    price: 5.99,
+    priceLine: "€5.99 / month",
     tagline: "Full romantic unlock",
     datesPerMonth: null,
     cadence: null,

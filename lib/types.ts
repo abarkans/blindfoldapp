@@ -127,6 +127,8 @@ export interface Database {
           last_long: number | null;
           notification_sent_at: string | null;
           plan_type: string;
+          stripe_customer_id: string | null;
+          subscription_ends_at: string | null;
           total_rerolls_used: number;
           current_date_rerolled: boolean;
           date_accepted_at: string | null;
@@ -153,6 +155,8 @@ export interface Database {
           last_long?: number | null;
           notification_sent_at?: string | null;
           plan_type?: string;
+          stripe_customer_id?: string | null;
+          subscription_ends_at?: string | null;
           total_rerolls_used?: number;
           current_date_rerolled?: boolean;
           date_accepted_at?: string | null;
@@ -179,6 +183,8 @@ export interface Database {
           last_long?: number | null;
           notification_sent_at?: string | null;
           plan_type?: string;
+          stripe_customer_id?: string | null;
+          subscription_ends_at?: string | null;
           total_rerolls_used?: number;
           current_date_rerolled?: boolean;
           date_accepted_at?: string | null;

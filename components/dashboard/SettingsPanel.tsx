@@ -11,7 +11,6 @@ import {
   Sparkles, Lock, Check, Zap, Crown,
 } from "lucide-react";
 import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
-import { updatePlanType } from "@/app/actions/update-plan";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
@@ -285,13 +284,29 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   }
 
   async function handleUpgradePlan() {
-    // TODO: Integrate Stripe Checkout before enabling subscription
-    const { error: updateError } = await updatePlanType("subscription");
-    if (updateError) {
-      setError("Failed to update plan. Please try again.");
+    setError("");
+    const res = await fetch("/api/stripe/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cadence: selectedCadence ?? "monthly", returnPath: "/dashboard" }),
+    });
+    const { url, error: checkoutError } = await res.json();
+    if (checkoutError || !url) {
+      setError("Failed to start checkout. Please try again.");
       return;
     }
-    setPlanType("subscription");
+    window.location.href = url;
+  }
+
+  async function handleManageSubscription() {
+    setError("");
+    const res = await fetch("/api/stripe/portal", { method: "POST" });
+    const { url, error: portalError } = await res.json();
+    if (portalError || !url) {
+      setError("Failed to open subscription management. Please try again.");
+      return;
+    }
+    window.location.href = url;
   }
 
   // Summary strings shown on the list view
@@ -314,7 +329,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     ...(planType === "subscription"
       ? [{ id: "frequency" as SettingsView, label: "Date frequency", icon: Calendar, summary: CADENCE_LABEL[selectedCadence] ?? selectedCadence }]
       : []),
-    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? "Plus · €9.99/mo" : "Basic · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? "Plus · €5.99/mo" : "Basic · Upgrade available" },
   ];
 
   function navigate(to: SettingsView) {
@@ -545,23 +560,13 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                       >
                         <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
                         <p className="text-sm text-white/80 flex-1 truncate">{locationLabel}</p>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => { setLocStatus("search"); setLat(null); setLng(null); setLocationLabel(""); }}
-                            className="text-xs text-white/30 hover:text-white/60 transition-colors"
-                          >
-                            Change
-                          </button>
-                          <button
-                            type="button"
-                            onClick={clearLocation}
-                            disabled={clearingLocation}
-                            className="text-xs text-red-400/50 hover:text-red-400 transition-colors disabled:opacity-40"
-                          >
-                            {clearingLocation ? "Clearing…" : "Remove"}
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setLocStatus("search"); setLat(null); setLng(null); setLocationLabel(""); }}
+                          className="text-xs font-semibold text-pink-400 hover:text-pink-300 transition-colors shrink-0 px-2.5 py-1 rounded-lg bg-pink-500/10 hover:bg-pink-500/20"
+                        >
+                          Change
+                        </button>
                       </motion.div>
                     ) : locStatus === "requesting" ? (
                       <motion.div key="requesting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -697,13 +702,15 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                       </p>
                       <p className="text-xs text-white/40 mt-0.5">
                         {planType === "subscription"
-                          ? "€9.99/month · Cancel anytime"
+                          ? profile.subscription_ends_at
+                            ? `Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                            : "€5.99/month · Cancel anytime"
                           : "1 date/month · Limited categories"}
                       </p>
                     </div>
                     {planType === "subscription" && (
-                      <span className="ml-auto text-[10px] font-bold text-pink-400 bg-pink-500/15 border border-pink-500/30 px-2 py-0.5 rounded-full">
-                        Active
+                      <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${profile.subscription_ends_at ? "text-amber-400 bg-amber-500/15 border border-amber-500/30" : "text-pink-400 bg-pink-500/15 border border-pink-500/30"}`}>
+                        {profile.subscription_ends_at ? "Cancels" : "Active"}
                       </span>
                     )}
                   </div>
@@ -714,7 +721,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-pink-400" />
                         <p className="text-sm font-bold text-white">Unlock Plus</p>
-                        <span className="ml-auto text-base font-black text-white">€9.99<span className="text-xs font-normal text-white/40">/mo</span></span>
+                        <span className="ml-auto text-base font-black text-white">€5.99<span className="text-xs font-normal text-white/40">/mo</span></span>
                       </div>
                       <ul className="flex flex-col gap-2">
                         {[
@@ -735,16 +742,20 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-sm font-bold shadow-lg shadow-pink-500/25 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
                       >
                         <Zap className="w-4 h-4 text-rose-200" />
-                        Subscribe · €9.99/mo
+                        Subscribe · €5.99/mo
                       </button>
                     </div>
                   )}
 
                   {/* Subscription active info */}
                   {planType === "subscription" && (
-                    <p className="text-xs text-white/30 text-center px-2">
-                      To manage or cancel your subscription, visit your account billing settings.
-                    </p>
+                    <button
+                      type="button"
+                      onClick={handleManageSubscription}
+                      className="w-full py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white/80 hover:border-white/20 transition-all"
+                    >
+                      Manage or cancel subscription
+                    </button>
                   )}
                 </div>
               )}

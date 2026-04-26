@@ -91,7 +91,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
         prefers_walking: data.prefers_walking ?? false,
       },
       cadence: data.cadence ?? "monthly",
-      plan_type: data.plan_type ?? "free",
+      plan_type: "free", // always start free; Stripe upgrades to subscription
       last_lat: loc.lat,
       last_long: loc.lng,
       preferred_radius: loc.preferred_radius,
@@ -102,6 +102,19 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
       setError("Something went wrong. Please try again.");
       setLoading(false);
       return;
+    }
+
+    if (data.plan_type === "subscription") {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cadence: data.cadence ?? "monthly", returnPath: "/dashboard" }),
+      });
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+        return;
+      }
     }
 
     localStorage.setItem("dashboard-tab", "date");

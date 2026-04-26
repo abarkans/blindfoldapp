@@ -39,18 +39,14 @@ export default function DashboardTabs({
 
   useEffect(() => {
     const stored = localStorage.getItem("dashboard-tab");
-    // Never restore "settings" — users should always land on Date after login
-    if (stored === "date" || stored === "progress") {
+    if (stored === "date" || stored === "progress" || stored === "settings") {
       setActiveTab(stored);
     }
   }, []);
 
   function switchTab(tab: Tab) {
     setActiveTab(tab);
-    // Don't persist settings — it's not needed (no server reloads happen there)
-    if (tab !== "settings") {
-      localStorage.setItem("dashboard-tab", tab);
-    }
+    localStorage.setItem("dashboard-tab", tab);
     mainRef.current?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 });
   }
@@ -58,7 +54,7 @@ export default function DashboardTabs({
   return (
     <div className="min-h-dvh flex flex-col">
       {/* Sticky header — logo + names on both breakpoints; tab nav injected on desktop */}
-      <header className="sticky top-0 z-30 bg-[#08080f]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
+      <header className="md:sticky md:top-0 md:z-30 bg-[#08080f]/90 md:backdrop-blur-md border-b border-white/5 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-2.5 shrink-0">

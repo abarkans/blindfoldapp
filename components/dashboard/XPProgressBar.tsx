@@ -29,7 +29,7 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-orange-400 to-amber-500 shadow-sm shadow-orange-400/40"
           initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
+          animate={{ width: `${Math.max(percentage, 6)}%` }}
           transition={{ duration: 1.1, ease: "easeOut", delay: 0.15 }}
         />
       </div>
