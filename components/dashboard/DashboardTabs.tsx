@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Heart, Zap, CalendarCheck } from "lucide-react";
+import { Sparkles, Medal, Settings, Heart, Zap, CalendarCheck, X } from "lucide-react";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
@@ -35,12 +36,18 @@ export default function DashboardTabs({
   isDateCompleted,
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
+  const [showCancelBanner, setShowCancelBanner] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const stored = localStorage.getItem("dashboard-tab");
     if (stored === "date" || stored === "progress" || stored === "settings") {
       setActiveTab(stored);
+    }
+    if (searchParams.get("checkout") === "cancelled") {
+      setShowCancelBanner(true);
+      window.history.replaceState({}, "", "/dashboard");
     }
   }, []);
 
@@ -92,6 +99,33 @@ export default function DashboardTabs({
           </nav>
         </div>
       </header>
+
+      {/* Payment cancelled banner */}
+      <AnimatePresence>
+        {showCancelBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="mx-4 mt-3"
+          >
+            <div className="max-w-sm md:max-w-2xl mx-auto flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3.5">
+              <span className="text-lg leading-none mt-0.5">💳</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white">It looks like your payment didn&apos;t go through.</p>
+                <p className="text-xs text-white/50 mt-0.5">No worries — your account is all set! You&apos;re on the Free Plan for now. You can upgrade anytime from Settings.</p>
+              </div>
+              <button
+                onClick={() => setShowCancelBanner(false)}
+                className="shrink-0 text-white/30 hover:text-white/60 transition-colors mt-0.5"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Tab content — wider container on desktop */}
       <main ref={mainRef} className="flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
