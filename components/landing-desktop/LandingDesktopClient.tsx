@@ -750,7 +750,7 @@ export default function LandingDesktopClient() {
           ))}
         </div>
 
-        <p className="text-center text-white/20 text-xs md:text-sm mt-8 md:mt-10">
+        <p className="hidden md:block text-center text-white/20 text-sm mt-10">
           Your actual dates will always be a surprise ✨
         </p>
       </section>
