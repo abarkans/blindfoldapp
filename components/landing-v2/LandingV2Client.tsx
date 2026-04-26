@@ -27,30 +27,6 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.6, ease: EASE, delay },
 });
 
-const TESTIMONIALS = [
-  {
-    quote: "We've been together 4 years and it felt like a first date again. I had no idea where we were going — butterflies the whole way.",
-    names: "Mia & Jonas",
-    location: "Amsterdam",
-    dates: "12 mystery dates",
-    emoji: "🥂",
-  },
-  {
-    quote: "He's terrible at planning and I always end up choosing. BlindfoldDate fixed us. I literally gasped when it revealed a rooftop jazz bar.",
-    names: "Sofia & Luca",
-    location: "Milan",
-    dates: "7 mystery dates",
-    emoji: "🎷",
-  },
-  {
-    quote: "We set it to spontaneous mode and had our best Sunday in years. A wine tasting we never would have picked ourselves.",
-    names: "Anya & Raf",
-    location: "Riga",
-    dates: "9 mystery dates",
-    emoji: "🍷",
-  },
-];
-
 const STEPS = [
   {
     number: "I",
@@ -275,49 +251,6 @@ export default function LandingV2Client() {
               <p className="text-xl font-black text-white">{value}</p>
               <p className="text-[11px] text-white/30 mt-0.5">{label}</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section className="px-6 py-20 max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <p className="text-xs text-rose-400 font-semibold uppercase tracking-widest mb-3">Real couples, real surprises</p>
-          <h2 className="text-3xl sm:text-4xl font-black">
-            They stopped planning.
-            <br />
-            <span className="text-white/40">They started loving.</span>
-          </h2>
-        </motion.div>
-
-        <div className="grid sm:grid-cols-3 gap-5">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={t.names}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="bg-white/[0.03] border border-white/8 rounded-3xl p-6 flex flex-col gap-4"
-            >
-              <span className="text-3xl">{t.emoji}</span>
-              <p className="text-white/70 text-sm leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
-              <div>
-                <div className="flex items-center gap-1 mb-1">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-3 h-3 text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="font-bold text-white text-sm">{t.names}</p>
-                <p className="text-white/30 text-xs">{t.location} · {t.dates}</p>
-              </div>
-            </motion.div>
           ))}
         </div>
       </section>
