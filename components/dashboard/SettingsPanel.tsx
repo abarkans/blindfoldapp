@@ -314,7 +314,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     ...(planType === "subscription"
       ? [{ id: "frequency" as SettingsView, label: "Date frequency", icon: Calendar, summary: CADENCE_LABEL[selectedCadence] ?? selectedCadence }]
       : []),
-    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? "Subscription · €9.99/mo" : "Free · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? "Plus · €9.99/mo" : "Basic · Upgrade available" },
   ];
 
   function navigate(to: SettingsView) {
@@ -456,7 +456,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                     <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-3">
                       <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <p className="text-xs text-amber-300/80">
-                        Free plan includes Food, Nature & Romance. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> for all 12.
+                        Basic plan includes Food, Nature & Romance. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> for all 12.
                       </p>
                     </div>
                   )}
@@ -693,7 +693,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-white">
-                        {planType === "subscription" ? "Subscription" : "Free"}
+                        {planType === "subscription" ? "Plus" : "Basic"}
                       </p>
                       <p className="text-xs text-white/40 mt-0.5">
                         {planType === "subscription"
@@ -713,7 +713,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                     <div className="bg-gradient-to-br from-pink-500/15 to-violet-500/10 border border-pink-500/40 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-pink-400" />
-                        <p className="text-sm font-bold text-white">Unlock Subscription</p>
+                        <p className="text-sm font-bold text-white">Unlock Plus</p>
                         <span className="ml-auto text-base font-black text-white">€9.99<span className="text-xs font-normal text-white/40">/mo</span></span>
                       </div>
                       <ul className="flex flex-col gap-2">

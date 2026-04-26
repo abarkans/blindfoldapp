@@ -40,7 +40,7 @@ export async function rerollDate(): Promise<void> {
   // Eligibility check
   const isFree = profile.plan_type !== "subscription";
   if (isFree && profile.total_rerolls_used >= 1) {
-    throw new Error("No re-rolls remaining on the free plan");
+    throw new Error("No re-rolls remaining on the basic plan");
   }
   if (!isFree && profile.current_date_rerolled) {
     throw new Error("Already re-rolled this date");

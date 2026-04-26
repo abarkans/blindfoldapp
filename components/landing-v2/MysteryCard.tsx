@@ -115,19 +115,10 @@ export function MysteryCard() {
           </div>
 
           {/* Reveal button */}
-          <motion.div
-            className="w-full h-11 rounded-2xl bg-gradient-to-r from-rose-600 to-violet-600 flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-              animate={{ x: ["-100%", "200%"] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            />
-            <Lock className="w-3.5 h-3.5 text-white" />
-            <span className="text-sm font-bold text-white relative">Reveal Your Date</span>
-          </motion.div>
+          <div className="w-full h-11 rounded-2xl bg-gradient-to-r from-rose-600/40 to-violet-600/40 border border-white/5 flex items-center justify-center gap-2 opacity-50 pointer-events-none select-none">
+            <Lock className="w-3.5 h-3.5 text-white/60" />
+            <span className="text-sm font-bold text-white/60">Reveal Your Date</span>
+          </div>
         </div>
       </motion.div>
     </div>

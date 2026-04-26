@@ -135,6 +135,9 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading, i
         <p className="text-white/50 text-sm">
           We&apos;ll use this to suggest real venues near you.
         </p>
+        <p className="text-white/30 text-xs leading-relaxed">
+          Your location is saved to your account to find nearby venues. You can update or remove it anytime in Settings.
+        </p>
       </div>
 
       <AnimatePresence mode="wait">

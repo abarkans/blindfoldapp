@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import LandingV2Client from "@/components/landing-v2/LandingV2Client";
+import LandingDesktopClient from "@/components/landing-desktop/LandingDesktopClient";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -18,5 +18,5 @@ export default async function HomePage() {
     if (profile?.onboarding_complete) redirect("/dashboard");
   }
 
-  return <LandingV2Client />;
+  return <LandingDesktopClient />;
 }

@@ -763,7 +763,7 @@ export default function DateCard({
                 {isFree ? (
                   <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
                     <p className="text-xs text-amber-300 leading-relaxed">
-                      <span className="font-semibold">Free plan:</span> You only get{" "}
+                      <span className="font-semibold">Basic plan:</span> You only get{" "}
                       <span className="font-bold">1 re-roll for life</span>. Once used, future dates can&apos;t be changed.
                     </p>
                   </div>

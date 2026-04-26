@@ -3,7 +3,7 @@ export const FREE_INTERESTS = ["food", "nature", "romance"] as const;
 export const PLANS = [
   {
     id: "free" as const,
-    name: "Free",
+    name: "Basic",
     price: null,
     priceLine: "Free forever",
     tagline: "Start exploring without a card",
@@ -22,7 +22,7 @@ export const PLANS = [
   },
   {
     id: "subscription" as const,
-    name: "Subscription",
+    name: "Plus",
     price: 9.99,
     priceLine: "€9.99 / month",
     tagline: "Full romantic unlock",

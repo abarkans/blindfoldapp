@@ -68,7 +68,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
         <h2 className="text-2xl font-bold text-white">What do you love?</h2>
         <p className="text-white/50 text-sm">
           {isFree
-            ? "Your free plan includes these categories."
+            ? "Your basic plan includes these categories."
             : "Pick interests to help us craft perfect mystery dates."}
         </p>
       </div>
@@ -125,7 +125,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
             onClick={onBack}
             className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-pink-500/20 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
           >
-            Switch to Subscription
+            Switch to Plus
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </motion.div>

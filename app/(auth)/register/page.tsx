@@ -18,6 +18,8 @@ const registerSchema = z
     email: z.string().email("Invalid email"),
     password: z.string().min(8, "At least 8 characters"),
     confirm: z.string(),
+    ageConfirmed: z.boolean().refine((v) => v === true, "You must be 18 or older to use BlindfoldDate"),
+    termsAccepted: z.boolean().refine((v) => v === true, "You must accept the Terms of Service and Privacy Policy"),
   })
   .refine((d) => d.password === d.confirm, {
     message: "Passwords don't match",
@@ -194,6 +196,43 @@ export default function RegisterPage() {
               error={errors.confirm?.message}
               {...register("confirm")}
             />
+            <div className="flex flex-col gap-2 mt-1">
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
+                  {...register("ageConfirmed")}
+                />
+                <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
+                  I confirm I am <strong className="text-white/70">18 years of age or older</strong>
+                </span>
+              </label>
+              {errors.ageConfirmed && (
+                <p className="text-xs text-red-400 pl-7">{errors.ageConfirmed.message}</p>
+              )}
+
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
+                  {...register("termsAccepted")}
+                />
+                <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
+                  I agree to the{" "}
+                  <Link href="/legal/terms" target="_blank" className="text-rose-400 hover:text-rose-300 underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/legal/privacy" target="_blank" className="text-rose-400 hover:text-rose-300 underline">
+                    Privacy Policy
+                  </Link>
+                </span>
+              </label>
+              {errors.termsAccepted && (
+                <p className="text-xs text-red-400 pl-7">{errors.termsAccepted.message}</p>
+              )}
+            </div>
+
             <Button type="submit" size="lg" className="w-full mt-1" loading={loading}>
               Create Account
             </Button>

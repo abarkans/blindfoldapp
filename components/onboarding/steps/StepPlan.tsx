@@ -154,7 +154,7 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
             className="flex flex-col gap-6"
           >
             <div className="flex flex-col gap-2">
-              <p className="text-xs text-pink-400 font-semibold uppercase tracking-widest">Subscription</p>
+              <p className="text-xs text-pink-400 font-semibold uppercase tracking-widest">Plus</p>
               <h2 className="text-2xl font-bold text-white">How often?</h2>
               <p className="text-white/50 text-sm">Choose how frequently you want mystery dates revealed.</p>
             </div>
