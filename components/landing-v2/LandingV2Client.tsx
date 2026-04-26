@@ -81,19 +81,28 @@ export default function LandingV2Client() {
       />
 
       {/* ── Nav ── */}
-      <div className="sticky top-0 z-50">
+      <div className="fixed top-0 left-0 right-0 z-50">
         <div className="absolute inset-0 bg-[#08080f]/80 backdrop-blur-xl border-b border-white/5" />
         <nav className="relative flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-2.5 group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
               <Heart className="w-4 h-4 text-white fill-white" />
             </div>
-            <span className="font-bold text-white text-lg tracking-tight">BlindfoldDate</span>
-          </div>
+            <span className="font-bold text-white text-lg tracking-tight group-hover:text-white/80 transition-colors">BlindfoldDate</span>
+          </button>
 
           {/* Desktop nav items */}
           <div className="hidden sm:flex items-center gap-7">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="text-sm text-white/60 hover:text-white transition-colors font-medium"
+            >
+              Home
+            </button>
             <a href="#plans" className="text-sm text-white/60 hover:text-white transition-colors font-medium">
               Plans
             </a>
@@ -139,6 +148,12 @@ export default function LandingV2Client() {
               transition={{ duration: 0.18, ease: "easeOut" }}
               className="sm:hidden absolute top-full left-0 right-0 bg-[#08080f]/95 backdrop-blur-xl border-b border-white/8 px-6 py-4 flex flex-col gap-1"
             >
+              <button
+                onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
+                className="flex items-center h-11 text-sm font-medium text-white/70 hover:text-white transition-colors"
+              >
+                Home
+              </button>
               <a
                 href="#plans"
                 onClick={() => setMenuOpen(false)}
@@ -167,6 +182,9 @@ export default function LandingV2Client() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Spacer to push content below fixed nav */}
+      <div className="h-16" />
 
       {/* ── Hero ── */}
       <section className="relative px-6 pt-20 pb-16 max-w-5xl mx-auto text-center">
