@@ -50,7 +50,7 @@ export default function RegisterPage() {
 
     const supabase = createClient();
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
@@ -58,6 +58,13 @@ export default function RegisterPage() {
 
     if (signUpError) {
       setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    // Supabase returns an empty identities array when the email is already registered
+    if (data.user && data.user.identities?.length === 0) {
+      setError("User already registered");
       setLoading(false);
       return;
     }
