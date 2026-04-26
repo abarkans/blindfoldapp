@@ -1,13 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { verifyGateToken } from "./lib/gate-crypto";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Beta gate — block all routes until site_access cookie is set
+  // Beta gate — verify HMAC-signed cookie; plain "true" or forged values are rejected
   const siteAccess = request.cookies.get("site_access")?.value;
+  const gateOk = siteAccess ? await verifyGateToken(siteAccess) : false;
   if (
-    !siteAccess &&
+    !gateOk &&
     !pathname.startsWith("/gate") &&
     !pathname.startsWith("/api/gate") &&
     !pathname.startsWith("/_next/")

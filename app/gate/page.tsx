@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 
 export default function GatePage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -21,13 +20,13 @@ export default function GatePage() {
     const res = await fetch("/api/gate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ password }),
     });
 
     if (res.ok) {
       router.replace("/");
     } else {
-      setError("Incorrect username or password.");
+      setError("Incorrect password.");
       setLoading(false);
     }
   }
@@ -52,23 +51,6 @@ export default function GatePage() {
         {/* Card */}
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* Username */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">
-                Username
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter username"
-                autoComplete="username"
-                required
-                className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-pink-500/60 transition-colors"
-                style={{ fontSize: "16px" }}
-              />
-            </div>
-
             {/* Password */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">
@@ -79,7 +61,7 @@ export default function GatePage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
+                  placeholder="Enter beta password"
                   autoComplete="current-password"
                   required
                   className="w-full px-4 py-3 pr-11 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-pink-500/60 transition-colors"
