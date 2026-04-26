@@ -162,7 +162,7 @@ export default function LandingDesktopClient() {
 
       {/* ── Nav ── */}
       <header className="fixed top-0 left-0 right-0 z-50">
-        <div className="absolute inset-0 bg-[#08080f]/85 backdrop-blur-2xl border-b border-white/[0.06]" />
+        <div className="absolute inset-0 bg-[#08080f]/93 backdrop-blur-2xl border-b border-white/[0.06]" />
         <nav className="relative flex items-center justify-between px-6 md:px-14 h-16 max-w-[1440px] mx-auto">
           {/* Logo */}
           <button
@@ -359,7 +359,7 @@ export default function LandingDesktopClient() {
           {/* CTAs */}
           <motion.div
             {...fadeUp(0.3)}
-            className="flex flex-row items-center gap-3 mb-10 md:mb-12"
+            className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-10 md:mb-12"
           >
             <Link
               href="/register"
@@ -558,27 +558,28 @@ export default function LandingDesktopClient() {
           {/* Real places — large (desktop: col 1-2, row 1-2) */}
           <motion.div
             {...inView(0)}
-            className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-rose-500/15 bg-gradient-to-br from-rose-500/10 to-pink-500/5 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
+            className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-rose-500/8 rounded-full blur-3xl pointer-events-none" />
-            <div>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-1.jpg)" }} />
+            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🔮</span>
               <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">
                 Real places. No Googling.
               </h3>
-              <p className="text-white/45 text-sm md:text-base leading-relaxed max-w-sm">
+              <p className="text-white/55 text-sm md:text-base leading-relaxed max-w-sm">
                 Every suggestion is a real, top-rated venue near you — picked, vetted,
                 and ready to go. No research required.
               </p>
             </div>
-            <div className="flex items-center gap-2 md:gap-2.5 mt-5 md:mt-0">
-              <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+            <div className="relative z-10 flex items-center gap-2 md:gap-2.5 mt-5 md:mt-0">
+              <div className="flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-xl px-3 py-1.5">
                 <MapPin className="w-3 h-3 text-rose-400" />
-                <span className="text-xs text-white/50">Within 50 km</span>
+                <span className="text-xs text-white/60">Within 50 km</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+              <div className="flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-xl px-3 py-1.5">
                 <Star className="w-3 h-3 text-amber-400" />
-                <span className="text-xs text-white/50">Rating ≥ 4.0</span>
+                <span className="text-xs text-white/60">Rating ≥ 4.0</span>
               </div>
             </div>
           </motion.div>
@@ -586,61 +587,74 @@ export default function LandingDesktopClient() {
           {/* Written for you — small (desktop: col 3, row 1) */}
           <motion.div
             {...inView(0.08)}
-            className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-violet-500/15 bg-gradient-to-br from-violet-500/10 to-purple-500/5 p-6 flex flex-col"
+            className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <span className="text-3xl mb-3 block">💌</span>
-            <h3 className="font-bold text-white text-lg mb-1.5">Written for you two</h3>
-            <p className="text-white/40 text-sm leading-relaxed">
-              AI writes the date like a friend who&apos;s been there.
-            </p>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-2.jpg)" }} />
+            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="relative z-10 flex flex-col">
+              <span className="text-3xl mb-3 block">💌</span>
+              <h3 className="font-bold text-white text-lg mb-1.5">Written for you two</h3>
+              <p className="text-white/55 text-sm leading-relaxed">
+                AI writes the date like a friend who&apos;s been there.
+              </p>
+            </div>
           </motion.div>
 
           {/* Budget-aware — small (desktop: col 3, row 2) */}
           <motion.div
             {...inView(0.12)}
-            className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-emerald-500/15 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 p-6 flex flex-col"
+            className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <span className="text-3xl mb-3 block">💸</span>
-            <h3 className="font-bold text-white text-lg mb-1.5">Fits your wallet</h3>
-            <p className="text-white/40 text-sm leading-relaxed">
-              Set a max spend — every suggestion lands inside it.
-            </p>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-3.jpg)" }} />
+            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="relative z-10 flex flex-col">
+              <span className="text-3xl mb-3 block">💸</span>
+              <h3 className="font-bold text-white text-lg mb-1.5">Fits your wallet</h3>
+              <p className="text-white/55 text-sm leading-relaxed">
+                Set a max spend — every suggestion lands inside it.
+              </p>
+            </div>
           </motion.div>
 
           {/* One tap — small (desktop: col 1, row 3) */}
           <motion.div
             {...inView(0.16)}
-            className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-blue-500/15 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 p-6 flex flex-col"
+            className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <span className="text-3xl mb-3 block">🗺️</span>
-            <h3 className="font-bold text-white text-lg mb-1.5">One tap to get there</h3>
-            <p className="text-white/40 text-sm leading-relaxed">
-              Photo, vibe, directions — waiting the moment you reveal.
-            </p>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-4.jpg)" }} />
+            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="relative z-10 flex flex-col">
+              <span className="text-3xl mb-3 block">🗺️</span>
+              <h3 className="font-bold text-white text-lg mb-1.5">One tap to get there</h3>
+              <p className="text-white/55 text-sm leading-relaxed">
+                Photo, vibe, directions — waiting the moment you reveal.
+              </p>
+            </div>
           </motion.div>
 
           {/* Grow together — large (desktop: col 2-3, row 3-4) */}
           <motion.div
             {...inView(0.2)}
-            className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-amber-500/15 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
+            className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
-            <div className="absolute -left-10 -top-10 w-40 h-40 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
-            <div>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-5.jpg)" }} />
+            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🏆</span>
               <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">Grow together</h3>
-              <p className="text-white/45 text-sm md:text-base leading-relaxed max-w-sm">
+              <p className="text-white/55 text-sm md:text-base leading-relaxed max-w-sm">
                 Earn XP and unlock milestone badges for every date you complete. Love
                 as a shared adventure.
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-wrap mt-5 md:mt-0">
+            <div className="relative z-10 flex items-center gap-2 flex-wrap mt-5 md:mt-0">
               {["🌟 First Spark", "⚡ Triple Threat", "🖐 High Five", "🔟 Perfect Ten"].map(
                 (badge) => (
                   <div
                     key={badge}
-                    className="flex items-center bg-white/5 border border-white/8 rounded-xl px-3 py-1.5"
+                    className="flex items-center bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"
                   >
-                    <span className="text-xs text-white/50">{badge}</span>
+                    <span className="text-xs text-white/60">{badge}</span>
                   </div>
                 )
               )}
@@ -650,13 +664,17 @@ export default function LandingDesktopClient() {
           {/* Countdown — small (desktop: col 1, row 4) */}
           <motion.div
             {...inView(0.24)}
-            className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-pink-500/15 bg-gradient-to-br from-pink-500/10 to-rose-500/5 p-6 flex flex-col"
+            className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <span className="text-3xl mb-3 block">⏳</span>
-            <h3 className="font-bold text-white text-lg mb-1.5">Anticipation built in</h3>
-            <p className="text-white/40 text-sm leading-relaxed">
-              A live countdown builds excitement between reveals.
-            </p>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-6.jpg)" }} />
+            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="relative z-10 flex flex-col">
+              <span className="text-3xl mb-3 block">⏳</span>
+              <h3 className="font-bold text-white text-lg mb-1.5">Anticipation built in</h3>
+              <p className="text-white/55 text-sm leading-relaxed">
+                A live countdown builds excitement between reveals.
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>

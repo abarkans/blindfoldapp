@@ -207,7 +207,7 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
                 <p className={`text-[10px] leading-tight ${earned ? "text-white/45" : "text-white/18"}`}>
                   {earned
                     ? milestone.description
-                    : `${milestone.required_dates} date${milestone.required_dates > 1 ? "s" : ""}`}
+                    : `Complete ${milestone.required_dates} date${milestone.required_dates > 1 ? "s" : ""} to unlock`}
                 </p>
               </motion.div>
             );

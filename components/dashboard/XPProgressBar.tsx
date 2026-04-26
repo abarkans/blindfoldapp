@@ -22,7 +22,7 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
           <span className="text-sm font-bold text-white">Level {level}</span>
         </div>
         <span className="text-xs text-white/40">
-          {totalXp} XP · {xpToNext} to next
+          {totalXp} XP · {xpToNext} XP to level up
         </span>
       </div>
       <div className="h-2 rounded-full bg-white/10 overflow-hidden">

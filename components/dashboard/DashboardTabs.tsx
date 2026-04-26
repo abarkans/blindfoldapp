@@ -292,6 +292,7 @@ function ProgressTabContent({
     <div>
       <div className="mb-5">
         <h2 className="text-2xl font-bold text-white">Your progress</h2>
+        <p className="text-white/40 text-sm mt-1">Every date earns XP and unlocks badges.</p>
       </div>
 
       <XPProgressBar totalXp={totalXp} />
@@ -308,7 +309,9 @@ function ProgressTabContent({
               {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
               <span className="text-rose-400">{nextMilestone.name}</span>
             </p>
-            <p className="text-[10px] text-white/35 mt-0.5">Complete it to unlock <span className="text-rose-400">{nextMilestone.name}</span></p>
+            <p className="text-[10px] text-white/35 mt-0.5">
+              Complete {nextMilestone.threshold - datesCompleted} more date{nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} to earn this badge
+            </p>
           </div>
         </div>
       )}
