@@ -542,7 +542,7 @@ export default function LandingDesktopClient() {
             No more &ldquo;I don&apos;t know,
             <br />
             <span className="text-white/25">
-              what do <em>you</em> want to do?&rdquo;
+              what do you want to do?&rdquo;
             </span>
           </h2>
         </motion.div>
