@@ -11,9 +11,9 @@ import { z } from "zod";
  */
 function sanitize(value: string, maxLen = 200): string {
   return value
-    .replace(/[<>]/g, "")   // strip XML tag delimiters (prevents breaking out of <venue_data> etc.)
-    .replace(/\n/g, " ")    // flatten ALL newlines → space (prevents "Ignore prior instructions\n..." injections)
-    .replace(/ {3,}/g, "  ") // collapse runs of 3+ spaces left behind by newline replacement
+    .replace(/[<>\[\]`#|\\{}]/g, "") // strip chars used for XML tags, markdown, and prompt delimiters
+    .replace(/[\n\r\t]/g, " ")       // flatten all whitespace control chars
+    .replace(/ {2,}/g, " ")          // collapse whitespace runs
     .trim()
     .slice(0, maxLen);
 }

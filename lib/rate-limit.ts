@@ -5,6 +5,7 @@ import { Redis } from "@upstash/redis";
 // Requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in env.
 let revealLimiter: Ratelimit | null = null;
 let completeLimiter: Ratelimit | null = null;
+let stripeLimiter: Ratelimit | null = null;
 
 function buildLimiter(requests: number, windowSeconds: number): Ratelimit | null {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -45,6 +46,21 @@ export async function checkCompleteRateLimit(userId: string): Promise<void> {
   if (!completeLimiter) return;
 
   const { success, reset } = await completeLimiter.limit(`complete:${userId}`);
+  if (!success) {
+    const retryAfter = Math.ceil((reset - Date.now()) / 1000);
+    throw new Error(`Too many requests. Try again in ${retryAfter} seconds.`);
+  }
+}
+
+/**
+ * Enforce per-user rate limits on Stripe checkout/portal session creation.
+ * Limit: 10 per hour (guards against Stripe API abuse and unexpected billing).
+ */
+export async function checkStripeRateLimit(userId: string): Promise<void> {
+  if (!stripeLimiter) stripeLimiter = buildLimiter(10, 3600);
+  if (!stripeLimiter) return;
+
+  const { success, reset } = await stripeLimiter.limit(`stripe:${userId}`);
   if (!success) {
     const retryAfter = Math.ceil((reset - Date.now()) / 1000);
     throw new Error(`Too many requests. Try again in ${retryAfter} seconds.`);
