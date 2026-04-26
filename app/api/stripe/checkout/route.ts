@@ -30,14 +30,18 @@ export async function POST(req: Request) {
 
   const { cadence, returnPath } = await req.json();
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-    customer_email: user.email,
-    success_url: `${origin}/dashboard/upgrade?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/dashboard?checkout=cancelled`,
-    metadata: { user_id: user.id, cadence: cadence ?? "monthly" },
-  });
-
-  return NextResponse.json({ url: session.url });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
+      customer_email: user.email,
+      success_url: `${origin}/dashboard/upgrade?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/dashboard?checkout=cancelled`,
+      metadata: { user_id: user.id, cadence: cadence ?? "monthly" },
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Stripe error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

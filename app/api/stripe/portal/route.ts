@@ -38,10 +38,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No subscription found" }, { status: 400 });
   }
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: profile.stripe_customer_id,
-    return_url: `${origin}/dashboard?portal=return`,
-  });
-
-  return NextResponse.json({ url: session.url });
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: profile.stripe_customer_id,
+      return_url: `${origin}/dashboard?portal=return`,
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Stripe error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
