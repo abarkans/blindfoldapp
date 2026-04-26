@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Search, ArrowLeft, Navigation, AlertCircle } from "lucide-react";
+import { MapPin, Search, ArrowLeft, Navigation, AlertCircle, CreditCard } from "lucide-react";
 import Slider from "@/components/ui/Slider";
 import Button from "@/components/ui/Button";
+import type { PlanId } from "@/lib/plans";
 
 export interface LocationFormData {
   lat: number;
@@ -18,6 +19,7 @@ interface StepLocationProps {
   onBack: () => void;
   loading?: boolean;
   isLast?: boolean;
+  planType?: PlanId;
 }
 
 interface NominatimResult {
@@ -42,7 +44,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
   }
 }
 
-export default function StepLocation({ defaultValues, onNext, onBack, loading, isLast }: StepLocationProps) {
+export default function StepLocation({ defaultValues, onNext, onBack, loading, isLast, planType }: StepLocationProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [lat, setLat] = useState<number | null>(defaultValues?.lat ?? null);
   const [lng, setLng] = useState<number | null>(defaultValues?.lng ?? null);
@@ -292,7 +294,7 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading, i
       {/* Radius slider — always shown */}
       <div className="flex flex-col gap-2">
         <Slider
-          label="Search Radius"
+          label="How far should we look?"
           value={radiusKm}
           onChange={setRadiusKm}
           min={1}
@@ -306,6 +308,15 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading, i
         </div>
       </div>
 
+      {isLast && planType === "subscription" && (
+        <div className="flex items-center gap-2.5 bg-violet-500/10 border border-violet-500/20 rounded-2xl px-4 py-3">
+          <CreditCard className="w-4 h-4 text-violet-400 shrink-0" />
+          <p className="text-xs text-white/50 leading-relaxed">
+            Next step: payment via Stripe. Setup saves first, then you&apos;ll be redirected.
+          </p>
+        </div>
+      )}
+
       <div className="flex gap-3 mt-2">
         <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
           <ArrowLeft className="w-5 h-5" />
@@ -318,7 +329,7 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading, i
           loading={loading}
           onClick={handleSubmit}
         >
-          {isLast ? "Finish Setup" : "Continue"}
+          {isLast && planType === "subscription" ? "Continue to Payment" : isLast ? "Finish Setup" : "Continue"}
         </Button>
       </div>
     </div>

@@ -25,8 +25,8 @@ export default function StepIdentity({ defaultValues, onNext }: StepIdentityProp
   return (
     <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">Who&apos;s on this adventure?</h2>
-        <p className="text-white/50 text-sm">Enter both partners&apos; names so we can personalise your dates.</p>
+        <h2 className="text-2xl font-bold text-white">Who are we planning for?</h2>
+        <p className="text-white/50 text-sm">We&apos;ll use your names to make dates feel personal.</p>
       </div>
 
       <div className="flex flex-col gap-4">

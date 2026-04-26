@@ -26,9 +26,9 @@ const INTERESTS = [
 ];
 
 const UNLOCK_FEATURES = [
-  { text: "All 12 interest categories", key: true },
-  { text: "Weekly, Bi-weekly, or Monthly dates", key: true },
-  { text: "Full customization & enhanced AI", key: false },
+  { text: "All date categories unlocked", key: true },
+  { text: "Date as often as you want", key: true },
+  { text: "Personalized to your exact taste", key: false },
 ];
 
 interface StepInterestsProps {
@@ -68,8 +68,8 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
         <h2 className="text-2xl font-bold text-white">What do you love?</h2>
         <p className="text-white/50 text-sm">
           {isFree
-            ? "Your basic plan includes these categories."
-            : "Pick interests to help us craft perfect mystery dates."}
+            ? "Your Starter plan includes these 3 categories — upgrade anytime."
+            : "Pick what you love — we'll use it to find your perfect date."}
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
             <div className="w-7 h-7 rounded-lg bg-pink-500/20 flex items-center justify-center shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-pink-400" />
             </div>
-            <p className="text-sm font-bold text-white">Unlock all 12 categories</p>
+            <p className="text-sm font-bold text-white">Unlock every date category</p>
           </div>
 
           <ul className="flex flex-col gap-1.5">

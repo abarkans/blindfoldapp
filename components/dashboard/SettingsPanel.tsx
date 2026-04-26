@@ -10,7 +10,7 @@ import {
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight, ArrowLeft,
   Sparkles, Lock, Check, Zap, Crown,
 } from "lucide-react";
-import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
+import { FREE_INTERESTS, PLANS, type PlanId } from "@/lib/plans";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
@@ -329,7 +329,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     ...(planType === "subscription"
       ? [{ id: "frequency" as SettingsView, label: "Date frequency", icon: Calendar, summary: CADENCE_LABEL[selectedCadence] ?? selectedCadence }]
       : []),
-    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? "Plus · €5.99/mo" : "Basic · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · €5.99/mo") : "Starter · Upgrade available" },
   ];
 
   function navigate(to: SettingsView) {
@@ -384,46 +384,48 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
             {/* Sign-out confirmation modal */}
             <AnimatePresence>
               {signOutConfirm && (
-                <>
-                  <motion.div
-                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setSignOutConfirm(false)}
-                  />
-                  <motion.div
-                    className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-xs px-4"
-                    initial={{ opacity: 0, scale: 0.88, y: 16 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.92, y: 8 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 24 }}
-                  >
-                    <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
-                      <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-                        <LogOut className="w-5 h-5 text-red-400" />
-                      </div>
-                      <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
-                      <p className="text-sm text-white/40 mb-6">You can always sign back in to continue your mystery dates.</p>
-                      <div className="flex flex-col gap-2">
-                        <button
-                          type="button"
-                          onClick={handleSignOut}
-                          className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors"
-                        >
-                          Yes, sign out
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSignOutConfirm(false)}
-                          className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                <motion.div
+                  key="signout-backdrop"
+                  className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSignOutConfirm(false)}
+                />
+              )}
+              {signOutConfirm && (
+                <motion.div
+                  key="signout-modal"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-xs px-4"
+                  initial={{ opacity: 0, scale: 0.88, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.92, y: 8 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                >
+                  <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+                    <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                      <LogOut className="w-5 h-5 text-red-400" />
                     </div>
-                  </motion.div>
-                </>
+                    <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
+                    <p className="text-sm text-white/40 mb-6">You can always sign back in to continue your mystery dates.</p>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors duration-100 active:scale-[0.98]"
+                      >
+                        Yes, sign out
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSignOutConfirm(false)}
+                        className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98]"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
               )}
             </AnimatePresence>
           </motion.div>
@@ -724,15 +726,10 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                         <span className="ml-auto text-base font-black text-white">€5.99<span className="text-xs font-normal text-white/40">/mo</span></span>
                       </div>
                       <ul className="flex flex-col gap-2">
-                        {[
-                          { text: "Weekly, Bi-weekly, or Monthly dates", key: true },
-                          { text: "All 12 interest categories", key: true },
-                          { text: "Full customization", key: true },
-                          { text: "Enhanced AI personalization", key: false },
-                        ].map(({ text, key }) => (
+                        {PLANS.find((p) => p.id === "subscription")!.features.map((text) => (
                           <li key={text} className="flex items-start gap-2">
-                            <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${key ? "text-pink-400" : "text-emerald-400/70"}`} />
-                            <span className={`text-xs ${key ? "text-white font-semibold" : "text-white/55"}`}>{text}</span>
+                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-pink-400" />
+                            <span className="text-xs text-white font-semibold">{text}</span>
                           </li>
                         ))}
                       </ul>

@@ -35,8 +35,8 @@ export default function StepLogistics({ defaultValues, onNext, onBack }: StepLog
   return (
     <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-7">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">Let&apos;s set the scene</h2>
-        <p className="text-white/50 text-sm">Help us tailor dates to your budget and how you get around.</p>
+        <h2 className="text-2xl font-bold text-white">Make it work for you</h2>
+        <p className="text-white/50 text-sm">Set your budget and how you get around — we&apos;ll handle the rest.</p>
       </div>
 
       <div className="flex flex-col gap-2">

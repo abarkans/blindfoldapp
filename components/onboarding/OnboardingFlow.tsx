@@ -30,7 +30,7 @@ type OnboardingData = {
 };
 
 // New 5-step flow: Identity → Plan → Interests → Logistics → Location
-const STEP_LABELS = ["Identity", "Plan", "Interests", "Logistics", "Location"];
+const STEP_LABELS = ["Names", "Plan", "Interests", "Budget", "Location"];
 
 const slideVariants = {
   enter: (dir: number) => ({
@@ -133,7 +133,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
         </div>
         <div className="text-left">
           <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
-          <p className="text-white/40 text-xs">Let&apos;s set up your dates</p>
+          <p className="text-white/40 text-xs">Quick setup — we handle the rest</p>
         </div>
       </button>
 
@@ -204,6 +204,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
                 onNext={handleFinish}
                 onBack={goBack}
                 loading={loading}
+                planType={data.plan_type}
                 isLast
               />
             )}

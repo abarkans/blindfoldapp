@@ -41,8 +41,8 @@ const STEPS = [
   {
     number: "01",
     icon: Heart,
-    title: "Share your ingredients",
-    body: "Interests, budget, how far you'll travel, and how often you crave the excitement. Two minutes, once.",
+    title: "Tell us your taste",
+    body: "Your interests, budget, and how far you'll travel. Two minutes, done once. Never fill it in again.",
     color: "from-rose-500/15 to-pink-500/5",
     border: "border-rose-500/20",
     iconBg: "bg-rose-500/15",
@@ -51,7 +51,7 @@ const STEPS = [
   {
     number: "02",
     icon: Sparkles,
-    title: "We do the magic",
+    title: "We do the planning",
     body: "AI scours real nearby venues, picks the highest-rated hidden gem, and writes a date story just for you two.",
     color: "from-violet-500/15 to-purple-500/5",
     border: "border-violet-500/20",
@@ -61,7 +61,7 @@ const STEPS = [
   {
     number: "03",
     icon: Lock,
-    title: "Reveal. Go. Adore.",
+    title: "Reveal. Go. Enjoy.",
     body: "Hit reveal when you're both ready. The destination unlocks, navigation opens, and the only thing left is to enjoy.",
     color: "from-amber-500/15 to-orange-500/5",
     border: "border-amber-500/20",
@@ -325,7 +325,7 @@ export default function LandingDesktopClient() {
                 transition={{ duration: 1.4, repeat: Infinity }}
               />
               <span className="text-xs text-violet-200 font-medium">
-                Your mystery date is waiting to be revealed
+                Never plan a date again — we do it for you
               </span>
             </div>
           </motion.div>
@@ -343,7 +343,7 @@ export default function LandingDesktopClient() {
                 backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 50%, #8b5cf6 100%)",
               }}
             >
-              Start surprising.
+              Just show up.
             </span>
           </motion.h1>
 
@@ -352,9 +352,8 @@ export default function LandingDesktopClient() {
             {...fadeUp(0.2)}
             className="text-white/50 text-base md:text-xl leading-relaxed mb-8 md:mb-10 max-w-full md:max-w-[460px]"
           >
-            BlindfoldDate plans your perfect mystery date — real venues near you,
-            AI-crafted story, complete surprise. You just show up and fall in love
-            all over again.
+            Tell us what you like once. We find real venues near you, write your
+            date story, and handle every detail. You just show up and enjoy.
           </motion.p>
 
           {/* CTAs */}
@@ -383,7 +382,7 @@ export default function LandingDesktopClient() {
             {[
               { icon: Zap, value: "2 min", label: "Setup time" },
               { icon: Star, value: "★ 4.9", label: "Avg date rating" },
-              { icon: MapPin, value: "50 km", label: "Search radius" },
+              { icon: MapPin, value: "50 km", label: "Always nearby" },
             ].map(({ icon: Icon, value, label }) => (
               <div key={label} className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center shrink-0">
@@ -479,9 +478,9 @@ export default function LandingDesktopClient() {
             The ritual
           </p>
           <h2 className="text-4xl md:text-5xl font-black leading-tight">
-            Three steps to a night
+            Three steps, then
             <br />
-            <span className="text-white/25">you&apos;ll never forget</span>
+            <span className="text-white/25">just show up</span>
           </h2>
         </motion.div>
 
@@ -565,11 +564,11 @@ export default function LandingDesktopClient() {
             <div>
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🔮</span>
               <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">
-                Real places, real magic
+                Real places. No Googling.
               </h3>
               <p className="text-white/45 text-sm md:text-base leading-relaxed max-w-sm">
-                Every suggestion is a live, top-rated venue near you — never a generic
-                idea you&apos;ll Google and forget.
+                Every suggestion is a real, top-rated venue near you — picked, vetted,
+                and ready to go. No research required.
               </p>
             </div>
             <div className="flex items-center gap-2 md:gap-2.5 mt-5 md:mt-0">
@@ -909,9 +908,9 @@ export default function LandingDesktopClient() {
           </h2>
 
           <p className="text-white/40 text-base md:text-xl mb-10 md:mb-12 leading-relaxed">
-            Join couples who&apos;ve handed the planning to us
+            Join couples who stopped arguing about what to do
             <br className="hidden sm:block" />
-            and got their spark back in return.
+            — and started actually doing it.
           </p>
 
           <Link

@@ -71,7 +71,7 @@ export default function LoginPage() {
           </div>
           <div className="text-center">
             <h1 className="text-xl font-bold text-white">BlindfoldDate</h1>
-            <p className="text-white/40 text-sm">Mystery dating, reimagined</p>
+            <p className="text-white/40 text-sm">Your dates, handled</p>
           </div>
         </Link>
 

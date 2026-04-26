@@ -17,7 +17,7 @@ const LOADING_MESSAGES = [
   "Checking out hidden gems near you...",
   "Finding venues with a little magic...",
   "Crafting something deliciously unexpected...",
-  "Personalising your next adventure...",
+  "Personalising this one just for you...",
   "The city has something special planned...",
   "Reading your love language...",
   "Mixing mystery with a dash of romance...",
@@ -346,7 +346,7 @@ export default function DateCard({
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-rose-400" />
               <span className="text-xs font-semibold text-rose-400 uppercase tracking-widest">
-                {completed ? "Completed Date" : revealed ? "Current Date" : "Mystery Date"}
+                {revealed ? (completed ? "Completed Date" : "Current Date") : "Mystery Date"}
               </span>
             </div>
             {nextRevealDate && !canReveal && (
@@ -454,7 +454,7 @@ export default function DateCard({
                     </div>
 
                     <p className="text-xs text-white/35 text-center">
-                      Does this date spark your interest, or shall we roll the dice again?
+                      Like it? Or want something different?
                     </p>
 
                     {error && <p className="text-xs text-red-400 text-center">{error}</p>}
@@ -572,7 +572,7 @@ export default function DateCard({
                       className="flex items-center justify-center gap-2 w-full h-14 rounded-2xl bg-transparent border border-rose-500 text-white text-sm font-semibold mb-4 hover:border-rose-400 hover:bg-rose-500/10 transition-all active:scale-95"
                     >
                       <Navigation className="w-4 h-4" />
-                      Navigate to Date
+                      Get Directions
                     </a>
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
@@ -763,13 +763,13 @@ export default function DateCard({
                 {isFree ? (
                   <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
                     <p className="text-xs text-amber-300 leading-relaxed">
-                      <span className="font-semibold">Basic plan:</span> You only get{" "}
-                      <span className="font-bold">1 re-roll for life</span>. Once used, future dates can&apos;t be changed.
+                      <span className="font-semibold">Starter plan:</span>{" "}
+                      <span className="font-bold">1 re-roll total — use it wisely.</span> Once gone, dates are final.
                     </p>
                   </div>
                 ) : (
                   <p className="text-sm text-white/50 mb-4 leading-relaxed">
-                    You get <span className="text-white font-medium">1 re-roll per date</span> as a subscriber. A brand-new mystery date will be generated.
+                    You get <span className="text-white font-medium">1 re-roll per date</span>. We&apos;ll find you a different date.
                   </p>
                 )}
 

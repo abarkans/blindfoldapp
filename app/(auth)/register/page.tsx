@@ -104,7 +104,7 @@ export default function RegisterPage() {
           </p>
           <p className="text-white font-semibold text-sm mb-6">{emailSent}</p>
           <p className="text-white/30 text-xs">
-            Click the link in the email to activate your account and start your mystery journey.
+            Click the link to activate your account — we&apos;ll get your first date ready.
             The link expires in 24 hours.
           </p>
           <button
@@ -133,7 +133,7 @@ export default function RegisterPage() {
           </div>
           <div className="text-center">
             <h1 className="text-xl font-bold text-white">BlindfoldDate</h1>
-            <p className="text-white/40 text-sm">Start your mystery journey</p>
+            <p className="text-white/40 text-sm">Your first date is two minutes away</p>
           </div>
         </Link>
 

@@ -114,7 +114,7 @@ export default function CompleteDateModal({
               </motion.div>
 
               <h2 className="text-xl font-bold text-white mb-1">Date Complete!</h2>
-              <p className="text-white/40 text-sm mb-5">Another adventure in the books.</p>
+              <p className="text-white/40 text-sm mb-5">Another one in the books.</p>
 
               {/* XP gained */}
               <motion.div

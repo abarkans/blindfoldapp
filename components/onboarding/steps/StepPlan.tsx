@@ -58,7 +58,7 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
           >
             <div className="flex flex-col gap-2">
               <h2 className="text-2xl font-bold text-white">Choose your plan</h2>
-              <p className="text-white/50 text-sm">Pick the experience that&apos;s right for you.</p>
+              <p className="text-white/50 text-sm">You can change this anytime from settings.</p>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -111,7 +111,7 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
 
                     <ul className="flex flex-col gap-1.5">
                       {plan.features.map((feat) => {
-                        const isKey = feat.includes("Full customization") || feat.includes("Weekly");
+                        const isKey = feat.includes("Date as often") || feat.includes("Personalized");
                         return (
                           <li key={feat} className="flex items-start gap-2">
                             <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isKey && plan.highlighted ? "text-pink-400" : "text-emerald-400"}`} />
@@ -156,7 +156,7 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
             <div className="flex flex-col gap-2">
               <p className="text-xs text-pink-400 font-semibold uppercase tracking-widest">Plus</p>
               <h2 className="text-2xl font-bold text-white">How often?</h2>
-              <p className="text-white/50 text-sm">Choose how frequently you want mystery dates revealed.</p>
+              <p className="text-white/50 text-sm">We&apos;ll reveal a new date on your chosen schedule.</p>
             </div>
 
             <div className="flex flex-col gap-2.5">

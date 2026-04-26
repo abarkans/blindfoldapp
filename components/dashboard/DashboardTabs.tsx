@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Heart, Zap, CalendarCheck, X } from "lucide-react";
+import { Sparkles, Medal, Settings, Heart, Zap, CalendarCheck, X, RefreshCw } from "lucide-react";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
@@ -37,8 +37,10 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
   const [showCancelBanner, setShowCancelBanner] = useState(false);
+  const [syncingPlan, setSyncingPlan] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const stored = localStorage.getItem("dashboard-tab");
@@ -48,6 +50,17 @@ export default function DashboardTabs({
     if (searchParams.get("checkout") === "cancelled") {
       setShowCancelBanner(true);
       window.history.replaceState({}, "", "/dashboard");
+    }
+    if (searchParams.get("portal") === "return") {
+      window.history.replaceState({}, "", "/dashboard");
+      setActiveTab("settings");
+      localStorage.setItem("dashboard-tab", "settings");
+      setSyncingPlan(true);
+      // Give Stripe's webhook ~4s to arrive and update subscription_ends_at
+      setTimeout(() => {
+        router.refresh();
+        setSyncingPlan(false);
+      }, 4000);
     }
   }, []);
 
@@ -113,8 +126,8 @@ export default function DashboardTabs({
             <div className="max-w-sm md:max-w-2xl mx-auto flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3.5">
               <span className="text-lg leading-none mt-0.5">💳</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white">It looks like your payment didn&apos;t go through.</p>
-                <p className="text-xs text-white/50 mt-0.5">No worries — your account is all set! You&apos;re on the Free Plan for now. You can upgrade anytime from Settings.</p>
+                <p className="text-sm font-semibold text-white">Payment didn&apos;t complete.</p>
+                <p className="text-xs text-white/50 mt-0.5">No worries — your account is all set! You&apos;re on the Starter plan for now. You can upgrade anytime from Settings.</p>
               </div>
               <button
                 onClick={() => setShowCancelBanner(false)}
@@ -122,6 +135,25 @@ export default function DashboardTabs({
               >
                 <X className="w-4 h-4" />
               </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Subscription sync banner */}
+      <AnimatePresence>
+        {syncingPlan && (
+          <motion.div
+            key="sync-banner"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="mx-4 mt-3"
+          >
+            <div className="max-w-sm md:max-w-2xl mx-auto flex items-center gap-3 bg-violet-500/10 border border-violet-500/20 rounded-2xl px-4 py-3">
+              <RefreshCw className="w-4 h-4 text-violet-400 shrink-0 animate-spin" />
+              <p className="text-sm text-white/60">Syncing your subscription status…</p>
             </div>
           </motion.div>
         )}
@@ -215,8 +247,8 @@ function DateTabContent({
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-2xl font-bold text-white">Your next adventure</h2>
-        <p className="text-white/40 text-sm mt-1">A mystery date is waiting for you two.</p>
+        <h2 className="text-2xl font-bold text-white">Your next date</h2>
+        <p className="text-white/40 text-sm mt-1">Tap reveal when you&apos;re both ready.</p>
       </div>
 
       <DateCard
@@ -260,7 +292,6 @@ function ProgressTabContent({
     <div>
       <div className="mb-5">
         <h2 className="text-2xl font-bold text-white">Your progress</h2>
-        <p className="text-white/40 text-sm mt-1">Every date counts.</p>
       </div>
 
       <XPProgressBar totalXp={totalXp} />
@@ -277,7 +308,7 @@ function ProgressTabContent({
               {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
               <span className="text-rose-400">{nextMilestone.name}</span>
             </p>
-            <p className="text-[10px] text-white/35 mt-0.5">Keep going — you&apos;re on a roll!</p>
+            <p className="text-[10px] text-white/35 mt-0.5">Complete it to unlock <span className="text-rose-400">{nextMilestone.name}</span></p>
           </div>
         </div>
       )}
@@ -294,7 +325,6 @@ function SettingsTabContent({ profile }: { profile: Profile }) {
     <div>
       <div className="mb-5">
         <h2 className="text-2xl font-bold text-white">Settings</h2>
-        <p className="text-white/40 text-sm mt-1">Update your preferences.</p>
       </div>
       <SettingsPanel profile={profile} />
     </div>
