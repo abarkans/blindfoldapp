@@ -47,12 +47,14 @@ export default function StepPlan({
   // Handle continue trigger
   useEffect(() => {
     if (continueTrigger <= mountTrigger.current) return;
+    console.log("[StepPlan]", { subStep, selectedPlan, selectedCadence, continueTrigger });
     if (subStep === "plan") {
       if (!selectedPlan) return;
       if (selectedPlan === "free") {
         onNext({ plan_type: "free", cadence: "monthly" });
       } else {
         // Transition to frequency sub-step
+        console.log("[StepPlan] Setting subStep to frequency");
         setSubStep("frequency");
         onContinueLabelChange("Subscribe & Continue");
         onCanContinueChange(false);
