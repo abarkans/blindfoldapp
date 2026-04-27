@@ -149,7 +149,7 @@ export default function LandingDesktopClient() {
   const visualY = useTransform(scrollYProgress, [0, 1], [0, 40]);
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden">
+    <div className="relative min-h-screen text-white overflow-x-hidden">
       {/* Grid overlay */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.018]"

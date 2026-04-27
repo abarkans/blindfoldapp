@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import type { PlanId } from "@/lib/plans";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -10,13 +15,14 @@ export default async function OnboardingPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarding_complete")
+    .select("onboarding_complete, plan_type, partner_names, cadence")
     .eq("id", user.id)
     .single();
 
   if (profile?.onboarding_complete) redirect("/dashboard");
 
-  // Pre-fill partner1 from Google OAuth metadata if available
+  // Pre-fill partner1: prefer saved DB value (set during partial save before Stripe),
+  // fall back to Google OAuth metadata.
   const meta = user.user_metadata as Record<string, string> | undefined;
   const firstName =
     meta?.given_name ||
@@ -24,10 +30,27 @@ export default async function OnboardingPage() {
     meta?.name?.split(" ")[0] ||
     "";
 
+  const names = profile?.partner_names as { partner1?: string; partner2?: string } | null;
+  const savedPartner1 = names?.partner1 || firstName;
+  const savedPartner2 = names?.partner2 ?? "";
+  const savedPlanType = (profile?.plan_type as PlanId | null) ?? undefined;
+  const savedCadence = (profile?.cadence as string | null) ?? undefined;
+
+  // When returning from a cancelled Stripe session with names already saved,
+  // skip straight to plan selection instead of making the user re-enter names.
+  const { checkout } = await searchParams;
+  const initialStep = checkout === "cancelled" && !!savedPartner1 ? 2 : undefined;
+
   return (
     <div className="min-h-dvh bg-[#0d0d14] flex items-start pt-10 md:items-center md:pt-0 justify-center p-4">
       <div className="w-full max-w-sm">
-        <OnboardingFlow initialPartner1={firstName} />
+        <OnboardingFlow
+          initialPartner1={savedPartner1}
+          initialPartner2={savedPartner2}
+          initialPlanType={savedPlanType}
+          initialCadence={savedCadence}
+          initialStep={initialStep}
+        />
       </div>
     </div>
   );

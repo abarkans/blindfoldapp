@@ -162,6 +162,7 @@ export default function CompleteDateModal({
                             alt={badge.name}
                             width={48}
                             height={48}
+                            unoptimized
                             className="w-12 h-12 object-contain flex-shrink-0"
                           />
                         ) : (

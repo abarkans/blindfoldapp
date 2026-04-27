@@ -17,13 +17,22 @@ export default async function UpgradePage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || session.metadata?.user_id !== user.id) redirect("/dashboard");
 
+  const cadence = session.metadata?.cadence;
+
   await supabase
     .from("profiles")
     .update({
       plan_type: "subscription",
       stripe_customer_id: session.customer as string,
+      ...(cadence ? { cadence } : {}),
     })
     .eq("id", user.id);
 
-  redirect("/dashboard");
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_complete")
+    .eq("id", user.id)
+    .single();
+
+  redirect(profile?.onboarding_complete ? "/dashboard" : "/onboarding");
 }

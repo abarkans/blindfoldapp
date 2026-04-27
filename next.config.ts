@@ -25,6 +25,7 @@ const securityHeaders = [
       "font-src 'self'",
       // Client-side fetch targets: Supabase (REST + Realtime WS) + Nominatim geocoding
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org",
+      "worker-src blob: 'self'",
       // Deny all framing
       "frame-ancestors 'none'",
       // Restrict <base> and <form> to same origin

@@ -122,6 +122,7 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
               alt={badge.name}
               width={240}
               height={240}
+              unoptimized
               className="w-56 h-56 md:w-64 md:h-64 object-contain drop-shadow-2xl"
               draggable={false}
             />
@@ -187,6 +188,7 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
                     alt={milestone.name}
                     width={128}
                     height={128}
+                    unoptimized
                     className={`w-full h-full object-contain transition-all duration-500 ${
                       earned ? "" : "grayscale opacity-40"
                     }`}

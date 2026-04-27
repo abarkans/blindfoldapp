@@ -10,6 +10,8 @@ import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 interface StepPlanProps {
   onNext: (data: { plan_type: PlanId; cadence: string }) => void;
   onBack: () => void;
+  onSubscribeNow: (cadence: string) => void;
+  loading?: boolean;
 }
 
 type SubStep = "plan" | "frequency";
@@ -19,7 +21,7 @@ const PLAN_ICONS = {
   subscription: Sparkles,
 };
 
-export default function StepPlan({ onNext, onBack }: StepPlanProps) {
+export default function StepPlan({ onNext, onBack, onSubscribeNow, loading }: StepPlanProps) {
   const [subStep, setSubStep] = useState<SubStep>("plan");
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
   const [selectedCadence, setSelectedCadence] = useState<"weekly" | "biweekly" | "monthly" | null>(null);
@@ -40,8 +42,7 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
       setCadenceError("Please select a frequency");
       return;
     }
-    // TODO: Integrate Stripe Checkout
-    onNext({ plan_type: "subscription", cadence: selectedCadence });
+    onSubscribeNow(selectedCadence);
   }
 
   return (
@@ -196,8 +197,14 @@ export default function StepPlan({ onNext, onBack }: StepPlanProps) {
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <Button type="button" size="lg" className="flex-1" onClick={handleFrequencySubmit}>
-                Continue
+              <Button
+                type="button"
+                size="lg"
+                className="flex-1"
+                onClick={handleFrequencySubmit}
+                loading={loading}
+              >
+                Subscribe & Continue
               </Button>
             </div>
           </motion.div>

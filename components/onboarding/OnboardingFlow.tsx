@@ -29,7 +29,6 @@ type OnboardingData = {
   cadence?: string;
 };
 
-// New 5-step flow: Identity → Plan → Interests → Logistics → Location
 const STEP_LABELS = ["Names", "Plan", "Interests", "Budget", "Location"];
 
 const slideVariants = {
@@ -44,11 +43,34 @@ const slideVariants = {
   }),
 };
 
-export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartner1?: string }) {
+interface OnboardingFlowProps {
+  initialPartner1?: string;
+  initialPartner2?: string;
+  initialPlanType?: PlanId;
+  initialCadence?: string;
+  initialStep?: number;
+}
+
+export default function OnboardingFlow({
+  initialPartner1 = "",
+  initialPartner2 = "",
+  initialPlanType,
+  initialCadence,
+  initialStep,
+}: OnboardingFlowProps) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+
+  // initialStep overrides default; subscription return skips plan step → start at interests
+  const startStep = initialStep ?? (initialPlanType === "subscription" ? 3 : 1);
+
+  const [step, setStep] = useState(startStep);
   const [direction, setDirection] = useState(1);
-  const [data, setData] = useState<OnboardingData>({ partner1: initialPartner1 });
+  const [data, setData] = useState<OnboardingData>({
+    partner1: initialPartner1,
+    partner2: initialPartner2,
+    plan_type: initialPlanType,
+    cadence: initialCadence,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -59,21 +81,68 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
   }
 
   function goNext(newData: Partial<OnboardingData>) {
-    setData((prev) => ({ ...prev, ...newData }));
+    const merged = { ...data, ...newData };
+    setData(merged);
     setDirection(1);
-    setStep((s) => s + 1);
+    setStep((s) => {
+      // Skip plan step if already subscribed
+      if (s === 1 && merged.plan_type === "subscription") return 3;
+      return s + 1;
+    });
   }
 
   function goBack() {
     setDirection(-1);
-    setStep((s) => s - 1);
+    setStep((s) => {
+      // Skip plan step if already subscribed
+      if (s === 3 && data.plan_type === "subscription") return 1;
+      return s - 1;
+    });
+  }
+
+  // Called when user picks subscription + cadence in StepPlan.
+  // Saves names first, then redirects to Stripe.
+  async function handleSubscribeNow(cadence: string) {
+    setLoading(true);
+    setError("");
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Session expired. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
+      // Partial save: persist names so they're available when user returns post-payment
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        partner_names: { partner1: data.partner1 ?? "", partner2: data.partner2 ?? "" },
+      });
+
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cadence, returnPath: "/onboarding" }),
+      });
+      const json = await res.json();
+      if (!json.url || json.error) {
+        setError(json.error ?? "Couldn't start checkout. Please try again.");
+        setLoading(false);
+        return;
+      }
+      window.location.href = json.url;
+    } catch (err) {
+      console.error("[checkout]", err);
+      setError("Couldn't start checkout. Please try again.");
+      setLoading(false);
+    }
   }
 
   async function handleFinish(loc: LocationFormData) {
     setLoading(true);
     setError("");
     const supabase = createClient();
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setError("Session expired. Please log in again.");
@@ -91,7 +160,7 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
         prefers_walking: data.prefers_walking ?? false,
       },
       cadence: data.cadence ?? "monthly",
-      plan_type: "free", // always start free; Stripe upgrades to subscription
+      plan_type: data.plan_type ?? "free",
       last_lat: loc.lat,
       last_long: loc.lng,
       preferred_radius: loc.preferred_radius,
@@ -102,19 +171,6 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
       setError("Something went wrong. Please try again.");
       setLoading(false);
       return;
-    }
-
-    if (data.plan_type === "subscription") {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cadence: data.cadence ?? "monthly", returnPath: "/dashboard" }),
-      });
-      const { url } = await res.json();
-      if (url) {
-        window.location.href = url;
-        return;
-      }
     }
 
     localStorage.setItem("dashboard-tab", "date");
@@ -167,6 +223,8 @@ export default function OnboardingFlow({ initialPartner1 = "" }: { initialPartne
               <StepPlan
                 onNext={(d) => goNext({ plan_type: d.plan_type, cadence: d.cadence })}
                 onBack={goBack}
+                onSubscribeNow={handleSubscribeNow}
+                loading={loading}
               />
             )}
             {step === 3 && (

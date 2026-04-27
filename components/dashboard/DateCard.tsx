@@ -454,7 +454,7 @@ export default function DateCard({
                     </div>
 
                     <p className="text-xs text-white/35 text-center">
-                      Like it? Or want something different?
+                      Unlock the full surprise — or swap for something else.
                     </p>
 
                     {error && <p className="text-xs text-red-400 text-center">{error}</p>}

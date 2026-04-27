@@ -474,7 +474,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                     <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-3">
                       <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <p className="text-xs text-amber-300/80">
-                        Basic plan includes Food, Nature & Romance. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> for all 12.
+                        Free plan covers three date vibes. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> to explore them all.
                       </p>
                     </div>
                   )}
