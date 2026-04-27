@@ -187,7 +187,7 @@ export default function OnboardingFlow({
   }
 
   return (
-    <div className="min-h-dvh flex flex-col bg-[#0d0d14]">
+    <div className="h-dvh flex flex-col bg-[#0d0d14]">
       {/* Header */}
       <header className="shrink-0 px-4 pt-8 pb-4">
         <div className="max-w-sm mx-auto flex flex-col gap-5">
