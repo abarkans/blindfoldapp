@@ -12,7 +12,7 @@ interface StepPlanProps {
   continueTrigger: number;
   onCanContinueChange: (can: boolean) => void;
   onContinueLabelChange: (label: string) => void;
-  onOverrideBack: (fn: (() => void) | null) => void;
+  onSubstepChange: (substep: "plan" | "frequency") => void;
 }
 
 type SubStep = "plan" | "frequency";
@@ -28,7 +28,7 @@ export default function StepPlan({
   continueTrigger,
   onCanContinueChange,
   onContinueLabelChange,
-  onOverrideBack,
+  onSubstepChange,
 }: StepPlanProps) {
   const [subStep, setSubStep] = useState<SubStep>("plan");
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
@@ -54,20 +54,15 @@ export default function StepPlan({
 
   // Sync substep changes to parent state (after child render completes)
   useEffect(() => {
+    onSubstepChange(subStep);
     if (subStep === "plan") {
       onCanContinueChange(selectedPlan !== null);
     } else {
       // subStep === "frequency"
       onCanContinueChange(selectedCadence !== null);
       onContinueLabelChange("Subscribe & Continue");
-      onOverrideBack(() => {
-        setSubStep("plan");
-        onContinueLabelChange("Continue");
-        onCanContinueChange(selectedPlan !== null);
-        onOverrideBack(null);
-      });
     }
-  }, [subStep, selectedPlan, selectedCadence]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [subStep, selectedPlan, selectedCadence, onCanContinueChange, onContinueLabelChange, onSubstepChange]);
 
   return (
     <div className="flex flex-col gap-6 pt-4">

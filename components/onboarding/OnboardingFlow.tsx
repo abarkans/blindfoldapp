@@ -72,13 +72,13 @@ export default function OnboardingFlow({
   const [canContinue, setCanContinue] = useState(false);
   const [continueTrigger, setContinueTrigger] = useState(0);
   const [continueLabel, setContinueLabel] = useState("Continue");
-  const [backOverride, setBackOverride] = useState<(() => void) | null>(null);
+  const [planSubStep, setPlanSubStep] = useState<"plan" | "frequency" | null>(null);
 
   // Reset nav state whenever the step changes
   useEffect(() => {
     setCanContinue(false);
     setContinueLabel(step === 5 ? "Finish Setup" : "Continue");
-    setBackOverride(null);
+    setPlanSubStep(null);
   }, [step]);
 
   async function handleExitToHome() {
@@ -106,8 +106,11 @@ export default function OnboardingFlow({
   }
 
   function handleBack() {
-    if (backOverride) {
-      backOverride();
+    // If on step 2 (Plan) in frequency substep, reset to plan substep
+    if (step === 2 && planSubStep === "frequency") {
+      setPlanSubStep("plan");
+      setContinueLabel("Continue");
+      setCanContinue(false);
     } else {
       goBack();
     }
@@ -243,7 +246,7 @@ export default function OnboardingFlow({
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
                     onContinueLabelChange={setContinueLabel}
-                    onOverrideBack={setBackOverride}
+                    onSubstepChange={setPlanSubStep}
                   />
                 )}
                 {step === 3 && (
