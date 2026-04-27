@@ -1,83 +1,81 @@
 # Blindfold — Mystery Dating App
 
-**Core Architecture:** Next.js 16 App Router + Supabase (PostgreSQL + Auth). Couples onboard (5 steps), receive AI-generated or venue-based date ideas via Google Places API + Vercel AI SDK (Claude). Server actions + revalidatePath invalidate RSC, dashboard shows current date card state + gamification (XP/badges).
+Next.js 16 App Router + Supabase (PostgreSQL + Auth). Couples onboard (5 steps), receive AI-generated or venue-based date ideas via Google Places API + Vercel AI SDK (Claude). Server actions + `revalidatePath` invalidate RSC; dashboard shows date card state + XP/badge gamification.
 
 ---
 
-## Quick Start
+## Build & Test
 
 ```bash
 npm install
-npm run dev              # localhost:3000
-npm run build            # prod build
+npm run dev      # localhost:3000
+npm run build    # prod build — also runs TS type-check
+npx tsc --noEmit # type-check only, no emit
 ```
 
-No formal test suite. ESLint/Prettier: check `package.json` for config.
+No test suite. No lint script. TypeScript strict mode on. Build is the CI gate.
 
-**Environment:** See `.env.local.example`. Sensitive vars (API keys) server-only. Deploy to Vercel.
+**Environment:** copy `.env.local.example` → `.env.local`. All API keys are server-only vars.
 
 ---
 
 ## Style Guidelines
 
-1. **Fixed Bottom Nav:** Use `h-dvh` outer + `flex-col`. Nav = `shrink-0` outside scroll container. Header inside overflow area scrolls with content.
-2. **Form Submission:** `useRef(continueTrigger)` pattern avoids re-firing on mount. Parent increments counter, child useEffect checks `continueTrigger > mountTrigger.current`.
-3. **Motion & Stacking:** Render nav outside `AnimatePresence` to prevent transform stacking context bugs.
-4. **Server Actions:** Always end with `revalidatePath("/dashboard")`. Mutations → RSC re-render.
-5. **Validation:** React Hook Form + Zod in components. Trust internal state. Validate at system boundaries only (user input, external APIs).
-6. **Naming:** DB uses snake_case (`partner_names`, `plan_type`, `cadence`). JS uses camelCase.
-7. **Free Plan Lock:** Free interests (`["food", "nature", "romance"]`) enforced server-side + client-side. Never trust client filtering alone.
+1. **Fixed Bottom Nav:** `h-dvh` outer + `flex-col`. Nav = `shrink-0` outside scroll container. Header scrolls inside content area. Mobile-only nav: `md:hidden`. Desktop inline buttons: `hidden md:flex` below content.
+2. **Form Submission:** `useRef(continueTrigger)` mount guard pattern. Parent increments counter; child `useEffect` fires only when `continueTrigger > mountTrigger.current`. Never trigger on mount.
+3. **React 19 setState Rule:** Never pass callbacks containing `setState` to children via props or store them in parent state. React 19 + Turbopack throws render conflict. Communicate state upward via plain values (e.g., `onSubstepChange(subStep)`) — not function refs containing child setters.
+4. **Motion & Stacking:** Render nav outside `AnimatePresence` to prevent transform stacking context bugs on mobile.
+5. **Server Actions:** Always end with `revalidatePath("/dashboard")`. Mutations must trigger RSC re-render.
+6. **Validation:** React Hook Form + Zod in components. Validate at system boundaries only (user input, external APIs). Trust internal state.
+7. **Naming:** DB snake_case (`partner_names`, `plan_type`). JS camelCase. `preferred_radius` stored in meters (DB), displayed in km (UI) — convert on every read/write.
+8. **Free Plan Lock:** Free interests (`["food", "nature", "romance"]`) enforced server-side AND client-side. Never trust client filtering alone.
 
 ---
 
 ## Project Context
 
 ### Database
-- **profiles:** User account + preferences. Stores `partner_names` (JSONB), `interests` (array), `constraints` (JSONB: budget_max, has_car, prefers_walking), `plan_type` ("free"|"subscription"), `cadence` (weekly|biweekly|monthly|spontaneous), `onboarding_complete` (bool), `date_idea` (JSONB), `last_lat`/`last_long` (location).
-- **date_ideas:** History log. Tracks revealed/completed statuses. Prevents repeat venues/titles.
-- **user_badges:** Milestone badges (First Spark, Triple Threat, High Five, Perfect 10) awarded by Postgres trigger when `dates_completed_count` updates.
+- **profiles:** `partner_names` (JSONB), `interests` (array), `constraints` (JSONB: budget_max, has_car, prefers_walking), `plan_type` ("free"|"subscription"), `cadence` (weekly|biweekly|monthly|spontaneous), `onboarding_complete` (bool), `date_idea` (JSONB), `last_lat`/`last_long`, `preferred_radius`.
+- **date_ideas:** History log. Tracks revealed/completed. Prevents repeat venues/titles.
+- **user_badges:** Awarded by Postgres trigger on `dates_completed_count` update. Milestones: First Spark, Triple Threat, High Five, Perfect 10.
 - RLS enabled. Users read/write own rows only.
 
 ### Onboarding (5 Steps)
-1. Identity → 2. Plan (free vs Plus; Plus → Stripe mid-flow) → 3. Interests (free locked to 3; Plus all 12) → 4. Logistics (budget slider, car/walking toggles) → 5. Location (GPS or Nominatim search + radius).
-- **Stripe Flow:** Names saved → checkout session created → redirect to Stripe → return to upgrade page → plan_type + cadence written → redirect back to onboarding step 3.
-- **Step Coordination:** `OnboardingFlow` orchestrates via `continueTrigger` counter + `onCanContinueChange` callback. All steps accept `continueTrigger` number + callback, use `useRef` mount guard.
+Flow: Identity → Plan → Interests → Logistics → Location
+
+- **Step Coordination:** `OnboardingFlow` owns `continueTrigger` counter + nav state (`canContinue`, `continueLabel`). All steps accept `continueTrigger` + `onCanContinueChange`. Use `useRef` mount guard in every step.
+- **StepPlan substep:** Internal "plan" → "frequency" substep. Reports current substep via `onSubstepChange(substep: "plan" | "frequency")`. Parent stores in `planSubStep` state; `handleBack()` reads it to decide: reset to plan substep or call `goBack()`.
+- **Stripe mid-flow:** Step 2 (Plus) → names saved → `/api/stripe/checkout` → Stripe redirect → `upgrade/page.tsx` writes plan + cadence → back to `/onboarding` at step 3.
+- **Subscription skip:** Step 1 jumps to Step 3 when `plan_type === "subscription"` (step 2 already done).
 
 ### Date Generation
-- **Venue Mode:** Google Places API search nearby → filter by interests/rating ≥ 4.0 → Claude enriches with title/description/vibe (Vercel AI SDK).
-- **AI Fallback:** No location → pure AI generation using `previousTitles` to avoid repeats.
-- **Reveal Cadence:** Server-side cooldown enforced (weekly/biweekly/monthly/spontaneous = 3-day). Reroll: 1 lifetime (free), 1 per date (Plus).
+- **Venue Mode:** Google Places API → filter by interests/rating ≥ 4.0 → Claude enriches title/description/vibe.
+- **AI Fallback:** No location → pure AI generation with `previousTitles` dedup.
+- **Reveal Cadence:** Server-side cooldown. Reroll: 1 lifetime (free), 1 per date (Plus).
 
 ### Dashboard
-- **Home Tab:** Date card (blurred → reveal → teaser → full reveal → completed). XP progress bar. HoldToCompleteButton (1300ms hold → `completeDate()` → XP + badge detection).
-- **Progress Tab:** Badge grid (trophy room). Earned badges show flip animation (Framer Motion Y-axis rotateY).
-- **Gamification:** XP = 100/date. Level = `floor(sqrt(xp / 100)) + 1`. Badges auto-awarded by DB trigger; detected client-side within 10-second window.
+- **Home:** Date card states: blurred → reveal → teaser → full reveal → completed. `HoldToCompleteButton` (1300ms → `completeDate()` → XP + badge detect).
+- **Progress:** Badge grid, Framer Motion rotateY flip on earn.
+- **Gamification:** XP = 100/date. Level = `floor(sqrt(xp / 100)) + 1`. Badge poll: `earned_at >= now - 10s` window after complete.
 
-### Stripe Integration
-- Checkout route creates session with `cadence` + `user_id` in metadata.
-- Success redirects to `upgrade/page.tsx` → reads metadata → writes plan + cadence → redirects to `/onboarding` (if incomplete) or `/dashboard`.
-- Webhook handles subscription events.
+### Stripe
+- Checkout: session with `cadence` + `user_id` metadata.
+- `upgrade/page.tsx`: reads metadata → upserts plan + cadence → redirects.
+- Webhook handles subscription lifecycle.
 
-### Proxy / Middleware (`proxy.ts`)
-- Next.js 16 uses `proxy.ts` (NOT `middleware.ts`). Exports `proxy` fn + `proxyConfig`.
-- Beta gate: HMAC-signed `site_access` cookie required. Invalid → `/gate`. Gate page accepts `BETA_GATE_SECRET`, issues signed token.
-- Auth routing: unauthenticated → `/login`; authenticated + onboarding incomplete → enforced in RSC.
+### Proxy / Middleware
+- Next.js 16: `proxy.ts` (NOT `middleware.ts`). Exports `proxy` fn + `proxyConfig`.
+- Beta gate: HMAC-signed `site_access` cookie. Invalid → `/gate`. Gate page issues token from `BETA_GATE_SECRET`.
+- Auth routing: unauthenticated → `/login`. Incomplete onboarding enforced in RSC.
 
 ---
 
 ## Key Patterns & Gotchas
 
-- **Type Guards:** Use `isVenue(idea)` to discriminate venue vs AI ideas before rendering (shapes differ in shape/photo/place_id).
-- **Nominatim (Client-Side):** No API key. Rate-limited. Debounced at 350ms for autocomplete. Reverse geocode coords → city name.
-- **Place Photos:** Proxied via `/api/place-photo?ref=<photo_name>`. Hides API key. Cached 24h.
-- **`preferred_radius`:** Stored in meters (DB). Displayed in km (UI). Convert on read/write.
-- **Reroll Atomicity:** `rerollDate()` uses conditional UPDATE to claim eligibility (prevents concurrent race). Rolls back on generation failure.
-- **Badge Detection:** Postgres trigger awards badges. Client polls with 10-second window (`earned_at >= now - 10s`). Not event-driven.
-- **Supabase RLS:** All CRUD operations filtered by user context. Test schema changes with RLS enabled.
-
----
-
-## Recent Changes
-- Onboarding nav bar refactored: `h-dvh` outer container, header scrolls inside content, nav fixed at bottom.
-- All 5 step components use `continueTrigger` pattern for form submission (no internal buttons).
-- `StepPlan` supports Stripe mid-flow redirect with state preservation.
+- **Type Guards:** `isVenue(idea)` discriminates venue vs AI ideas (shapes differ: photo/place_id present on venue).
+- **Nominatim:** Client-side, no API key, rate-limited. Debounce 350ms autocomplete. Reverse geocodes coords → city name.
+- **Place Photos:** Proxy via `/api/place-photo?ref=<photo_name>`. Hides key, 24h cache.
+- **Reroll Atomicity:** `rerollDate()` conditional UPDATE claims eligibility; rolls back on generation failure.
+- **Badge Detection:** Postgres trigger awards. Client polls `earned_at >= now - 10s`. Not event-driven.
+- **Supabase RLS:** Always test schema changes with RLS enabled.
+- **flushSync unavailable:** Turbopack (Next.js 16 + React 19) doesn't expose it. Use `setTimeout(..., 0)` for deferred state updates if needed.
