@@ -43,10 +43,6 @@ export default function DashboardTabs({
   const router = useRouter();
 
   useEffect(() => {
-    const stored = localStorage.getItem("dashboard-tab");
-    if (stored === "date" || stored === "progress" || stored === "settings") {
-      setActiveTab(stored);
-    }
     if (searchParams.get("checkout") === "cancelled") {
       setShowCancelBanner(true);
       window.history.replaceState({}, "", "/dashboard");
@@ -54,7 +50,6 @@ export default function DashboardTabs({
     if (searchParams.get("portal") === "return") {
       window.history.replaceState({}, "", "/dashboard");
       setActiveTab("settings");
-      localStorage.setItem("dashboard-tab", "settings");
       setSyncingPlan(true);
       // Give Stripe's webhook ~4s to arrive and update subscription_ends_at
       setTimeout(() => {
@@ -66,7 +61,6 @@ export default function DashboardTabs({
 
   function switchTab(tab: Tab) {
     setActiveTab(tab);
-    localStorage.setItem("dashboard-tab", tab);
     mainRef.current?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 });
   }
