@@ -1,19 +1,20 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Car, Footprints, ArrowLeft } from "lucide-react";
+import { Car, Footprints } from "lucide-react";
 import { logisticsSchema, type LogisticsFormData } from "@/lib/schemas/onboarding";
 import Slider from "@/components/ui/Slider";
-import Button from "@/components/ui/Button";
 
 interface StepLogisticsProps {
   defaultValues?: Partial<LogisticsFormData>;
   onNext: (data: LogisticsFormData) => void;
-  onBack: () => void;
+  continueTrigger: number;
+  onCanContinueChange: (can: boolean) => void;
 }
 
-export default function StepLogistics({ defaultValues, onNext, onBack }: StepLogisticsProps) {
+export default function StepLogistics({ defaultValues, onNext, continueTrigger, onCanContinueChange }: StepLogisticsProps) {
   const {
     handleSubmit,
     control,
@@ -31,9 +32,19 @@ export default function StepLogistics({ defaultValues, onNext, onBack }: StepLog
 
   const hasCar = watch("has_car");
   const prefersWalking = watch("prefers_walking");
+  const mountTrigger = useRef(continueTrigger);
+
+  useEffect(() => {
+    onCanContinueChange(true);
+  }, [onCanContinueChange]);
+
+  useEffect(() => {
+    if (continueTrigger <= mountTrigger.current) return;
+    handleSubmit(onNext)();
+  }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-7">
+    <div className="flex flex-col gap-7">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold text-white">Make it work for you</h2>
         <p className="text-white/50 text-sm">Set your budget and how you get around — we&apos;ll handle the rest.</p>
@@ -99,14 +110,6 @@ export default function StepLogistics({ defaultValues, onNext, onBack }: StepLog
         </div>
       </div>
 
-      <div className="flex gap-3 mt-2">
-        <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <Button type="submit" size="lg" className="flex-1">
-          Continue
-        </Button>
-      </div>
-    </form>
+    </div>
   );
 }

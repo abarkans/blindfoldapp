@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowLeft, Lock, Sparkles, Zap } from "lucide-react";
-import Button from "@/components/ui/Button";
+import { Check, Lock, Sparkles, Zap } from "lucide-react";
 import { PLANS, type PlanId } from "@/lib/plans";
 import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 
 interface StepPlanProps {
   onNext: (data: { plan_type: PlanId; cadence: string }) => void;
-  onBack: () => void;
   onSubscribeNow: (cadence: string) => void;
-  loading?: boolean;
+  continueTrigger: number;
+  onCanContinueChange: (can: boolean) => void;
+  onContinueLabelChange: (label: string) => void;
+  onOverrideBack: (fn: (() => void) | null) => void;
 }
 
 type SubStep = "plan" | "frequency";
@@ -21,32 +22,55 @@ const PLAN_ICONS = {
   subscription: Sparkles,
 };
 
-export default function StepPlan({ onNext, onBack, onSubscribeNow, loading }: StepPlanProps) {
+export default function StepPlan({
+  onNext,
+  onSubscribeNow,
+  continueTrigger,
+  onCanContinueChange,
+  onContinueLabelChange,
+  onOverrideBack,
+}: StepPlanProps) {
   const [subStep, setSubStep] = useState<SubStep>("plan");
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
   const [selectedCadence, setSelectedCadence] = useState<"weekly" | "biweekly" | "monthly" | null>(null);
-  const [cadenceError, setCadenceError] = useState("");
+  const mountTrigger = useRef(continueTrigger);
 
-  function handleSelectPlan(planId: PlanId) {
-    setSelectedPlan(planId);
-
-    if (planId === "free") {
-      onNext({ plan_type: "free", cadence: "monthly" });
+  // Report validity based on current sub-step
+  useEffect(() => {
+    if (subStep === "plan") {
+      onCanContinueChange(selectedPlan !== null);
     } else {
-      setSubStep("frequency");
+      onCanContinueChange(selectedCadence !== null);
     }
-  }
+  }, [subStep, selectedPlan, selectedCadence, onCanContinueChange]);
 
-  function handleFrequencySubmit() {
-    if (!selectedCadence) {
-      setCadenceError("Please select a frequency");
-      return;
+  // Handle continue trigger
+  useEffect(() => {
+    if (continueTrigger <= mountTrigger.current) return;
+    if (subStep === "plan") {
+      if (!selectedPlan) return;
+      if (selectedPlan === "free") {
+        onNext({ plan_type: "free", cadence: "monthly" });
+      } else {
+        // Transition to frequency sub-step
+        setSubStep("frequency");
+        onContinueLabelChange("Subscribe & Continue");
+        onCanContinueChange(false);
+        onOverrideBack(() => {
+          setSubStep("plan");
+          onContinueLabelChange("Continue");
+          onCanContinueChange(selectedPlan !== null);
+          onOverrideBack(null);
+        });
+      }
+    } else {
+      if (!selectedCadence) return;
+      onSubscribeNow(selectedCadence);
     }
-    onSubscribeNow(selectedCadence);
-  }
+  }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pt-4">
       <AnimatePresence mode="wait">
         {subStep === "plan" && (
           <motion.div
@@ -65,17 +89,22 @@ export default function StepPlan({ onNext, onBack, onSubscribeNow, loading }: St
             <div className="flex flex-col gap-3">
               {PLANS.map((plan) => {
                 const Icon = PLAN_ICONS[plan.id];
+                const isSelected = selectedPlan === plan.id;
                 return (
                   <motion.button
                     key={plan.id}
                     type="button"
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => handleSelectPlan(plan.id)}
+                    onClick={() => setSelectedPlan(plan.id)}
                     className={[
                       "relative flex flex-col gap-4 p-5 rounded-3xl border text-left transition-all duration-200",
-                      plan.highlighted
-                        ? "bg-gradient-to-br from-pink-500/20 to-violet-500/10 border-pink-500/60"
-                        : "bg-white/5 border-white/10 hover:border-white/20",
+                      isSelected
+                        ? plan.highlighted
+                          ? "bg-gradient-to-br from-pink-500/25 to-violet-500/15 border-pink-500"
+                          : "bg-white/10 border-white/40"
+                        : plan.highlighted
+                          ? "bg-gradient-to-br from-pink-500/15 to-violet-500/8 border-pink-500/40"
+                          : "bg-white/5 border-white/10 hover:border-white/20",
                     ].join(" ")}
                   >
                     {plan.highlighted && (
@@ -100,13 +129,24 @@ export default function StepPlan({ onNext, onBack, onSubscribeNow, loading }: St
                           <p className="text-[11px] text-white/40 mt-0.5">{plan.tagline}</p>
                         </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className={`font-black text-lg ${plan.highlighted ? "text-white" : "text-white/70"}`}>
-                          {plan.priceLine.split(" ")[0]}
-                        </p>
-                        {plan.highlighted && (
-                          <p className="text-[10px] text-white/35 mt-0.5">per month</p>
-                        )}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="text-right">
+                          <p className={`font-black text-lg ${plan.highlighted ? "text-white" : "text-white/70"}`}>
+                            {plan.priceLine.split(" ")[0]}
+                          </p>
+                          {plan.highlighted && (
+                            <p className="text-[10px] text-white/35 mt-0.5">per month</p>
+                          )}
+                        </div>
+                        {/* Selection indicator */}
+                        <div className={[
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0",
+                          isSelected
+                            ? plan.highlighted ? "border-pink-500 bg-pink-500" : "border-white bg-white"
+                            : "border-white/20",
+                        ].join(" ")}>
+                          {isSelected && <Check className={`w-3 h-3 ${plan.highlighted ? "text-white" : "text-[#0d0d14]"}`} />}
+                        </div>
                       </div>
                     </div>
 
@@ -123,24 +163,9 @@ export default function StepPlan({ onNext, onBack, onSubscribeNow, loading }: St
                         );
                       })}
                     </ul>
-
-                    <div className={[
-                      "w-full text-center py-2.5 rounded-xl text-sm font-bold transition-all",
-                      plan.highlighted
-                        ? "bg-gradient-to-r from-pink-500 to-violet-600 text-white shadow-lg shadow-pink-500/25"
-                        : "bg-white/8 text-white/70 border border-white/10",
-                    ].join(" ")}>
-                      {plan.cta}
-                    </div>
                   </motion.button>
                 );
               })}
-            </div>
-
-            <div className="flex gap-3 mt-2">
-              <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
             </div>
           </motion.div>
         )}
@@ -165,7 +190,7 @@ export default function StepPlan({ onNext, onBack, onSubscribeNow, loading }: St
                 <button
                   key={value}
                   type="button"
-                  onClick={() => { setSelectedCadence(value); setCadenceError(""); }}
+                  onClick={() => setSelectedCadence(value)}
                   className={[
                     "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-200",
                     selectedCadence === value
@@ -182,30 +207,6 @@ export default function StepPlan({ onNext, onBack, onSubscribeNow, loading }: St
                   {selectedCadence === value && <Check className="w-4 h-4 text-pink-400 shrink-0" />}
                 </button>
               ))}
-            </div>
-
-            {cadenceError && <p className="text-xs text-red-400">{cadenceError}</p>}
-
-            <div className="flex gap-3 mt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                size="lg"
-                className="w-14 shrink-0 px-0"
-                onClick={() => { setSubStep("plan"); setSelectedPlan(null); }}
-                aria-label="Back"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <Button
-                type="button"
-                size="lg"
-                className="flex-1"
-                onClick={handleFrequencySubmit}
-                loading={loading}
-              >
-                Subscribe & Continue
-              </Button>
             </div>
           </motion.div>
         )}

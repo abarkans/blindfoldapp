@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   Utensils, Music, TreePine, Palette, Dumbbell, Film,
-  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ArrowLeft,
+  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart,
   Sparkles, Check, ArrowRight,
 } from "lucide-react";
-import Button from "@/components/ui/Button";
 import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
 
 const INTERESTS = [
@@ -36,11 +35,23 @@ interface StepInterestsProps {
   planType?: PlanId;
   onNext: (data: { interests: string[] }) => void;
   onBack: () => void;
+  continueTrigger: number;
+  onCanContinueChange: (can: boolean) => void;
 }
 
-export default function StepInterests({ defaultValues = [], planType = "free", onNext, onBack }: StepInterestsProps) {
+export default function StepInterests({ defaultValues = [], planType = "free", onNext, onBack, continueTrigger, onCanContinueChange }: StepInterestsProps) {
   const [selected, setSelected] = useState<string[]>(defaultValues);
   const [error, setError] = useState("");
+  const mountTrigger = useRef(continueTrigger);
+
+  useEffect(() => {
+    onCanContinueChange(selected.length > 0);
+  }, [selected, onCanContinueChange]);
+
+  useEffect(() => {
+    if (continueTrigger <= mountTrigger.current) return;
+    handleSubmit();
+  }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isFree = planType === "free";
   const visibleInterests = isFree
@@ -132,15 +143,6 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
       )}
 
       {error && <p className="text-xs text-red-400">{error}</p>}
-
-      <div className="flex gap-3 mt-2">
-        <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <Button type="button" size="lg" className="flex-1" onClick={handleSubmit}>
-          Continue ({selected.length})
-        </Button>
-      </div>
     </div>
   );
 }

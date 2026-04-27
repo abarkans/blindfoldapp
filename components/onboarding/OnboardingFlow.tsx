@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
@@ -11,6 +11,7 @@ import StepPlan from "./steps/StepPlan";
 import StepInterests from "./steps/StepInterests";
 import StepLogistics from "./steps/StepLogistics";
 import StepLocation from "./steps/StepLocation";
+import Button from "@/components/ui/Button";
 import type { IdentityFormData, LogisticsFormData } from "@/lib/schemas/onboarding";
 import type { LocationFormData } from "./steps/StepLocation";
 import type { PlanId } from "@/lib/plans";
@@ -32,15 +33,9 @@ type OnboardingData = {
 const STEP_LABELS = ["Names", "Plan", "Interests", "Budget", "Location"];
 
 const slideVariants = {
-  enter: (dir: number) => ({
-    x: dir > 0 ? 60 : -60,
-    opacity: 0,
-  }),
+  enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({
-    x: dir > 0 ? -60 : 60,
-    opacity: 0,
-  }),
+  exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 };
 
 interface OnboardingFlowProps {
@@ -60,7 +55,6 @@ export default function OnboardingFlow({
 }: OnboardingFlowProps) {
   const router = useRouter();
 
-  // initialStep overrides default; subscription return skips plan step → start at interests
   const startStep = initialStep ?? (initialPlanType === "subscription" ? 3 : 1);
 
   const [step, setStep] = useState(startStep);
@@ -74,6 +68,19 @@ export default function OnboardingFlow({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Nav bar state — lifted out of steps so buttons render outside the motion wrapper
+  const [canContinue, setCanContinue] = useState(false);
+  const [continueTrigger, setContinueTrigger] = useState(0);
+  const [continueLabel, setContinueLabel] = useState("Continue");
+  const [backOverride, setBackOverride] = useState<(() => void) | null>(null);
+
+  // Reset nav state whenever the step changes
+  useEffect(() => {
+    setCanContinue(false);
+    setContinueLabel(step === 5 ? "Finish Setup" : "Continue");
+    setBackOverride(null);
+  }, [step]);
+
   async function handleExitToHome() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -85,7 +92,6 @@ export default function OnboardingFlow({
     setData(merged);
     setDirection(1);
     setStep((s) => {
-      // Skip plan step if already subscribed
       if (s === 1 && merged.plan_type === "subscription") return 3;
       return s + 1;
     });
@@ -94,14 +100,19 @@ export default function OnboardingFlow({
   function goBack() {
     setDirection(-1);
     setStep((s) => {
-      // Skip plan step if already subscribed
       if (s === 3 && data.plan_type === "subscription") return 1;
       return s - 1;
     });
   }
 
-  // Called when user picks subscription + cadence in StepPlan.
-  // Saves names first, then redirects to Stripe.
+  function handleBack() {
+    if (backOverride) {
+      backOverride();
+    } else {
+      goBack();
+    }
+  }
+
   async function handleSubscribeNow(cadence: string) {
     setLoading(true);
     setError("");
@@ -114,7 +125,6 @@ export default function OnboardingFlow({
         return;
       }
 
-      // Partial save: persist names so they're available when user returns post-payment
       await supabase.from("profiles").upsert({
         id: user.id,
         partner_names: { partner1: data.partner1 ?? "", partner2: data.partner2 ?? "" },
@@ -173,102 +183,150 @@ export default function OnboardingFlow({
       return;
     }
 
-    localStorage.setItem("dashboard-tab", "date");
     router.replace("/dashboard");
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <button
-        onClick={handleExitToHome}
-        className="flex items-center gap-3 mb-2 group w-fit"
-        aria-label="Go back to home"
-      >
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
-          <Heart className="w-5 h-5 text-white fill-white" />
-        </div>
-        <div className="text-left">
-          <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
-          <p className="text-white/40 text-xs">Quick setup — we handle the rest</p>
-        </div>
-      </button>
+    <div className="min-h-dvh flex flex-col bg-[#0d0d14]">
+      {/* Header */}
+      <header className="shrink-0 px-4 pt-8 pb-4">
+        <div className="max-w-sm mx-auto flex flex-col gap-5">
+          <button
+            onClick={handleExitToHome}
+            className="flex items-center gap-3 group w-fit"
+            aria-label="Go back to home"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
+              <Heart className="w-5 h-5 text-white fill-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
+              <p className="text-white/40 text-xs">Quick setup — we handle the rest</p>
+            </div>
+          </button>
 
-      <ProgressBar current={step} total={5} labels={STEP_LABELS} />
+          <ProgressBar current={step} total={5} labels={STEP_LABELS} />
+        </div>
+      </header>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
-          {error}
+        <div className="px-4 mb-2">
+          <div className="max-w-sm mx-auto bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
+            {error}
+          </div>
         </div>
       )}
 
-      <div className="overflow-x-hidden">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-full"
-          >
-            {step === 1 && (
-              <StepIdentity
-                defaultValues={{ partner1: data.partner1, partner2: data.partner2 }}
-                onNext={(d: IdentityFormData) => goNext({ partner1: d.partner1, partner2: d.partner2 })}
-              />
-            )}
-            {step === 2 && (
-              <StepPlan
-                onNext={(d) => goNext({ plan_type: d.plan_type, cadence: d.cadence })}
-                onBack={goBack}
-                onSubscribeNow={handleSubscribeNow}
-                loading={loading}
-              />
-            )}
-            {step === 3 && (
-              <StepInterests
-                defaultValues={data.interests}
-                planType={data.plan_type}
-                onNext={(d) => goNext({ interests: d.interests })}
-                onBack={goBack}
-              />
-            )}
-            {step === 4 && (
-              <StepLogistics
-                defaultValues={{
-                  budget_max: data.budget_max,
-                  has_car: data.has_car,
-                  prefers_walking: data.prefers_walking,
-                }}
-                onNext={(d: LogisticsFormData) =>
-                  goNext({
-                    budget_max: d.budget_max,
-                    has_car: d.has_car,
-                    prefers_walking: d.prefers_walking,
-                  })
-                }
-                onBack={goBack}
-              />
-            )}
-            {step === 5 && (
-              <StepLocation
-                defaultValues={{
-                  lat: data.lat,
-                  lng: data.lng,
-                  preferred_radius: data.preferred_radius,
-                }}
-                onNext={handleFinish}
-                onBack={goBack}
-                loading={loading}
-                planType={data.plan_type}
-                isLast
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+      {/* Scrollable step content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 pt-2 pb-6 max-w-sm mx-auto">
+          <div className="overflow-x-hidden">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={step}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="w-full"
+              >
+                {step === 1 && (
+                  <StepIdentity
+                    defaultValues={{ partner1: data.partner1, partner2: data.partner2 }}
+                    onNext={(d: IdentityFormData) => goNext({ partner1: d.partner1, partner2: d.partner2 })}
+                    continueTrigger={continueTrigger}
+                    onCanContinueChange={setCanContinue}
+                  />
+                )}
+                {step === 2 && (
+                  <StepPlan
+                    onNext={(d) => goNext({ plan_type: d.plan_type, cadence: d.cadence })}
+                    onSubscribeNow={handleSubscribeNow}
+                    continueTrigger={continueTrigger}
+                    onCanContinueChange={setCanContinue}
+                    onContinueLabelChange={setContinueLabel}
+                    onOverrideBack={setBackOverride}
+                  />
+                )}
+                {step === 3 && (
+                  <StepInterests
+                    defaultValues={data.interests}
+                    planType={data.plan_type}
+                    onNext={(d) => goNext({ interests: d.interests })}
+                    onBack={goBack}
+                    continueTrigger={continueTrigger}
+                    onCanContinueChange={setCanContinue}
+                  />
+                )}
+                {step === 4 && (
+                  <StepLogistics
+                    defaultValues={{
+                      budget_max: data.budget_max,
+                      has_car: data.has_car,
+                      prefers_walking: data.prefers_walking,
+                    }}
+                    onNext={(d: LogisticsFormData) =>
+                      goNext({
+                        budget_max: d.budget_max,
+                        has_car: d.has_car,
+                        prefers_walking: d.prefers_walking,
+                      })
+                    }
+                    continueTrigger={continueTrigger}
+                    onCanContinueChange={setCanContinue}
+                  />
+                )}
+                {step === 5 && (
+                  <StepLocation
+                    defaultValues={{
+                      lat: data.lat,
+                      lng: data.lng,
+                      preferred_radius: data.preferred_radius,
+                    }}
+                    onNext={handleFinish}
+                    planType={data.plan_type}
+                    continueTrigger={continueTrigger}
+                    onCanContinueChange={setCanContinue}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
+
+      {/* Fixed bottom nav bar — outside motion wrapper to avoid transform stacking context */}
+      <nav
+        className="shrink-0 bg-[#0d0d14] border-t border-white/8 px-4 pt-3"
+        style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}
+      >
+        <div className="max-w-sm mx-auto flex gap-3">
+          {step > 1 && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-14 shrink-0 px-0"
+              onClick={handleBack}
+              aria-label="Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
+          <Button
+            type="button"
+            size="lg"
+            className="flex-1"
+            disabled={!canContinue || loading}
+            loading={loading}
+            onClick={() => setContinueTrigger((t) => t + 1)}
+          >
+            {continueLabel}
+          </Button>
+        </div>
+      </nav>
     </div>
   );
 }

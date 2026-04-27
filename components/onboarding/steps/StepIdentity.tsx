@@ -1,29 +1,48 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "lucide-react";
 import { identitySchema, type IdentityFormData } from "@/lib/schemas/onboarding";
 import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
 
 interface StepIdentityProps {
   defaultValues?: Partial<IdentityFormData>;
   onNext: (data: IdentityFormData) => void;
+  continueTrigger: number;
+  onCanContinueChange: (can: boolean) => void;
 }
 
-export default function StepIdentity({ defaultValues, onNext }: StepIdentityProps) {
+export default function StepIdentity({ defaultValues, onNext, continueTrigger, onCanContinueChange }: StepIdentityProps) {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<IdentityFormData>({
     resolver: zodResolver(identitySchema),
     defaultValues,
   });
 
+  const partner1 = watch("partner1");
+  const partner2 = watch("partner2");
+  const mountTrigger = useRef(continueTrigger);
+
+  // Report validity as fields change
+  useEffect(() => {
+    onCanContinueChange(!!(partner1?.trim() && partner2?.trim()));
+  }, [partner1, partner2, onCanContinueChange]);
+
+  // Trigger form submission when parent presses Continue
+  useEffect(() => {
+    if (continueTrigger > mountTrigger.current) {
+      handleSubmit(onNext)();
+    }
+  }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-6 pt-4">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold text-white">Who are we planning for?</h2>
         <p className="text-white/50 text-sm">We&apos;ll use your names to make dates feel personal.</p>
@@ -45,10 +64,6 @@ export default function StepIdentity({ defaultValues, onNext }: StepIdentityProp
           {...register("partner2")}
         />
       </div>
-
-      <Button type="submit" size="lg" className="w-full mt-2">
-        Continue
-      </Button>
     </form>
   );
 }

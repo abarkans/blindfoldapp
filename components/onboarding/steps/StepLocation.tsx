@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Search, ArrowLeft, Navigation, AlertCircle, CreditCard } from "lucide-react";
+import { MapPin, Search, Navigation, AlertCircle } from "lucide-react";
 import Slider from "@/components/ui/Slider";
 import Button from "@/components/ui/Button";
 import { type PlanId, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM } from "@/lib/plans";
@@ -16,10 +16,9 @@ export interface LocationFormData {
 interface StepLocationProps {
   defaultValues?: Partial<LocationFormData>;
   onNext: (data: LocationFormData) => void;
-  onBack: () => void;
-  loading?: boolean;
-  isLast?: boolean;
   planType?: PlanId;
+  continueTrigger: number;
+  onCanContinueChange: (can: boolean) => void;
 }
 
 interface NominatimResult {
@@ -44,7 +43,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
   }
 }
 
-export default function StepLocation({ defaultValues, onNext, onBack, loading, isLast, planType }: StepLocationProps) {
+export default function StepLocation({ defaultValues, onNext, planType, continueTrigger, onCanContinueChange }: StepLocationProps) {
   const maxRadiusKm = planType === "subscription" ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
   const [status, setStatus] = useState<Status>("idle");
   const [lat, setLat] = useState<number | null>(defaultValues?.lat ?? null);
@@ -59,6 +58,16 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading, i
   const [cityError, setCityError] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cityInputRef = useRef<HTMLInputElement | null>(null);
+  const mountTrigger = useRef(continueTrigger);
+
+  useEffect(() => {
+    onCanContinueChange(lat !== null);
+  }, [lat, onCanContinueChange]);
+
+  useEffect(() => {
+    if (continueTrigger <= mountTrigger.current) return;
+    handleSubmit();
+  }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-focus city input when switching to manual entry.
   // The longer delay lets the Framer Motion animation settle before focusing,
@@ -314,30 +323,6 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading, i
         )}
       </div>
 
-      {isLast && planType === "subscription" && (
-        <div className="flex items-center gap-2.5 bg-violet-500/10 border border-violet-500/20 rounded-2xl px-4 py-3">
-          <CreditCard className="w-4 h-4 text-violet-400 shrink-0" />
-          <p className="text-xs text-white/50 leading-relaxed">
-            Next step: payment via Stripe. Setup saves first, then you&apos;ll be redirected.
-          </p>
-        </div>
-      )}
-
-      <div className="flex gap-3 mt-2">
-        <Button type="button" variant="secondary" size="lg" className="w-14 shrink-0 px-0" onClick={onBack} aria-label="Back">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <Button
-          type="button"
-          size="lg"
-          className="flex-1"
-          disabled={lat === null}
-          loading={loading}
-          onClick={handleSubmit}
-        >
-          {isLast && planType === "subscription" ? "Continue to Payment" : isLast ? "Finish Setup" : "Continue"}
-        </Button>
-      </div>
     </div>
   );
 }

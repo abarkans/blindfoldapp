@@ -42,16 +42,12 @@ export default async function OnboardingPage({
   const initialStep = checkout === "cancelled" && !!savedPartner1 ? 2 : undefined;
 
   return (
-    <div className="min-h-dvh bg-[#0d0d14] flex items-start pt-10 md:items-center md:pt-0 justify-center p-4">
-      <div className="w-full max-w-sm">
-        <OnboardingFlow
-          initialPartner1={savedPartner1}
-          initialPartner2={savedPartner2}
-          initialPlanType={savedPlanType}
-          initialCadence={savedCadence}
-          initialStep={initialStep}
-        />
-      </div>
-    </div>
+    <OnboardingFlow
+      initialPartner1={savedPartner1}
+      initialPartner2={savedPartner2}
+      initialPlanType={savedPlanType}
+      initialCadence={savedCadence}
+      initialStep={initialStep}
+    />
   );
 }
