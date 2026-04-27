@@ -288,7 +288,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cadence: selectedCadence ?? "monthly", returnPath: "/dashboard" }),
+      body: JSON.stringify({ cadence: selectedCadence ?? "monthly", returnPath: "/dashboard?tab=settings" }),
     });
     const { url, error: checkoutError } = await res.json();
     if (checkoutError || !url) {

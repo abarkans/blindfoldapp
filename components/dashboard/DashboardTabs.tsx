@@ -45,10 +45,17 @@ export default function DashboardTabs({
   useEffect(() => {
     if (searchParams.get("checkout") === "cancelled") {
       setShowCancelBanner(true);
-      window.history.replaceState({}, "", "/dashboard");
+      const tab = searchParams.get("tab");
+      if (tab === "date" || tab === "progress" || tab === "settings") {
+        setActiveTab(tab);
+        window.history.replaceState({}, "", `/dashboard?tab=${tab}`);
+      } else {
+        window.history.replaceState({}, "", "/dashboard");
+      }
+      return;
     }
     if (searchParams.get("portal") === "return") {
-      window.history.replaceState({}, "", "/dashboard");
+      window.history.replaceState({}, "", "/dashboard?tab=settings");
       setActiveTab("settings");
       setSyncingPlan(true);
       // Give Stripe's webhook ~4s to arrive and update subscription_ends_at
@@ -56,11 +63,17 @@ export default function DashboardTabs({
         router.refresh();
         setSyncingPlan(false);
       }, 4000);
+      return;
+    }
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "date" || tabParam === "progress" || tabParam === "settings") {
+      setActiveTab(tabParam);
     }
   }, []);
 
   function switchTab(tab: Tab) {
     setActiveTab(tab);
+    window.history.replaceState({}, "", `/dashboard?tab=${tab}`);
     mainRef.current?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 });
   }
