@@ -61,17 +61,49 @@ RLS is enabled on all tables. Users may only read/write their own rows.
 
 ---
 
-## Onboarding Flow (6 Steps)
+## Plans (`lib/plans.ts`)
 
-Steps are orchestrated by `OnboardingFlow.tsx` with Framer Motion `AnimatePresence` direction-aware slide transitions (forward: right→left, back: left→right).
+Two tiers defined in `PLANS` array, type `PlanId = "free" | "subscription"`:
 
-1. **Identity** — Two partner name fields
-2. **Interests** — Card-style multi-select grid (min 1, max 10)
-3. **Logistics** — Budget slider (€10–€200) + car/walking toggles
-4. **Frequency** — Weekly / Bi-weekly / Monthly / Spontaneous
-5. **Location** (`StepLocation.tsx`) — GPS permission flow OR Nominatim city search + radius slider (1–50 km). Saves `last_lat`, `last_long`, `preferred_radius` to profile.
+| Plan | Price | Cadence | Re-rolls | Interests |
+|---|---|---|---|---|
+| `free` (Starter) | Free | Monthly only | 1 lifetime | 3 fixed categories |
+| `subscription` (Plus) | €5.99/mo | Any cadence | 1 per date | All categories |
+
+`FREE_INTERESTS` constant locks free users to `["food", "nature", "romance"]`.
+
+---
+
+## Stripe Integration
+
+- `lib/stripe.ts` — exports `stripe` client (uses `STRIPE_SECRET_KEY`)
+- `app/api/stripe/checkout/route.ts` — creates Stripe Checkout session; accepts `{ cadence, returnPath }` in body; stores `cadence` + `user_id` in session metadata; success redirects to `app/dashboard/upgrade/page.tsx`
+- `app/api/stripe/portal/route.ts` — creates Stripe Customer Portal session for managing subscription
+- `app/api/stripe/webhook/route.ts` — handles Stripe webhook events
+- `app/dashboard/upgrade/page.tsx` — post-payment landing: reads `cadence` from session metadata, updates `profiles.plan_type = "subscription"` + `cadence`, then redirects to `/onboarding` (if incomplete) or `/dashboard`
+- `app/actions/update-plan.ts` — `updatePlan()` server action
+
+---
+
+## Onboarding Flow (5 Steps)
+
+Steps orchestrated by `OnboardingFlow.tsx` with Framer Motion `AnimatePresence` direction-aware slide transitions (forward: right→left, back: left→right).
+
+1. **Identity** (`StepIdentity`) — Two partner name fields
+2. **Plan** (`StepPlan`) — Free vs Plus selector; if Plus chosen, picks cadence then redirects to Stripe Checkout mid-onboarding (names saved to DB first so state survives the redirect)
+3. **Interests** (`StepInterests`) — Card-style multi-select grid (min 1, max 10; free plan limited to 3 fixed categories)
+4. **Logistics** (`StepLogistics`) — Budget slider (€10–€200) + car/walking toggles
+5. **Location** (`StepLocation`) — GPS permission flow OR Nominatim city search + radius slider (1–50 km). Saves `last_lat`, `last_long`, `preferred_radius` to profile.
 
 On final submit: upsert profile with `onboarding_complete: true`, then `router.replace("/dashboard")`.
+
+### Stripe mid-onboarding flow
+- User picks Plus + cadence in StepPlan → `handleSubscribeNow(cadence)` fires
+- Names partial-saved to DB, then POST `/api/stripe/checkout` with `returnPath: "/onboarding"`
+- After payment: `upgrade/page.tsx` writes `plan_type + cadence`, redirects to `/onboarding`
+- `onboarding/page.tsx` reads saved state (`plan_type`, `cadence`, `partner_names`) from DB; passes `initialStep=2` (skips to Interests) and pre-fills `OnboardingFlow`
+- If Stripe session cancelled: redirects back to `/onboarding?checkout=cancelled` → restores names, jumps to step 2
+- `OnboardingFlow` skips Plan step on forward/back navigation if `plan_type === "subscription"` already set
 
 ---
 
@@ -111,9 +143,10 @@ Both modes are triggered by the `revealDate()` server action, which enforces cad
 ### DateCard States
 1. **Locked** — blurred preview, reveal button (disabled if on cooldown, with relative countdown)
 2. **Loading** — animated dots + rotating loading messages
-3. **Revealed (venue)** — photo, AI title/description/vibe, rating badge, navigate-to-maps link, `HoldToCompleteButton`
-4. **Revealed (AI-only)** — emoji + title + description + tags, `HoldToCompleteButton`
-5. **Completed** — collapsed card + live countdown to next reveal date
+3. **Teaser** — partial info shown after reveal before user accepts; has "Accept & Reveal" button + reroll button
+4. **Revealed (venue)** — full photo, AI title/description/vibe, rating badge, navigate-to-maps link, `HoldToCompleteButton`
+5. **Revealed (AI-only)** — emoji + title + description + tags, `HoldToCompleteButton`
+6. **Completed** — collapsed card + live countdown to next reveal date
 
 `HoldToCompleteButton` — custom hold-to-confirm interaction using `requestAnimationFrame` and a clip-path fill animation (1300ms hold duration).
 
@@ -131,18 +164,31 @@ Both modes are triggered by the `revealDate()` server action, which enforces cad
 | Action | File | What it does |
 |---|---|---|
 | `revealDate()` | `app/actions/reveal.ts` | Enforces cooldown, picks venue or AI date, inserts into `date_ideas`, updates `profiles.date_idea` + `revealed_at` |
+| `acceptDate()` | `app/actions/accept-date.ts` | Sets `profiles.date_accepted_at` to now; transitions DateCard from teaser → full reveal |
+| `rerollDate()` | `app/actions/reroll.ts` | Atomically claims re-roll eligibility, generates new date, resets `date_accepted_at`; rolls back on generation failure |
 | `completeDate()` | `app/actions/complete-date.ts` | Marks revealed idea as completed, increments XP + count, reads newly awarded badges |
+| `updatePlan()` | `app/actions/update-plan.ts` | Updates `plan_type` on profile |
 
-Both call `revalidatePath("/dashboard")` to trigger RSC re-render.
+All call `revalidatePath("/dashboard")` to trigger RSC re-render.
 
 ---
 
-## Middleware Logic (`middleware.ts`)
+## Proxy / Middleware (`proxy.ts`)
 
-- Unauthenticated → `/dashboard` or `/onboarding` redirects to `/login`
-- Authenticated → `/login` or `/register` redirects to `/dashboard`
-- Authenticated + `onboarding_complete: false` → always redirect to `/onboarding`
-- Authenticated + `onboarding_complete: true` → accessing `/onboarding` redirects to `/dashboard`
+Next.js 16 uses `proxy.ts` (not `middleware.ts`) with exports `proxy` (function) and `proxyConfig` (matcher config). Do NOT create `middleware.ts` — having both files causes a startup error.
+
+### Beta gate
+Every request passes through an HMAC-signed cookie check first:
+- Cookie `site_access` must contain a valid token produced by `signGateToken()` (`lib/gate-crypto.ts`)
+- Invalid/missing cookie → redirect to `/gate`
+- Gate page: `app/gate/page.tsx` | Gate API: `app/api/gate/route.ts`
+- `BETA_GATE_SECRET` = password users enter; `GATE_SIGNING_KEY` = HMAC signing key (32+ chars)
+- Excluded from gate: `/gate`, `/api/gate`, `/_next/`
+
+### Auth routing (after gate passes)
+- Unauthenticated → `/dashboard` or `/onboarding` → redirects to `/login`
+- Authenticated → `/login` or `/register` → redirects to `/dashboard` (only if `onboarding_complete`)
+- Authenticated + `onboarding_complete: false` → `/onboarding` (enforced in dashboard Server Component, not proxy)
 
 ---
 
@@ -151,8 +197,7 @@ Both call `revalidatePath("/dashboard")` to trigger RSC re-render.
 ```
 blindfoldapp/
 ├── CLAUDE.md
-├── middleware.ts
-├── proxy.ts
+├── proxy.ts                          # Next.js 16 middleware (exports: proxy, proxyConfig)
 ├── .env.local.example
 ├── supabase/migrations/
 │   ├── 001_initial_schema.sql
@@ -170,9 +215,17 @@ blindfoldapp/
 │   ├── places/search.ts             # Google Places API (New) venue search
 │   ├── supabase/client.ts           # Browser Supabase client
 │   ├── supabase/server.ts           # Server Supabase client (cookies)
+│   ├── supabase/admin.ts            # Service-role Supabase client
 │   ├── schemas/onboarding.ts        # Zod validation schemas
 │   ├── types.ts                     # DB types + VenueDateIdea, CompleteDateResult
-│   └── utils.ts                     # cn(), calcLevel(), xpForLevel(), xpProgress()
+│   ├── utils.ts                     # cn(), calcLevel(), xpForLevel(), xpProgress()
+│   ├── plans.ts                     # PLANS array, PlanId type, FREE_INTERESTS
+│   ├── stripe.ts                    # Stripe client
+│   ├── gate-crypto.ts               # HMAC sign/verify for beta gate cookie
+│   ├── rate-limit.ts                # Rate limiting utility
+│   ├── date-generator.ts            # Date generation helpers
+│   ├── email/resend.ts              # Resend email client
+│   └── email/templates/date-ready.ts
 ├── components/
 │   ├── ui/
 │   │   ├── Button.tsx
@@ -181,14 +234,16 @@ blindfoldapp/
 │   │   └── CadenceSelect.tsx
 │   ├── landing/
 │   │   └── DateCarousel.tsx
+│   ├── landing-desktop/
+│   │   └── LandingDesktopClient.tsx  # Primary landing page
 │   ├── onboarding/
 │   │   ├── OnboardingFlow.tsx        # Step orchestrator + Framer Motion transitions
 │   │   ├── ProgressBar.tsx
 │   │   └── steps/
 │   │       ├── StepIdentity.tsx
+│   │       ├── StepPlan.tsx          # Free vs Plus selector + Stripe redirect
 │   │       ├── StepInterests.tsx
 │   │       ├── StepLogistics.tsx
-│   │       ├── StepFrequency.tsx
 │   │       └── StepLocation.tsx      # GPS + Nominatim city search + radius slider
 │   └── dashboard/
 │       ├── DashboardTabs.tsx         # Tab switcher (Home / Progress)
@@ -201,20 +256,34 @@ blindfoldapp/
 └── app/
     ├── layout.tsx
     ├── globals.css
-    ├── page.tsx                      # Root redirect
+    ├── page.tsx                      # Landing page (LandingDesktopClient)
+    ├── gate/page.tsx                 # Beta gate password entry
     ├── (auth)/login/page.tsx
     ├── (auth)/register/page.tsx
     ├── auth/callback/route.ts        # OAuth code exchange
-    ├── onboarding/page.tsx
-    ├── api/place-photo/route.ts      # Google Places photo proxy
-    └── dashboard/
-        ├── layout.tsx
-        ├── page.tsx                  # RSC: fetches profile + data, renders DashboardTabs
-        ├── settings/page.tsx
-        └── progress/page.tsx         # Redirects → /dashboard (progress is a tab now)
+    ├── onboarding/page.tsx           # Reads saved state from DB, passes to OnboardingFlow
+    ├── legal/privacy/page.tsx
+    ├── legal/terms/page.tsx
+    ├── api/
+    │   ├── gate/route.ts             # POST: validate BETA_GATE_SECRET, set site_access cookie
+    │   ├── place-photo/route.ts      # Google Places photo proxy (cached 24h)
+    │   ├── cron/notify-dates/route.ts
+    │   └── stripe/
+    │       ├── checkout/route.ts     # Create Stripe Checkout session
+    │       ├── portal/route.ts       # Create Stripe Customer Portal session
+    │       └── webhook/route.ts      # Handle Stripe webhook events
+    ├── dashboard/
+    │   ├── layout.tsx
+    │   ├── page.tsx                  # RSC: fetches profile + data, renders DashboardTabs
+    │   ├── upgrade/page.tsx          # Post-Stripe-payment: writes plan_type+cadence, redirects
+    │   ├── settings/page.tsx
+    │   └── progress/page.tsx         # Redirects → /dashboard (progress is a tab now)
     └── actions/
         ├── reveal.ts                 # revealDate() server action
-        └── complete-date.ts          # completeDate() server action
+        ├── accept-date.ts            # acceptDate() — sets date_accepted_at
+        ├── reroll.ts                 # rerollDate() — atomic re-roll with generation fallback
+        ├── complete-date.ts          # completeDate() — XP + badge detection
+        └── update-plan.ts            # updatePlan() — update plan_type
 ```
 
 ---
@@ -224,11 +293,19 @@ blindfoldapp/
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-GOOGLE_MAPS_API_KEY=               # Server-only — used by Places API + photo proxy
-ANTHROPIC_API_KEY=                 # Server-only — used by Vercel AI SDK
+SUPABASE_SERVICE_ROLE_KEY=         # Server-only — admin client
+GOOGLE_MAPS_API_KEY=               # Server-only — Places API + photo proxy
+ANTHROPIC_API_KEY=                 # Server-only — Vercel AI SDK
+STRIPE_SECRET_KEY=                 # Server-only — Stripe client
+STRIPE_WEBHOOK_SECRET=             # Server-only — webhook signature verification
+NEXT_PUBLIC_APP_URL=               # Full origin URL (e.g. https://blindfolddate.com)
+RESEND_API_KEY=                    # Server-only — email sending
+CRON_SECRET=                       # Shared secret for cron route auth
+BETA_GATE_SECRET=                  # Password users enter to access the beta
+GATE_SIGNING_KEY=                  # HMAC key for signing site_access cookie (32+ chars)
 ```
 
-`GOOGLE_MAPS_API_KEY` and `ANTHROPIC_API_KEY` are never exposed to the client.
+No `NEXT_PUBLIC_` vars are ever secret — everything sensitive is server-only.
 
 ---
 
@@ -251,6 +328,17 @@ ANTHROPIC_API_KEY=                 # Server-only — used by Vercel AI SDK
 
 ---
 
+## Database Schema additions (beyond initial migrations)
+
+These columns exist on `profiles` but are not in the migration files listed above (added via Supabase dashboard or later migrations):
+- `plan_type` — Text (`free` | `subscription`), default `free`
+- `stripe_customer_id` — Text | null
+- `date_accepted_at` — Timestamp | null — when user tapped "Accept & Reveal"
+- `total_rerolls_used` — Integer, default 0 — lifetime reroll counter for free plan
+- `current_date_rerolled` — Boolean, default false — rerolled flag for current date (reset on new reveal)
+
+---
+
 ## Key Patterns & Gotchas
 
 - **Venue idea shape** vs **AI idea shape**: `DateCard` uses `isVenue(idea)` type guard (`idea.type === "venue"`) to branch rendering. Both shapes are stored as JSONB in `date_idea` on the profile and in `date_ideas` history.
@@ -260,6 +348,11 @@ ANTHROPIC_API_KEY=                 # Server-only — used by Vercel AI SDK
 - **Place photos**: always served through `/api/place-photo?ref=<photo_name>` to keep the Google API key server-side. Response is cached 24 hours.
 - **`preferred_radius`** stored in meters in the DB, displayed in km in the UI.
 - **`date_ideas` history**: queried on every reveal to avoid repeating `place_id` (venue mode) or `title` (AI mode). Limited to last 50 entries.
+- **Reroll atomicity**: `rerollDate()` uses a conditional UPDATE (`eq("current_date_rerolled", false)`) as an atomic claim to prevent concurrent requests both passing the eligibility check. Rolls back claim if generation fails.
+- **proxy.ts is the middleware**: Next.js 16 deprecated `middleware.ts` in favour of `proxy.ts`. Never create `middleware.ts` — it causes a startup conflict error.
+- **Beta gate cookie**: `site_access` cookie is `httpOnly`, `sameSite: lax`, `secure` only in production. Survives OAuth redirects because browser cookies persist through external redirects.
+- **Free plan interest restriction**: `revealDate()` and `rerollDate()` filter interests server-side against `FREE_INTERESTS` for free users — client-side restriction alone is not trusted.
+- **Framer Motion scroll containers**: any element with `overflow-y-auto` that contains `whileInView` animations needs `position: relative` (add `relative` Tailwind class) or Framer Motion will warn about incorrect scroll offset calculation.
 
 ---
 
