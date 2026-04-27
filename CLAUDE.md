@@ -65,7 +65,6 @@ Flow: Identity → Plan → Interests → Logistics → Location
 
 ### Proxy / Middleware
 - Next.js 16: `proxy.ts` (NOT `middleware.ts`). Exports `proxy` fn + `proxyConfig`.
-- Beta gate: HMAC-signed `site_access` cookie. Invalid → `/gate`. Gate page issues token from `BETA_GATE_SECRET`.
 - Auth routing: unauthenticated → `/login`. Incomplete onboarding enforced in RSC.
 
 ---
