@@ -67,7 +67,7 @@ export default function StepPlan({
         onOverrideBack(null);
       });
     }
-  }, [subStep, selectedPlan, selectedCadence, onCanContinueChange, onContinueLabelChange, onOverrideBack]);
+  }, [subStep, selectedPlan, selectedCadence]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col gap-6 pt-4">
