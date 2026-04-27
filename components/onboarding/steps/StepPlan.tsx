@@ -47,25 +47,24 @@ export default function StepPlan({
   // Handle continue trigger
   useEffect(() => {
     if (continueTrigger <= mountTrigger.current) return;
-    console.log("[StepPlan]", { subStep, selectedPlan, selectedCadence, continueTrigger });
     if (subStep === "plan") {
       if (!selectedPlan) return;
       if (selectedPlan === "free") {
         onNext({ plan_type: "free", cadence: "monthly" });
       } else {
         // Transition to frequency sub-step
-        console.log("[StepPlan] Setting subStep to frequency");
         setSubStep("frequency");
         onContinueLabelChange("Subscribe & Continue");
         onCanContinueChange(false);
-        onOverrideBack(() => {
-          setTimeout(() => {
+        // Defer callback registration to avoid render conflicts
+        setTimeout(() => {
+          onOverrideBack(() => {
             setSubStep("plan");
             onContinueLabelChange("Continue");
             onCanContinueChange(selectedPlan !== null);
             onOverrideBack(null);
-          }, 0);
-        });
+          });
+        }, 0);
       }
     } else {
       if (!selectedCadence) return;
