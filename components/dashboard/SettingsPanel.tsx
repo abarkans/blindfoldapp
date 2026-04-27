@@ -10,7 +10,7 @@ import {
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight, ArrowLeft,
   Sparkles, Lock, Check, Zap, Crown,
 } from "lucide-react";
-import { FREE_INTERESTS, PLANS, type PlanId } from "@/lib/plans";
+import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
@@ -125,7 +125,8 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   const [lat, setLat] = useState<number | null>(profile.last_lat ?? null);
   const [lng, setLng] = useState<number | null>(profile.last_long ?? null);
   const [locationLabel, setLocationLabel] = useState("");
-  const [radiusKm, setRadiusKm] = useState((profile.preferred_radius ?? 10000) / 1000);
+  const maxRadiusKm = planType === "subscription" ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
+  const [radiusKm, setRadiusKm] = useState(Math.min((profile.preferred_radius ?? 10000) / 1000, maxRadiusKm));
   const [locStatus, setLocStatus] = useState<"idle" | "requesting" | "granted" | "denied" | "search">("idle");
   const [cityInput, setCityInput] = useState("");
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
@@ -662,14 +663,23 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
                     value={radiusKm}
                     onChange={setRadiusKm}
                     min={1}
-                    max={50}
+                    max={maxRadiusKm}
                     step={1}
                     formatValue={(v) => `${v} km`}
                   />
                   <div className="flex justify-between text-[10px] text-white/25 px-1 -mt-2">
                     <span>Walking distance</span>
-                    <span>Long drive / Countryside</span>
+                    <span>{planType === "subscription" ? "Long drive / Countryside" : "15 km max on Starter"}</span>
                   </div>
+                  {planType !== "subscription" && (
+                    <button
+                      type="button"
+                      onClick={() => navigate("plan")}
+                      className="text-[11px] text-violet-400/70 hover:text-violet-400 transition-colors text-left px-1"
+                    >
+                      Upgrade to Plus for up to 50 km →
+                    </button>
+                  )}
                 </div>
               )}
 

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Search, ArrowLeft, Navigation, AlertCircle, CreditCard } from "lucide-react";
 import Slider from "@/components/ui/Slider";
 import Button from "@/components/ui/Button";
-import type { PlanId } from "@/lib/plans";
+import { type PlanId, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM } from "@/lib/plans";
 
 export interface LocationFormData {
   lat: number;
@@ -45,12 +45,13 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
 }
 
 export default function StepLocation({ defaultValues, onNext, onBack, loading, isLast, planType }: StepLocationProps) {
+  const maxRadiusKm = planType === "subscription" ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
   const [status, setStatus] = useState<Status>("idle");
   const [lat, setLat] = useState<number | null>(defaultValues?.lat ?? null);
   const [lng, setLng] = useState<number | null>(defaultValues?.lng ?? null);
   const [locationLabel, setLocationLabel] = useState("");
   const [radiusKm, setRadiusKm] = useState(
-    defaultValues?.preferred_radius ? defaultValues.preferred_radius / 1000 : 10
+    Math.min(defaultValues?.preferred_radius ? defaultValues.preferred_radius / 1000 : 10, maxRadiusKm)
   );
   const [cityInput, setCityInput] = useState("");
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
@@ -298,14 +299,19 @@ export default function StepLocation({ defaultValues, onNext, onBack, loading, i
           value={radiusKm}
           onChange={setRadiusKm}
           min={1}
-          max={50}
+          max={maxRadiusKm}
           step={1}
           formatValue={(v) => `${v} km`}
         />
         <div className="flex justify-between text-[10px] text-white/25 px-1">
           <span>Walking distance</span>
-          <span>Long drive / Countryside</span>
+          <span>{planType === "subscription" ? "Long drive / Countryside" : "15 km max on Starter"}</span>
         </div>
+        {planType !== "subscription" && (
+          <p className="text-[11px] text-white/30 px-1">
+            Plus plan unlocks up to 50 km.
+          </p>
+        )}
       </div>
 
       {isLast && planType === "subscription" && (
