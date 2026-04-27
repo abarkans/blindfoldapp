@@ -54,10 +54,10 @@ export default function StepPlan({
       } else {
         // Transition to frequency sub-step
         setSubStep("frequency");
-        onContinueLabelChange("Subscribe & Continue");
-        onCanContinueChange(false);
-        // Defer callback registration to avoid render conflicts
+        // Defer all parent state updates to next tick to avoid render conflicts
         setTimeout(() => {
+          onContinueLabelChange("Subscribe & Continue");
+          onCanContinueChange(false);
           onOverrideBack(() => {
             setSubStep("plan");
             onContinueLabelChange("Continue");
