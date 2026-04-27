@@ -488,8 +488,8 @@ export default function DateCard({
                         className="flex flex-col items-center gap-1.5 py-3.5 rounded-2xl border bg-gradient-to-br from-pink-500/20 to-rose-500/10 border-pink-500/50 text-pink-200 text-sm font-semibold hover:from-pink-500/30 hover:border-pink-400/60 transition-all active:scale-95"
                       >
                         <Check className="w-4 h-4" />
-                        Accept Date
-                        <span className="text-[10px] font-normal text-pink-300/50">Let&apos;s do this!</span>
+                        Accept & Reveal
+                        <span className="text-[10px] font-normal text-pink-300/50">See the full details</span>
                       </button>
                     </div>
                   </motion.div>

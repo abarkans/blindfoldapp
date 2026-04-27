@@ -160,7 +160,7 @@ export default function DashboardTabs({
       </AnimatePresence>
 
       {/* Tab content — wider container on desktop */}
-      <main ref={mainRef} className="flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
+      <main ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
         <div className="max-w-sm md:max-w-2xl mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
