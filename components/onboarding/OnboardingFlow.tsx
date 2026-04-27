@@ -188,38 +188,34 @@ export default function OnboardingFlow({
 
   return (
     <div className="h-dvh flex flex-col bg-[#0d0d14]">
-      {/* Header */}
-      <header className="shrink-0 px-4 pt-8 pb-4">
-        <div className="max-w-sm mx-auto flex flex-col gap-5">
-          <button
-            onClick={handleExitToHome}
-            className="flex items-center gap-3 group w-fit"
-            aria-label="Go back to home"
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
-              <Heart className="w-5 h-5 text-white fill-white" />
-            </div>
-            <div className="text-left">
-              <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
-              <p className="text-white/40 text-xs">Quick setup — we handle the rest</p>
-            </div>
-          </button>
-
-          <ProgressBar current={step} total={5} labels={STEP_LABELS} />
-        </div>
-      </header>
-
-      {error && (
-        <div className="px-4 mb-2">
-          <div className="max-w-sm mx-auto bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
-            {error}
-          </div>
-        </div>
-      )}
-
-      {/* Scrollable step content */}
+      {/* Scrollable step content (header scrolls with content) */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-4 pt-2 pb-6 max-w-sm mx-auto">
+        <div className="px-4 max-w-sm mx-auto">
+          <header className="pt-8 pb-4 flex flex-col gap-5">
+            <button
+              onClick={handleExitToHome}
+              className="flex items-center gap-3 group w-fit"
+              aria-label="Go back to home"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
+                <Heart className="w-5 h-5 text-white fill-white" />
+              </div>
+              <div className="text-left">
+                <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
+                <p className="text-white/40 text-xs">Quick setup — we handle the rest</p>
+              </div>
+            </button>
+
+            <ProgressBar current={step} total={5} labels={STEP_LABELS} />
+          </header>
+
+          {error && (
+            <div className="mb-2 bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+        <div className="pt-2 pb-6">
           <div className="overflow-x-hidden">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -294,6 +290,7 @@ export default function OnboardingFlow({
               </motion.div>
             </AnimatePresence>
           </div>
+        </div>
         </div>
       </div>
 
