@@ -35,16 +35,7 @@ export default function StepPlan({
   const [selectedCadence, setSelectedCadence] = useState<"weekly" | "biweekly" | "monthly" | null>(null);
   const mountTrigger = useRef(continueTrigger);
 
-  // Report validity based on current sub-step
-  useEffect(() => {
-    if (subStep === "plan") {
-      onCanContinueChange(selectedPlan !== null);
-    } else {
-      onCanContinueChange(selectedCadence !== null);
-    }
-  }, [subStep, selectedPlan, selectedCadence, onCanContinueChange]);
-
-  // Handle continue trigger
+  // Handle continue trigger — only update child state
   useEffect(() => {
     if (continueTrigger <= mountTrigger.current) return;
     if (subStep === "plan") {
@@ -54,23 +45,29 @@ export default function StepPlan({
       } else {
         // Transition to frequency sub-step
         setSubStep("frequency");
-        // Defer all parent state updates to next tick to avoid render conflicts
-        setTimeout(() => {
-          onContinueLabelChange("Subscribe & Continue");
-          onCanContinueChange(false);
-          onOverrideBack(() => {
-            setSubStep("plan");
-            onContinueLabelChange("Continue");
-            onCanContinueChange(selectedPlan !== null);
-            onOverrideBack(null);
-          });
-        }, 0);
       }
     } else {
       if (!selectedCadence) return;
       onSubscribeNow(selectedCadence);
     }
   }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync substep changes to parent state (after child render completes)
+  useEffect(() => {
+    if (subStep === "plan") {
+      onCanContinueChange(selectedPlan !== null);
+    } else {
+      // subStep === "frequency"
+      onCanContinueChange(selectedCadence !== null);
+      onContinueLabelChange("Subscribe & Continue");
+      onOverrideBack(() => {
+        setSubStep("plan");
+        onContinueLabelChange("Continue");
+        onCanContinueChange(selectedPlan !== null);
+        onOverrideBack(null);
+      });
+    }
+  }, [subStep, selectedPlan, selectedCadence, onCanContinueChange, onContinueLabelChange, onOverrideBack]);
 
   return (
     <div className="flex flex-col gap-6 pt-4">
