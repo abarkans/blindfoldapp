@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import {
@@ -140,6 +140,11 @@ const NAV_LINKS = [
 export default function LandingDesktopClient() {
   const [menuOpen, setMenuOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -249,51 +254,73 @@ export default function LandingDesktopClient() {
           </button>
         </nav>
 
-        {/* Mobile dropdown */}
+        {/* Mobile full-screen menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
               key="mobile-menu"
-              initial={{ opacity: 0, y: -6 }}
+              initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.18 }}
-              className="md:hidden absolute top-full left-0 right-0 bg-[#08080f]/95 backdrop-blur-xl border-b border-white/[0.08] px-6 py-4 flex flex-col gap-1"
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.22, ease: EASE }}
+              className="md:hidden fixed inset-0 z-50 bg-[#08080f]/98 backdrop-blur-2xl flex flex-col px-6 pb-8"
             >
-              {NAV_LINKS.map(({ label, href, scroll }) =>
-                scroll ? (
-                  <button
-                    key={label}
-                    onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
-                    className="flex items-center h-11 text-sm font-medium text-white/60 hover:text-white transition-colors text-left"
-                  >
-                    {label}
-                  </button>
-                ) : (
-                  <a
-                    key={label}
-                    href={href}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center h-11 text-sm font-medium text-white/60 hover:text-white transition-colors"
-                  >
-                    {label}
-                  </a>
-                )
-              )}
-              <Link
-                href="/login"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center h-11 text-sm font-medium text-white/60 hover:text-white transition-colors"
-              >
-                Sign in
-              </Link>
-              <div className="pt-2 pb-1">
+              {/* Header row: logo + close button */}
+              <div className="flex items-center justify-between h-16 shrink-0">
+                <button
+                  onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
+                  className="flex items-center gap-2.5"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
+                    <Heart className="w-4 h-4 text-white fill-white" />
+                  </div>
+                  <span className="font-bold text-white text-[15px] tracking-tight">BlindfoldDate</span>
+                </button>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all"
+                  aria-label="Close menu"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <nav className="flex flex-col gap-1 flex-1 pt-4">
+                {NAV_LINKS.map(({ label, href, scroll }) =>
+                  scroll ? (
+                    <button
+                      key={label}
+                      onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
+                      className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors text-left border-b border-white/[0.06]"
+                    >
+                      {label}
+                    </button>
+                  ) : (
+                    <a
+                      key={label}
+                      href={href}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]"
+                    >
+                      {label}
+                    </a>
+                  )
+                )}
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]"
+                >
+                  Sign in
+                </Link>
+              </nav>
+              <div className="pt-4">
                 <Link
                   href="/register"
                   onClick={() => setMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-rose-600 to-violet-600 h-11 rounded-xl shadow-lg shadow-rose-500/20"
+                  className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-r from-rose-600 to-violet-600 h-14 rounded-2xl shadow-lg shadow-rose-500/20"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+                  <Sparkles className="w-4 h-4 text-rose-200" />
                   Get started free
                 </Link>
               </div>
