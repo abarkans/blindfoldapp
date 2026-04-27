@@ -39,7 +39,6 @@ export async function POST(req: Request) {
       .from("profiles")
       .update({
         plan_type: "free",
-        stripe_customer_id: null,
         subscription_ends_at: null,
       })
       .eq("stripe_customer_id", customerId);
