@@ -22,7 +22,14 @@ No test suite. No lint script. TypeScript strict mode on. Build is the CI gate.
 ## Style Guidelines
 
 1. **Fixed Bottom Nav:** `h-dvh` outer + `flex-col`. Nav = `shrink-0` outside scroll container. Header scrolls inside content area. Mobile-only nav: `md:hidden`. Desktop inline buttons: `hidden md:flex` below content.
-2. **Form Submission:** `useRef(continueTrigger)` mount guard pattern. Parent increments counter; child `useEffect` fires only when `continueTrigger > mountTrigger.current`. Never trigger on mount.
+2. **Form Submission:** Parent increments `continueTrigger`; child fires only when it advances past mount value. Initialize the ref to the prop value, **not** `0` — otherwise the guard breaks if parent starts above `0`:
+   ```typescript
+   const mountTrigger = useRef(continueTrigger); // NOT useRef(0)
+   useEffect(() => {
+     if (continueTrigger <= mountTrigger.current) return;
+     handleSubmit(); // or call onNext directly
+   }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
+   ```
 3. **React 19 setState Rule:** Never pass callbacks containing `setState` to children via props or store them in parent state. React 19 + Turbopack throws render conflict. Communicate state upward via plain values (e.g., `onSubstepChange(subStep)`) — not function refs containing child setters.
 4. **Motion & Stacking:** Render nav outside `AnimatePresence` to prevent transform stacking context bugs on mobile.
 5. **Server Actions:** Always end with `revalidatePath("/dashboard")`. Mutations must trigger RSC re-render.

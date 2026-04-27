@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
@@ -200,9 +201,7 @@ export default function OnboardingFlow({
               className="flex items-center gap-3 group w-fit"
               aria-label="Go back to home"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
-                <Heart className="w-5 h-5 text-white fill-white" />
-              </div>
+              <Image src="/icon.png" alt="Blindfold" width={40} height={40} className="group-hover:brightness-110 transition-all" />
               <div className="text-left">
                 <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
                 <p className="text-white/40 text-xs">Quick setup — we handle the rest</p>

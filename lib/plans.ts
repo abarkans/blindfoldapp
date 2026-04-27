@@ -39,6 +39,7 @@ export const PLANS = [
       "Near & far venue search",
       "1 re-roll per date",
       "XP & milestone badges",
+      "Richer, more creative date experiences",
     ],
     cta: "Take over my planning",
     highlighted: true,

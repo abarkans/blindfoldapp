@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import {
   Heart,
@@ -174,12 +175,7 @@ export default function LandingDesktopClient() {
             onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/30 group-hover:brightness-110 transition-all">
-              <Heart className="w-4 h-4 text-white fill-white" />
-            </div>
-            <span className="font-bold text-white text-[15px] tracking-tight group-hover:text-white/80 transition-colors">
-              BlindfoldDate
-            </span>
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain group-hover:opacity-80 transition-opacity" />
           </button>
 
           {/* Desktop center links */}
@@ -271,10 +267,7 @@ export default function LandingDesktopClient() {
                   onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
                   className="flex items-center gap-2.5"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/30">
-                    <Heart className="w-4 h-4 text-white fill-white" />
-                  </div>
-                  <span className="font-bold text-white text-[15px] tracking-tight">BlindfoldDate</span>
+                  <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
                 </button>
                 <button
                   onClick={() => setMenuOpen(false)}
@@ -988,10 +981,7 @@ export default function LandingDesktopClient() {
       <footer className="border-t border-white/[0.05] px-6 md:px-10 py-10 md:py-12">
         <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-0 md:justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center">
-              <Heart className="w-3.5 h-3.5 text-white fill-white" />
-            </div>
-            <span className="text-white/30 text-sm font-medium">BlindfoldDate</span>
+            <Image src="/logo.png" alt="BlindfoldDate" width={80} height={20} className="object-contain opacity-30" />
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 md:gap-8">

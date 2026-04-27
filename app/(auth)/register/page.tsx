@@ -6,8 +6,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { Mail, Lock, Heart, CheckCircle } from "lucide-react";
+import { Mail, Lock, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { isDisposableEmail } from "@/lib/utils/disposable-emails";
 import Input from "@/components/ui/Input";
@@ -128,11 +129,8 @@ export default function RegisterPage() {
         className="w-full max-w-sm"
       >
         <Link href="/" className="flex flex-col items-center gap-3 mb-8 group">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
-            <Heart className="w-7 h-7 text-white fill-white" />
-          </div>
+          <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
           <div className="text-center">
-            <h1 className="text-xl font-bold text-white">BlindfoldDate</h1>
             <p className="text-white/40 text-sm">Your first date is two minutes away</p>
           </div>
         </Link>

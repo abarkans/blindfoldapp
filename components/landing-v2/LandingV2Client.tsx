@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
@@ -89,10 +90,7 @@ export default function LandingV2Client() {
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/40 group-hover:brightness-110 transition-all">
-              <Heart className="w-4 h-4 text-white fill-white" />
-            </div>
-            <span className="font-bold text-white text-lg tracking-tight group-hover:text-white/80 transition-colors">BlindfoldDate</span>
+            <Image src="/logo.png" alt="BlindfoldDate" width={120} height={32} className="object-contain group-hover:opacity-80 transition-opacity" />
           </button>
 
           {/* Desktop nav items */}
@@ -514,10 +512,7 @@ export default function LandingV2Client() {
       <footer className="border-t border-white/6 px-6 py-8">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center">
-              <Heart className="w-3 h-3 text-white fill-white" />
-            </div>
-            <span className="text-white/30 text-sm font-medium">BlindfoldDate</span>
+            <Image src="/logo.png" alt="BlindfoldDate" width={80} height={20} className="object-contain opacity-30" />
           </div>
           <p className="text-white/15 text-xs">Mystery dates for curious couples</p>
         </div>

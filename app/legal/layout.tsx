@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft, Heart } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,11 +13,8 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
           <ArrowLeft className="w-4 h-4" />
           Back
         </Link>
-        <Link href="/" className="flex items-center gap-2 ml-2">
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center">
-            <Heart className="w-3 h-3 text-white fill-white" />
-          </div>
-          <span className="text-sm font-bold text-white">BlindfoldDate</span>
+        <Link href="/" className="flex items-center ml-2">
+          <Image src="/logo.png" alt="BlindfoldDate" width={80} height={24} className="object-contain" />
         </Link>
       </div>
 

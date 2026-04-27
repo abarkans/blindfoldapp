@@ -95,6 +95,7 @@ export async function rerollDate(): Promise<void> {
         budgetMax: constraints.budget_max,
         hasCar: constraints.has_car,
         prefersWalking: constraints.prefers_walking,
+        isSubscribed: !isFree,
         venue: {
           name: venue.display_name,
           address: venue.formatted_address,
@@ -123,6 +124,7 @@ export async function rerollDate(): Promise<void> {
         budgetMax: constraints.budget_max,
         hasCar: constraints.has_car,
         prefersWalking: constraints.prefers_walking,
+        isSubscribed: !isFree,
         previousTitles,
       });
     }

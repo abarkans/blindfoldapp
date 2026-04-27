@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Heart, Zap, CalendarCheck, X, RefreshCw } from "lucide-react";
+import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, RefreshCw } from "lucide-react";
+import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
@@ -85,11 +86,8 @@ export default function DashboardTabs({
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-md shadow-rose-500/40">
-              <Heart className="w-4 h-4 text-white fill-white" />
-            </div>
+            <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} className="object-contain" />
             <div>
-              <p className="text-[10px] text-white/40 uppercase tracking-widest">BlindfoldDate</p>
               <p className="text-sm font-bold text-white leading-tight">
                 {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}
               </p>

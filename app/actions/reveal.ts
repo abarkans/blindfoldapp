@@ -10,6 +10,7 @@ import { checkRevealRateLimit } from "@/lib/rate-limit";
 // Validate the shape of the profile row fetched from the DB.
 // Prevents compromised/malformed data from reaching AI prompts or place searches.
 const profileSchema = z.object({
+  plan_type: z.string(),
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
   interests: z.array(z.string()),
   constraints: z.object({
@@ -39,7 +40,7 @@ export async function revealDate() {
 
   const { data: raw } = await supabase
     .from("profiles")
-    .select("partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius")
+    .select("plan_type, partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius")
     .eq("id", user.id)
     .single();
 
@@ -67,6 +68,7 @@ export async function revealDate() {
   }
 
   const { constraints } = profile;
+  const isSubscribed = profile.plan_type === "subscription";
 
   // Server-side allowlist: reject interests that weren't set via the legitimate onboarding UI
   const VALID_INTERESTS = new Set([
@@ -106,6 +108,7 @@ export async function revealDate() {
       budgetMax: constraints.budget_max,
       hasCar: constraints.has_car,
       prefersWalking: constraints.prefers_walking,
+      isSubscribed,
       venue: {
         name: venue.display_name,
         address: venue.formatted_address,
@@ -135,6 +138,7 @@ export async function revealDate() {
       budgetMax: constraints.budget_max,
       hasCar: constraints.has_car,
       prefersWalking: constraints.prefers_walking,
+      isSubscribed,
       previousTitles,
     });
   }
