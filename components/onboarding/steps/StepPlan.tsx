@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, flushSync } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Lock, Sparkles, Zap } from "lucide-react";
 import { PLANS, type PlanId } from "@/lib/plans";
@@ -57,10 +57,12 @@ export default function StepPlan({
         onContinueLabelChange("Subscribe & Continue");
         onCanContinueChange(false);
         onOverrideBack(() => {
-          setSubStep("plan");
-          onContinueLabelChange("Continue");
-          onCanContinueChange(selectedPlan !== null);
-          onOverrideBack(null);
+          flushSync(() => {
+            setSubStep("plan");
+            onContinueLabelChange("Continue");
+            onCanContinueChange(selectedPlan !== null);
+            onOverrideBack(null);
+          });
         });
       }
     } else {
