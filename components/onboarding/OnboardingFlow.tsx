@@ -215,7 +215,7 @@ export default function OnboardingFlow({
             </div>
           )}
 
-        <div className="pt-2 pb-6">
+        <div className="pt-2 pb-6 md:pb-8">
           <div className="overflow-x-hidden">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -290,13 +290,39 @@ export default function OnboardingFlow({
               </motion.div>
             </AnimatePresence>
           </div>
+
+          {/* Desktop-only buttons — below content */}
+          <div className="hidden md:flex gap-3 mt-8">
+            {step > 1 && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                className="w-14 shrink-0 px-0"
+                onClick={handleBack}
+                aria-label="Back"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            )}
+            <Button
+              type="button"
+              size="lg"
+              className="flex-1"
+              disabled={!canContinue || loading}
+              loading={loading}
+              onClick={() => setContinueTrigger((t) => t + 1)}
+            >
+              {continueLabel}
+            </Button>
+          </div>
         </div>
         </div>
       </div>
 
-      {/* Fixed bottom nav bar — outside motion wrapper to avoid transform stacking context */}
+      {/* Fixed bottom nav bar — mobile only, outside motion wrapper to avoid transform stacking context */}
       <nav
-        className="shrink-0 bg-[#0d0d14] border-t border-white/8 px-4 pt-3"
+        className="md:hidden shrink-0 bg-[#0d0d14] border-t border-white/8 px-4 pt-3"
         style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="max-w-sm mx-auto flex gap-3">
