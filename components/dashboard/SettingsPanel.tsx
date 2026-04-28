@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film,
-  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight, ArrowLeft,
+  BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
   Sparkles, Lock, Check, Zap, Crown,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
@@ -85,8 +85,18 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
 
 type SettingsView = "list" | "partners" | "interests" | "logistics" | "location" | "frequency" | "plan";
 
+const VIEW_LABELS: Record<string, string> = {
+  partners: "Partners",
+  interests: "Interests",
+  logistics: "Logistics",
+  location: "Location",
+  frequency: "Date frequency",
+  plan: "Plan",
+};
+
 interface SettingsPanelProps {
   profile: Profile;
+  onHeaderChange?: (title: string | null, onBack: (() => void) | null, direction?: number) => void;
 }
 
 const slideVariants = {
@@ -101,7 +111,7 @@ const noAnimation = {
   exit: { opacity: 0, x: 0 },
 };
 
-export default function SettingsPanel({ profile }: SettingsPanelProps) {
+export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanelProps) {
   const [view, setView] = useState<SettingsView>("list");
   const [direction, setDirection] = useState(1);
   const [saved, setSaved] = useState(false);
@@ -337,8 +347,14 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
   ];
 
   function navigate(to: SettingsView) {
-    setDirection(to === "list" ? -1 : 1);
+    const dir = to === "list" ? -1 : 1;
+    setDirection(dir);
     setView(to);
+    if (to === "list") {
+      onHeaderChange?.(null, null, dir);
+    } else {
+      onHeaderChange?.(VIEW_LABELS[to] ?? to, () => navigate("list"), dir);
+    }
   }
 
   const currentRow = SETTINGS_ROWS.find((r) => r.id === view);
@@ -444,18 +460,6 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
             transition={{ duration: 0.18, ease: "easeInOut" }}
           >
             <form onSubmit={handleSubmit(onSubmit)}>
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-6">
-                <button
-                  type="button"
-                  onClick={() => navigate("list")}
-                  className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-white/25 transition-colors shrink-0"
-                >
-                  <ArrowLeft className="w-4 h-4 text-white/60" />
-                </button>
-                <h3 className="text-base font-semibold text-white">{currentRow?.label}</h3>
-              </div>
-
               {error && (
                 <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400 mb-5">
                   {error}

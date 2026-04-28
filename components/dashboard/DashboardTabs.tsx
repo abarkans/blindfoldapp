@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Zap, CalendarCheck, X } from "lucide-react";
+import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -307,13 +307,61 @@ function ProgressTabContent({
 
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
 
+const headerSlideVariants = {
+  enter: (dir: number) => ({ opacity: 0, x: dir * 40 }),
+  center: { opacity: 1, x: 0 },
+  exit: (dir: number) => ({ opacity: 0, x: -dir * 40 }),
+};
+
 function SettingsTabContent({ profile }: { profile: Profile }) {
+  const [subpageHeader, setSubpageHeader] = useState<{ title: string; onBack: () => void } | null>(null);
+  const [headerDir, setHeaderDir] = useState(1);
+
+  function handleHeaderChange(title: string | null, onBack: (() => void) | null, direction = 1) {
+    setHeaderDir(direction);
+    setSubpageHeader(title && onBack ? { title, onBack } : null);
+  }
+
   return (
     <div>
-      <div className="mb-5">
-        <h2 className="text-2xl font-bold text-white">Settings</h2>
+      <div className="mb-5 overflow-hidden">
+        <AnimatePresence mode="wait" custom={headerDir} initial={false}>
+          {subpageHeader ? (
+            <motion.div
+              key={subpageHeader.title}
+              custom={headerDir}
+              variants={headerSlideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.18, ease: "easeInOut" }}
+              className="flex items-center gap-3"
+            >
+              <button
+                type="button"
+                onClick={subpageHeader.onBack}
+                className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-white/25 transition-colors shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4 text-white/60" />
+              </button>
+              <h2 className="text-2xl font-bold text-white">{subpageHeader.title}</h2>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="settings"
+              custom={headerDir}
+              variants={headerSlideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.18, ease: "easeInOut" }}
+            >
+              <h2 className="text-2xl font-bold text-white">Settings</h2>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      <SettingsPanel profile={profile} />
+      <SettingsPanel profile={profile} onHeaderChange={handleHeaderChange} />
     </div>
   );
 }
