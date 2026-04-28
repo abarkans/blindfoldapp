@@ -13,7 +13,7 @@ export default async function DashboardPage() {
   // Fetch everything needed for all tabs in one shot
   const [{ data: profile }, { data: currentDateIdea }, { data: userBadgeRows }] =
     await Promise.all([
-      supabase.from("profiles").select("id, partner_names, interests, constraints, plan_type, cadence, date_idea, last_lat, last_long, preferred_radius, onboarding_complete, revealed_at, total_rerolls_used, current_date_rerolled, date_accepted_at, total_xp, dates_completed_count, subscription_ends_at").eq("id", user.id).single(),
+      supabase.from("profiles").select("id, partner_names, interests, constraints, plan_type, cadence, date_idea, last_lat, last_long, preferred_radius, onboarding_complete, revealed_at, total_rerolls_used, current_date_rerolled, date_accepted_at, total_xp, dates_completed_count, subscription_ends_at, notification_sent_at, stripe_customer_id, created_at, updated_at").eq("id", user.id).single(),
       supabase
         .from("date_ideas")
         .select("id, status")
