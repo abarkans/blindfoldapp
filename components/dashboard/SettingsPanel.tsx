@@ -220,6 +220,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
     watch,
     setValue,
     formState: { errors },
+    reset,
   } = useForm<FullOnboardingData>({
     resolver: zodResolver(fullOnboardingSchema),
     defaultValues: {
@@ -272,6 +273,7 @@ export default function SettingsPanel({ profile }: SettingsPanelProps) {
       setError("Failed to save. Please try again.");
     } else {
       setSaved(true);
+      reset(values);
       router.refresh();
       setTimeout(() => setSaved(false), 3000);
     }
