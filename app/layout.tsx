@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "BlindfoldDate — Mystery Dating",
+  title: "BlindfoldDate — Date nights, planned for you",
   description: "Surprise date experiences crafted just for you two.",
   robots: {
     index: false,

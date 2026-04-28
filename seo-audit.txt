@@ -1,0 +1,192 @@
+SEO AUDIT — BlindfoldDate
+Generated: 2026-04-28
+Auditor: Claude Code (read-only, no changes applied)
+
+================================================================================
+CRITICAL
+================================================================================
+
+C1 — robots.txt blocks all crawling
+  Why:    Every crawler sees Disallow: / and leaves. Zero pages indexed.
+  Cause:  public/robots.txt — "User-agent: * / Disallow: /"
+  Fix:    Replace with Allow: / for public routes.
+          Disallow: /dashboard, /onboarding, /api
+
+C2 — Root metadata robots: index:false, follow:false
+  Why:    Even if robots.txt were fixed, this X-Robots-Tag tells crawlers
+          not to index any page. Double block.
+  Cause:  app/layout.tsx lines 10-12 — robots: { index: false, follow: false }
+  Fix:    Change to { index: true, follow: true }.
+          Scope noindex only to auth/app routes via per-page metadata.
+
+C3 — No OpenGraph metadata anywhere
+  Why:    Social shares (WhatsApp, iMessage, Slack) render as bare URLs.
+          Click-through from social = 0. OG also used by some search signals.
+  Cause:  Entire codebase — no openGraph key in any metadata export
+  Fix:    Add openGraph: { title, description, url, images } to root layout
+          and landing page metadata.
+
+================================================================================
+HIGH
+================================================================================
+
+H1 — Landing page has no metadata export
+  Why:    Root layout metadata applies as fallback but has no page-specific
+          signals. Google can't differentiate homepage from other pages.
+  Cause:  app/page.tsx — no export const metadata
+  Fix:    Export metadata with unique title, description, openGraph,
+          and alternates.canonical.
+
+H2 — No canonical tags anywhere
+  Why:    If site is reachable via www. vs apex, HTTP vs HTTPS, or
+          /?utm_source=x — Google treats them as duplicate content
+          and splits authority.
+  Cause:  No alternates.canonical in any metadata object
+  Fix:    Add alternates: { canonical: 'https://blindfolddate.com' }
+          in root layout; override per page.
+
+H3 — No structured data (JSON-LD)
+  Why:    No rich results possible (star ratings, FAQ, breadcrumbs, sitelinks).
+          SoftwareApplication schema could show star rating in SERP.
+  Cause:  Entire codebase — zero <script type="application/ld+json">
+  Fix:    Add SoftwareApplication schema in root layout.
+          Add WebPage or FAQPage on landing sections.
+
+H4 — No sitemap
+  Why:    Crawler must discover pages via link-following only. No signal about
+          page priority or freshness.
+  Cause:  No app/sitemap.ts or public/sitemap.xml
+  Fix:    Create app/sitemap.ts exporting:
+          ["/", "/legal/privacy", "/legal/terms", "/login", "/register"]
+          with changeFrequency and lastModified.
+
+H5 — LCP risk: hero section is a heavy client component
+  Why:    LandingDesktopClient.tsx is "use client" with Framer Motion.
+          H1 and hero text don't render until JS hydrates. Delays LCP.
+          Google measures LCP as a Core Web Vital — directly affects rankings.
+  Cause:  components/landing-desktop/LandingDesktopClient.tsx line 1
+          "use client" wraps entire page including H1
+  Fix:    Extract hero text (H1, subheading, CTAs) into server component.
+          Keep Framer Motion only in animated sub-components.
+
+H6 — Raw <img> tag for venue photos
+  Why:    No lazy-loading, no blur placeholder, no size optimization.
+          Venue photos load at full API size. CLS risk if dimensions
+          not reserved.
+  Cause:  components/dashboard/DateCard.tsx lines 502-505
+          <img src="/api/place-photo?ref=...">
+  Fix:    Use <Image> with fill + sizes or fixed width/height.
+          Add loading="lazy" at minimum.
+
+================================================================================
+MEDIUM
+================================================================================
+
+M1 — Auth pages lack per-page metadata
+  Why:    If /login or /register ever get indexed, they'll show root title
+          in SERP. Also affects social share previews.
+  Cause:  app/(auth)/login/page.tsx, app/(auth)/register/page.tsx
+          — no metadata export
+  Fix:    Export minimal metadata with title and robots: { index: false }
+          (these should be noindexed intentionally).
+
+M2 — No loading.tsx on any route
+  Why:    No streaming skeleton = full white flash during navigation.
+          Degrades perceived performance (indirect CLS/LCP signal).
+          Dashboard is an RSC fetching Supabase — blocks render until complete.
+  Cause:  No loading.tsx in any route segment
+  Fix:    Add app/dashboard/loading.tsx with skeleton matching DateCard
+          dimensions to prevent CLS.
+
+M3 — logo.png is 182KB, unoptimized
+  Why:    next/image serves it optimized, but large source file increases
+          WebP conversion time and TTFB for image.
+  Cause:  public/logo.png — 182KB source
+  Fix:    Compress to <=20KB SVG or optimized WebP. SVG preferred for logo.
+
+M4 — features/*.jpg images not verified
+  Why:    6 feature JPGs in public/features/ — unknown sizes. If used without
+          next/image or wrong sizes, causes LCP/CLS issues.
+  Cause:  public/features/ — 6 unaudited JPEGs
+  Fix:    Verify all served via <Image> with correct width/height.
+          Compress to <=80KB each.
+
+M5 — Footer minimal — few internal links
+  Why:    Crawlers hitting dead-end pages (e.g. /legal/privacy) have no
+          path back to main content. Reduces crawl efficiency.
+  Cause:  LandingDesktopClient.tsx lines 962-993 — 4 links only
+  Fix:    Add links to /legal/privacy, /legal/terms, and key landing anchors.
+
+M6 — next.config.ts has no www -> apex redirect
+  Why:    Duplicate content at www.blindfolddate.com vs blindfolddate.com
+          splits PageRank.
+  Cause:  next.config.ts — no redirects() function
+  Fix:    Add redirect: if host starts with www -> 301 to apex.
+
+================================================================================
+LOW
+================================================================================
+
+L1 — No twitter:card metadata
+  Why:    Twitter/X uses its own tags even when OG is present. Without them,
+          tweet embeds show no preview.
+  Cause:  No Twitter metadata in any file
+  Fix:    Add twitter: { card: 'summary_large_image', title, description,
+          images } to layout metadata.
+
+L2 — No manifest.json / PWA meta
+  Why:    No installability signal. Affects engagement metrics (dwell time),
+          which are indirect ranking signals.
+  Cause:  Nothing in public/ for PWA
+  Fix:    Add app/manifest.ts with name, short_name, theme_color, icons.
+
+L3 — No i18n / hreflang
+  Why:    Not applicable now — English-only. But URL structure has no locale
+          prefix. Retrofitting is painful if expansion planned.
+  Cause:  next.config.ts — no i18n config
+  Fix:    N/A for now. Plan /en/ prefix or subdomain strategy before launch.
+
+L4 — X-Frame-Options: DENY
+  Why:    Fine for security, but prevents embedding in partner sites.
+          Minor SEO adjacency.
+  Cause:  next.config.ts line 20
+  Fix:    Keep DENY for app routes. Consider SAMEORIGIN only if partner
+          embeds needed.
+
+L5 — No explicit viewport export
+  Why:    Next.js 16 injects a default but explicit control lets you set
+          viewport-fit=cover for iOS notch and initial-scale precisely.
+  Cause:  app/layout.tsx — no export const viewport
+  Fix:    Export viewport const:
+          { width: 'device-width', initialScale: 1, viewportFit: 'cover' }
+
+================================================================================
+POSITIVES (keep these)
+================================================================================
+
++ Proper next/image usage with width/height attributes throughout
++ All images have descriptive alt text
++ Good heading hierarchy on landing page: H1 -> H2 -> H3
++ Extensive internal linking with Next/Link component
++ Inter font from Google Fonts properly loaded
++ Security headers configured (won't negatively impact SEO)
++ Proper HTML lang attribute: lang="en"
++ Semantic HTML structure (nav, footer, sections)
++ Legal pages have metadata and proper heading structure
++ Responsive design, mobile-first
++ External links use rel="noopener noreferrer"
+
+================================================================================
+LAUNCH CHECKLIST (ordered)
+================================================================================
+
+1. Fix public/robots.txt (C1)
+2. Fix app/layout.tsx robots metadata (C2)
+3. Add OpenGraph to root layout + home page (C3, H1)
+4. Add canonical tags (H2)
+5. Create app/sitemap.ts (H4)
+6. Add JSON-LD SoftwareApplication schema (H3)
+7. Extract hero to server component (H5)
+8. Add twitter:card metadata (L1)
+9. Add loading.tsx for dashboard (M2)
+10. Compress logo.png (M3)

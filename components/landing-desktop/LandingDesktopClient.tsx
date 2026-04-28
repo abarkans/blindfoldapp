@@ -988,7 +988,7 @@ export default function LandingDesktopClient() {
             </Link>
           </div>
 
-          <p className="text-white/15 text-xs">Mystery dates for curious couples</p>
+          <p className="text-white/15 text-xs">Date nights, planned for you</p>
         </div>
       </footer>
     </div>
