@@ -79,10 +79,10 @@ export default function DashboardTabs({
   return (
     <div className="min-h-dvh flex flex-col">
       {/* Sticky header — logo + names on both breakpoints; tab nav injected on desktop */}
-      <header className="md:sticky md:top-0 md:z-30 bg-[#08080f]/90 md:backdrop-blur-md border-b border-white/5 px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+      <header className="md:sticky md:top-0 md:z-30 bg-[#08080f]/90 md:backdrop-blur-md border-b border-white/5 px-4 py-3 md:py-0 md:h-14">
+        <div className="max-w-4xl mx-auto flex items-stretch justify-between gap-4 md:h-full">
           {/* Brand */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0 self-center">
             <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} loading="eager" priority className="object-contain" />
             <div>
               <p className="text-sm font-bold text-white leading-tight">
@@ -92,12 +92,12 @@ export default function DashboardTabs({
           </div>
 
           {/* Desktop tab navigation — hidden on mobile */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex self-stretch items-stretch gap-6">
             {TABS.map(({ id, label }) => (
               <button
                 key={id}
                 onClick={() => switchTab(id)}
-                className={`relative pb-0.5 text-sm font-medium transition-colors duration-150 ${
+                className={`relative flex items-center text-sm font-medium transition-colors duration-150 ${
                   activeTab === id ? "text-white" : "text-white/55 hover:text-white"
                 }`}
               >
@@ -105,7 +105,7 @@ export default function DashboardTabs({
                 {activeTab === id && (
                   <motion.div
                     layoutId="desktop-tab-underline"
-                    className="absolute -bottom-[13px] left-0 right-0 h-px bg-gradient-to-r from-rose-500 to-violet-600"
+                    className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-rose-500 to-violet-600"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
