@@ -505,6 +505,8 @@ export default function DateCard({
                           alt={dateIdea.display_name}
                           width={400}
                           height={192}
+                          loading="eager"
+                          priority
                           className="w-full h-48 object-cover"
                         />
                       ) : (

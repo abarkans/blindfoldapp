@@ -8,7 +8,7 @@ import {
   Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, Zap, Crown,
+  Sparkles, Lock, Check, Zap, Crown, UserCog, Trash2,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Slider from "@/components/ui/Slider";
 import CadenceSelect, { type CadenceValue, CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
+import { deleteAccount } from "@/app/actions/delete-account";
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
@@ -44,8 +45,6 @@ const CADENCE_LABEL: Record<string, string> = Object.fromEntries(
   CADENCE_OPTIONS.map(({ value, label }) => [value, label])
 );
 
-// Zod schemas to validate Nominatim API responses before trusting coordinates
-// or display names. Prevents malformed/injected data reaching the DB or UI.
 const nominatimSearchSchema = z.array(
   z.object({
     lat: z.string().regex(/^-?\d{1,3}\.\d+$/),
@@ -83,9 +82,10 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
   }
 }
 
-type SettingsView = "list" | "partners" | "interests" | "logistics" | "location" | "frequency" | "plan";
+type SettingsView = "list" | "account" | "partners" | "interests" | "logistics" | "location" | "frequency" | "plan";
 
 const VIEW_LABELS: Record<string, string> = {
+  account: "Manage account",
   partners: "Partners",
   interests: "Interests",
   logistics: "Logistics",
@@ -122,16 +122,26 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
   const [planType, setPlanType] = useState<PlanId>(
     (profile.plan_type as PlanId) ?? "free"
   );
+
+  // Manage account state
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      if (data.user?.email) setUserEmail(data.user.email);
+    });
+  }, []);
+
   const router = useRouter();
 
-  // Lock background scroll while sign-out confirm is open
   useEffect(() => {
-    if (!signOutConfirm) return;
+    if (!signOutConfirm && !deleteConfirm) return;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
-  }, [signOutConfirm]);
+  }, [signOutConfirm, deleteConfirm]);
 
-  // Location state — managed outside react-hook-form since it's async
   const [lat, setLat] = useState<number | null>(profile.last_lat ?? null);
   const [lng, setLng] = useState<number | null>(profile.last_long ?? null);
   const [locationLabel, setLocationLabel] = useState("");
@@ -162,7 +172,6 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
           { headers: { "Accept-Language": "en" } }
         );
         const raw = await res.json();
-        // Validate response shape before trusting lat/lon values
         const parsed = nominatimSearchSchema.safeParse(raw);
         setSuggestions(parsed.success ? parsed.data : []);
       } catch {
@@ -188,7 +197,6 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
     );
   }
 
-  // L7: Give users explicit control over their stored location (GDPR data minimisation)
   async function clearLocation() {
     setClearingLocation(true);
     setError("");
@@ -210,8 +218,6 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
   }
 
   function selectSuggestion(result: NominatimResult) {
-    // Nominatim is already validated via nominatimSearchSchema, but parse
-    // once more here to be explicit about safe numeric conversion.
     const parsedLat = parseFloat(result.lat);
     const parsedLng = parseFloat(result.lon);
     if (!isFinite(parsedLat) || !isFinite(parsedLng)) return;
@@ -296,6 +302,19 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
     router.push("/");
   }
 
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      router.push("/");
+    } catch {
+      setDeleting(false);
+      setDeleteConfirm(false);
+      setError("Failed to delete account. Please try again.");
+      navigate("account");
+    }
+  }
+
   async function handleUpgradePlan() {
     setError("");
     const res = await fetch("/api/stripe/checkout", {
@@ -316,14 +335,12 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
     const res = await fetch("/api/stripe/portal", { method: "POST" });
     const { url, error: portalError } = await res.json();
     if (portalError || !url) {
-      console.error("[stripe portal]", portalError);
       setError("Failed to open subscription management. Please try again.");
       return;
     }
     window.location.href = url;
   }
 
-  // Summary strings shown on the list view
   const interestsSummary = interests?.length > 0
     ? interests.slice(0, 2).map((id) => INTEREST_LABEL[id] ?? id).join(", ") +
       (interests.length > 2 ? ` +${interests.length - 2}` : "")
@@ -335,7 +352,12 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
     prefersWalking && "Loves walking",
   ].filter(Boolean).join(" · ");
 
-  const SETTINGS_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
+  const ACCOUNT_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
+    { id: "account", label: "Manage account", icon: UserCog, summary: userEmail || "Account settings" },
+    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · €5.99/mo") : "Starter · Upgrade available" },
+  ];
+
+  const DATE_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
     { id: "partners", label: "Partners", icon: User, summary: `${partner1} & ${partner2}` },
     { id: "interests", label: "Interests", icon: Tag, summary: interestsSummary },
     { id: "logistics", label: "Logistics", icon: Sliders, summary: logisticsSummary },
@@ -343,7 +365,6 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
     ...(planType === "subscription"
       ? [{ id: "frequency" as SettingsView, label: "Date frequency", icon: Calendar, summary: CADENCE_LABEL[selectedCadence] ?? selectedCadence }]
       : []),
-    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · €5.99/mo") : "Starter · Upgrade available" },
   ];
 
   function navigate(to: SettingsView) {
@@ -357,7 +378,25 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
     }
   }
 
-  const currentRow = SETTINGS_ROWS.find((r) => r.id === view);
+  function renderRow({ id, label, icon: Icon, summary }: { id: SettingsView; label: string; icon: React.ElementType; summary: string }) {
+    return (
+      <button
+        key={id}
+        type="button"
+        onClick={() => navigate(id)}
+        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-2xl hover:border-white/20 transition-colors active:scale-[0.98]"
+      >
+        <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-pink-400" />
+        </div>
+        <div className="flex-1 text-left min-w-0">
+          <p className="text-sm font-semibold text-white">{label}</p>
+          <p className="text-xs text-white/55 mt-0.5 truncate">{summary}</p>
+        </div>
+        <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
+      </button>
+    );
+  }
 
   return (
     <div className="overflow-hidden">
@@ -372,24 +411,20 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
             exit="exit"
             transition={{ duration: 0.18, ease: "easeInOut" }}
           >
+            {/* Account section */}
+            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider px-1 mb-2">
+              Account
+            </p>
+            <div className="flex flex-col gap-2 mb-5">
+              {ACCOUNT_ROWS.map(renderRow)}
+            </div>
+
+            {/* Date section */}
+            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider px-1 mb-2">
+              Date
+            </p>
             <div className="flex flex-col gap-2">
-              {SETTINGS_ROWS.map(({ id, label, icon: Icon, summary }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => navigate(id)}
-                  className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-2xl hover:border-white/20 transition-colors active:scale-[0.98]"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                    <Icon className="w-4 h-4 text-pink-400" />
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-white">{label}</p>
-                    <p className="text-xs text-white/55 mt-0.5 truncate">{summary}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
-                </button>
-              ))}
+              {DATE_ROWS.map(renderRow)}
             </div>
 
             <button
@@ -459,8 +494,114 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
             exit="exit"
             transition={{ duration: 0.18, ease: "easeInOut" }}
           >
+            {/* Account management view */}
+            {view === "account" && (
+              <div className="flex flex-col gap-4">
+                {error && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
+                    {error}
+                  </div>
+                )}
+
+                {/* Account information */}
+                <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
+                  <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-3">Account information</p>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                        {profile.partner_names.partner1.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-white/40 text-sm font-medium">+</span>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                        {profile.partner_names.partner2.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white truncate">
+                        {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}
+                      </p>
+                      <p className="text-xs text-white/45 truncate">{userEmail}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Delete account */}
+                <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">Delete account</p>
+                      <p className="text-xs text-white/45 mt-0.5">Permanently removes all your data</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirm(true)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:bg-red-500/20 hover:border-red-500/40 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete my account
+                  </button>
+                </div>
+
+                {/* Delete confirmation modal */}
+                <AnimatePresence>
+                  {deleteConfirm && (
+                    <motion.div
+                      key="delete-backdrop"
+                      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => !deleting && setDeleteConfirm(false)}
+                    />
+                  )}
+                  {deleteConfirm && (
+                    <motion.div
+                      key="delete-modal"
+                      className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-xs px-4"
+                      initial={{ opacity: 0, scale: 0.88, y: 16 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.92, y: 8 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                    >
+                      <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+                        <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                          <Trash2 className="w-5 h-5 text-red-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1">Delete account?</h3>
+                        <p className="text-sm text-white/55 mb-6">
+                          This permanently deletes your account and all data. This cannot be undone.
+                        </p>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            type="button"
+                            onClick={handleDeleteAccount}
+                            disabled={deleting}
+                            className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
+                          >
+                            {deleting ? "Deleting…" : "Yes, delete everything"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeleteConfirm(false)}
+                            disabled={deleting}
+                            className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)}>
-              {error && (
+              {view !== "account" && error && (
                 <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400 mb-5">
                   {error}
                 </div>
@@ -700,7 +841,6 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
               {/* Section: Plan */}
               {view === "plan" && (
                 <div className="flex flex-col gap-3">
-                  {/* Current plan badge */}
                   <div className={[
                     "flex items-center gap-3 rounded-2xl border p-4",
                     planType === "subscription"
@@ -734,7 +874,6 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                     )}
                   </div>
 
-                  {/* Upgrade card — free users only */}
                   {planType === "free" && (
                     <div className="bg-gradient-to-br from-pink-500/15 to-violet-500/10 border border-pink-500/40 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
@@ -761,7 +900,6 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                     </div>
                   )}
 
-                  {/* Subscription active info */}
                   {planType === "subscription" && (
                     <button
                       type="button"
@@ -774,7 +912,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                 </div>
               )}
 
-              {view !== "plan" && (
+              {view !== "plan" && view !== "account" && (
                 <motion.div
                   animate={saved ? { scale: [1, 1.02, 1] } : {}}
                   transition={{ duration: 0.3 }}

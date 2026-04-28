@@ -34,7 +34,10 @@ const jsonLd = {
   applicationCategory: "LifestyleApplication",
   description: "AI-powered mystery date planning. Tell us your interests once — we find real nearby venues and craft your date story.",
   url: SITE_URL,
-  offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+  offers: [
+    { "@type": "Offer", name: "Starter", price: "0", priceCurrency: "EUR" },
+    { "@type": "Offer", name: "Plus", price: "5.99", priceCurrency: "EUR", priceSpecification: { "@type": "UnitPriceSpecification", price: "5.99", priceCurrency: "EUR", unitCode: "MON" } },
+  ],
   operatingSystem: "Web",
 };
 

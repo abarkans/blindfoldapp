@@ -83,7 +83,7 @@ export default function DashboardTabs({
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} className="object-contain" />
+            <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} loading="eager" priority className="object-contain" />
             <div>
               <p className="text-sm font-bold text-white leading-tight">
                 {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}

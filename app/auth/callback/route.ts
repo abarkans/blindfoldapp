@@ -20,6 +20,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
-  // Middleware will handle redirect to /onboarding if onboarding is incomplete
-  return NextResponse.redirect(`${origin}/dashboard`);
+  const next = searchParams.get("next") ?? "/dashboard";
+  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  return NextResponse.redirect(`${origin}${safePath}`);
 }

@@ -114,14 +114,21 @@ export default function LoginClient() {
               error={errors.email?.message}
               {...register("email")}
             />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              icon={<Lock className="w-4 h-4" />}
-              error={errors.password?.message}
-              {...register("password")}
-            />
+            <div>
+              <Input
+                label="Password"
+                type="password"
+                placeholder="••••••••"
+                icon={<Lock className="w-4 h-4" />}
+                error={errors.password?.message}
+                {...register("password")}
+              />
+              <div className="flex justify-end mt-1.5">
+                <Link href="/forgot-password" className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
             <Button type="submit" size="lg" className="w-full mt-1" loading={loading}>
               Sign In
             </Button>
