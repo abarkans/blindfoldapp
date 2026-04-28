@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, RefreshCw } from "lucide-react";
+import { Sparkles, Medal, Settings, Zap, CalendarCheck, X } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -38,7 +38,7 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
   const [showCancelBanner, setShowCancelBanner] = useState(false);
-  const [syncingPlan, setSyncingPlan] = useState(false);
+
   const mainRef = useRef<HTMLElement>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -58,11 +58,8 @@ export default function DashboardTabs({
     if (searchParams.get("portal") === "return") {
       window.history.replaceState({}, "", "/dashboard?tab=settings");
       setActiveTab("settings");
-      setSyncingPlan(true);
-      // Give Stripe's webhook ~4s to arrive and update subscription_ends_at
       setTimeout(() => {
         router.refresh();
-        setSyncingPlan(false);
       }, 4000);
       return;
     }
@@ -145,24 +142,6 @@ export default function DashboardTabs({
         )}
       </AnimatePresence>
 
-      {/* Subscription sync banner */}
-      <AnimatePresence>
-        {syncingPlan && (
-          <motion.div
-            key="sync-banner"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="mx-4 mt-3"
-          >
-            <div className="max-w-sm md:max-w-2xl mx-auto flex items-center gap-3 bg-violet-500/10 border border-violet-500/20 rounded-2xl px-4 py-3">
-              <RefreshCw className="w-4 h-4 text-violet-400 shrink-0 animate-spin" />
-              <p className="text-sm text-white/60">Syncing your subscription status…</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Tab content — wider container on desktop */}
       <main ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
