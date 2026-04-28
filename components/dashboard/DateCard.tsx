@@ -319,11 +319,11 @@ export default function DateCard({
             ].map(({ value, label }) => (
               <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3 text-center">
                 <p className="text-2xl font-black text-white tabular-nums">{String(value).padStart(2, "0")}</p>
-                <p className="text-[10px] text-white/35 mt-0.5">{label}</p>
+                <p className="text-[10px] text-white/55 mt-0.5">{label}</p>
               </div>
             ))}
           </div>
-          <p className="text-xs text-white/25 text-center mt-3">
+          <p className="text-xs text-white/55 text-center mt-3">
             Available on{" "}
             {nextRevealDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" })}
           </p>
@@ -379,7 +379,7 @@ export default function DateCard({
                       <p className="text-sm font-bold text-white truncate">
                         {isVenue(dateIdea) ? dateIdea.display_name : dateIdea.title}
                       </p>
-                      <p className="text-xs text-white/40 mt-0.5">
+                      <p className="text-xs text-white/55 mt-0.5">
                         {isVenue(dateIdea) ? dateIdea.formatted_address : dateIdea.vibe}
                       </p>
                     </div>
@@ -453,7 +453,7 @@ export default function DateCard({
                       )}
                     </div>
 
-                    <p className="text-xs text-white/35 text-center">
+                    <p className="text-xs text-white/55 text-center">
                       Unlock the full surprise — or swap for something else.
                     </p>
 
@@ -474,7 +474,7 @@ export default function DateCard({
                       >
                         <Shuffle className="w-4 h-4" />
                         Re-roll
-                        <span className={`text-[10px] font-normal ${canReroll ? "text-white/35" : "text-white/20"}`}>
+                        <span className={`text-[10px] font-normal ${canReroll ? "text-white/55" : "text-white/30"}`}>
                           {isFree
                             ? totalRerollsUsed >= 1 ? "No rolls left" : "1 left (lifetime)"
                             : currentDateRerolled ? "Used for this date" : "1 per date"}
@@ -673,7 +673,7 @@ export default function DateCard({
                     <p className="text-white/60 text-sm font-medium">
                       {canReveal ? "Ready to reveal!" : "Your date is brewing…"}
                     </p>
-                    <p className="text-white/30 text-xs">{partnerNames.partner1} &amp; {partnerNames.partner2}</p>
+                    <p className="text-white/55 text-xs">{partnerNames.partner1} &amp; {partnerNames.partner2}</p>
                   </div>
                 </div>
 
@@ -754,7 +754,7 @@ export default function DateCard({
                     onClick={() => setRerollModalOpen(false)}
                     className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
                   >
-                    <X className="w-4 h-4 text-white/40" />
+                    <X className="w-4 h-4 text-white/60" />
                   </button>
                 </div>
 
@@ -773,7 +773,7 @@ export default function DateCard({
                   </p>
                 )}
 
-                <p className="text-xs text-white/30 mb-5">
+                <p className="text-xs text-white/55 mb-5">
                   The current date idea will be saved so you won&apos;t see it again.
                 </p>
 

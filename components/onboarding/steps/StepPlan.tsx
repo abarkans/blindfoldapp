@@ -121,7 +121,7 @@ export default function StepPlan({
                         </div>
                         <div>
                           <p className="font-bold text-white text-sm">{plan.name}</p>
-                          <p className="text-[11px] text-white/40 mt-0.5">{plan.tagline}</p>
+                          <p className="text-[11px] text-white/55 mt-0.5">{plan.tagline}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -130,7 +130,7 @@ export default function StepPlan({
                             {plan.priceLine.split(" ")[0]}
                           </p>
                           {plan.highlighted && (
-                            <p className="text-[10px] text-white/35 mt-0.5">per month</p>
+                            <p className="text-[10px] text-white/55 mt-0.5">per month</p>
                           )}
                         </div>
                         {/* Selection indicator */}
@@ -195,7 +195,7 @@ export default function StepPlan({
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-sm">{label}</p>
-                    <p className={`text-xs mt-0.5 ${selectedCadence === value ? "text-pink-300/70" : "text-white/35"}`}>
+                    <p className={`text-xs mt-0.5 ${selectedCadence === value ? "text-pink-300/70" : "text-white/55"}`}>
                       {sublabel}
                     </p>
                   </div>

@@ -12,7 +12,7 @@ export default function ProgressBar({ current, total, labels }: ProgressBarProps
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="flex justify-between items-center">
-        <span className="text-xs text-white/40 font-medium uppercase tracking-widest">
+        <span className="text-xs text-white/55 font-medium uppercase tracking-widest">
           Step {current} of {total}
         </span>
         {labels && labels[current - 1] && (

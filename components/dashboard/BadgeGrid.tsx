@@ -137,8 +137,8 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
           transition={{ delay: 0.12 }}
         >
           <p className="text-xl font-bold text-white mb-1">{badge.name}</p>
-          <p className="text-sm text-white/40">Unlocked on {earnedDate}</p>
-          <p className="text-xs text-white/25 mt-4">Swipe to flip ✦</p>
+          <p className="text-sm text-white/55">Unlocked on {earnedDate}</p>
+          <p className="text-xs text-white/50 mt-4">Swipe to flip ✦</p>
         </motion.div>
       </motion.div>
     </>
@@ -153,7 +153,7 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
   return (
     <>
       <div className="mt-6">
-        <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
+        <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
           Trophy Room
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -203,10 +203,10 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
                   )}
                 </motion.div>
 
-                <p className={`text-xs font-semibold mb-0.5 ${earned ? "text-white" : "text-white/25"}`}>
+                <p className={`text-xs font-semibold mb-0.5 ${earned ? "text-white" : "text-white/50"}`}>
                   {milestone.name}
                 </p>
-                <p className={`text-[10px] leading-tight ${earned ? "text-white/45" : "text-white/18"}`}>
+                <p className={`text-[10px] leading-tight ${earned ? "text-white/50" : "text-white/50"}`}>
                   {earned
                     ? milestone.description
                     : `Complete ${milestone.required_dates} date${milestone.required_dates > 1 ? "s" : ""} to unlock`}

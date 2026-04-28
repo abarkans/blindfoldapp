@@ -227,12 +227,12 @@ export default function LandingV2Client() {
           </Link>
         </motion.div>
 
-        <motion.p {...fadeUp(0.4)} className="text-white/20 text-xs">
+        <motion.p {...fadeUp(0.4)} className="text-white/55 text-xs">
           Free forever · No credit card · Surprise included
         </motion.p>
 
         <motion.div
-          className="mt-12 flex flex-col items-center gap-2 text-white/20"
+          className="mt-12 flex flex-col items-center gap-2 text-white/35"
           animate={{ y: [0, 4, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
@@ -249,7 +249,7 @@ export default function LandingV2Client() {
         >
           <MysteryCard />
         </motion.div>
-        <p className="text-center text-white/20 text-xs mt-6">
+        <p className="text-center text-white/55 text-xs mt-6">
           Your date is sealed until you&apos;re both ready ✨
         </p>
       </section>
@@ -265,7 +265,7 @@ export default function LandingV2Client() {
             <div key={label} className="text-center bg-white/[0.03] border border-white/8 rounded-2xl p-5">
               <Icon className="w-4 h-4 text-rose-400 mx-auto mb-2" />
               <p className="text-xl font-black text-white">{value}</p>
-              <p className="text-[11px] text-white/30 mt-0.5">{label}</p>
+              <p className="text-[11px] text-white/55 mt-0.5">{label}</p>
             </div>
           ))}
         </div>
@@ -300,7 +300,7 @@ export default function LandingV2Client() {
                 <span className="text-4xl font-black text-white/5 font-mono">{step.number}</span>
               </div>
               <h3 className="font-bold text-white text-lg mb-2 leading-tight">{step.title}</h3>
-              <p className="text-white/45 text-sm leading-relaxed">{step.body}</p>
+              <p className="text-white/60 text-sm leading-relaxed">{step.body}</p>
             </motion.div>
           ))}
         </div>
@@ -344,7 +344,7 @@ export default function LandingV2Client() {
             >
               <span className="text-3xl mb-3 block">{f.emoji}</span>
               <h3 className="font-bold text-white mb-1.5">{f.title}</h3>
-              <p className="text-white/40 text-sm leading-relaxed">{f.body}</p>
+              <p className="text-white/55 text-sm leading-relaxed">{f.body}</p>
             </motion.div>
           ))}
         </div>
@@ -406,9 +406,9 @@ export default function LandingV2Client() {
                   {plan.priceLine.split("/")[0].trim()}
                 </p>
                 {plan.highlighted && (
-                  <p className="text-xs text-white/35 mt-1">per month · cancel anytime</p>
+                  <p className="text-xs text-white/60 mt-1">per month · cancel anytime</p>
                 )}
-                <p className="text-sm text-white/40 mt-2">{plan.tagline}</p>
+                <p className="text-sm text-white/55 mt-2">{plan.tagline}</p>
               </div>
 
               <ul className="flex flex-col gap-2.5 flex-1">
@@ -477,7 +477,7 @@ export default function LandingV2Client() {
             </span>
           </h2>
 
-          <p className="text-white/40 text-lg mb-10 leading-relaxed">
+          <p className="text-white/60 text-lg mb-10 leading-relaxed">
             Join couples who&apos;ve handed the planning to us
             and got their spark back in return.
           </p>
@@ -499,11 +499,11 @@ export default function LandingV2Client() {
           </Link>
 
           <div className="flex items-center justify-center gap-6 mt-6">
-            <p className="text-white/20 text-xs">Free to start</p>
-            <div className="w-1 h-1 rounded-full bg-white/20" />
-            <p className="text-white/20 text-xs">No credit card needed</p>
-            <div className="w-1 h-1 rounded-full bg-white/20" />
-            <p className="text-white/20 text-xs">Cancel anytime</p>
+            <p className="text-white/55 text-xs">Free to start</p>
+            <div className="w-1 h-1 rounded-full bg-white/30" />
+            <p className="text-white/55 text-xs">No credit card needed</p>
+            <div className="w-1 h-1 rounded-full bg-white/30" />
+            <p className="text-white/55 text-xs">Cancel anytime</p>
           </div>
         </motion.div>
       </section>
@@ -514,7 +514,7 @@ export default function LandingV2Client() {
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="BlindfoldDate" width={80} height={20} className="object-contain opacity-30" />
           </div>
-          <p className="text-white/15 text-xs">Mystery dates for curious couples</p>
+          <p className="text-white/50 text-xs">Mystery dates for curious couples</p>
         </div>
       </footer>
     </div>

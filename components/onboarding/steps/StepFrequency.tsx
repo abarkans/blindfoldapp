@@ -49,7 +49,7 @@ export default function StepFrequency({ defaultValues, onNext, onBack, loading }
           >
             <div className="flex-1">
               <p className="font-semibold text-sm">{label}</p>
-              <p className={`text-xs mt-0.5 ${selected === value ? "text-pink-300/70" : "text-white/35"}`}>{sublabel}</p>
+              <p className={`text-xs mt-0.5 ${selected === value ? "text-pink-300/70" : "text-white/55"}`}>{sublabel}</p>
             </div>
             {selected === value && (
               <Check className="w-4 h-4 text-pink-400 shrink-0" />

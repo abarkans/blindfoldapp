@@ -98,7 +98,7 @@ export default function DashboardTabs({
                 key={id}
                 onClick={() => switchTab(id)}
                 className={`relative pb-0.5 text-sm font-medium transition-colors duration-150 ${
-                  activeTab === id ? "text-white" : "text-white/35 hover:text-white/65"
+                  activeTab === id ? "text-white" : "text-white/55 hover:text-white"
                 }`}
               >
                 {label}
@@ -133,7 +133,7 @@ export default function DashboardTabs({
               </div>
               <button
                 onClick={() => setShowCancelBanner(false)}
-                className="shrink-0 text-white/30 hover:text-white/60 transition-colors mt-0.5"
+                className="shrink-0 text-white/55 hover:text-white transition-colors mt-0.5"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -232,7 +232,7 @@ function DateTabContent({
     <div>
       <div className="mb-5">
         <h2 className="text-2xl font-bold text-white">Your next date</h2>
-        <p className="text-white/40 text-sm mt-1">Tap reveal when you&apos;re both ready.</p>
+        <p className="text-white/55 text-sm mt-1">Tap reveal when you&apos;re both ready.</p>
       </div>
 
       <DateCard
@@ -276,7 +276,7 @@ function ProgressTabContent({
     <div>
       <div className="mb-5">
         <h2 className="text-2xl font-bold text-white">Your progress</h2>
-        <p className="text-white/40 text-sm mt-1">Every date earns XP and unlocks badges.</p>
+        <p className="text-white/55 text-sm mt-1">Every date earns XP and unlocks badges.</p>
       </div>
 
       <XPProgressBar totalXp={totalXp} />
@@ -293,7 +293,7 @@ function ProgressTabContent({
               {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
               <span className="text-rose-400">{nextMilestone.name}</span>
             </p>
-            <p className="text-[10px] text-white/35 mt-0.5">
+            <p className="text-[10px] text-white/55 mt-0.5">
               Complete {nextMilestone.threshold - datesCompleted} more date{nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} to earn this badge
             </p>
           </div>

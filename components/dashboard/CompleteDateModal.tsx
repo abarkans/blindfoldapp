@@ -97,7 +97,7 @@ export default function CompleteDateModal({
             <div className="relative bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-white/25 hover:text-white/60 transition-colors"
+                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
@@ -114,7 +114,7 @@ export default function CompleteDateModal({
               </motion.div>
 
               <h2 className="text-xl font-bold text-white mb-1">Date Complete!</h2>
-              <p className="text-white/40 text-sm mb-5">Another one in the books.</p>
+              <p className="text-white/55 text-sm mb-5">Another one in the books.</p>
 
               {/* XP gained */}
               <motion.div
@@ -127,7 +127,7 @@ export default function CompleteDateModal({
                   <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
                   <span className="text-2xl font-black text-white">+{xpGained} XP</span>
                 </div>
-                <p className="text-xs text-white/40">
+                <p className="text-xs text-white/55">
                   Level {newLevel} · {newTotalXp} XP total
                 </p>
               </motion.div>
@@ -170,7 +170,7 @@ export default function CompleteDateModal({
                         )}
                         <div>
                           <p className="text-sm font-bold text-white">{badge.name}</p>
-                          <p className="text-xs text-white/45">{badge.description}</p>
+                          <p className="text-xs text-white/55">{badge.description}</p>
                         </div>
                       </motion.div>
                     ))}
@@ -183,7 +183,7 @@ export default function CompleteDateModal({
               </Button>
               <button
                 onClick={onGoToProgress}
-                className="mt-3 w-full text-sm text-white/40 hover:text-white/70 transition-colors duration-150"
+                className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
               >
                 View my progress →
               </button>

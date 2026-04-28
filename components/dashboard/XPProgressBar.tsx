@@ -21,7 +21,7 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
           </div>
           <span className="text-sm font-bold text-white">Level {level}</span>
         </div>
-        <span className="text-xs text-white/40">
+        <span className="text-xs text-white/50">
           {totalXp} XP · {xpToNext} XP to level up
         </span>
       </div>
@@ -34,8 +34,8 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
         />
       </div>
       <div className="flex justify-between mt-1.5">
-        <span className="text-[10px] text-white/25">Lv {level}</span>
-        <span className="text-[10px] text-white/25">Lv {level + 1}</span>
+        <span className="text-[10px] text-white/55">Lv {level}</span>
+        <span className="text-[10px] text-white/55">Lv {level + 1}</span>
       </div>
     </div>
   );

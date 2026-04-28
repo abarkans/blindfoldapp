@@ -385,9 +385,9 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <p className="text-sm font-semibold text-white">{label}</p>
-                    <p className="text-xs text-white/35 mt-0.5 truncate">{summary}</p>
+                    <p className="text-xs text-white/55 mt-0.5 truncate">{summary}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-white/20 shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
                 </button>
               ))}
             </div>
@@ -395,7 +395,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
             <button
               type="button"
               onClick={() => setSignOutConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20 transition-all text-sm mt-6"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-white/10 text-white/55 hover:text-white hover:border-white/20 transition-all text-sm mt-6"
             >
               <LogOut className="w-4 h-4" />
               Sign out
@@ -427,7 +427,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                       <LogOut className="w-5 h-5 text-red-400" />
                     </div>
                     <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
-                    <p className="text-sm text-white/40 mb-6">You can always sign back in to continue your mystery dates.</p>
+                    <p className="text-sm text-white/55 mb-6">You can always sign back in to continue your mystery dates.</p>
                     <div className="flex flex-col gap-2">
                       <button
                         type="button"
@@ -585,7 +585,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                         <motion.div className="w-4 h-4 rounded-full border-2 border-pink-500/30 border-t-pink-500"
                           animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
-                        <p className="text-sm text-white/40">Detecting location…</p>
+                        <p className="text-sm text-white/55">Detecting location…</p>
                       </motion.div>
                     ) : (
                       <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -622,7 +622,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                   {locStatus === "search" && (
                     <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
                         {suggestionsLoading && (
                           <motion.div
                             className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
@@ -635,7 +635,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                           placeholder="Search city or town…"
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
-                          className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-pink-500/60 transition-colors"
+                          className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-pink-500/60 transition-colors"
                           style={{ fontSize: "16px" }}
                         />
                       </div>
@@ -652,7 +652,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                                 onClick={() => selectSuggestion(s)}
                                 className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
                               >
-                                <MapPin className="w-3.5 h-3.5 text-white/30 shrink-0" />
+                                <MapPin className="w-3.5 h-3.5 text-white/50 shrink-0" />
                                 <span className="text-sm text-white/70 truncate">
                                   {s.display_name.split(",").slice(0, 3).join(",")}
                                 </span>
@@ -673,7 +673,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                     step={1}
                     formatValue={(v) => `${v} km`}
                   />
-                  <div className="flex justify-between text-[10px] text-white/25 px-1 -mt-2">
+                  <div className="flex justify-between text-[10px] text-white/55 px-1 -mt-2">
                     <span>Walking distance</span>
                     <span>{planType === "subscription" ? "Long drive / Countryside" : "15 km max on Starter"}</span>
                   </div>
@@ -719,7 +719,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                       <p className="text-sm font-bold text-white">
                         {planType === "subscription" ? "Plus" : "Basic"}
                       </p>
-                      <p className="text-xs text-white/40 mt-0.5">
+                      <p className="text-xs text-white/55 mt-0.5">
                         {planType === "subscription"
                           ? profile.subscription_ends_at
                             ? `Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
@@ -740,7 +740,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-pink-400" />
                         <p className="text-sm font-bold text-white">Unlock Plus</p>
-                        <span className="ml-auto text-base font-black text-white">€5.99<span className="text-xs font-normal text-white/40">/mo</span></span>
+                        <span className="ml-auto text-base font-black text-white">€5.99<span className="text-xs font-normal text-white/60">/mo</span></span>
                       </div>
                       <ul className="flex flex-col gap-2">
                         {PLANS.find((p) => p.id === "subscription")!.features.map((text) => (

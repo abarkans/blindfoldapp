@@ -147,7 +147,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
         <p className="text-white/50 text-sm">
           We&apos;ll use this to suggest real venues near you.
         </p>
-        <p className="text-white/30 text-xs leading-relaxed">
+        <p className="text-white/55 text-xs leading-relaxed">
           Your location is saved to your account to find nearby venues. You can update or remove it anytime in Settings.
         </p>
       </div>
@@ -177,7 +177,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
             <button
               type="button"
               onClick={() => setStatus("fallback")}
-              className="h-8 flex items-center justify-center text-xs text-white/35 hover:text-white/60 transition-colors cursor-pointer"
+              className="h-8 flex items-center justify-center text-xs text-white/55 hover:text-white transition-colors cursor-pointer"
             >
               Enter city manually instead
             </button>
@@ -212,7 +212,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
             <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-white/80">Location access denied</p>
-              <p className="text-xs text-white/40 mt-0.5">No worries — search for your city below.</p>
+              <p className="text-xs text-white/55 mt-0.5">No worries — search for your city below.</p>
             </div>
           </motion.div>
         )}
@@ -230,12 +230,12 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
             </div>
             <div>
               <p className="text-sm font-medium text-white/80">Location set!</p>
-              <p className="text-xs text-white/40 mt-0.5">{locationLabel}</p>
+              <p className="text-xs text-white/55 mt-0.5">{locationLabel}</p>
             </div>
             <button
               type="button"
               onClick={() => { setStatus("fallback"); setLat(null); setLng(null); setLocationLabel(""); }}
-              className="ml-auto text-xs text-white/30 hover:text-white/60 transition-colors"
+              className="ml-auto text-xs text-white/55 hover:text-white transition-colors"
             >
               Change
             </button>
@@ -251,7 +251,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
           className="flex flex-col gap-2"
         >
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
             {suggestionsLoading && (
               <motion.div
                 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
@@ -265,7 +265,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
               placeholder="Search city or town…"
               value={cityInput}
               onChange={(e) => { setCityInput(e.target.value); setCityError(""); }}
-              className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-pink-500/60 transition-colors"
+              className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-pink-500/60 transition-colors"
               style={{ fontSize: "16px" }}
             />
           </div>
@@ -287,7 +287,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
                     onClick={() => selectSuggestion(s)}
                     className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
                   >
-                    <MapPin className="w-3.5 h-3.5 text-white/30 shrink-0" />
+                    <MapPin className="w-3.5 h-3.5 text-white/50 shrink-0" />
                     <span className="text-sm text-white/70 truncate">
                       {s.display_name.split(",").slice(0, 3).join(",")}
                     </span>
@@ -312,12 +312,12 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
           step={1}
           formatValue={(v) => `${v} km`}
         />
-        <div className="flex justify-between text-[10px] text-white/25 px-1">
+        <div className="flex justify-between text-[10px] text-white/55 px-1">
           <span>Walking distance</span>
           <span>{planType === "subscription" ? "Long drive / Countryside" : "15 km max on Starter"}</span>
         </div>
         {planType !== "subscription" && (
-          <p className="text-[11px] text-white/30 px-1">
+          <p className="text-[11px] text-white/55 px-1">
             Plus plan unlocks up to 50 km.
           </p>
         )}

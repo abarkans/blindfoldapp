@@ -185,7 +185,7 @@ export default function LandingDesktopClient() {
                 <button
                   key={label}
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="text-sm text-white/45 hover:text-white transition-colors font-medium"
+                  className="text-sm text-white/60 hover:text-white transition-colors font-medium"
                 >
                   {label}
                 </button>
@@ -193,7 +193,7 @@ export default function LandingDesktopClient() {
                 <a
                   key={label}
                   href={href}
-                  className="text-sm text-white/45 hover:text-white transition-colors font-medium"
+                  className="text-sm text-white/60 hover:text-white transition-colors font-medium"
                 >
                   {label}
                 </a>
@@ -410,7 +410,7 @@ export default function LandingDesktopClient() {
                 </div>
                 <div>
                   <p className="text-sm font-black text-white">{value}</p>
-                  <p className="text-[11px] text-white/30">{label}</p>
+                  <p className="text-[11px] text-white/55">{label}</p>
                 </div>
               </div>
             ))}
@@ -438,7 +438,7 @@ export default function LandingDesktopClient() {
               </div>
               <div>
                 <p className="text-[11px] font-semibold text-white leading-none">Date generated</p>
-                <p className="text-[10px] text-white/30 mt-0.5">Just now · Near you</p>
+                <p className="text-[10px] text-white/55 mt-0.5">Just now · Near you</p>
               </div>
             </div>
           </motion.div>
@@ -454,7 +454,7 @@ export default function LandingDesktopClient() {
               </div>
               <div>
                 <p className="text-[11px] font-semibold text-white leading-none">+100 XP earned</p>
-                <p className="text-[10px] text-white/30 mt-0.5">Date completed 🎉</p>
+                <p className="text-[10px] text-white/55 mt-0.5">Date completed 🎉</p>
               </div>
             </div>
           </motion.div>
@@ -485,7 +485,7 @@ export default function LandingDesktopClient() {
           <h2 className="text-4xl md:text-5xl font-black leading-tight">
             Three steps, then
             <br />
-            <span className="text-white/25">just show up</span>
+            <span className="text-white/40">just show up</span>
           </h2>
         </motion.div>
 
@@ -530,7 +530,7 @@ export default function LandingDesktopClient() {
               <h3 className="font-bold text-white text-lg md:text-xl mb-2 md:mb-3 leading-tight">
                 {step.title}
               </h3>
-              <p className="text-white/45 text-sm md:text-base leading-relaxed">{step.body}</p>
+              <p className="text-white/60 text-sm md:text-base leading-relaxed">{step.body}</p>
             </motion.div>
           ))}
         </div>
@@ -545,7 +545,7 @@ export default function LandingDesktopClient() {
           <h2 className="text-4xl md:text-5xl font-black">
             No more &ldquo;I don&apos;t know,
             <br />
-            <span className="text-white/25">
+            <span className="text-white/40">
               what do you want to do?&rdquo;
             </span>
           </h2>
@@ -693,7 +693,7 @@ export default function LandingDesktopClient() {
           <h2 className="text-4xl md:text-5xl font-black">
             Dates like these,
             <br />
-            <span className="text-white/25">
+            <span className="text-white/40">
               crafted for <em>you</em>
             </span>
           </h2>
@@ -732,10 +732,10 @@ export default function LandingDesktopClient() {
                 <h3 className="text-lg font-bold text-white mb-1">{date.title}</h3>
                 <p className="text-sm text-pink-300 font-medium mb-2.5">{date.vibe}</p>
                 <div className="flex items-center gap-1.5 mb-3">
-                  <MapPin className="w-3.5 h-3.5 text-white/25 shrink-0" />
-                  <p className="text-sm text-white/30 truncate">{date.venue}</p>
+                  <MapPin className="w-3.5 h-3.5 text-white/50 shrink-0" />
+                  <p className="text-sm text-white/55 truncate">{date.venue}</p>
                 </div>
-                <p className="text-white/45 text-sm leading-relaxed mb-5 line-clamp-2">
+                <p className="text-white/60 text-sm leading-relaxed mb-5 line-clamp-2">
                   {date.description}
                 </p>
 
@@ -750,7 +750,7 @@ export default function LandingDesktopClient() {
                     >
                       <Icon className="w-3.5 h-3.5 text-pink-400 shrink-0" />
                       <div>
-                        <p className="text-[10px] text-white/30">{label}</p>
+                        <p className="text-[10px] text-white/55">{label}</p>
                         <p className="text-xs font-semibold text-white">{value}</p>
                       </div>
                     </div>
@@ -772,7 +772,7 @@ export default function LandingDesktopClient() {
           ))}
         </div>
 
-        <p className="hidden md:block text-center text-white/20 text-sm mt-10">
+        <p className="hidden md:block text-center text-white/55 text-sm mt-10">
           Your actual dates will always be a surprise ✨
         </p>
       </section>
@@ -786,7 +786,7 @@ export default function LandingDesktopClient() {
           <h2 className="text-4xl md:text-5xl font-black">
             Simple, honest pricing.
             <br />
-            <span className="text-white/25">No surprises on the bill.</span>
+            <span className="text-white/40">No surprises on the bill.</span>
           </h2>
         </motion.div>
 
@@ -835,11 +835,11 @@ export default function LandingDesktopClient() {
                   {plan.priceLine.split("/")[0].trim()}
                 </p>
                 {plan.highlighted && (
-                  <p className="text-xs md:text-sm text-white/35 mb-3">
+                  <p className="text-xs md:text-sm text-white/60 mb-3">
                     per month · cancel anytime
                   </p>
                 )}
-                <p className="text-sm md:text-base text-white/40 mt-2 md:mt-3">{plan.tagline}</p>
+                <p className="text-sm md:text-base text-white/60 mt-2 md:mt-3">{plan.tagline}</p>
               </div>
 
               <ul className="flex flex-col gap-3 md:gap-3.5 flex-1">
@@ -927,7 +927,7 @@ export default function LandingDesktopClient() {
             </span>
           </h2>
 
-          <p className="text-white/40 text-base md:text-xl mb-10 md:mb-12 leading-relaxed">
+          <p className="text-white/60 text-base md:text-xl mb-10 md:mb-12 leading-relaxed">
             Join couples who stopped arguing about what to do
             <br className="hidden sm:block" />
             — and started actually doing it.
@@ -950,11 +950,11 @@ export default function LandingDesktopClient() {
           </Link>
 
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 mt-7 md:mt-8">
-            <span className="text-white/20 text-xs md:text-sm">Free to start</span>
-            <span className="text-white/15 hidden sm:inline">·</span>
-            <span className="text-white/20 text-xs md:text-sm">No credit card needed</span>
-            <span className="text-white/15 hidden sm:inline">·</span>
-            <span className="text-white/20 text-xs md:text-sm">Cancel anytime</span>
+            <span className="text-white/55 text-xs md:text-sm">Free to start</span>
+            <span className="text-white/30 hidden sm:inline">·</span>
+            <span className="text-white/55 text-xs md:text-sm">No credit card needed</span>
+            <span className="text-white/30 hidden sm:inline">·</span>
+            <span className="text-white/55 text-xs md:text-sm">Cancel anytime</span>
           </div>
         </motion.div>
       </section>
@@ -975,7 +975,7 @@ export default function LandingDesktopClient() {
               <a
                 key={label}
                 href={href}
-                className="text-sm text-white/22 hover:text-white/55 transition-colors"
+                className="text-sm text-white/55 hover:text-white transition-colors"
               >
                 {label}
               </a>
@@ -988,7 +988,7 @@ export default function LandingDesktopClient() {
             </Link>
           </div>
 
-          <p className="text-white/15 text-xs">Date nights, planned for you</p>
+          <p className="text-white/50 text-xs">Date nights, planned for you</p>
         </div>
       </footer>
     </div>

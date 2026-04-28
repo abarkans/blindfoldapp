@@ -44,12 +44,12 @@ export default function BottomNav() {
 
               <Icon
                 className={`w-5 h-5 transition-colors duration-200 ${
-                  active ? "text-pink-400" : "text-white/30 group-hover:text-white/55"
+                  active ? "text-pink-400" : "text-white/50 group-hover:text-white/70"
                 }`}
               />
               <span
                 className={`text-[10px] font-semibold tracking-wide transition-colors duration-200 ${
-                  active ? "text-pink-400" : "text-white/30 group-hover:text-white/55"
+                  active ? "text-pink-400" : "text-white/50 group-hover:text-white/70"
                 }`}
               >
                 {label}

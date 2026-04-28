@@ -204,7 +204,7 @@ export default function OnboardingFlow({
               <Image src="/icon.png" alt="Blindfold" width={40} height={40} className="group-hover:brightness-110 transition-all" />
               <div className="text-left">
                 <h1 className="text-base font-bold text-white">BlindfoldDate</h1>
-                <p className="text-white/40 text-xs">Quick setup — we handle the rest</p>
+                <p className="text-white/55 text-xs">Quick setup — we handle the rest</p>
               </div>
             </button>
 
