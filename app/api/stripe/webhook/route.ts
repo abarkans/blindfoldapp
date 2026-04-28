@@ -65,7 +65,7 @@ export async function POST(req: Request) {
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = sub.customer as string;
-        const endsAt = sub.cancel_at_period_end && sub.cancel_at
+        const endsAt = sub.cancel_at
           ? new Date(sub.cancel_at * 1000).toISOString()
           : null;
 
@@ -80,7 +80,6 @@ export async function POST(req: Request) {
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = sub.customer as string;
-
         const { error } = await supabase
           .from("profiles")
           .update({ plan_type: "free", subscription_ends_at: null })
