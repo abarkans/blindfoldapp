@@ -545,7 +545,7 @@ export default function LandingDesktopClient() {
             {...inView(0)}
             className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
-            <Image fill className="object-cover" src="/features/feat-1.jpg" alt="Mystery date planning" />
+            <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover" src="/features/feat-1.jpg" alt="Mystery date planning" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🔮</span>
@@ -574,7 +574,7 @@ export default function LandingDesktopClient() {
             {...inView(0.08)}
             className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <Image fill className="object-cover" src="/features/feat-2.jpg" alt="Venue discovery" />
+            <Image fill sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw" className="object-cover" src="/features/feat-2.jpg" alt="Venue discovery" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💌</span>
@@ -590,7 +590,7 @@ export default function LandingDesktopClient() {
             {...inView(0.12)}
             className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <Image fill className="object-cover" src="/features/feat-3.jpg" alt="Date story generation" />
+            <Image fill sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw" className="object-cover" src="/features/feat-3.jpg" alt="Date story generation" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💸</span>
@@ -606,7 +606,7 @@ export default function LandingDesktopClient() {
             {...inView(0.16)}
             className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <Image fill className="object-cover" src="/features/feat-4.jpg" alt="Surprise reveal" />
+            <Image fill sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw" className="object-cover" src="/features/feat-4.jpg" alt="Surprise reveal" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">🗺️</span>
@@ -622,7 +622,7 @@ export default function LandingDesktopClient() {
             {...inView(0.2)}
             className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
-            <Image fill className="object-cover" src="/features/feat-5.jpg" alt="Couples enjoying a date" />
+            <Image fill sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover" src="/features/feat-5.jpg" alt="Couples enjoying a date" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🏆</span>
@@ -651,7 +651,7 @@ export default function LandingDesktopClient() {
             {...inView(0.24)}
             className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <Image fill className="object-cover" src="/features/feat-6.jpg" alt="Date night experience" />
+            <Image fill sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw" className="object-cover" src="/features/feat-6.jpg" alt="Date night experience" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">⏳</span>
