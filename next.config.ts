@@ -38,6 +38,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
+    localPatterns: [
+      { pathname: "/api/place-photo", search: "**" },
+    ],
   },
   async redirects() {
     return [
