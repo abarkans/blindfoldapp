@@ -4,13 +4,38 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
+const SITE_URL = "https://blindfolddate.com";
+
 export const metadata: Metadata = {
   title: "BlindfoldDate — Date nights, planned for you",
-  description: "Surprise date experiences crafted just for you two.",
+  description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",
   robots: {
     index: false,
     follow: false,
   },
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: "BlindfoldDate — Date nights, planned for you",
+    description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",
+    url: SITE_URL,
+    siteName: "BlindfoldDate",
+    images: [{ url: `${SITE_URL}/og-image.png`, width: 1200, height: 630, alt: "BlindfoldDate" }],
+    locale: "en_US",
+    type: "website",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "BlindfoldDate",
+  applicationCategory: "LifestyleApplication",
+  description: "AI-powered mystery date planning. Tell us your interests once — we find real nearby venues and craft your date story.",
+  url: SITE_URL,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+  operatingSystem: "Web",
 };
 
 export default function RootLayout({
@@ -21,6 +46,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className="min-h-full bg-[#0d0d14] font-sans antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {children}
       </body>
     </html>

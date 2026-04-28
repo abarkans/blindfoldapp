@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X } from "lucide-react";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { revealDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
@@ -499,9 +500,11 @@ export default function DateCard({
                   <>
                     <div className="relative rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/8">
                       {dateIdea.photo_name ? (
-                        <img
+                        <Image
                           src={`/api/place-photo?ref=${encodeURIComponent(dateIdea.photo_name)}`}
                           alt={dateIdea.display_name}
+                          width={400}
+                          height={192}
                           className="w-full h-48 object-cover"
                         />
                       ) : (

@@ -336,11 +336,8 @@ export default function LandingDesktopClient() {
             </div>
           </motion.div>
 
-          {/* Headline */}
-          <motion.h1
-            {...fadeUp(0.1)}
-            className="text-[34px] sm:text-[44px] lg:text-[52px] font-bold leading-[1.12] tracking-tight mb-7 md:mb-8"
-          >
+          {/* Headline — plain h1 so SSR renders it visible for LCP */}
+          <h1 className="text-[34px] sm:text-[44px] lg:text-[52px] font-bold leading-[1.12] tracking-tight mb-7 md:mb-8">
             Stop planning.
             <br />
             <span
@@ -351,16 +348,13 @@ export default function LandingDesktopClient() {
             >
               Just show up.
             </span>
-          </motion.h1>
+          </h1>
 
           {/* Subtext */}
-          <motion.p
-            {...fadeUp(0.2)}
-            className="text-white/50 text-base md:text-lg leading-[1.65] mb-9 md:mb-11 max-w-full md:max-w-[460px]"
-          >
+          <p className="text-white/50 text-base md:text-lg leading-[1.65] mb-9 md:mb-11 max-w-full md:max-w-[460px]">
             Tell us what you like once. We find real venues near you, write your
             date story, and handle every detail. You just show up and enjoy.
-          </motion.p>
+          </p>
 
           {/* CTAs */}
           <motion.div
@@ -551,7 +545,7 @@ export default function LandingDesktopClient() {
             {...inView(0)}
             className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-1.jpg)" }} />
+            <Image fill className="object-cover" src="/features/feat-1.jpg" alt="Mystery date planning" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🔮</span>
@@ -580,7 +574,7 @@ export default function LandingDesktopClient() {
             {...inView(0.08)}
             className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-2.jpg)" }} />
+            <Image fill className="object-cover" src="/features/feat-2.jpg" alt="Venue discovery" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💌</span>
@@ -596,7 +590,7 @@ export default function LandingDesktopClient() {
             {...inView(0.12)}
             className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-3.jpg)" }} />
+            <Image fill className="object-cover" src="/features/feat-3.jpg" alt="Date story generation" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💸</span>
@@ -612,7 +606,7 @@ export default function LandingDesktopClient() {
             {...inView(0.16)}
             className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-4.jpg)" }} />
+            <Image fill className="object-cover" src="/features/feat-4.jpg" alt="Surprise reveal" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">🗺️</span>
@@ -628,7 +622,7 @@ export default function LandingDesktopClient() {
             {...inView(0.2)}
             className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-5.jpg)" }} />
+            <Image fill className="object-cover" src="/features/feat-5.jpg" alt="Couples enjoying a date" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🏆</span>
@@ -657,7 +651,7 @@ export default function LandingDesktopClient() {
             {...inView(0.24)}
             className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-6.jpg)" }} />
+            <Image fill className="object-cover" src="/features/feat-6.jpg" alt="Date night experience" />
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">⏳</span>
@@ -946,35 +940,72 @@ export default function LandingDesktopClient() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-white/[0.05] px-6 md:px-10 py-10 md:py-12">
-        <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-0 md:justify-between">
-          <div className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="BlindfoldDate" width={80} height={20} className="object-contain opacity-30" />
+      <footer className="border-t border-white/[0.05] px-6 md:px-10 pt-12 pb-8">
+        <div className="max-w-[1280px] mx-auto">
+
+          {/* Top: brand + link columns */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 pb-10 border-b border-white/[0.06]">
+
+            {/* Brand column */}
+            <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
+              <Image src="/logo.png" alt="BlindfoldDate" width={120} height={30} className="object-contain opacity-50" />
+              <p className="text-white/35 text-sm leading-relaxed max-w-[220px]">
+                Date nights, planned for you. Tell us once — we handle the rest.
+              </p>
+            </div>
+
+            {/* Product */}
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-1">Product</p>
+              {[
+                { label: "How it works", href: "#how-it-works" },
+                { label: "Features", href: "#features" },
+                { label: "Pricing", href: "#plans" },
+              ].map(({ label, href }) => (
+                <a key={label} href={href} className="text-sm text-white/55 hover:text-white transition-colors">
+                  {label}
+                </a>
+              ))}
+            </div>
+
+            {/* Account */}
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-1">Account</p>
+              <Link href="/register" className="text-sm text-white/55 hover:text-white transition-colors">
+                Get started free
+              </Link>
+              <Link href="/login" className="text-sm text-white/55 hover:text-white transition-colors">
+                Sign in
+              </Link>
+            </div>
+
+            {/* Legal */}
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-1">Legal</p>
+              <Link href="/legal/privacy" className="text-sm text-white/55 hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/legal/terms" className="text-sm text-white/55 hover:text-white transition-colors">
+                Terms of Service
+              </Link>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 md:gap-8">
-            {[
-              { label: "How it works", href: "#how-it-works" },
-              { label: "Features", href: "#features" },
-              { label: "Pricing", href: "#plans" },
-            ].map(({ label, href }) => (
-              <a
-                key={label}
-                href={href}
-                className="text-sm text-white/55 hover:text-white transition-colors"
-              >
-                {label}
-              </a>
-            ))}
-            <Link
-              href="/login"
-              className="text-sm text-white/22 hover:text-white/55 transition-colors"
-            >
-              Sign in
-            </Link>
+          {/* Bottom bar */}
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-white/25 text-xs">
+              © {new Date().getFullYear()} BlindfoldDate. All rights reserved.
+            </p>
+            <div className="flex items-center gap-5">
+              <Link href="/legal/privacy" className="text-xs text-white/25 hover:text-white/55 transition-colors">
+                Privacy
+              </Link>
+              <Link href="/legal/terms" className="text-xs text-white/25 hover:text-white/55 transition-colors">
+                Terms
+              </Link>
+            </div>
           </div>
 
-          <p className="text-white/50 text-xs">Date nights, planned for you</p>
         </div>
       </footer>
     </div>

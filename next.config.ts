@@ -36,6 +36,16 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.blindfolddate.com" }],
+        destination: "https://blindfolddate.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
