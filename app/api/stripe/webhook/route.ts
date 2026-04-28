@@ -82,7 +82,12 @@ export async function POST(req: Request) {
         const customerId = sub.customer as string;
         const { error } = await supabase
           .from("profiles")
-          .update({ plan_type: "free", subscription_ends_at: null })
+          .update({
+            plan_type: "free",
+            subscription_ends_at: null,
+            cadence: "monthly",
+            preferred_radius: 15000,
+          })
           .eq("stripe_customer_id", customerId);
         if (error) throw error;
         break;
