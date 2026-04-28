@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { FREE_INTERESTS } from "@/lib/plans";
 import type Stripe from "stripe";
 
 export async function POST(req: Request) {
@@ -87,6 +88,7 @@ export async function POST(req: Request) {
             subscription_ends_at: null,
             cadence: "monthly",
             preferred_radius: 15000,
+            interests: [...FREE_INTERESTS],
           })
           .eq("stripe_customer_id", customerId);
         if (error) throw error;
