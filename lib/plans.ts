@@ -33,7 +33,7 @@ export const PLANS = [
     cadence: null,
     allowedInterests: null,
     features: [
-      "Date as often as you want",
+      "Date on your own schedule",
       "All date categories unlocked",
       "Personalized to your exact taste",
       "Near & far venue search",

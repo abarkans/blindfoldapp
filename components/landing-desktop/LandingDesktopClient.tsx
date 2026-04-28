@@ -476,21 +476,6 @@ export default function LandingDesktopClient() {
         </motion.div>
       </section>
 
-      {/* ── Marquee ── */}
-      <div className="overflow-hidden border-y border-white/[0.05] py-4 bg-white/[0.008]">
-        <motion.div
-          className="flex gap-8 md:gap-10 w-max"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-        >
-          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
-            <span key={i} className="text-xs md:text-sm text-white/22 font-medium whitespace-nowrap shrink-0">
-              {item}
-            </span>
-          ))}
-        </motion.div>
-      </div>
-
       {/* ── How it works ── */}
       <section id="how-it-works" className="px-6 md:px-10 py-20 md:py-32 max-w-[1280px] mx-auto">
         <motion.div {...inView()} className="text-center mb-12 md:mb-20">
@@ -581,7 +566,7 @@ export default function LandingDesktopClient() {
             className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-1.jpg)" }} />
-            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🔮</span>
               <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">
@@ -610,7 +595,7 @@ export default function LandingDesktopClient() {
             className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-2.jpg)" }} />
-            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💌</span>
               <h3 className="font-bold text-white text-lg mb-1.5">Written for you two</h3>
@@ -626,7 +611,7 @@ export default function LandingDesktopClient() {
             className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-3.jpg)" }} />
-            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💸</span>
               <h3 className="font-bold text-white text-lg mb-1.5">Fits your wallet</h3>
@@ -642,7 +627,7 @@ export default function LandingDesktopClient() {
             className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-4.jpg)" }} />
-            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">🗺️</span>
               <h3 className="font-bold text-white text-lg mb-1.5">One tap to get there</h3>
@@ -658,7 +643,7 @@ export default function LandingDesktopClient() {
             className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/10 p-7 md:p-9 flex flex-col justify-between overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-5.jpg)" }} />
-            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🏆</span>
               <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">Grow together</h3>
@@ -687,7 +672,7 @@ export default function LandingDesktopClient() {
             className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/features/feat-6.jpg)" }} />
-            <div className="absolute inset-0 bg-[#08080f]/93" />
+            <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">⏳</span>
               <h3 className="font-bold text-white text-lg mb-1.5">Anticipation built in</h3>

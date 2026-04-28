@@ -26,7 +26,7 @@ const INTERESTS = [
 
 const UNLOCK_FEATURES = [
   { text: "All date categories unlocked", key: true },
-  { text: "Date as often as you want", key: true },
+  { text: "Date on your own schedule", key: true },
   { text: "Personalized to your exact taste", key: false },
 ];
 
