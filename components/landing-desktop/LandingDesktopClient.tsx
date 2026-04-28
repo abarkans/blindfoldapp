@@ -116,20 +116,6 @@ const SAMPLE_DATES = [
   },
 ];
 
-const MARQUEE_ITEMS = [
-  "📸 Golden Hour Walk",
-  "🍷 Wine Tasting Night",
-  "🎭 Theatre Experience",
-  "🌅 Sunrise Hike",
-  "🎨 Pottery Class",
-  "🚤 Sunset Boat Ride",
-  "🍣 Sushi Omakase",
-  "🎸 Live Music Night",
-  "🌿 Botanical Stroll",
-  "🍕 Hidden Pizzeria",
-  "🎪 Street Art Tour",
-  "🧁 Baking Together",
-];
 
 const NAV_LINKS = [
   { label: "Home", href: "#", scroll: true },
@@ -325,7 +311,7 @@ export default function LandingDesktopClient() {
       {/* ── Hero ── */}
       <section
         ref={heroRef}
-        className="relative flex flex-col md:flex-row items-center pt-24 pb-16 md:pt-[180px] md:pb-[212px] gap-10 md:gap-16 max-w-[1440px] mx-auto px-6 md:px-14"
+        className="relative flex flex-col md:flex-row items-center pt-24 pb-8 md:pt-[180px] md:pb-[100px] gap-10 md:gap-16 max-w-[1440px] mx-auto px-6 md:px-14"
       >
         {/* Background glows */}
         <div className="absolute top-1/3 -left-20 w-[400px] md:w-[600px] h-[400px] md:h-[500px] bg-rose-600/6 rounded-full blur-3xl pointer-events-none" />
@@ -353,7 +339,7 @@ export default function LandingDesktopClient() {
           {/* Headline */}
           <motion.h1
             {...fadeUp(0.1)}
-            className="text-[40px] sm:text-5xl lg:text-[62px] font-black leading-[1.03] tracking-tight mb-6 md:mb-7"
+            className="text-[34px] sm:text-[44px] lg:text-[52px] font-bold leading-[1.12] tracking-tight mb-7 md:mb-8"
           >
             Stop planning.
             <br />
@@ -370,7 +356,7 @@ export default function LandingDesktopClient() {
           {/* Subtext */}
           <motion.p
             {...fadeUp(0.2)}
-            className="text-white/50 text-base md:text-xl leading-relaxed mb-8 md:mb-10 max-w-full md:max-w-[460px]"
+            className="text-white/50 text-base md:text-lg leading-[1.65] mb-9 md:mb-11 max-w-full md:max-w-[460px]"
           >
             Tell us what you like once. We find real venues near you, write your
             date story, and handle every detail. You just show up and enjoy.
@@ -383,7 +369,7 @@ export default function LandingDesktopClient() {
           >
             <Link
               href="/register"
-              className="group relative inline-flex items-center justify-center text-white font-bold px-7 py-4 rounded-2xl text-base transition-all overflow-hidden shadow-2xl shadow-rose-500/25"
+              className="group relative inline-flex items-center justify-center text-white font-semibold px-7 py-4 rounded-2xl text-base transition-all overflow-hidden shadow-2xl shadow-rose-500/25"
               style={{ background: "linear-gradient(135deg, #e11d48 0%, #9333ea 100%)" }}
             >
               <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -477,12 +463,12 @@ export default function LandingDesktopClient() {
       </section>
 
       {/* ── How it works ── */}
-      <section id="how-it-works" className="px-6 md:px-10 py-20 md:py-32 max-w-[1280px] mx-auto">
-        <motion.div {...inView()} className="text-center mb-12 md:mb-20">
-          <p className="text-xs text-violet-400 font-semibold uppercase tracking-widest mb-3 md:mb-4">
+      <section id="how-it-works" className="px-6 md:px-10 py-24 md:py-40 max-w-[1280px] mx-auto">
+        <motion.div {...inView()} className="text-center mb-14 md:mb-24">
+          <p className="text-xs text-violet-400 font-medium uppercase tracking-[0.12em] mb-4 md:mb-5">
             The ritual
           </p>
-          <h2 className="text-4xl md:text-5xl font-black leading-tight">
+          <h2 className="text-[28px] md:text-[42px] font-bold leading-[1.15]">
             Three steps, then
             <br />
             <span className="text-white/40">just show up</span>
@@ -523,26 +509,26 @@ export default function LandingDesktopClient() {
                 >
                   <step.icon className={`w-5 h-5 md:w-6 md:h-6 ${step.iconColor}`} />
                 </div>
-                <span className="text-4xl md:text-5xl font-black text-white/[0.05] font-mono leading-none select-none">
+                <span className="text-4xl md:text-5xl font-bold text-white/[0.05] font-mono leading-none select-none">
                   {step.number}
                 </span>
               </div>
-              <h3 className="font-bold text-white text-lg md:text-xl mb-2 md:mb-3 leading-tight">
+              <h3 className="font-semibold text-white text-base md:text-lg mb-3 md:mb-4 leading-snug">
                 {step.title}
               </h3>
-              <p className="text-white/60 text-sm md:text-base leading-relaxed">{step.body}</p>
+              <p className="text-white/60 text-sm md:text-base leading-[1.6]">{step.body}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* ── Feature bento ── */}
-      <section id="features" className="px-6 md:px-10 py-16 md:py-20 max-w-[1280px] mx-auto">
-        <motion.div {...inView()} className="text-center mb-12 md:mb-20">
-          <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3 md:mb-4">
+      <section id="features" className="px-6 md:px-10 py-20 md:py-32 max-w-[1280px] mx-auto">
+        <motion.div {...inView()} className="text-center mb-14 md:mb-24">
+          <p className="text-xs text-amber-400 font-medium uppercase tracking-[0.12em] mb-4 md:mb-5">
             Everything included
           </p>
-          <h2 className="text-4xl md:text-5xl font-black">
+          <h2 className="text-[28px] md:text-[42px] font-bold leading-[1.15]">
             No more &ldquo;I don&apos;t know,
             <br />
             <span className="text-white/40">
@@ -569,10 +555,10 @@ export default function LandingDesktopClient() {
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🔮</span>
-              <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">
+              <h3 className="text-lg md:text-xl font-semibold text-white mb-2 md:mb-3">
                 Real places. No Googling.
               </h3>
-              <p className="text-white/55 text-sm md:text-base leading-relaxed max-w-sm">
+              <p className="text-white/55 text-sm md:text-base leading-[1.6] max-w-sm">
                 Every suggestion is a real, top-rated venue near you — picked, vetted,
                 and ready to go. No research required.
               </p>
@@ -598,8 +584,8 @@ export default function LandingDesktopClient() {
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💌</span>
-              <h3 className="font-bold text-white text-lg mb-1.5">Written for you two</h3>
-              <p className="text-white/55 text-sm leading-relaxed">
+              <h3 className="font-semibold text-white text-base mb-2">Written for you two</h3>
+              <p className="text-white/55 text-sm leading-[1.6]">
                 AI writes the date like a friend who&apos;s been there.
               </p>
             </div>
@@ -614,8 +600,8 @@ export default function LandingDesktopClient() {
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">💸</span>
-              <h3 className="font-bold text-white text-lg mb-1.5">Fits your wallet</h3>
-              <p className="text-white/55 text-sm leading-relaxed">
+              <h3 className="font-semibold text-white text-base mb-2">Fits your wallet</h3>
+              <p className="text-white/55 text-sm leading-[1.6]">
                 Set a max spend — every suggestion lands inside it.
               </p>
             </div>
@@ -630,8 +616,8 @@ export default function LandingDesktopClient() {
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">🗺️</span>
-              <h3 className="font-bold text-white text-lg mb-1.5">One tap to get there</h3>
-              <p className="text-white/55 text-sm leading-relaxed">
+              <h3 className="font-semibold text-white text-base mb-2">One tap to get there</h3>
+              <p className="text-white/55 text-sm leading-[1.6]">
                 Photo, vibe, directions — waiting the moment you reveal.
               </p>
             </div>
@@ -646,8 +632,8 @@ export default function LandingDesktopClient() {
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10">
               <span className="text-3xl md:text-4xl mb-4 md:mb-5 block">🏆</span>
-              <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">Grow together</h3>
-              <p className="text-white/55 text-sm md:text-base leading-relaxed max-w-sm">
+              <h3 className="text-lg md:text-xl font-semibold text-white mb-2 md:mb-3">Grow together</h3>
+              <p className="text-white/55 text-sm md:text-base leading-[1.6] max-w-sm">
                 Earn XP and unlock milestone badges for every date you complete. Love
                 as a shared adventure.
               </p>
@@ -675,8 +661,8 @@ export default function LandingDesktopClient() {
             <div className="absolute inset-0 bg-[#08080f]/85" />
             <div className="relative z-10 flex flex-col">
               <span className="text-3xl mb-3 block">⏳</span>
-              <h3 className="font-bold text-white text-lg mb-1.5">Anticipation built in</h3>
-              <p className="text-white/55 text-sm leading-relaxed">
+              <h3 className="font-semibold text-white text-base mb-2">Anticipation built in</h3>
+              <p className="text-white/55 text-sm leading-[1.6]">
                 A live countdown builds excitement between reveals.
               </p>
             </div>
@@ -685,12 +671,12 @@ export default function LandingDesktopClient() {
       </section>
 
       {/* ── Sample dates ── */}
-      <section className="px-6 md:px-10 py-16 md:py-20 max-w-[1280px] mx-auto">
-        <motion.div {...inView()} className="text-center mb-12 md:mb-16">
-          <p className="text-xs text-rose-400 font-semibold uppercase tracking-widest mb-3 md:mb-4">
+      <section className="px-6 md:px-10 py-20 md:py-32 max-w-[1280px] mx-auto">
+        <motion.div {...inView()} className="text-center mb-14 md:mb-20">
+          <p className="text-xs text-rose-400 font-medium uppercase tracking-[0.12em] mb-4 md:mb-5">
             Sneak peek
           </p>
-          <h2 className="text-4xl md:text-5xl font-black">
+          <h2 className="text-[28px] md:text-[42px] font-bold leading-[1.15]">
             Dates like these,
             <br />
             <span className="text-white/40">
@@ -729,13 +715,13 @@ export default function LandingDesktopClient() {
               </div>
 
               <div className="p-7">
-                <h3 className="text-lg font-bold text-white mb-1">{date.title}</h3>
-                <p className="text-sm text-pink-300 font-medium mb-2.5">{date.vibe}</p>
+                <h3 className="text-base font-semibold text-white mb-1">{date.title}</h3>
+                <p className="text-sm text-pink-300 font-medium mb-3">{date.vibe}</p>
                 <div className="flex items-center gap-1.5 mb-3">
                   <MapPin className="w-3.5 h-3.5 text-white/50 shrink-0" />
                   <p className="text-sm text-white/55 truncate">{date.venue}</p>
                 </div>
-                <p className="text-white/60 text-sm leading-relaxed mb-5 line-clamp-2">
+                <p className="text-white/60 text-sm leading-[1.6] mb-5 line-clamp-2">
                   {date.description}
                 </p>
 
@@ -778,12 +764,12 @@ export default function LandingDesktopClient() {
       </section>
 
       {/* ── Pricing ── */}
-      <section id="plans" className="px-6 md:px-10 py-20 md:py-28 max-w-[1280px] mx-auto">
-        <motion.div {...inView()} className="text-center mb-12 md:mb-16">
-          <p className="text-xs text-rose-400 font-semibold uppercase tracking-widest mb-3 md:mb-4">
+      <section id="plans" className="px-6 md:px-10 py-24 md:py-36 max-w-[1280px] mx-auto">
+        <motion.div {...inView()} className="text-center mb-14 md:mb-20">
+          <p className="text-xs text-rose-400 font-medium uppercase tracking-[0.12em] mb-4 md:mb-5">
             Pricing
           </p>
-          <h2 className="text-4xl md:text-5xl font-black">
+          <h2 className="text-[28px] md:text-[42px] font-bold leading-[1.15]">
             Simple, honest pricing.
             <br />
             <span className="text-white/40">No surprises on the bill.</span>
@@ -825,10 +811,10 @@ export default function LandingDesktopClient() {
                       <Lock className="w-5 h-5 text-white/40" />
                     )}
                   </div>
-                  <p className="font-bold text-white text-lg md:text-xl">{plan.name}</p>
+                  <p className="font-semibold text-white text-base md:text-lg">{plan.name}</p>
                 </div>
                 <p
-                  className={`text-3xl md:text-4xl font-black mb-1 ${
+                  className={`text-3xl md:text-[38px] font-bold mb-1 ${
                     plan.highlighted ? "text-white" : "text-white/55"
                   }`}
                 >
@@ -914,7 +900,7 @@ export default function LandingDesktopClient() {
             <Image src="/icon.png" alt="Blindfold" width={96} height={96} className="w-full h-full object-contain" />
           </motion.div>
 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-5 md:mb-6 leading-tight">
+          <h2 className="text-[32px] sm:text-[44px] md:text-[54px] font-bold mb-6 md:mb-7 leading-[1.12]">
             Your next great date
             <br />
             <span
@@ -927,7 +913,7 @@ export default function LandingDesktopClient() {
             </span>
           </h2>
 
-          <p className="text-white/60 text-base md:text-xl mb-10 md:mb-12 leading-relaxed">
+          <p className="text-white/60 text-base md:text-lg mb-10 md:mb-14 leading-[1.65]">
             Join couples who stopped arguing about what to do
             <br className="hidden sm:block" />
             — and started actually doing it.
@@ -935,7 +921,7 @@ export default function LandingDesktopClient() {
 
           <Link
             href="/register"
-            className="group relative inline-flex items-center gap-3 text-white font-black px-8 py-5 md:px-12 md:py-6 rounded-2xl text-lg md:text-xl transition-all overflow-hidden shadow-2xl shadow-rose-500/40"
+            className="group relative inline-flex items-center gap-3 text-white font-bold px-8 py-5 md:px-12 md:py-6 rounded-2xl text-base md:text-lg transition-all overflow-hidden shadow-2xl shadow-rose-500/40"
             style={{ background: "linear-gradient(135deg, #e11d48 0%, #9333ea 100%)" }}
           >
             <motion.span
