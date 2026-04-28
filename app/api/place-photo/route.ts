@@ -1,15 +1,9 @@
 import { NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 
 // Allowlist: Google Places API (New) photo names are always in this shape
 const PHOTO_REF_PATTERN = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
 export async function GET(request: NextRequest) {
-  // Require authentication — prevents using this endpoint as a free Google API proxy
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return new Response("Unauthorized", { status: 401 });
-
   const ref = request.nextUrl.searchParams.get("ref");
   if (!ref) return new Response("Missing ref", { status: 400 });
 
