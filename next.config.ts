@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     localPatterns: [
+      { pathname: "/**" },
       { pathname: "/api/place-photo", search: "**" },
     ],
   },
