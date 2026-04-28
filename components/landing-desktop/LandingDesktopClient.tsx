@@ -906,16 +906,13 @@ export default function LandingDesktopClient() {
           {...inView()}
           className="relative max-w-[680px] mx-auto text-center"
         >
-          <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-8 md:mb-10">
-            <motion.div
-              className="absolute inset-0 rounded-3xl bg-rose-500/30"
-              animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ duration: 2.5, repeat: Infinity }}
-            />
-            <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shadow-2xl shadow-rose-500/50">
-              <Heart className="w-9 h-9 md:w-11 md:h-11 text-white fill-white" />
-            </div>
-          </div>
+          <motion.div
+            className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-8 md:mb-10"
+            animate={{ scale: [1, 1.12, 1, 1.07, 1] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.8 }}
+          >
+            <Image src="/icon.png" alt="Blindfold" width={96} height={96} className="w-full h-full object-contain" />
+          </motion.div>
 
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-5 md:mb-6 leading-tight">
             Your next great date
