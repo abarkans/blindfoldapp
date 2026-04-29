@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateReadyEmail } from "@/lib/email/templates/date-ready";
+
+// Constant-time comparison so the secret can't be recovered byte-by-byte
+// via response-time side channels. Different lengths short-circuit to false
+// without leaking length info beyond a single boolean.
+function safeBearerEquals(authHeader: string | null, expected: string): boolean {
+  if (!authHeader) return false;
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(`Bearer ${expected}`);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
 // Cadence → cooldown in days (mirrors reveal.ts)
 const CADENCE_DAYS: Record<string, number> = {
@@ -13,8 +25,8 @@ const CADENCE_DAYS: Record<string, number> = {
 
 export async function GET(request: Request) {
   // Verify the request comes from Vercel Cron (or an authorised caller)
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const expected = process.env.CRON_SECRET;
+  if (!expected || !safeBearerEquals(request.headers.get("authorization"), expected)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

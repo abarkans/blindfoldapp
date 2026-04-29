@@ -9,7 +9,13 @@ let stripeLimiter: Ratelimit | null = null;
 
 function buildLimiter(requests: number, windowSeconds: number): Ratelimit | null {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    // Rate limiting is disabled — warn once in dev, silent in production to avoid log spam.
+    // Production must never run unmetered — failing open here would let one
+    // misconfigured deploy run up unbounded Anthropic / Places / Stripe spend.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[rate-limit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are required in production"
+      );
+    }
     if (process.env.NODE_ENV === "development") {
       console.warn("[rate-limit] Upstash env vars not set — rate limiting is disabled.");
     }

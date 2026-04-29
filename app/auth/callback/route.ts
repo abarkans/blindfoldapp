@@ -20,7 +20,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
+  // Explicit allowlist of post-callback destinations. Falls back to /dashboard
+  // for any unrecognised value to defeat open-redirect attempts that smuggle
+  // path-prefix traversal or query-string payloads through `next`.
+  const ALLOWED_NEXT = new Set(["/dashboard", "/onboarding", "/reset-password"]);
   const next = searchParams.get("next") ?? "/dashboard";
-  const safePath = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  const safePath = ALLOWED_NEXT.has(next) ? next : "/dashboard";
   return NextResponse.redirect(`${origin}${safePath}`);
 }
