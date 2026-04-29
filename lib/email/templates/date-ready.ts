@@ -3,10 +3,25 @@ interface DateReadyEmailProps {
   partner2: string;
 }
 
+// Escape user-controlled strings before interpolating them into the email
+// HTML body. Without this an attacker who controls partner_names (which is
+// user-mutable) can inject anchor tags / arbitrary markup into a legitimate
+// email sent from our domain reputation.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function dateReadyEmail({ partner1, partner2 }: DateReadyEmailProps): {
   subject: string;
   html: string;
 } {
+  const safePartner1 = escapeHtml(partner1);
+  const safePartner2 = escapeHtml(partner2);
   return {
     subject: "Your next date is ready to reveal 💝",
     html: `<!DOCTYPE html>
@@ -40,7 +55,7 @@ export function dateReadyEmail({ partner1, partner2 }: DateReadyEmailProps): {
 
               <!-- Heading -->
               <h1 style="margin:0 0 12px;text-align:center;font-size:22px;font-weight:700;color:#ffffff;">
-                Your date is ready, ${partner1} &amp; ${partner2}!
+                Your date is ready, ${safePartner1} &amp; ${safePartner2}!
               </h1>
 
               <!-- Body -->

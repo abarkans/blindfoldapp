@@ -7,15 +7,29 @@ import { z } from "zod";
 const HAIKU = "claude-haiku-4-5-20251001";
 const SONNET = "claude-sonnet-4-6";
 
+// U+202A..U+202E (LRE/RLE/PDF/LRO/RLO) and U+2066..U+2069 (LRI/RLI/FSI/PDI).
+// Built via new RegExp so the source stays plain ASCII and reviewable.
+const BIDI_OVERRIDES = new RegExp("[\\u202A-\\u202E\\u2066-\\u2069]", "g");
+// U+200B..U+200F (ZWSP/ZWNJ/ZWJ/LRM/RLM) and U+FEFF (BOM).
+const ZERO_WIDTH_AND_FORMAT = new RegExp("[\\u200B-\\u200F\\uFEFF]", "g");
+
 /**
  * Strip characters that could be used to break out of XML tags or inject new
  * prompt sections, then hard-cap length. Applied to all user-derived strings
  * and untrusted third-party content (Google reviews) before they enter prompts.
+ *
+ * Also strips Unicode bidi-override and zero-width / format characters which
+ * can be used to hide malicious instructions inside otherwise innocent-looking
+ * text (e.g. RLO smuggles right-to-left content past visual review; ZWJ/ZWNJ
+ * embeds invisible payloads). NFKC normalisation collapses homoglyphs.
  */
 function sanitize(value: string, maxLen = 200): string {
   return value
-    .replace(/[<>\[\]`#|\\{}]/g, "") // strip chars used for XML tags, markdown, and prompt delimiters
-    .replace(/[\n\r\t]/g, " ")       // flatten all whitespace control chars
+    .normalize("NFKC")
+    .replace(BIDI_OVERRIDES, "")
+    .replace(ZERO_WIDTH_AND_FORMAT, "")
+    .replace(/[<>\[\]`#|\\{}]/g, "") // XML / markdown / prompt delimiters
+    .replace(/[\n\r\t]/g, " ")       // flatten whitespace controls
     .replace(/ {2,}/g, " ")          // collapse whitespace runs
     .trim()
     .slice(0, maxLen);
