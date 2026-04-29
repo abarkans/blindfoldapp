@@ -4,6 +4,27 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_INTERESTS } from "@/lib/plans";
 import type Stripe from "stripe";
 
+// Stripe sets different fields depending on how cancellation was scheduled
+// and on the API version pinned to the account:
+//   - explicit `cancel_at` future timestamp (custom scheduling)
+//   - `cancel_at_period_end: true` with the period end on the subscription
+//     (older API versions) or on the first item (newer API versions where
+//     billing fields moved to items)
+// Fall through these in priority order so portal-triggered cancellations
+// always populate subscription_ends_at correctly.
+function resolveSubscriptionEndsAt(sub: Stripe.Subscription): string | null {
+  if (sub.cancel_at) return new Date(sub.cancel_at * 1000).toISOString();
+  if (!sub.cancel_at_period_end) return null;
+
+  const topLevelPeriodEnd = (sub as unknown as { current_period_end?: number | null }).current_period_end;
+  if (topLevelPeriodEnd) return new Date(topLevelPeriodEnd * 1000).toISOString();
+
+  const itemPeriodEnd = sub.items?.data?.[0]?.current_period_end;
+  if (itemPeriodEnd) return new Date(itemPeriodEnd * 1000).toISOString();
+
+  return null;
+}
+
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
@@ -66,15 +87,14 @@ export async function POST(req: Request) {
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = sub.customer as string;
-        const endsAt = sub.cancel_at
-          ? new Date(sub.cancel_at * 1000).toISOString()
-          : null;
+        const endsAt = resolveSubscriptionEndsAt(sub);
 
         const { error } = await supabase
           .from("profiles")
           .update({ subscription_ends_at: endsAt })
           .eq("stripe_customer_id", customerId);
         if (error) throw error;
+        console.info(`[stripe/webhook] subscription.updated cust=${customerId} ends_at=${endsAt}`);
         break;
       }
 
