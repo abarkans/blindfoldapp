@@ -158,7 +158,7 @@ export default function OnboardingFlow({
     setLoading(true);
     setError("");
 
-    const cadence = (data.cadence ?? "monthly") as "weekly" | "biweekly" | "monthly" | "spontaneous";
+    const cadence = (data.cadence ?? "monthly") as "weekly" | "biweekly" | "monthly";
     const result = await finishOnboarding({
       partner1: data.partner1 ?? "",
       partner2: data.partner2 ?? "",

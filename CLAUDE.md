@@ -42,7 +42,7 @@ No test suite. No lint script. TypeScript strict mode on. Build is the CI gate.
 ## Project Context
 
 ### Database
-- **profiles:** `partner_names` (JSONB), `interests` (array), `constraints` (JSONB: budget_max, has_car, prefers_walking), `plan_type` ("free"|"subscription"), `cadence` (weekly|biweekly|monthly|spontaneous), `onboarding_complete` (bool), `date_idea` (JSONB), `last_lat`/`last_long`, `preferred_radius`.
+- **profiles:** `partner_names` (JSONB), `interests` (array), `constraints` (JSONB: budget_max, has_car, prefers_walking), `plan_type` ("free"|"subscription"), `cadence` (weekly|biweekly|monthly), `onboarding_complete` (bool), `date_idea` (JSONB), `last_lat`/`last_long`, `preferred_radius`.
 - **date_ideas:** History log. Tracks revealed/completed. Prevents repeat venues/titles.
 - **user_badges:** Awarded by Postgres trigger on `dates_completed_count` update. Milestones: First Spark, Triple Threat, High Five, Perfect 10.
 - RLS enabled. Users read/write own rows only.

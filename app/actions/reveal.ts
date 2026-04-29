@@ -19,7 +19,7 @@ const profileSchema = z.object({
     has_car: z.boolean(),
     prefers_walking: z.boolean(),
   }),
-  cadence: z.enum(["weekly", "biweekly", "monthly", "spontaneous"]),
+  cadence: z.enum(["weekly", "biweekly", "monthly"]),
   revealed_at: z.string().nullable(),
   last_lat: z.number().nullable(),
   last_long: z.number().nullable(),
@@ -30,7 +30,6 @@ const CADENCE_DAYS: Record<string, number> = {
   weekly: 7,
   biweekly: 14,
   monthly: 30,
-  spontaneous: 3,
 };
 
 const VALID_INTERESTS = new Set([

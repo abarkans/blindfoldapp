@@ -80,7 +80,6 @@ function getNextRevealDate(revealedAt: string, cadence: string): Date {
     weekly: 7,
     biweekly: 14,
     monthly: 30,
-    spontaneous: 3,
   };
   const days = cadenceDays[cadence] ?? 7;
   const next = new Date(revealedAt);

@@ -20,7 +20,6 @@ const CADENCE_DAYS: Record<string, number> = {
   weekly: 7,
   biweekly: 14,
   monthly: 30,
-  spontaneous: 3,
 };
 
 export async function GET(request: Request) {

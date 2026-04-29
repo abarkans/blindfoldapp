@@ -3,7 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly", "spontaneous"]);
+const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
 
 export default async function UpgradePage({
   searchParams,
