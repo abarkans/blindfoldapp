@@ -4,7 +4,19 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Zap } from "lucide-react";
+import confetti, { type CreateTypes } from "canvas-confetti";
 import Button from "@/components/ui/Button";
+
+let _fire: CreateTypes | null = null;
+function getFire(): CreateTypes {
+  if (_fire) return _fire;
+  if (typeof document === "undefined") return confetti as unknown as CreateTypes;
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:fixed;inset:0;pointer-events:none;width:100%;height:100%;z-index:9999";
+  document.body.appendChild(canvas);
+  _fire = confetti.create(canvas, { resize: true, useWorker: true });
+  return _fire;
+}
 
 const BADGE_IMAGES: Record<string, string> = {
   "First Spark": "/badges/First_Spark.png",
@@ -48,29 +60,34 @@ export default function CompleteDateModal({
   // Trigger confetti when the modal opens
   useEffect(() => {
     if (!isOpen) return;
-    import("canvas-confetti").then(({ default: confetti }) => {
-      confetti({
-        particleCount: 130,
-        spread: 80,
-        origin: { y: 0.55 },
-        colors: ["#f97316", "#f59e0b", "#ec4899", "#a855f7", "#ffffff"],
-      });
-      // Second burst slightly delayed
-      setTimeout(() => {
-        confetti({
-          particleCount: 60,
-          spread: 50,
-          origin: { x: 0.2, y: 0.6 },
-          colors: ["#f97316", "#f59e0b", "#ffffff"],
-        });
-        confetti({
-          particleCount: 60,
-          spread: 50,
-          origin: { x: 0.8, y: 0.6 },
-          colors: ["#ec4899", "#a855f7", "#ffffff"],
-        });
-      }, 350);
+    const fire = getFire();
+    fire({
+      particleCount: 90,
+      spread: 80,
+      origin: { y: 0.55 },
+      ticks: 120,
+      scalar: 0.9,
+      colors: ["#f97316", "#f59e0b", "#ec4899", "#a855f7", "#ffffff"],
     });
+    const t = setTimeout(() => {
+      fire({
+        particleCount: 40,
+        spread: 50,
+        origin: { x: 0.2, y: 0.6 },
+        ticks: 120,
+        scalar: 0.9,
+        colors: ["#f97316", "#f59e0b", "#ffffff"],
+      });
+      fire({
+        particleCount: 40,
+        spread: 50,
+        origin: { x: 0.8, y: 0.6 },
+        ticks: 120,
+        scalar: 0.9,
+        colors: ["#ec4899", "#a855f7", "#ffffff"],
+      });
+    }, 350);
+    return () => clearTimeout(t);
   }, [isOpen]);
 
   return (
@@ -79,7 +96,7 @@ export default function CompleteDateModal({
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/80 z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
