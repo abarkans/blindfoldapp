@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_INTERESTS } from "@/lib/plans";
 import type Stripe from "stripe";
 
+const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
+
 // Stripe sets different fields depending on how cancellation was scheduled
 // and on the API version pinned to the account:
 //   - explicit `cancel_at` future timestamp (custom scheduling)
@@ -68,7 +70,8 @@ export async function POST(req: Request) {
         if (session.mode !== "subscription") break;
 
         const userId = session.metadata?.user_id;
-        const cadence = session.metadata?.cadence;
+        const rawCadence = session.metadata?.cadence;
+        const cadence = rawCadence && VALID_CADENCES.has(rawCadence) ? rawCadence : undefined;
         const customerId = session.customer as string | null;
         if (!userId || !customerId) break;
 

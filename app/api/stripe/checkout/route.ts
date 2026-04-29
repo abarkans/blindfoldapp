@@ -7,6 +7,18 @@ const STATIC_ORIGINS = new Set(
   [process.env.NEXT_PUBLIC_APP_URL, "http://localhost:3000"].filter(Boolean) as string[]
 );
 
+const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
+
+// Reject anything that isn't a same-origin relative path. Disallow protocol-
+// relative ("//evil.com") and backslash-prefixed forms that some browsers
+// normalise to "//" before resolving against the origin.
+function isSafeReturnPath(p: unknown): p is string {
+  if (typeof p !== "string" || p.length === 0 || p.length > 256) return false;
+  if (!p.startsWith("/")) return false;
+  if (p.startsWith("//") || p.startsWith("/\\")) return false;
+  return true;
+}
+
 function isAllowedOrigin(req: Request, origin: string | null): boolean {
   if (!origin) return false;
   if (STATIC_ORIGINS.has(origin)) return true;
@@ -28,7 +40,12 @@ export async function POST(req: Request) {
 
   await checkStripeRateLimit(user.id);
 
-  const { cadence, returnPath } = await req.json();
+  const { cadence: rawCadence, returnPath: rawReturnPath } = await req.json();
+
+  const cadence = typeof rawCadence === "string" && VALID_CADENCES.has(rawCadence)
+    ? rawCadence
+    : "monthly";
+  const returnPath = isSafeReturnPath(rawReturnPath) ? rawReturnPath : "/dashboard";
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -36,8 +53,8 @@ export async function POST(req: Request) {
       line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
       customer_email: user.email,
       success_url: `${origin}/dashboard/upgrade?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: (() => { const base = `${origin}${returnPath ?? "/dashboard"}`; return base.includes("?") ? `${base}&checkout=cancelled` : `${base}?checkout=cancelled`; })(),
-      metadata: { user_id: user.id, cadence: cadence ?? "monthly" },
+      cancel_url: (() => { const base = `${origin}${returnPath}`; return base.includes("?") ? `${base}&checkout=cancelled` : `${base}?checkout=cancelled`; })(),
+      metadata: { user_id: user.id, cadence },
     });
     return NextResponse.json({ url: session.url });
   } catch (err) {
