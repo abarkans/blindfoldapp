@@ -26,6 +26,18 @@ const profileSchema = z.object({
   preferred_radius: z.number().nullable(),
 });
 
+const CADENCE_DAYS: Record<string, number> = {
+  weekly: 7,
+  biweekly: 14,
+  monthly: 30,
+  spontaneous: 3,
+};
+
+const VALID_INTERESTS = new Set([
+  "food", "music", "nature", "art", "fitness", "cinema",
+  "books", "coffee", "beach", "photography", "gaming", "romance",
+]);
+
 export async function revealDate() {
   const supabase = await createClient();
   const {
@@ -50,19 +62,12 @@ export async function revealDate() {
   // Validate + type the profile row at the server trust boundary
   const profile = profileSchema.parse(raw);
 
-  // Guard: check cooldown server-side
-  const cadenceDays: Record<string, number> = {
-    weekly: 7,
-    biweekly: 14,
-    monthly: 30,
-    spontaneous: 3,
-  };
-
-  // Atomic claim: a single conditional UPDATE either succeeds for the
-  // first concurrent request or returns 0 rows for everyone else.
-  // Without this, rapid clicks would each pass the SELECT-then-decide
-  // cooldown check above and all fire the (paid) AI + Places calls.
-  const days = cadenceDays[profile.cadence];
+  // Atomic eligibility claim — single conditional UPDATE either succeeds
+  // for the first concurrent request or returns 0 rows for everyone else.
+  // This is both the cooldown gate AND the spam-protection gate, replacing
+  // the old SELECT-then-decide pattern that allowed concurrent rapid
+  // requests to all pass and each fire (paid) AI + Places calls.
+  const days = CADENCE_DAYS[profile.cadence];
   const cooldownCutoff = new Date(Date.now() - days * 86_400_000).toISOString();
   const nowIso = new Date().toISOString();
   const admin = createAdminClient();
@@ -84,80 +89,73 @@ export async function revealDate() {
 
   const { constraints } = profile;
   const isSubscribed = profile.plan_type === "subscription";
-
-  // Server-side allowlist: reject interests that weren't set via the legitimate onboarding UI
-  const VALID_INTERESTS = new Set([
-    "food", "music", "nature", "art", "fitness", "cinema",
-    "books", "coffee", "beach", "photography", "gaming", "romance",
-  ]);
   const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
 
-  const now = nowIso;
   let idea: object;
 
   try {
-  if (profile.last_lat && profile.last_long) {
-    // Venue-based: fetch previously visited place IDs to avoid repeats
-    const { data: pastIdeas } = await supabase
-      .from("date_ideas")
-      .select("idea")
-      .eq("user_id", user.id)
-      .order("generated_at", { ascending: false })
-      .limit(50);
+    if (profile.last_lat && profile.last_long) {
+      // Venue-based: fetch previously visited place IDs to avoid repeats
+      const { data: pastIdeas } = await supabase
+        .from("date_ideas")
+        .select("idea")
+        .eq("user_id", user.id)
+        .order("generated_at", { ascending: false })
+        .limit(50);
 
-    const previousPlaceIds = (pastIdeas ?? [])
-      .map((row) => (row.idea as { place_id?: string })?.place_id)
-      .filter(Boolean) as string[];
+      const previousPlaceIds = (pastIdeas ?? [])
+        .map((row) => (row.idea as { place_id?: string })?.place_id)
+        .filter(Boolean) as string[];
 
-    const venue = await searchNearbyVenues({
-      interests: safeInterests,
-      lat: profile.last_lat,
-      lng: profile.last_long,
-      radiusMeters: profile.preferred_radius ?? 10000,
-      previousPlaceIds,
-    });
+      const venue = await searchNearbyVenues({
+        interests: safeInterests,
+        lat: profile.last_lat,
+        lng: profile.last_long,
+        radiusMeters: profile.preferred_radius ?? 10000,
+        previousPlaceIds,
+      });
 
-    // Enrich the venue with AI-generated description, vibe, tags etc.
-    const aiEnrichment = await generateAIDateIdea({
-      partnerNames: profile.partner_names,
-      interests: safeInterests,
-      budgetMax: constraints.budget_max,
-      hasCar: constraints.has_car,
-      prefersWalking: constraints.prefers_walking,
-      isSubscribed,
-      venue: {
-        name: venue.display_name,
-        address: venue.formatted_address,
-        rating: venue.rating,
-        price_level: venue.price_level,
-        meta: venue.meta,
-      },
-    });
+      // Enrich the venue with AI-generated description, vibe, tags etc.
+      const aiEnrichment = await generateAIDateIdea({
+        partnerNames: profile.partner_names,
+        interests: safeInterests,
+        budgetMax: constraints.budget_max,
+        hasCar: constraints.has_car,
+        prefersWalking: constraints.prefers_walking,
+        isSubscribed,
+        venue: {
+          name: venue.display_name,
+          address: venue.formatted_address,
+          rating: venue.rating,
+          price_level: venue.price_level,
+          meta: venue.meta,
+        },
+      });
 
-    idea = { ...venue, ai: aiEnrichment };
-  } else {
-    // AI fallback: no location set
-    const { data: pastIdeas } = await supabase
-      .from("date_ideas")
-      .select("idea")
-      .eq("user_id", user.id)
-      .order("generated_at", { ascending: false })
-      .limit(50);
+      idea = { ...venue, ai: aiEnrichment };
+    } else {
+      // AI fallback: no location set
+      const { data: pastIdeas } = await supabase
+        .from("date_ideas")
+        .select("idea")
+        .eq("user_id", user.id)
+        .order("generated_at", { ascending: false })
+        .limit(50);
 
-    const previousTitles = (pastIdeas ?? [])
-      .map((row) => (row.idea as { title?: string })?.title)
-      .filter(Boolean) as string[];
+      const previousTitles = (pastIdeas ?? [])
+        .map((row) => (row.idea as { title?: string })?.title)
+        .filter(Boolean) as string[];
 
-    idea = await generateAIDateIdea({
-      partnerNames: profile.partner_names,
-      interests: safeInterests,
-      budgetMax: constraints.budget_max,
-      hasCar: constraints.has_car,
-      prefersWalking: constraints.prefers_walking,
-      isSubscribed,
-      previousTitles,
-    });
-  }
+      idea = await generateAIDateIdea({
+        partnerNames: profile.partner_names,
+        interests: safeInterests,
+        budgetMax: constraints.budget_max,
+        hasCar: constraints.has_car,
+        prefersWalking: constraints.prefers_walking,
+        isSubscribed,
+        previousTitles,
+      });
+    }
   } catch (err) {
     // Generation failed — roll back the atomic claim so the user can
     // retry without waiting for the cadence to elapse. Migration 018
@@ -177,12 +175,11 @@ export async function revealDate() {
     user_id: user.id,
     idea: idea as unknown as import("@/lib/types").Json,
     status: "revealed",
-    revealed_at: now,
+    revealed_at: nowIso,
   });
 
-  // Final write: attach the idea to the profile and reset the
-  // per-cycle flags. revealed_at was already stamped by the atomic
-  // claim above; setting it again here is idempotent.
+  // Final write: attach the idea and reset the per-cycle flags.
+  // revealed_at was already stamped by the atomic claim above.
   await admin
     .from("profiles")
     .update({
