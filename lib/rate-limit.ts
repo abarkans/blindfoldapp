@@ -1,31 +1,36 @@
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-// Lazily instantiated so cold starts don't fail if env vars are missing.
-// Requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in env.
-let revealLimiter: Ratelimit | null = null;
-let completeLimiter: Ratelimit | null = null;
-let stripeLimiter: Ratelimit | null = null;
+// Postgres-based rate limiter. Backed by the rate_limits table and the
+// check_rate_limit() RPC introduced in migration 017. The RPC is
+// SECURITY DEFINER and EXECUTE is granted only to service_role, so an
+// authenticated client cannot burn another user's quota by calling
+// the function directly.
+//
+// On infrastructure errors (Supabase RPC failure) the limiter fails
+// open and logs — same posture as the previous Upstash implementation.
+// Failing closed here would compound a Supabase outage by 500-ing
+// every reveal/complete/Stripe action, which is worse than running
+// briefly unmetered.
 
-function buildLimiter(requests: number, windowSeconds: number): Ratelimit | null {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    // Strict mode: when RATE_LIMIT_STRICT is set, refuse to run unmetered in
-    // production. Default mode warns and disables — required while Upstash
-    // is being provisioned on the prod environment. Re-enable strict mode by
-    // setting RATE_LIMIT_STRICT=1 on Vercel once Upstash is wired up.
-    if (process.env.NODE_ENV === "production" && process.env.RATE_LIMIT_STRICT === "1") {
-      throw new Error(
-        "[rate-limit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are required when RATE_LIMIT_STRICT=1"
-      );
-    }
-    console.warn("[rate-limit] Upstash env vars not set — rate limiting is disabled.");
-    return null;
-  }
-  return new Ratelimit({
-    redis: Redis.fromEnv(),
-    limiter: Ratelimit.slidingWindow(requests, `${windowSeconds} s`),
-    analytics: false,
+async function check(key: string, max: number, windowSeconds: number): Promise<void> {
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("check_rate_limit", {
+    p_key: key,
+    p_max: max,
+    p_window_seconds: windowSeconds,
   });
+
+  if (error) {
+    console.error(`[rate-limit] rpc error key=${key} msg=${error.message}`);
+    return; // fail open
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  if (row && row.allowed === false) {
+    throw new Error(
+      `Too many requests. Try again in ${row.retry_after_seconds} seconds.`
+    );
+  }
 }
 
 /**
@@ -33,14 +38,7 @@ function buildLimiter(requests: number, windowSeconds: number): Ratelimit | null
  * Limit: 3 reveals per 60 seconds (guards against AI/Places API cost runup).
  */
 export async function checkRevealRateLimit(userId: string): Promise<void> {
-  if (!revealLimiter) revealLimiter = buildLimiter(3, 60);
-  if (!revealLimiter) return;
-
-  const { success, reset } = await revealLimiter.limit(`reveal:${userId}`);
-  if (!success) {
-    const retryAfter = Math.ceil((reset - Date.now()) / 1000);
-    throw new Error(`Too many requests. Try again in ${retryAfter} seconds.`);
-  }
+  await check(`reveal:${userId}`, 3, 60);
 }
 
 /**
@@ -48,14 +46,7 @@ export async function checkRevealRateLimit(userId: string): Promise<void> {
  * Limit: 5 completions per 60 seconds (guards against XP/badge farming).
  */
 export async function checkCompleteRateLimit(userId: string): Promise<void> {
-  if (!completeLimiter) completeLimiter = buildLimiter(5, 60);
-  if (!completeLimiter) return;
-
-  const { success, reset } = await completeLimiter.limit(`complete:${userId}`);
-  if (!success) {
-    const retryAfter = Math.ceil((reset - Date.now()) / 1000);
-    throw new Error(`Too many requests. Try again in ${retryAfter} seconds.`);
-  }
+  await check(`complete:${userId}`, 5, 60);
 }
 
 /**
@@ -63,12 +54,5 @@ export async function checkCompleteRateLimit(userId: string): Promise<void> {
  * Limit: 10 per hour (guards against Stripe API abuse and unexpected billing).
  */
 export async function checkStripeRateLimit(userId: string): Promise<void> {
-  if (!stripeLimiter) stripeLimiter = buildLimiter(10, 3600);
-  if (!stripeLimiter) return;
-
-  const { success, reset } = await stripeLimiter.limit(`stripe:${userId}`);
-  if (!success) {
-    const retryAfter = Math.ceil((reset - Date.now()) / 1000);
-    throw new Error(`Too many requests. Try again in ${retryAfter} seconds.`);
-  }
+  await check(`stripe:${userId}`, 10, 3600);
 }

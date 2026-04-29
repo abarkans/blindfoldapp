@@ -215,6 +215,14 @@ export interface Database {
         Args: { p_user_id: string; p_xp_gain: number };
         Returns: { total_xp: number; dates_completed_count: number };
       };
+      check_rate_limit: {
+        Args: { p_key: string; p_max: number; p_window_seconds: number };
+        Returns: { allowed: boolean; retry_after_seconds: number }[];
+      };
+      cleanup_rate_limits: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
     };
     Enums: Record<string, never>;
   };

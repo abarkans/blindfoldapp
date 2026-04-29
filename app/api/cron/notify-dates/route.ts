@@ -100,5 +100,14 @@ export async function GET(request: Request) {
   console.info(`[cron/notify-dates] sent=${sent} errors=${errors.length}`);
   if (errors.length) console.warn("[cron/notify-dates] errors:", errors);
 
+  // Piggyback rate-limit cleanup on the daily cron so the rate_limits
+  // table doesn't grow unbounded. Failure is non-fatal for the cron run.
+  const { data: deletedRows, error: cleanupErr } = await supabase.rpc("cleanup_rate_limits");
+  if (cleanupErr) {
+    console.warn(`[cron/notify-dates] rate_limits cleanup failed: ${cleanupErr.message}`);
+  } else {
+    console.info(`[cron/notify-dates] rate_limits cleanup deleted=${deletedRows ?? 0}`);
+  }
+
   return NextResponse.json({ sent, errors });
 }
