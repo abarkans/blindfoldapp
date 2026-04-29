@@ -497,16 +497,16 @@ export default function DateCard({
                 ) : isVenue(dateIdea) ? (
                   /* ── ACCEPTED VENUE ── */
                   <>
-                    <div className="relative rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/8">
+                    <div className="relative h-48 rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/8">
                       {dateIdea.photo_name ? (
                         <Image
                           src={`/api/place-photo?ref=${encodeURIComponent(dateIdea.photo_name)}`}
                           alt={dateIdea.display_name}
-                          width={400}
-                          height={192}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 400px"
                           loading="eager"
                           priority
-                          className="w-full h-48 object-cover"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-48 flex items-center justify-center">
