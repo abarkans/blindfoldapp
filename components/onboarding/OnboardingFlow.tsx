@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { finishOnboarding } from "@/app/actions/finish-onboarding";
 import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
 import StepPlan from "./steps/StepPlan";
@@ -156,33 +157,23 @@ export default function OnboardingFlow({
   async function handleFinish(loc: LocationFormData) {
     setLoading(true);
     setError("");
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setError("Session expired. Please log in again.");
-      setLoading(false);
-      return;
-    }
 
-    const { error: upsertError } = await supabase.from("profiles").upsert({
-      id: user.id,
-      partner_names: { partner1: data.partner1 ?? "", partner2: data.partner2 ?? "" },
+    const cadence = (data.cadence ?? "monthly") as "weekly" | "biweekly" | "monthly" | "spontaneous";
+    const result = await finishOnboarding({
+      partner1: data.partner1 ?? "",
+      partner2: data.partner2 ?? "",
       interests: data.interests ?? [],
-      constraints: {
-        budget_max: data.budget_max ?? 50,
-        has_car: data.has_car ?? false,
-        prefers_walking: data.prefers_walking ?? false,
-      },
-      cadence: data.cadence ?? "monthly",
-      plan_type: data.plan_type ?? "free",
-      last_lat: loc.lat,
-      last_long: loc.lng,
+      budget_max: data.budget_max ?? 50,
+      has_car: data.has_car ?? false,
+      prefers_walking: data.prefers_walking ?? false,
+      cadence,
+      lat: loc.lat,
+      lng: loc.lng,
       preferred_radius: loc.preferred_radius,
-      onboarding_complete: true,
     });
 
-    if (upsertError) {
-      setError("Something went wrong. Please try again.");
+    if (result.error) {
+      setError(result.error);
       setLoading(false);
       return;
     }

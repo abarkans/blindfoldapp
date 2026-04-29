@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRevealRateLimit } from "@/lib/rate-limit";
@@ -143,8 +144,13 @@ export async function revealDate() {
     });
   }
 
+  // Writes go through the admin client because revealed_at, date_idea,
+  // notification_sent_at, current_date_rerolled, and date_accepted_at are
+  // protected by the lockdown trigger from migration 015.
+  const admin = createAdminClient();
+
   // Insert into date_ideas history
-  await supabase.from("date_ideas").insert({
+  await admin.from("date_ideas").insert({
     user_id: user.id,
     idea: idea as unknown as import("@/lib/types").Json,
     status: "revealed",
@@ -153,7 +159,7 @@ export async function revealDate() {
 
   // Update profile with current idea + timestamp.
   // Reset notification_sent_at so the next cron cycle sends a fresh notification.
-  await supabase
+  await admin
     .from("profiles")
     .update({
       revealed_at: now,

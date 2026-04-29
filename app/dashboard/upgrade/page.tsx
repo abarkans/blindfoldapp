@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly", "spontaneous"]);
 
 export default async function UpgradePage({
   searchParams,
@@ -17,9 +20,14 @@ export default async function UpgradePage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || session.metadata?.user_id !== user.id) redirect("/dashboard");
 
-  const cadence = session.metadata?.cadence;
+  const rawCadence = session.metadata?.cadence;
+  const cadence = rawCadence && VALID_CADENCES.has(rawCadence) ? rawCadence : undefined;
 
-  await supabase
+  // plan_type and stripe_customer_id are protected by the lockdown trigger
+  // from migration 015. Session ownership has been verified above, so the
+  // admin client is the appropriate path for this trusted write.
+  const admin = createAdminClient();
+  await admin
     .from("profiles")
     .update({
       plan_type: "subscription",

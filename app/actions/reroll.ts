@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 
@@ -38,11 +39,16 @@ export async function rerollDate(): Promise<void> {
   const profile = profileSchema.parse(raw);
   const isFree = profile.plan_type !== "subscription";
 
+  // Writes go through the admin client because total_rerolls_used,
+  // current_date_rerolled, date_idea, and date_accepted_at are protected by
+  // the lockdown trigger from migration 015.
+  const admin = createAdminClient();
+
   // Atomic eligibility claim — single conditional UPDATE prevents concurrent requests
   // from both passing the eligibility check (TOCTOU race condition).
   // Returns 0 rows if the condition wasn't met; throw without touching the counter.
   if (isFree) {
-    const { data: claimed } = await supabase
+    const { data: claimed } = await admin
       .from("profiles")
       .update({ total_rerolls_used: 1 })
       .eq("id", user.id)
@@ -50,7 +56,7 @@ export async function rerollDate(): Promise<void> {
       .select("id");
     if (!claimed?.length) throw new Error("No re-rolls remaining on the basic plan");
   } else {
-    const { data: claimed } = await supabase
+    const { data: claimed } = await admin
       .from("profiles")
       .update({ current_date_rerolled: true })
       .eq("id", user.id)
@@ -131,15 +137,15 @@ export async function rerollDate(): Promise<void> {
   } catch (err) {
     // Generation failed — roll back the atomic claim so the user can retry
     if (isFree) {
-      await supabase.from("profiles").update({ total_rerolls_used: 0 }).eq("id", user.id);
+      await admin.from("profiles").update({ total_rerolls_used: 0 }).eq("id", user.id);
     } else {
-      await supabase.from("profiles").update({ current_date_rerolled: false }).eq("id", user.id);
+      await admin.from("profiles").update({ current_date_rerolled: false }).eq("id", user.id);
     }
     throw err;
   }
 
   // Insert new idea into history so it won't repeat in future reveals/rerolls
-  await supabase.from("date_ideas").insert({
+  await admin.from("date_ideas").insert({
     user_id: user.id,
     idea: idea as unknown as import("@/lib/types").Json,
     status: "revealed",
@@ -147,7 +153,7 @@ export async function rerollDate(): Promise<void> {
   });
 
   // Reroll flags already set atomically above — only update the date idea here
-  await supabase
+  await admin
     .from("profiles")
     .update({
       date_idea: idea as unknown as import("@/lib/types").Json,
