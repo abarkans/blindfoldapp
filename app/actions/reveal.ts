@@ -58,14 +58,28 @@ export async function revealDate() {
     spontaneous: 3,
   };
 
-  if (profile.revealed_at) {
-    const days = cadenceDays[profile.cadence];
-    const nextAvailable = new Date(profile.revealed_at);
-    nextAvailable.setDate(nextAvailable.getDate() + days);
-    if (new Date() < nextAvailable) {
-      console.warn(`[audit] reveal: cooldown violation uid=${user.id} next=${nextAvailable.toISOString()}`);
-      throw new Error("Next date not available yet");
-    }
+  // Atomic claim: a single conditional UPDATE either succeeds for the
+  // first concurrent request or returns 0 rows for everyone else.
+  // Without this, rapid clicks would each pass the SELECT-then-decide
+  // cooldown check above and all fire the (paid) AI + Places calls.
+  const days = cadenceDays[profile.cadence];
+  const cooldownCutoff = new Date(Date.now() - days * 86_400_000).toISOString();
+  const nowIso = new Date().toISOString();
+  const admin = createAdminClient();
+
+  let claimQuery = admin
+    .from("profiles")
+    .update({ revealed_at: nowIso })
+    .eq("id", user.id);
+  claimQuery = profile.revealed_at
+    ? claimQuery.lte("revealed_at", cooldownCutoff)
+    : claimQuery.is("revealed_at", null);
+  const { data: claimed } = await claimQuery.select("id");
+
+  if (!claimed?.length) {
+    const reason = profile.revealed_at ? "cooldown_or_race" : "race";
+    console.warn(`[audit] reveal: claim failed uid=${user.id} reason=${reason}`);
+    throw new Error("Next date not available yet");
   }
 
   const { constraints } = profile;
@@ -78,9 +92,10 @@ export async function revealDate() {
   ]);
   const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
 
-  const now = new Date().toISOString();
+  const now = nowIso;
   let idea: object;
 
+  try {
   if (profile.last_lat && profile.last_long) {
     // Venue-based: fetch previously visited place IDs to avoid repeats
     const { data: pastIdeas } = await supabase
@@ -143,11 +158,19 @@ export async function revealDate() {
       previousTitles,
     });
   }
-
-  // Writes go through the admin client because revealed_at, date_idea,
-  // notification_sent_at, current_date_rerolled, and date_accepted_at are
-  // protected by the lockdown trigger from migration 015.
-  const admin = createAdminClient();
+  } catch (err) {
+    // Generation failed — roll back the atomic claim so the user can
+    // retry without waiting for the cadence to elapse. Migration 018
+    // grants service_role the right to roll revealed_at back; the
+    // lockdown trigger continues to block authenticated callers from
+    // doing the same.
+    await admin
+      .from("profiles")
+      .update({ revealed_at: profile.revealed_at })
+      .eq("id", user.id);
+    console.error(`[audit] reveal: generation failed uid=${user.id}, claim rolled back`);
+    throw err;
+  }
 
   // Insert into date_ideas history
   await admin.from("date_ideas").insert({
@@ -157,12 +180,12 @@ export async function revealDate() {
     revealed_at: now,
   });
 
-  // Update profile with current idea + timestamp.
-  // Reset notification_sent_at so the next cron cycle sends a fresh notification.
+  // Final write: attach the idea to the profile and reset the
+  // per-cycle flags. revealed_at was already stamped by the atomic
+  // claim above; setting it again here is idempotent.
   await admin
     .from("profiles")
     .update({
-      revealed_at: now,
       date_idea: idea as unknown as import("@/lib/types").Json,
       notification_sent_at: null,
       current_date_rerolled: false,
