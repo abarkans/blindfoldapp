@@ -108,5 +108,13 @@ export async function GET(request: Request) {
     console.info(`[cron/notify-dates] rate_limits cleanup deleted=${deletedRows ?? 0}`);
   }
 
+  // Same piggyback for expired deletion holds.
+  const { data: deletedHolds, error: holdsCleanupErr } = await supabase.rpc("cleanup_deletion_holds");
+  if (holdsCleanupErr) {
+    console.warn(`[cron/notify-dates] deletion_holds cleanup failed: ${holdsCleanupErr.message}`);
+  } else {
+    console.info(`[cron/notify-dates] deletion_holds cleanup deleted=${deletedHolds ?? 0}`);
+  }
+
   return NextResponse.json({ sent, errors });
 }

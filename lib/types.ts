@@ -251,6 +251,10 @@ export interface Database {
         Args: Record<string, never>;
         Returns: number;
       };
+      cleanup_deletion_holds: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
     };
     Enums: Record<string, never>;
   };

@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRevealRateLimit } from "@/lib/rate-limit";
+import { adoptDeletionHold } from "@/lib/deletion-hold";
 
 // Validate the shape of the profile row fetched from the DB.
 // Prevents compromised/malformed data from reaching AI prompts or place searches.
@@ -50,6 +51,13 @@ export async function revealDate() {
 
   await checkRevealRateLimit(user.id);
 
+  // Defense-in-depth: adopt any active deletion hold for this email before
+  // the cooldown gate runs. finishOnboarding is the primary adoption point;
+  // this catches edge cases where reveal is invoked on a profile that was
+  // created without going through finishOnboarding (skipped/partial flow).
+  const admin0 = createAdminClient();
+  await adoptDeletionHold(admin0, user.id, user.email);
+
   const { data: raw } = await supabase
     .from("profiles")
     .select("plan_type, partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius")
@@ -69,7 +77,7 @@ export async function revealDate() {
   const days = CADENCE_DAYS[profile.cadence];
   const cooldownCutoff = new Date(Date.now() - days * 86_400_000).toISOString();
   const nowIso = new Date().toISOString();
-  const admin = createAdminClient();
+  const admin = admin0;
 
   let claimQuery = admin
     .from("profiles")
