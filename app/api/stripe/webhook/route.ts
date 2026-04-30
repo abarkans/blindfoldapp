@@ -84,6 +84,11 @@ export async function POST(req: Request) {
           })
           .eq("id", userId);
         if (error) throw error;
+
+        // Backfill XP/badges from prior free-plan completions. Idempotent.
+        const { error: backfillError } = await supabase
+          .rpc("backfill_completed_xp", { p_user_id: userId, p_xp_per_date: 100 });
+        if (backfillError) console.warn(`[stripe/webhook] backfill failed uid=${userId} msg=${backfillError.message}`);
         break;
       }
 

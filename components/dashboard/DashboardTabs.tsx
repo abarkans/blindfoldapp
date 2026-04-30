@@ -3,14 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft } from "lucide-react";
+import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
 import SettingsPanel from "@/components/dashboard/SettingsPanel";
 import type { Profile } from "@/lib/types";
-import { xpProgress } from "@/lib/utils";
 
 type Tab = "date" | "progress" | "settings";
 
@@ -260,9 +259,19 @@ function ProgressTabContent({
   profile: Profile;
   earnedBadges: EarnedBadge[];
 }) {
+  const isFree = (profile.plan_type ?? "free") !== "subscription";
+
+  if (isFree) {
+    return (
+      <ProgressUpsell
+        totalXp={profile.total_xp ?? 0}
+        earnedBadges={earnedBadges}
+      />
+    );
+  }
+
   const totalXp = profile.total_xp ?? 0;
   const datesCompleted = profile.dates_completed_count ?? 0;
-  const { level } = xpProgress(totalXp);
 
   const NEXT_MILESTONES = [
     { threshold: 1, name: "First Spark" },
@@ -301,6 +310,106 @@ function ProgressTabContent({
       )}
 
       <BadgeGrid earnedBadges={earnedBadges} />
+    </div>
+  );
+}
+
+// ─── Progress Tab — Free Plan Upsell ─────────────────────────────────────────
+
+function ProgressUpsell({
+  totalXp,
+  earnedBadges,
+}: {
+  totalXp: number;
+  earnedBadges: EarnedBadge[];
+}) {
+  const [upgrading, setUpgrading] = useState(false);
+  const [upgradeError, setUpgradeError] = useState("");
+  const hasHistory = totalXp > 0 || earnedBadges.length > 0;
+
+  async function handleUpgrade() {
+    setUpgradeError("");
+    setUpgrading(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cadence: "monthly", returnPath: "/dashboard?tab=progress" }),
+      });
+      const { url, error } = await res.json();
+      if (error || !url) {
+        setUpgradeError("Couldn't start checkout. Try again.");
+        setUpgrading(false);
+        return;
+      }
+      window.location.href = url;
+    } catch {
+      setUpgradeError("Couldn't start checkout. Try again.");
+      setUpgrading(false);
+    }
+  }
+
+  return (
+    <div>
+      <div className="mb-5">
+        <h2 className="text-2xl font-bold text-white">
+          {hasHistory ? "Your progress is paused" : "Track every date. Earn badges."}
+        </h2>
+        <p className="text-white/55 text-sm mt-1">
+          {hasHistory
+            ? "Resume earning XP and unlocking badges with Plus."
+            : "XP, levels, and badges are part of Plus."}
+        </p>
+      </div>
+
+      {/* XP preview — real values for users with history, zeroed for new free users */}
+      <div className="relative mb-4">
+        <div className="pointer-events-none select-none opacity-60 blur-[1px]">
+          <XPProgressBar totalXp={totalXp} />
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+            <Lock className="w-4 h-4 text-white/80" />
+          </div>
+        </div>
+      </div>
+
+      {/* Badge grid preview — earned badges show through, clipped to a sliver */}
+      <div className="relative max-h-44 overflow-hidden">
+        <div className="pointer-events-none select-none">
+          <BadgeGrid earnedBadges={earnedBadges} />
+        </div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-[#08080f]/80 to-[#08080f]" />
+      </div>
+
+      {/* Upgrade CTA — pulled up to overlap badges */}
+      <div className="-mt-6 relative z-10 bg-gradient-to-br from-violet-500/20 via-rose-500/15 to-amber-500/10 border border-violet-500/30 rounded-3xl p-5 shadow-2xl shadow-black/40 backdrop-blur-sm">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-4 h-4 text-rose-400" />
+          <p className="text-xs font-semibold text-white uppercase tracking-widest">Plus</p>
+        </div>
+        <p className="text-base font-bold text-white mb-1">
+          {hasHistory ? "Pick up where you left off" : "Unlock XP & badges"}
+        </p>
+        <p className="text-sm text-white/60 leading-relaxed mb-4">
+          {hasHistory
+            ? `You've earned ${totalXp} XP${earnedBadges.length > 0 ? ` and ${earnedBadges.length} badge${earnedBadges.length === 1 ? "" : "s"}` : ""}. Resubscribe to keep earning, level up, and unlock unlimited re-rolls.`
+            : "Earn 100 XP per date, level up, and collect milestone badges. Plus also includes unlimited re-rolls and a wider reveal radius."}
+        </p>
+
+        {upgradeError && (
+          <p className="text-xs text-rose-400 mb-3">{upgradeError}</p>
+        )}
+
+        <button
+          type="button"
+          onClick={handleUpgrade}
+          disabled={upgrading}
+          className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold text-sm shadow-lg shadow-violet-500/20 hover:from-violet-400 hover:to-rose-400 transition-all active:scale-[0.98] disabled:opacity-60"
+        >
+          {upgrading ? "Loading…" : "Upgrade to Plus"}
+        </button>
+      </div>
     </div>
   );
 }

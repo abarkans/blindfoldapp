@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { calcLevel } from "@/lib/utils";
-import type { CompleteDateResult } from "@/lib/types";
+import type { CompleteDateResult, PlanType } from "@/lib/types";
 import { checkCompleteRateLimit } from "@/lib/rate-limit";
 
 const XP_PER_DATE = 100;
@@ -21,9 +21,9 @@ export async function completeDate(): Promise<CompleteDateResult> {
   await checkCompleteRateLimit(user.id);
 
   // Atomically: find the revealed idea (with row lock), mark it completed,
-  // and increment XP + count in a single DB round-trip.
-  // This eliminates the read-then-write race that previously allowed double XP
-  // from concurrent requests. The DB trigger award_milestone_badges() still fires.
+  // and increment XP + count in a single DB round-trip. The RPC also reads
+  // plan_type and skips the XP/count increment for non-subscription users,
+  // returning gated=true so we know to suppress the badge fetch.
   const { data: result, error } = await supabase.rpc("complete_date_atomic", {
     p_user_id: user.id,
     p_xp_gain: XP_PER_DATE,
@@ -34,10 +34,31 @@ export async function completeDate(): Promise<CompleteDateResult> {
     throw new Error(error.message);
   }
 
-  const { total_xp: newXp, dates_completed_count: newCount } = result as {
+  const {
+    total_xp: newXp,
+    dates_completed_count: newCount,
+    gated,
+  } = result as {
     total_xp: number;
     dates_completed_count: number;
+    gated: boolean;
   };
+
+  const planType: PlanType = gated ? "free" : "subscription";
+
+  // Free plan: no XP, no badges — modal will render upsell instead.
+  if (gated) {
+    console.info(`[audit] complete: gated uid=${user.id} dates=${newCount}`);
+    revalidatePath("/dashboard");
+    return {
+      xpGained: 0,
+      newTotalXp: newXp,
+      newLevel: calcLevel(newXp),
+      newBadges: [],
+      planType,
+      gated: true,
+    };
+  }
 
   // Fetch badges earned within the last 10 seconds (just awarded by the trigger)
   const cutoff = new Date(Date.now() - 10_000).toISOString();
@@ -62,5 +83,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
         icon_emoji: m?.icon_emoji ?? "🏆",
       };
     }),
+    planType,
+    gated: false,
   };
 }

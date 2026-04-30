@@ -189,6 +189,8 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
                     width={128}
                     height={128}
                     unoptimized
+                    priority={i === 0}
+                    loading={i === 0 ? "eager" : "lazy"}
                     className={`w-full h-full object-contain transition-all duration-500 ${
                       earned ? "" : "grayscale opacity-40"
                     }`}

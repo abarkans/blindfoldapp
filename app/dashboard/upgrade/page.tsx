@@ -36,6 +36,11 @@ export default async function UpgradePage({
     })
     .eq("id", user.id);
 
+  // Retroactively credit any dates this user completed while on the free
+  // plan. Idempotent — recomputes from date_ideas history. Trigger
+  // award_milestone_badges fires on the count delta.
+  await admin.rpc("backfill_completed_xp", { p_user_id: user.id, p_xp_per_date: 100 });
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("onboarding_complete")

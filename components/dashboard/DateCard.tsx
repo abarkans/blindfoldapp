@@ -802,6 +802,7 @@ export default function DateCard({
           newTotalXp={modalData.newTotalXp}
           newLevel={modalData.newLevel}
           newBadges={modalData.newBadges}
+          gated={modalData.gated}
           onClose={() => setModalData(null)}
           onGoToProgress={() => { setModalData(null); onGoToProgress(); }}
         />
