@@ -10,6 +10,7 @@ interface StepPlanProps {
   onNext: (data: { plan_type: PlanId; cadence: string }) => void;
   onSubscribeNow: (cadence: string) => void;
   continueTrigger: number;
+  backTrigger: number;
   onCanContinueChange: (can: boolean) => void;
   onContinueLabelChange: (label: string) => void;
   onSubstepChange: (substep: "plan" | "frequency") => void;
@@ -26,6 +27,7 @@ export default function StepPlan({
   onNext,
   onSubscribeNow,
   continueTrigger,
+  backTrigger,
   onCanContinueChange,
   onContinueLabelChange,
   onSubstepChange,
@@ -34,6 +36,7 @@ export default function StepPlan({
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
   const [selectedCadence, setSelectedCadence] = useState<"weekly" | "biweekly" | "monthly" | null>(null);
   const mountTrigger = useRef(continueTrigger);
+  const mountBackTrigger = useRef(backTrigger);
 
   // Handle continue trigger — only update child state
   useEffect(() => {
@@ -51,6 +54,12 @@ export default function StepPlan({
       onSubscribeNow(selectedCadence);
     }
   }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Parent-driven back from frequency substep
+  useEffect(() => {
+    if (backTrigger <= mountBackTrigger.current) return;
+    setSubStep("plan");
+  }, [backTrigger]);
 
   // Sync substep changes to parent state (after child render completes)
   useEffect(() => {

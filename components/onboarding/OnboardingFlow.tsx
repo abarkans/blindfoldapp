@@ -78,6 +78,7 @@ export default function OnboardingFlow({
   const [continueTrigger, setContinueTrigger] = useState(0);
   const [continueLabel, setContinueLabel] = useState("Continue");
   const [planSubStep, setPlanSubStep] = useState<"plan" | "frequency" | null>(null);
+  const [planBackTrigger, setPlanBackTrigger] = useState(0);
 
   // Reset nav state whenever the step changes
   useEffect(() => {
@@ -138,9 +139,8 @@ export default function OnboardingFlow({
   function handleBack() {
     // If on step 2 (Plan) in frequency substep, reset to plan substep
     if (step === 2 && planSubStep === "frequency") {
-      setPlanSubStep("plan");
+      setPlanBackTrigger((t) => t + 1);
       setContinueLabel("Continue");
-      setCanContinue(false);
     } else {
       goBack();
     }
@@ -262,6 +262,7 @@ export default function OnboardingFlow({
                     onNext={(d) => goNext({ plan_type: d.plan_type, cadence: d.cadence })}
                     onSubscribeNow={handleSubscribeNow}
                     continueTrigger={continueTrigger}
+                    backTrigger={planBackTrigger}
                     onCanContinueChange={setCanContinue}
                     onContinueLabelChange={setContinueLabel}
                     onSubstepChange={setPlanSubStep}
