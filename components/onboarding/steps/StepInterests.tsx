@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   Utensils, Music, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart,
-  Sparkles, Check, ArrowRight,
+  Sparkles, ArrowRight,
 } from "lucide-react";
 import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
 
@@ -22,12 +22,6 @@ const INTERESTS = [
   { id: "photography", label: "Photography", icon: Camera },
   { id: "gaming", label: "Gaming", icon: Gamepad2 },
   { id: "romance", label: "Romance", icon: Heart },
-];
-
-const UNLOCK_FEATURES = [
-  { text: "All date categories unlocked", key: true },
-  { text: "Date on your own schedule", key: true },
-  { text: "Personalized to your exact taste", key: false },
 ];
 
 interface StepInterestsProps {
@@ -121,15 +115,6 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
             </div>
             <p className="text-sm font-bold text-white">Unlock every date category</p>
           </div>
-
-          <ul className="flex flex-col gap-1.5">
-            {UNLOCK_FEATURES.map(({ text, key }) => (
-              <li key={text} className="flex items-start gap-2">
-                <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${key ? "text-pink-400" : "text-emerald-400/70"}`} />
-                <span className={`text-xs ${key ? "text-white font-semibold" : "text-white/55"}`}>{text}</span>
-              </li>
-            ))}
-          </ul>
 
           <button
             type="button"
