@@ -98,6 +98,24 @@ export default function OnboardingFlow({
     return () => window.removeEventListener("pageshow", onPageShow);
   }, []);
 
+  // Anchor onboarding to browser history so back button moves between steps
+  useEffect(() => {
+    if (!history.state?.onboardingStep) {
+      history.replaceState({ ...history.state, onboardingStep: startStep }, "");
+    }
+    function onPop(e: PopStateEvent) {
+      const target = e.state?.onboardingStep;
+      if (typeof target === "number") {
+        setStep((current) => {
+          setDirection(target > current ? 1 : -1);
+          return target;
+        });
+      }
+    }
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [startStep]);
+
   async function handleExitToHome() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -107,19 +125,14 @@ export default function OnboardingFlow({
   function goNext(newData: Partial<OnboardingData>) {
     const merged = { ...data, ...newData };
     setData(merged);
+    const next = step === 1 && merged.plan_type === "subscription" ? 3 : step + 1;
     setDirection(1);
-    setStep((s) => {
-      if (s === 1 && merged.plan_type === "subscription") return 3;
-      return s + 1;
-    });
+    setStep(next);
+    history.pushState({ ...history.state, onboardingStep: next }, "");
   }
 
   function goBack() {
-    setDirection(-1);
-    setStep((s) => {
-      if (s === 3 && data.plan_type === "subscription") return 1;
-      return s - 1;
-    });
+    history.back();
   }
 
   function handleBack() {
