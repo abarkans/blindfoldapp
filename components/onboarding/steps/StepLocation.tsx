@@ -27,7 +27,22 @@ interface NominatimResult {
   lat: string;
   lon: string;
   display_name: string;
+  addresstype?: string;
+  type?: string;
+  class?: string;
 }
+
+const CITY_LEVEL_TYPES = new Set([
+  "city",
+  "town",
+  "village",
+  "hamlet",
+  "suburb",
+  "neighbourhood",
+  "municipality",
+  "borough",
+  "quarter",
+]);
 
 type Status = "idle" | "requesting" | "granted" | "denied" | "fallback";
 
@@ -92,11 +107,14 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
       setSuggestionsLoading(true);
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=5&featuretype=city`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=10&addressdetails=1`,
           { headers: { "Accept-Language": "en" } }
         );
         const results: NominatimResult[] = await res.json();
-        setSuggestions(results);
+        const cityResults = results
+          .filter((r) => CITY_LEVEL_TYPES.has(r.addresstype ?? r.type ?? ""))
+          .slice(0, 5);
+        setSuggestions(cityResults);
       } catch {
         setSuggestions([]);
       } finally {
