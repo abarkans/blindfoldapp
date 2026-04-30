@@ -86,6 +86,18 @@ export default function OnboardingFlow({
     setPlanSubStep(null);
   }, [step]);
 
+  // Clear stuck loading state when user returns via browser back from Stripe (bfcache restore)
+  useEffect(() => {
+    function onPageShow(e: PageTransitionEvent) {
+      if (e.persisted) {
+        setLoading(false);
+        setError("");
+      }
+    }
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
   async function handleExitToHome() {
     const supabase = createClient();
     await supabase.auth.signOut();
