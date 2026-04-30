@@ -63,6 +63,30 @@ export interface Database {
         };
         Relationships: [];
       };
+      deletion_holds: {
+        Row: {
+          id_hash: string;
+          revealed_at: string;
+          cadence: string;
+          expires_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id_hash: string;
+          revealed_at: string;
+          cadence: string;
+          expires_at: string;
+          created_at?: string;
+        };
+        Update: {
+          id_hash?: string;
+          revealed_at?: string;
+          cadence?: string;
+          expires_at?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       user_badges: {
         Row: {
           id: string;

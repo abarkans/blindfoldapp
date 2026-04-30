@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRevealRateLimit } from "@/lib/rate-limit";
+import { hashEmail } from "@/lib/deletion-hold";
 
 // Validate the shape of the profile row fetched from the DB.
 // Prevents compromised/malformed data from reaching AI prompts or place searches.
@@ -60,6 +61,28 @@ export async function revealDate() {
 
   // Validate + type the profile row at the server trust boundary
   const profile = profileSchema.parse(raw);
+
+  const adminEarly = createAdminClient();
+
+  // Carry over any active reveal cooldown from a deleted prior account with
+  // the same email. Blocks delete+resignup as a way to bypass the cadence.
+  if (!profile.revealed_at && user.email) {
+    const idHash = hashEmail(user.email);
+    const { data: hold } = await adminEarly
+      .from("deletion_holds")
+      .select("revealed_at, cadence, expires_at")
+      .eq("id_hash", idHash)
+      .single();
+    if (hold && new Date(hold.expires_at).getTime() > Date.now()) {
+      await adminEarly
+        .from("profiles")
+        .update({ revealed_at: hold.revealed_at, cadence: hold.cadence })
+        .eq("id", user.id);
+      profile.revealed_at = hold.revealed_at;
+      profile.cadence = hold.cadence as typeof profile.cadence;
+      await adminEarly.from("deletion_holds").delete().eq("id_hash", idHash);
+    }
+  }
 
   // Atomic eligibility claim — single conditional UPDATE either succeeds
   // for the first concurrent request or returns 0 rows for everyone else.
