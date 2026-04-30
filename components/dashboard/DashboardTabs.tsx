@@ -10,6 +10,7 @@ import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
 import SettingsPanel from "@/components/dashboard/SettingsPanel";
 import type { Profile } from "@/lib/types";
+import type { UnitSystem } from "@/lib/units";
 
 type Tab = "date" | "progress" | "settings";
 
@@ -22,6 +23,7 @@ interface DashboardTabsProps {
   profile: Profile;
   earnedBadges: EarnedBadge[];
   isDateCompleted: boolean;
+  unitSystem?: UnitSystem;
 }
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
@@ -34,6 +36,7 @@ export default function DashboardTabs({
   profile,
   earnedBadges,
   isDateCompleted,
+  unitSystem = "metric",
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
   const [showCancelBanner, setShowCancelBanner] = useState(false);
@@ -164,7 +167,7 @@ export default function DashboardTabs({
                 <ProgressTabContent profile={profile} earnedBadges={earnedBadges} />
               )}
               {activeTab === "settings" && (
-                <SettingsTabContent profile={profile} />
+                <SettingsTabContent profile={profile} unitSystem={unitSystem} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -422,7 +425,7 @@ const headerSlideVariants = {
   exit: (dir: number) => ({ opacity: 0, x: -dir * 40 }),
 };
 
-function SettingsTabContent({ profile }: { profile: Profile }) {
+function SettingsTabContent({ profile, unitSystem }: { profile: Profile; unitSystem: UnitSystem }) {
   const [subpageHeader, setSubpageHeader] = useState<{ title: string; onBack: () => void } | null>(null);
   const [headerDir, setHeaderDir] = useState(1);
 
@@ -470,7 +473,7 @@ function SettingsTabContent({ profile }: { profile: Profile }) {
           )}
         </AnimatePresence>
       </div>
-      <SettingsPanel profile={profile} onHeaderChange={handleHeaderChange} />
+      <SettingsPanel profile={profile} onHeaderChange={handleHeaderChange} unitSystem={unitSystem} />
     </div>
   );
 }

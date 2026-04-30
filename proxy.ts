@@ -1,9 +1,32 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { unitSystemForCountry } from "@/lib/units";
+import { UNIT_SYSTEM_COOKIE } from "@/lib/get-unit-system";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+
+  // First-visit unit-system detection from Vercel geo header.
+  // Push into request.cookies immediately so this-request RSCs see it,
+  // then write to whatever response we end up returning.
+  let pendingUnitCookie: string | null = null;
+  if (!request.cookies.get(UNIT_SYSTEM_COOKIE)) {
+    const country = request.headers.get("x-vercel-ip-country");
+    const system = unitSystemForCountry(country);
+    request.cookies.set(UNIT_SYSTEM_COOKIE, system);
+    pendingUnitCookie = system;
+  }
+  const applyUnitCookie = (res: NextResponse) => {
+    if (pendingUnitCookie) {
+      res.cookies.set(UNIT_SYSTEM_COOKIE, pendingUnitCookie, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: "lax",
+      });
+    }
+    return res;
+  };
 
   let supabaseResponse = NextResponse.next({ request });
 
@@ -36,7 +59,7 @@ export async function proxy(request: NextRequest) {
 
   // Unauthenticated → protected routes → send to login
   if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding"))) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return applyUnitCookie(NextResponse.redirect(new URL("/login", request.url)));
   }
 
   // Authenticated → auth pages → send to dashboard only if onboarding is done.
@@ -50,11 +73,11 @@ export async function proxy(request: NextRequest) {
       .single();
 
     if (profile?.onboarding_complete) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return applyUnitCookie(NextResponse.redirect(new URL("/dashboard", request.url)));
     }
   }
 
-  return supabaseResponse;
+  return applyUnitCookie(supabaseResponse);
 }
 
 export const proxyConfig = {

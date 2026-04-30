@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
+import { getUnitSystem } from "@/lib/get-unit-system";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -36,11 +37,14 @@ export default async function DashboardPage() {
     return { name: m?.name ?? "", earned_at: row.earned_at };
   });
 
+  const unitSystem = await getUnitSystem();
+
   return (
     <DashboardTabs
       profile={profile}
       earnedBadges={earnedBadges}
       isDateCompleted={!currentDateIdea}
+      unitSystem={unitSystem}
     />
   );
 }

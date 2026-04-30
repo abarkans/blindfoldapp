@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import type { PlanId } from "@/lib/plans";
+import { getUnitSystem } from "@/lib/get-unit-system";
 
 export default async function OnboardingPage({
   searchParams,
@@ -40,6 +41,7 @@ export default async function OnboardingPage({
   // skip straight to plan selection instead of making the user re-enter names.
   const { checkout } = await searchParams;
   const initialStep = checkout === "cancelled" && !!savedPartner1 ? 2 : undefined;
+  const unitSystem = await getUnitSystem();
 
   return (
     <OnboardingFlow
@@ -48,6 +50,7 @@ export default async function OnboardingPage({
       initialPlanType={savedPlanType}
       initialCadence={savedCadence}
       initialStep={initialStep}
+      unitSystem={unitSystem}
     />
   );
 }

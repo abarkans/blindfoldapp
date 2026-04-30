@@ -17,6 +17,7 @@ import Button from "@/components/ui/Button";
 import type { IdentityFormData, LogisticsFormData } from "@/lib/schemas/onboarding";
 import type { LocationFormData } from "./steps/StepLocation";
 import type { PlanId } from "@/lib/plans";
+import type { UnitSystem } from "@/lib/units";
 
 type OnboardingData = {
   partner1?: string;
@@ -46,6 +47,7 @@ interface OnboardingFlowProps {
   initialPlanType?: PlanId;
   initialCadence?: string;
   initialStep?: number;
+  unitSystem?: UnitSystem;
 }
 
 export default function OnboardingFlow({
@@ -54,6 +56,7 @@ export default function OnboardingFlow({
   initialPlanType,
   initialCadence,
   initialStep,
+  unitSystem = "metric",
 }: OnboardingFlowProps) {
   const router = useRouter();
 
@@ -278,6 +281,7 @@ export default function OnboardingFlow({
                     planType={data.plan_type}
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
+                    unitSystem={unitSystem}
                   />
                 )}
               </motion.div>

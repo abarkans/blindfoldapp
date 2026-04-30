@@ -11,6 +11,7 @@ import {
   Sparkles, Lock, Check, Zap, Crown, UserCog, Trash2,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
+import { formatRadius, type UnitSystem } from "@/lib/units";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
@@ -97,6 +98,7 @@ const VIEW_LABELS: Record<string, string> = {
 interface SettingsPanelProps {
   profile: Profile;
   onHeaderChange?: (title: string | null, onBack: (() => void) | null, direction?: number) => void;
+  unitSystem?: UnitSystem;
 }
 
 const slideVariants = {
@@ -111,7 +113,7 @@ const noAnimation = {
   exit: { opacity: 0, x: 0 },
 };
 
-export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanelProps) {
+export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "metric" }: SettingsPanelProps) {
   const [view, setView] = useState<SettingsView>("list");
   const [direction, setDirection] = useState(1);
   const [saved, setSaved] = useState(false);
@@ -786,11 +788,11 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                     min={1}
                     max={maxRadiusKm}
                     step={1}
-                    formatValue={(v) => `${v} km`}
+                    formatValue={(v) => formatRadius(v, unitSystem)}
                   />
                   <div className="flex justify-between text-[10px] text-white/55 px-1 -mt-2">
                     <span>Walking distance</span>
-                    <span>{planType === "subscription" ? "Long drive / Countryside" : "15 km max on Starter"}</span>
+                    <span>{planType === "subscription" ? "Long drive / Countryside" : `${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} max on Starter`}</span>
                   </div>
                   {planType !== "subscription" && (
                     <button
@@ -798,7 +800,7 @@ export default function SettingsPanel({ profile, onHeaderChange }: SettingsPanel
                       onClick={() => navigate("plan")}
                       className="text-[11px] text-violet-400/70 hover:text-violet-400 transition-colors text-left px-1"
                     >
-                      Upgrade to Plus for up to 50 km →
+                      Upgrade to Plus for up to {formatRadius(PAID_MAX_RADIUS_KM, unitSystem)} →
                     </button>
                   )}
                 </div>

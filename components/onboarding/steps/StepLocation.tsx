@@ -6,6 +6,7 @@ import { MapPin, Search, Navigation, AlertCircle } from "lucide-react";
 import Slider from "@/components/ui/Slider";
 import Button from "@/components/ui/Button";
 import { type PlanId, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM } from "@/lib/plans";
+import { formatRadius, type UnitSystem } from "@/lib/units";
 
 export interface LocationFormData {
   lat: number;
@@ -19,6 +20,7 @@ interface StepLocationProps {
   planType?: PlanId;
   continueTrigger: number;
   onCanContinueChange: (can: boolean) => void;
+  unitSystem?: UnitSystem;
 }
 
 interface NominatimResult {
@@ -43,7 +45,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
   }
 }
 
-export default function StepLocation({ defaultValues, onNext, planType, continueTrigger, onCanContinueChange }: StepLocationProps) {
+export default function StepLocation({ defaultValues, onNext, planType, continueTrigger, onCanContinueChange, unitSystem = "metric" }: StepLocationProps) {
   const maxRadiusKm = planType === "subscription" ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
   const [status, setStatus] = useState<Status>("idle");
   const [lat, setLat] = useState<number | null>(defaultValues?.lat ?? null);
@@ -310,15 +312,15 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
           min={1}
           max={maxRadiusKm}
           step={1}
-          formatValue={(v) => `${v} km`}
+          formatValue={(v) => formatRadius(v, unitSystem)}
         />
         <div className="flex justify-between text-[10px] text-white/55 px-1">
           <span>Walking distance</span>
-          <span>{planType === "subscription" ? "Long drive / Countryside" : "15 km max on Starter"}</span>
+          <span>{planType === "subscription" ? "Long drive / Countryside" : `${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} max on Starter`}</span>
         </div>
         {planType !== "subscription" && (
           <p className="text-[11px] text-white/55 px-1">
-            Plus plan unlocks up to 50 km.
+            Plus plan unlocks up to {formatRadius(PAID_MAX_RADIUS_KM, unitSystem)}.
           </p>
         )}
       </div>
