@@ -11,29 +11,35 @@ Status legend:
   [P2] = nice to have, post-launch
 
 ------------------------------------------------------------
-[P0]  Server-side disposable email + age/ToS enforcement
+[P0]  Captcha on auth (Turnstile or hCaptcha)
 ------------------------------------------------------------
-Files: components/auth/RegisterClient.tsx, lib/utils/disposable-emails.ts
+Files: Supabase Dashboard + components/auth/RegisterClient.tsx
+       + components/auth/LoginClient.tsx
 
 Problem:
-  isDisposableEmail and the age/ToS checkboxes are client-side
-  only. Direct supabase.auth.signUp() call from devtools or curl
-  bypasses all of them.
+  Migration 023 plus the gated Google button now block scripted
+  signups that omit age/terms or use disposable domains. Captcha
+  is the remaining layer that stops scripted signups using
+  one-off real domains (e.g. provider-rotated Gmail addresses)
+  and brute-force login attempts on existing accounts.
 
 Fix:
-  Use Supabase Auth Hooks (https://supabase.com/docs/guides/auth/auth-hooks)
-  → "Send Email" / "before-user-created" hook to reject:
-    * disposable email domains (server-maintained list)
-    * any signup not flagged with metadata.age_confirmed = true
-      and metadata.terms_accepted = true
-  Pass these flags via supabase.auth.signUp options.data so the
-  hook can read them.
+  1. Supabase Dashboard → Authentication → Settings → Captcha →
+     enable Cloudflare Turnstile (preferred — no PII, free tier).
+     Paste site key + secret key from Cloudflare.
+  2. Add Turnstile widget to LoginClient + RegisterClient. Either:
+       - install `@marsidev/react-turnstile` (~3kb), or
+       - inline the Cloudflare script via Next <Script>
+     Render the widget; capture the token in state.
+  3. Pass captchaToken to signUp / signInWithPassword / OAuth:
+       supabase.auth.signUp({
+         email, password,
+         options: { data: {...}, captchaToken },
+       })
+  4. Add NEXT_PUBLIC_TURNSTILE_SITE_KEY to .env.local and Vercel.
+     Site key is public; secret key only goes into Supabase.
 
-  Also enable Supabase Captcha (hCaptcha or Turnstile) under
-  Auth → Settings to stop bot enrolment.
-
-Estimated work: ~1-2 hours, mostly Supabase dashboard config +
-small refactor of signUp call sites.
+Estimated work: ~1 hour once Turnstile site key is in hand.
 
 ------------------------------------------------------------
 [P0]  CSP nonce migration — drop unsafe-inline + unsafe-eval
@@ -191,6 +197,13 @@ DONE in this pass (2026-05-01):
 [x] Stripe error.message no longer bubbled to client
     (app/api/stripe/checkout/route.ts, app/api/stripe/portal/route.ts)
 [x] Stripe webhook URL fix in production (user fixed typo in dashboard)
+[x] Server-side disposable email + age/ToS enforcement
+    (migration 023 with BEFORE INSERT trigger on auth.users that
+     rejects known disposable domains and, for email/password
+     signups, requires raw_user_meta_data.age_confirmed and
+     raw_user_meta_data.terms_accepted. RegisterClient passes
+     these flags via signUp options.data and gates the Google
+     OAuth button on the same checkboxes.)
 [x] Re-auth gate on deleteAccount() via email confirmation token
     (migration 022, lib/email/templates/delete-confirmation.ts,
      app/actions/delete-account.ts split into request + confirm,

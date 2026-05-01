@@ -38,8 +38,17 @@ export default function RegisterClient() {
   const {
     register,
     handleSubmit,
+    watch,
+    trigger,
     formState: { errors },
-  } = useForm<RegisterFormData>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { ageConfirmed: false, termsAccepted: false },
+  });
+
+  const ageConfirmed = watch("ageConfirmed");
+  const termsAccepted = watch("termsAccepted");
+  const oauthReady = ageConfirmed && termsAccepted;
 
   async function onSubmit(values: RegisterFormData) {
     setLoading(true);
@@ -56,7 +65,16 @@ export default function RegisterClient() {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // Server-side trigger validate_user_signup() reads these and
+        // rejects the insert if either flag is missing or false.
+        data: {
+          age_confirmed: values.ageConfirmed,
+          terms_accepted: values.termsAccepted,
+          terms_accepted_at: new Date().toISOString(),
+        },
+      },
     });
 
     if (signUpError) {
@@ -80,6 +98,13 @@ export default function RegisterClient() {
   }
 
   async function handleGoogle() {
+    setError("");
+    // Force the checkbox validation to run so errors show inline if missing.
+    const valid = await trigger(["ageConfirmed", "termsAccepted"]);
+    if (!valid) {
+      setError("Please confirm your age and accept the Terms before continuing.");
+      return;
+    }
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -138,11 +163,50 @@ export default function RegisterClient() {
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
           <h2 className="text-lg font-bold text-white mb-5">Create account</h2>
 
+          {/* Age + ToS checkboxes are above the auth options so OAuth signups
+              capture acceptance the same way email/password signups do. */}
+          <div className="flex flex-col gap-2 mb-5">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
+                {...register("ageConfirmed")}
+              />
+              <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
+                I confirm I am <strong className="text-white/70">18 years of age or older</strong>
+              </span>
+            </label>
+            {errors.ageConfirmed && (
+              <p className="text-xs text-red-400 pl-7">{errors.ageConfirmed.message}</p>
+            )}
+
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
+                {...register("termsAccepted")}
+              />
+              <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
+                I agree to the{" "}
+                <Link href="/legal/terms" target="_blank" className="text-rose-400 hover:text-rose-300 underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/legal/privacy" target="_blank" className="text-rose-400 hover:text-rose-300 underline">
+                  Privacy Policy
+                </Link>
+              </span>
+            </label>
+            {errors.termsAccepted && (
+              <p className="text-xs text-red-400 pl-7">{errors.termsAccepted.message}</p>
+            )}
+          </div>
+
           <Button
             type="button"
             variant="secondary"
             size="lg"
-            className="w-full mb-5"
+            className={`w-full mb-5 ${oauthReady ? "" : "opacity-60"}`}
             onClick={handleGoogle}
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -194,42 +258,6 @@ export default function RegisterClient() {
               error={errors.confirm?.message}
               {...register("confirm")}
             />
-            <div className="flex flex-col gap-2 mt-1">
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
-                  {...register("ageConfirmed")}
-                />
-                <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
-                  I confirm I am <strong className="text-white/70">18 years of age or older</strong>
-                </span>
-              </label>
-              {errors.ageConfirmed && (
-                <p className="text-xs text-red-400 pl-7">{errors.ageConfirmed.message}</p>
-              )}
-
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
-                  {...register("termsAccepted")}
-                />
-                <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
-                  I agree to the{" "}
-                  <Link href="/legal/terms" target="_blank" className="text-rose-400 hover:text-rose-300 underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/legal/privacy" target="_blank" className="text-rose-400 hover:text-rose-300 underline">
-                    Privacy Policy
-                  </Link>
-                </span>
-              </label>
-              {errors.termsAccepted && (
-                <p className="text-xs text-red-400 pl-7">{errors.termsAccepted.message}</p>
-              )}
-            </div>
 
             <Button type="submit" size="lg" className="w-full mt-1" loading={loading}>
               Create Account
