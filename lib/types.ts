@@ -63,6 +63,27 @@ export interface Database {
         };
         Relationships: [];
       };
+      account_deletion_tokens: {
+        Row: {
+          token_hash: string;
+          user_id: string;
+          expires_at: string;
+          created_at: string;
+        };
+        Insert: {
+          token_hash: string;
+          user_id: string;
+          expires_at: string;
+          created_at?: string;
+        };
+        Update: {
+          token_hash?: string;
+          user_id?: string;
+          expires_at?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       deletion_holds: {
         Row: {
           id_hash: string;
@@ -252,6 +273,10 @@ export interface Database {
         Returns: number;
       };
       cleanup_deletion_holds: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      cleanup_account_deletion_tokens: {
         Args: Record<string, never>;
         Returns: number;
       };

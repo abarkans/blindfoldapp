@@ -1,0 +1,201 @@
+Blindfold — Pre-Launch Security TODO
+=====================================
+Generated 2026-05-01 from full-codebase security audit.
+Items below were intentionally deferred because each requires
+non-trivial work (UI flows, new infra, framework testing) and
+should be done as separate, focused PRs rather than rushed.
+
+Status legend:
+  [P0] = ship before public launch
+  [P1] = ship within 2 weeks of launch
+  [P2] = nice to have, post-launch
+
+------------------------------------------------------------
+[P0]  Server-side disposable email + age/ToS enforcement
+------------------------------------------------------------
+Files: components/auth/RegisterClient.tsx, lib/utils/disposable-emails.ts
+
+Problem:
+  isDisposableEmail and the age/ToS checkboxes are client-side
+  only. Direct supabase.auth.signUp() call from devtools or curl
+  bypasses all of them.
+
+Fix:
+  Use Supabase Auth Hooks (https://supabase.com/docs/guides/auth/auth-hooks)
+  → "Send Email" / "before-user-created" hook to reject:
+    * disposable email domains (server-maintained list)
+    * any signup not flagged with metadata.age_confirmed = true
+      and metadata.terms_accepted = true
+  Pass these flags via supabase.auth.signUp options.data so the
+  hook can read them.
+
+  Also enable Supabase Captcha (hCaptcha or Turnstile) under
+  Auth → Settings to stop bot enrolment.
+
+Estimated work: ~1-2 hours, mostly Supabase dashboard config +
+small refactor of signUp call sites.
+
+------------------------------------------------------------
+[P0]  CSP nonce migration — drop unsafe-inline + unsafe-eval
+------------------------------------------------------------
+File: next.config.ts, proxy.ts, app/layout.tsx
+
+Problem:
+  Current CSP allows 'unsafe-inline' 'unsafe-eval' on script-src.
+  Any XSS sink (e.g. user-controlled partner_names rendered
+  somewhere unsafely) becomes full account takeover via cookie
+  exfil.
+
+Fix:
+  - Generate per-request nonce in proxy.ts:
+      const nonce = crypto.randomUUID()
+      response.headers.set('x-nonce', nonce)
+  - Move CSP from next.config.ts headers to proxy.ts so it can
+    inject the nonce dynamically.
+  - script-src becomes: 'self' 'nonce-${nonce}' 'strict-dynamic'
+  - In app/layout.tsx, read the nonce from headers() and pass to
+    any <Script> tags that need it. Next.js automatically applies
+    the x-nonce header to its own scripts when present.
+  - Remove 'unsafe-eval' entirely (Tailwind v4 is compile-time).
+  - Test hydration on every page after change. Framer Motion is
+    fine; verify any third-party scripts.
+
+Reference: https://nextjs.org/docs/app/building-your-application/configuring/content-security-policy
+
+Estimated work: ~3-4 hours including QA of every page.
+
+------------------------------------------------------------
+[P1]  Stripe subscription reconciliation cron
+------------------------------------------------------------
+New file: app/api/cron/reconcile-subscriptions/route.ts
+
+Problem:
+  Webhook is the only path that updates plan_type +
+  subscription_ends_at. A future webhook outage, dropped event,
+  or signing-secret rotation lag silently desyncs the DB. There
+  is no self-healing path.
+
+Fix:
+  Add a daily cron that:
+    - selects all profiles with stripe_customer_id IS NOT NULL
+    - for each, calls
+        stripe.subscriptions.list({ customer, status: 'all', limit: 1 })
+    - reconstructs (plan_type, subscription_ends_at, cadence) from
+      the live sub object using the same resolveSubscriptionEndsAt
+      logic as the webhook
+    - updates the row only if any field differs
+    - logs a warn on every divergence so we know when the webhook
+      missed something
+
+  Register in vercel.json crons. Reuse CRON_SECRET bearer auth
+  pattern from notify-dates/route.ts.
+
+Estimated work: ~2 hours.
+
+------------------------------------------------------------
+[P1]  Notify-dates cron pagination
+------------------------------------------------------------
+File: app/api/cron/notify-dates/route.ts
+
+Problem:
+  Loads all profiles with non-null revealed_at into memory in a
+  single query. At 10k+ users this risks OOM and triggers an
+  email burst spike that Resend may rate-limit.
+
+Fix:
+  Two improvements:
+   1. Filter at the DB by computing the readiness cutoff per
+      cadence and selecting only profiles whose revealed_at is
+      old enough. The cadence-cutoff logic is already in this
+      file — push it into a SQL CASE WHEN clause or an RPC.
+   2. Page in batches of 500 with .range(offset, offset+499)
+      and loop until the batch returns < 500.
+
+  Also batch the Resend send (Resend supports up to 100 per
+  batched call).
+
+Estimated work: ~1.5 hours.
+
+------------------------------------------------------------
+[P1]  Sentry / error reporting + alerting
+------------------------------------------------------------
+Files: app/error.tsx, all server actions, all API routes
+
+Problem:
+  Errors are console.error'd to Vercel function logs with no
+  alerting. A silent burst of 500s in revealDate (paid AI
+  failures) or webhook (signature mismatches) would go unseen
+  until customers complain.
+
+Fix:
+  Install @sentry/nextjs. Configure DSN via env. Wrap server
+  actions with Sentry.captureException in their catch blocks.
+  Set up alerts on Sentry for:
+    * any error from app/api/stripe/webhook/route.ts
+    * error rate > 5/min on app/actions/reveal.ts
+    * any error from cron routes
+
+Alternative: Vercel Log Drains → Datadog/Axiom + alert rules.
+
+Estimated work: ~2 hours.
+
+------------------------------------------------------------
+[P2]  Enable HIBP + stricter password rules
+------------------------------------------------------------
+Where: Supabase Dashboard → Authentication → Policies
+
+Problem:
+  Current min length is 8 with no complexity or breach check.
+  Credential stuffing is the #1 account-takeover vector.
+
+Fix:
+  Toggle on:
+    * Password length minimum: 10
+    * "Check passwords against HaveIBeenPwned"
+    * Optional: require characters classes
+  No code change required.
+
+Estimated work: ~5 minutes.
+
+------------------------------------------------------------
+[P2]  Origin-check tightening on Stripe routes
+------------------------------------------------------------
+Files: app/api/stripe/checkout/route.ts, app/api/stripe/portal/route.ts
+
+Problem:
+  isAllowedOrigin falls back to comparing against
+  x-forwarded-host. Vercel terminates this safely today; if you
+  ever front with another CDN that doesn't strip an incoming
+  X-Forwarded-Host header, host-header spoofing could bypass
+  the same-origin check.
+
+Fix:
+  Once production domains are stable, drop the host-fallback
+  branch and rely only on STATIC_ORIGINS = [NEXT_PUBLIC_APP_URL].
+  Add the production preview origin explicitly if still using
+  preview deploys for QA.
+
+Estimated work: ~10 minutes.
+
+------------------------------------------------------------
+DONE in this pass (2026-05-01):
+------------------------------------------------------------
+[x] Rate-limit fail-closed for cost-exposed actions
+    (lib/rate-limit.ts) — reveal/stripe/place-photo now block on
+    RPC error; complete still fails open.
+[x] /api/place-photo: auth gate + per-user rate limit
+    (app/api/place-photo/route.ts)
+[x] Lat/lng schema bounds (-90..90 / -180..180)
+    (lib/schemas/onboarding.ts, app/actions/reveal.ts,
+     app/actions/reroll.ts)
+[x] Stripe error.message no longer bubbled to client
+    (app/api/stripe/checkout/route.ts, app/api/stripe/portal/route.ts)
+[x] Stripe webhook URL fix in production (user fixed typo in dashboard)
+[x] Re-auth gate on deleteAccount() via email confirmation token
+    (migration 022, lib/email/templates/delete-confirmation.ts,
+     app/actions/delete-account.ts split into request + confirm,
+     app/account/confirm-delete/page.tsx,
+     components/account/ConfirmDeleteClient.tsx,
+     SettingsPanel modal updated, cron cleanup added).
+    TTL 15 min, single-use, RLS-only, cross-user check, replaces
+    prior pending tokens on new request.

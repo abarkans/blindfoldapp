@@ -116,5 +116,13 @@ export async function GET(request: Request) {
     console.info(`[cron/notify-dates] deletion_holds cleanup deleted=${deletedHolds ?? 0}`);
   }
 
+  // Same piggyback for expired account-deletion confirmation tokens.
+  const { data: deletedTokens, error: tokensCleanupErr } = await supabase.rpc("cleanup_account_deletion_tokens");
+  if (tokensCleanupErr) {
+    console.warn(`[cron/notify-dates] account_deletion_tokens cleanup failed: ${tokensCleanupErr.message}`);
+  } else {
+    console.info(`[cron/notify-dates] account_deletion_tokens cleanup deleted=${deletedTokens ?? 0}`);
+  }
+
   return NextResponse.json({ sent, errors });
 }
