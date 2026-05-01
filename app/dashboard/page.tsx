@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import { getUnitSystem } from "@/lib/get-unit-system";
+import { signPlacePhotoUrl } from "@/lib/place-photo-token";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -31,6 +32,14 @@ export default async function DashboardPage() {
     ]);
 
   if (!profile?.onboarding_complete) redirect("/onboarding");
+
+  // Inject a short-lived signed URL for the place photo so the
+  // <Image> optimizer can fetch /api/place-photo without a session
+  // cookie (it doesn't forward cookies on its outbound fetches).
+  const dateIdea = profile.date_idea as { type?: string; photo_name?: string | null } | null;
+  if (dateIdea && dateIdea.type === "venue" && dateIdea.photo_name) {
+    (profile.date_idea as Record<string, unknown>).signed_photo_url = signPlacePhotoUrl(dateIdea.photo_name);
+  }
 
   const earnedBadges = (userBadgeRows ?? []).map((row) => {
     const m = row.milestones as { name: string; icon_emoji: string } | null;

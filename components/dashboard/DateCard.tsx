@@ -51,6 +51,10 @@ interface VenueDateIdea {
   display_name: string;
   formatted_address: string;
   photo_name: string | null;
+  // Signed `/api/place-photo?ref=...&exp=...&sig=...` URL injected by
+  // the dashboard RSC so the Next.js image optimizer can fetch the
+  // proxy without a session cookie. See lib/place-photo-token.ts.
+  signed_photo_url?: string | null;
   rating: number;
   price_level: string;
   ai: VenueAIEnrichment | null;
@@ -498,9 +502,9 @@ export default function DateCard({
                   /* ── ACCEPTED VENUE ── */
                   <>
                     <div className="relative h-48 rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/8">
-                      {dateIdea.photo_name ? (
+                      {dateIdea.photo_name && dateIdea.signed_photo_url ? (
                         <Image
-                          src={`/api/place-photo?ref=${encodeURIComponent(dateIdea.photo_name)}`}
+                          src={dateIdea.signed_photo_url}
                           alt={dateIdea.display_name}
                           fill
                           sizes="(max-width: 768px) 100vw, 400px"
