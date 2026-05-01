@@ -19,8 +19,7 @@ const registerSchema = z
     email: z.string().email("Invalid email"),
     password: z.string().min(8, "At least 8 characters"),
     confirm: z.string(),
-    ageConfirmed: z.boolean().refine((v) => v === true, "You must be 18 or older to use BlindfoldDate"),
-    termsAccepted: z.boolean().refine((v) => v === true, "You must accept the Terms of Service and Privacy Policy"),
+    confirmed: z.boolean().refine((v) => v === true, "You must be 18+ and accept the Terms and Privacy Policy"),
   })
   .refine((d) => d.password === d.confirm, {
     message: "Passwords don't match",
@@ -43,12 +42,10 @@ export default function RegisterClient() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { ageConfirmed: false, termsAccepted: false },
+    defaultValues: { confirmed: false },
   });
 
-  const ageConfirmed = watch("ageConfirmed");
-  const termsAccepted = watch("termsAccepted");
-  const oauthReady = ageConfirmed && termsAccepted;
+  const oauthReady = watch("confirmed");
 
   async function onSubmit(values: RegisterFormData) {
     setLoading(true);
@@ -70,8 +67,8 @@ export default function RegisterClient() {
         // Server-side trigger validate_user_signup() reads these and
         // rejects the insert if either flag is missing or false.
         data: {
-          age_confirmed: values.ageConfirmed,
-          terms_accepted: values.termsAccepted,
+          age_confirmed: values.confirmed,
+          terms_accepted: values.confirmed,
           terms_accepted_at: new Date().toISOString(),
         },
       },
@@ -99,10 +96,9 @@ export default function RegisterClient() {
 
   async function handleGoogle() {
     setError("");
-    // Force the checkbox validation to run so errors show inline if missing.
-    const valid = await trigger(["ageConfirmed", "termsAccepted"]);
+    const valid = await trigger("confirmed");
     if (!valid) {
-      setError("Please confirm your age and accept the Terms before continuing.");
+      setError("Please confirm you are 18+ and accept the Terms before continuing.");
       return;
     }
     const supabase = createClient();
@@ -163,31 +159,17 @@ export default function RegisterClient() {
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
           <h2 className="text-lg font-bold text-white mb-5">Create account</h2>
 
-          {/* Age + ToS checkboxes are above the auth options so OAuth signups
+          {/* Combined age + ToS consent. Above auth options so OAuth signups
               capture acceptance the same way email/password signups do. */}
           <div className="flex flex-col gap-2 mb-5">
             <label className="flex items-start gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
-                {...register("ageConfirmed")}
+                {...register("confirmed")}
               />
               <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
-                I confirm I am <strong className="text-white/70">18 years of age or older</strong>
-              </span>
-            </label>
-            {errors.ageConfirmed && (
-              <p className="text-xs text-red-400 pl-7">{errors.ageConfirmed.message}</p>
-            )}
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/5 accent-rose-500 cursor-pointer"
-                {...register("termsAccepted")}
-              />
-              <span className="text-xs text-white/50 leading-relaxed group-hover:text-white/70 transition-colors">
-                I agree to the{" "}
+                I confirm I am <strong className="text-white/70">18 or older</strong> and agree to the{" "}
                 <Link href="/legal/terms" target="_blank" className="text-rose-400 hover:text-rose-300 underline">
                   Terms of Service
                 </Link>{" "}
@@ -197,8 +179,8 @@ export default function RegisterClient() {
                 </Link>
               </span>
             </label>
-            {errors.termsAccepted && (
-              <p className="text-xs text-red-400 pl-7">{errors.termsAccepted.message}</p>
+            {errors.confirmed && (
+              <p className="text-xs text-red-400 pl-7">{errors.confirmed.message}</p>
             )}
           </div>
 
