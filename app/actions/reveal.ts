@@ -22,9 +22,9 @@ const profileSchema = z.object({
   }),
   cadence: z.enum(["weekly", "biweekly", "monthly"]),
   revealed_at: z.string().nullable(),
-  last_lat: z.number().nullable(),
-  last_long: z.number().nullable(),
-  preferred_radius: z.number().nullable(),
+  last_lat: z.number().min(-90).max(90).nullable(),
+  last_long: z.number().min(-180).max(180).nullable(),
+  preferred_radius: z.number().min(1000).max(50000).nullable(),
 });
 
 const CADENCE_DAYS: Record<string, number> = {

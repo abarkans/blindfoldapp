@@ -58,7 +58,9 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ url: session.url });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Stripe error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    // Stripe error strings can leak request IDs / parameter context.
+    // Log internally; return generic message to the client.
+    console.error(`[stripe/checkout] uid=${user.id} err=${err instanceof Error ? err.message : String(err)}`);
+    return NextResponse.json({ error: "Checkout failed. Please try again." }, { status: 500 });
   }
 }

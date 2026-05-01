@@ -1,9 +1,26 @@
 import { NextRequest } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { checkPlacePhotoRateLimit } from "@/lib/rate-limit";
 
 // Allowlist: Google Places API (New) photo names are always in this shape
 const PHOTO_REF_PATTERN = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
 export async function GET(request: NextRequest) {
+  // Auth gate: this endpoint forwards to the paid Google Places photo API,
+  // so unauthenticated callers must not be able to burn the project quota.
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return new Response("Unauthorized", { status: 401 });
+
+  // Per-user ceiling on top of the auth gate. Bounded blast radius if a
+  // single account is compromised or scripted.
+  try {
+    await checkPlacePhotoRateLimit(user.id);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Rate limited";
+    return new Response(msg, { status: 429 });
+  }
+
   const ref = request.nextUrl.searchParams.get("ref");
   if (!ref) return new Response("Missing ref", { status: 400 });
 

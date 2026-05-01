@@ -18,9 +18,9 @@ const profileSchema = z.object({
     has_car: z.boolean(),
     prefers_walking: z.boolean(),
   }),
-  last_lat: z.number().nullable(),
-  last_long: z.number().nullable(),
-  preferred_radius: z.number().nullable(),
+  last_lat: z.number().min(-90).max(90).nullable(),
+  last_long: z.number().min(-180).max(180).nullable(),
+  preferred_radius: z.number().min(1000).max(50000).nullable(),
 });
 
 export async function rerollDate(): Promise<void> {

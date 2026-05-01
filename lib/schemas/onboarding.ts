@@ -36,8 +36,8 @@ export const frequencySchema = z.object({
 });
 
 export const locationSchema = z.object({
-  lat: z.number(),
-  lng: z.number(),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
   preferred_radius: z.number().min(1000).max(50000),
 });
 
@@ -49,9 +49,9 @@ export const fullOnboardingSchema = z.object({
   has_car: logisticsSchema.shape.has_car,
   prefers_walking: logisticsSchema.shape.prefers_walking,
   cadence: frequencySchema.shape.cadence,
-  lat: z.number().optional(),
-  lng: z.number().optional(),
-  preferred_radius: z.number().optional(),
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
+  preferred_radius: z.number().min(1000).max(50000).optional(),
 });
 
 export const planSchema = z
