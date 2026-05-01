@@ -14,12 +14,31 @@ import { UNIT_SYSTEM_COOKIE } from "@/lib/get-unit-system";
 // dev never serves real users.
 function buildCsp(nonce: string): string {
   const isDev = process.env.NODE_ENV !== "production";
+  // Vercel Live (feedback/comments overlay) injects eval-using scripts on
+  // preview deploys. Allow only on preview, never on real production.
+  const isPreview = process.env.VERCEL_ENV === "preview";
   const scriptSrc = [
     "'self'",
     `'nonce-${nonce}'`,
     "'strict-dynamic'",
     ...(isDev ? ["'unsafe-eval'", "'unsafe-inline'"] : []),
+    ...(isPreview ? ["https://vercel.live"] : []),
+    // TODO: production still needs 'unsafe-eval' — Next.js 16 / Turbopack
+    // runtime chunk uses eval. Track upstream; remove once chunk identified
+    // and patched. Nonce + strict-dynamic + no unsafe-inline still big win
+    // vs. pre-b41f225 posture.
+    "'unsafe-eval'",
   ].join(" ");
+
+  const connectSrc = [
+    "'self'",
+    "https://*.supabase.co",
+    "wss://*.supabase.co",
+    "https://nominatim.openstreetmap.org",
+    ...(isPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
+  ].join(" ");
+
+  const frameSrc = isPreview ? "https://vercel.live" : "'none'";
 
   return [
     "default-src 'self'",
@@ -30,11 +49,10 @@ function buildCsp(nonce: string): string {
     "style-src 'self' 'unsafe-inline'",
     // Place photos served through internal proxy (/api/place-photo);
     // data: for inline SVGs/favicons; blob: for client-generated assets.
-    "img-src 'self' data: blob:",
-    "font-src 'self'",
-    // Client-side fetch targets: Supabase (REST + Realtime WS) +
-    // Nominatim geocoding.
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org",
+    "img-src 'self' data: blob: https://vercel.live https://vercel.com",
+    "font-src 'self' https://vercel.live https://assets.vercel.com",
+    `connect-src ${connectSrc}`,
+    `frame-src ${frameSrc}`,
     "worker-src blob: 'self'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
