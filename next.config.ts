@@ -11,28 +11,8 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Disable browser features not used by this app
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
-  // CSP: restrict where resources can load from.
-  // unsafe-inline + unsafe-eval required by Next.js App Router hydration and Tailwind CSS v4.
-  // Tighten with nonces in a future pass.
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      // Place photos served through internal proxy (/api/place-photo); data: for inline SVGs/favicons
-      "img-src 'self' data: blob:",
-      "font-src 'self'",
-      // Client-side fetch targets: Supabase (REST + Realtime WS) + Nominatim geocoding
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org",
-      "worker-src blob: 'self'",
-      // Deny all framing
-      "frame-ancestors 'none'",
-      // Restrict <base> and <form> to same origin
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; "),
-  },
+  // Content-Security-Policy is set per-request in proxy.ts so each
+  // response can carry a fresh nonce for inline scripts.
 ];
 
 const nextConfig: NextConfig = {

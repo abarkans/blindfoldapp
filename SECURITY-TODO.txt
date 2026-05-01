@@ -197,6 +197,16 @@ DONE in this pass (2026-05-01):
 [x] Stripe error.message no longer bubbled to client
     (app/api/stripe/checkout/route.ts, app/api/stripe/portal/route.ts)
 [x] Stripe webhook URL fix in production (user fixed typo in dashboard)
+[x] CSP nonce migration — drop unsafe-inline + unsafe-eval in prod
+    (proxy.ts builds CSP per request with a fresh base64 nonce and
+     sets it on both response and forwarded request headers; layout
+     reads the nonce via headers() and applies it to the JSON-LD
+     inline script; next.config.ts no longer ships a static CSP.
+     Dev keeps unsafe-eval/unsafe-inline because Turbopack HMR
+     evaluates modules at runtime.)
+    Manual QA still pending — run `npm run build && npm start` and
+    walk through every route checking devtools console for CSP
+    violation reports before declaring done.
 [x] Server-side disposable email + age/ToS enforcement
     (migration 023 with BEFORE INSERT trigger on auth.users that
      rejects known disposable domains and, for email/password
