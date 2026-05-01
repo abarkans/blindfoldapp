@@ -36,9 +36,15 @@ export default async function DashboardPage() {
   // Inject a short-lived signed URL for the place photo so the
   // <Image> optimizer can fetch /api/place-photo without a session
   // cookie (it doesn't forward cookies on its outbound fetches).
+  // Failure here must not 500 the dashboard — log + skip so the
+  // page still renders without the image.
   const dateIdea = profile.date_idea as { type?: string; photo_name?: string | null } | null;
   if (dateIdea && dateIdea.type === "venue" && dateIdea.photo_name) {
-    (profile.date_idea as Record<string, unknown>).signed_photo_url = signPlacePhotoUrl(dateIdea.photo_name);
+    try {
+      (profile.date_idea as Record<string, unknown>).signed_photo_url = signPlacePhotoUrl(dateIdea.photo_name);
+    } catch (err) {
+      console.error(`[dashboard] sign place photo failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   const earnedBadges = (userBadgeRows ?? []).map((row) => {
