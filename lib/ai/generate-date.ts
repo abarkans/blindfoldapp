@@ -36,7 +36,7 @@ function sanitize(value: string, maxLen = 200): string {
 }
 
 const DateIdeaSchema = z.object({
-  title: z.string().describe("Short catchy name for the date, max 5 words"),
+  title: z.string().describe("Short catchy name for the date, max 5 words. Must NOT be the venue name verbatim — invent a short evocative phrase about the experience instead."),
   description: z
     .string()
     .describe(
@@ -62,6 +62,12 @@ export type GeneratedDateIdea = z.infer<typeof DateIdeaSchema>;
 
 const VENUE_SYSTEM_PROMPT = `You are a date experience writer for Blindfold, a couples date app.
 
+TITLE RULES:
+- Max 5 words, evocative, captures the vibe of the experience
+- Must NOT be the venue's name verbatim
+- Must NOT be just a city or place name
+- Think "Sunset & Slow Bites" not "Restaurant Riga"
+
 DESCRIPTION RULES:
 - Exactly 1 sentence, maximum 20 words
 - Use the place name naturally
@@ -84,6 +90,12 @@ GLOBAL RULES:
 - Tone: a friend who's been there, genuinely excited for them — not a travel brochure`;
 
 const VENUE_SYSTEM_PROMPT_PRO = `You are a date experience writer for Blindfold, a couples date app. You are writing for premium subscribers — push for originality and specificity.
+
+TITLE RULES:
+- Max 5 words, evocative, captures the vibe of the experience
+- Must NOT be the venue's name verbatim
+- Must NOT be just a city or place name
+- Think "Sunset & Slow Bites" not "Restaurant Riga"
 
 DESCRIPTION RULES:
 - Exactly 1 sentence, maximum 20 words
