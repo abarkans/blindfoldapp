@@ -266,6 +266,7 @@ export default function OnboardingFlow({
                     onCanContinueChange={setCanContinue}
                     onContinueLabelChange={setContinueLabel}
                     onSubstepChange={setPlanSubStep}
+                    planType={data.plan_type}
                   />
                 )}
                 {step === 3 && (

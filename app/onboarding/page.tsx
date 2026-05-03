@@ -7,7 +7,7 @@ import { getUnitSystem } from "@/lib/get-unit-system";
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string }>;
+  searchParams: Promise<{ checkout?: string; plan?: string }>;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -39,15 +39,20 @@ export default async function OnboardingPage({
 
   // When returning from a cancelled Stripe session with names already saved,
   // skip straight to plan selection instead of making the user re-enter names.
-  const { checkout } = await searchParams;
+  const { checkout, plan } = await searchParams;
   const initialStep = checkout === "cancelled" && !!savedPartner1 ? 2 : undefined;
+
+  // Pre-select plan from landing pricing CTA (?plan=free|subscription).
+  // DB value wins if already set (returning user / post-Stripe).
+  const planFromUrl = plan === "free" || plan === "subscription" ? (plan as PlanId) : undefined;
+  const resolvedPlanType = savedPlanType ?? planFromUrl;
   const unitSystem = await getUnitSystem();
 
   return (
     <OnboardingFlow
       initialPartner1={savedPartner1}
       initialPartner2={savedPartner2}
-      initialPlanType={savedPlanType}
+      initialPlanType={resolvedPlanType}
       initialCadence={savedCadence}
       initialStep={initialStep}
       unitSystem={unitSystem}

@@ -101,7 +101,16 @@ export default function LoginClient() {
 
           {error && (
             <div className="mb-4 bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
-              {error}
+              {/invalid|credentials|password|not found/i.test(error)
+                ? "Incorrect email or password."
+                : error}
+              {/invalid|credentials|password|not found/i.test(error) && (
+                <span className="block mt-1 text-xs text-red-300/70">
+                  <Link href="/forgot-password" className="underline hover:text-red-200">Reset password</Link>
+                  {" · "}
+                  <Link href="/register" className="underline hover:text-red-200">Create account</Link>
+                </span>
+              )}
             </div>
           )}
 

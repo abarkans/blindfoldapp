@@ -14,6 +14,7 @@ interface StepPlanProps {
   onCanContinueChange: (can: boolean) => void;
   onContinueLabelChange: (label: string) => void;
   onSubstepChange: (substep: "plan" | "frequency") => void;
+  planType?: PlanId;
 }
 
 type SubStep = "plan" | "frequency";
@@ -31,9 +32,10 @@ export default function StepPlan({
   onCanContinueChange,
   onContinueLabelChange,
   onSubstepChange,
+  planType,
 }: StepPlanProps) {
   const [subStep, setSubStep] = useState<SubStep>("plan");
-  const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(planType ?? null);
   const [selectedCadence, setSelectedCadence] = useState<"weekly" | "biweekly" | "monthly" | null>(null);
   const mountTrigger = useRef(continueTrigger);
   const mountBackTrigger = useRef(backTrigger);
@@ -155,17 +157,12 @@ export default function StepPlan({
                     </div>
 
                     <ul className="flex flex-col gap-1.5">
-                      {plan.features.map((feat) => {
-                        const isKey = feat.includes("Date as often") || feat.includes("Personalized");
-                        return (
-                          <li key={feat} className="flex items-start gap-2">
-                            <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isKey && plan.highlighted ? "text-pink-400" : "text-emerald-400"}`} />
-                            <span className={`text-xs ${isKey && plan.highlighted ? "text-white font-semibold" : "text-white/55"}`}>
-                              {feat}
-                            </span>
-                          </li>
-                        );
-                      })}
+                      {plan.features.map((feat) => (
+                        <li key={feat} className="flex items-start gap-2">
+                          <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-400" />
+                          <span className="text-xs text-white/55">{feat}</span>
+                        </li>
+                      ))}
                     </ul>
                   </motion.button>
                 );

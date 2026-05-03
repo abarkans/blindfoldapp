@@ -4,11 +4,36 @@ export const metadata: Metadata = {
   title: "Privacy Policy — BlindfoldDate",
 };
 
+const TOC = [
+  { href: "#who", label: "1. Who is responsible" },
+  { href: "#what", label: "2. What we collect" },
+  { href: "#how", label: "3. How we use it" },
+  { href: "#basis", label: "4. Lawful basis" },
+  { href: "#share", label: "5. Who we share with" },
+  { href: "#retention", label: "6. How long we keep it" },
+  { href: "#rights", label: "7. Your rights" },
+  { href: "#cookies", label: "8. Cookies" },
+  { href: "#children", label: "9. Children" },
+  { href: "#changes", label: "10. Changes" },
+  { href: "#contact", label: "11. Contact" },
+];
+
 export default function PrivacyPolicyPage() {
   return (
     <>
       <h1>Privacy Policy</h1>
       <p className="!text-white/35 !text-xs !mb-8">Last updated: 26 April 2026</p>
+
+      <nav className="!mb-8 rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-4 not-prose">
+        <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
+        <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+          {TOC.map(({ href, label }) => (
+            <li key={href}>
+              <a href={href} className="text-xs text-white/50 hover:text-rose-400 transition-colors">{label}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
 
       <p>
         BlindfoldDate (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting your personal data.
@@ -18,14 +43,14 @@ export default function PrivacyPolicyPage() {
 
       <hr />
 
-      <h2>1. Who is responsible for your data</h2>
+      <h2 id="who">1. Who is responsible for your data</h2>
       <p>
         The data controller is <strong>BlindfoldDate</strong>. You can reach us at{" "}
         <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a> for any
         privacy-related questions or requests.
       </p>
 
-      <h2>2. What data we collect</h2>
+      <h2 id="what">2. What data we collect</h2>
 
       <h3>Account data</h3>
       <p>
@@ -62,7 +87,7 @@ export default function PrivacyPolicyPage() {
 
       <hr />
 
-      <h2>3. How we use your data</h2>
+      <h2 id="how">3. How we use your data</h2>
       <ul>
         <li>To create your account and authenticate you</li>
         <li>To generate personalised date suggestions based on your interests, budget, and location</li>
@@ -72,7 +97,7 @@ export default function PrivacyPolicyPage() {
         <li>To keep the service secure and prevent abuse</li>
       </ul>
 
-      <h2>4. Lawful basis for processing</h2>
+      <h2 id="basis">4. Lawful basis for processing</h2>
       <ul>
         <li>
           <strong>Contract performance (Art. 6(1)(b)):</strong> Account data and profile data
@@ -91,7 +116,7 @@ export default function PrivacyPolicyPage() {
 
       <hr />
 
-      <h2>5. Who we share your data with</h2>
+      <h2 id="share">5. Who we share your data with</h2>
       <p>
         We do not sell your data. We share data only with the following service providers
         (&quot;sub-processors&quot;) necessary to operate BlindfoldDate:
@@ -136,7 +161,7 @@ export default function PrivacyPolicyPage() {
 
       <hr />
 
-      <h2>6. How long we keep your data</h2>
+      <h2 id="retention">6. How long we keep your data</h2>
       <ul>
         <li>
           <strong>Account &amp; profile data:</strong> Kept until you delete your account.
@@ -153,7 +178,7 @@ export default function PrivacyPolicyPage() {
         </li>
       </ul>
 
-      <h2>7. Your rights</h2>
+      <h2 id="rights">7. Your rights</h2>
       <p>Under GDPR you have the right to:</p>
       <ul>
         <li><strong>Access</strong> — request a copy of the personal data we hold about you</li>
@@ -170,27 +195,27 @@ export default function PrivacyPolicyPage() {
         authority.
       </p>
 
-      <h2>8. Cookies</h2>
+      <h2 id="cookies">8. Cookies</h2>
       <p>
         We use only strictly necessary session cookies to keep you signed in. We do not use
         advertising cookies, analytics cookies, or third-party tracking cookies.
       </p>
 
-      <h2>9. Children</h2>
+      <h2 id="children">9. Children</h2>
       <p>
         BlindfoldDate is intended for adults aged 18 and over. We do not knowingly collect
         personal data from anyone under 18. If you believe a minor has created an account,
         please contact us and we will delete it promptly.
       </p>
 
-      <h2>10. Changes to this policy</h2>
+      <h2 id="changes">10. Changes to this policy</h2>
       <p>
         We may update this Privacy Policy from time to time. We will notify you of material
         changes by email or by displaying a notice in the app. Continued use of the service
         after changes take effect constitutes acceptance of the revised policy.
       </p>
 
-      <h2>11. Contact</h2>
+      <h2 id="contact">11. Contact</h2>
       <p>
         Questions or requests:{" "}
         <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a>

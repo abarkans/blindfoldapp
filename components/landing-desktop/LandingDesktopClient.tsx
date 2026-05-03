@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Heart,
   Sparkles,
@@ -125,6 +125,13 @@ const NAV_LINKS = [
 ];
 
 export default function LandingDesktopClient() {
+  const prefersReducedRaw = useReducedMotion();
+  // Defer to false until after hydration so SSR and initial client render match.
+  // SSR always returns null from useReducedMotion (no media query access).
+  const [prefersReduced, setPrefersReduced] = useState(false);
+  useEffect(() => {
+    if (prefersReducedRaw) setPrefersReduced(true);
+  }, [prefersReducedRaw]);
   const [menuOpen, setMenuOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -142,6 +149,13 @@ export default function LandingDesktopClient() {
 
   return (
     <div className="relative min-h-screen text-white overflow-x-hidden">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:bg-violet-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-xl focus:text-sm focus:font-semibold"
+      >
+        Skip to content
+      </a>
+
       {/* Grid overlay */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.018]"
@@ -309,6 +323,7 @@ export default function LandingDesktopClient() {
       </header>
 
       {/* ── Hero ── */}
+      <main id="main">
       <section
         ref={heroRef}
         className="relative flex flex-col md:flex-row items-center pt-24 pb-8 md:pt-[180px] md:pb-[100px] gap-10 md:gap-16 max-w-[1440px] mx-auto px-6 md:px-14"
@@ -319,7 +334,7 @@ export default function LandingDesktopClient() {
 
         {/* Left — content */}
         <motion.div
-          style={{ y: contentY, opacity: contentOpacity }}
+          style={prefersReduced ? {} : { y: contentY, opacity: contentOpacity }}
           className="w-full md:flex-1 md:max-w-[580px] md:pr-8"
         >
           {/* Badge */}
@@ -327,7 +342,7 @@ export default function LandingDesktopClient() {
             <div className="inline-flex items-center gap-2 md:gap-2.5 bg-violet-500/10 border border-violet-400/20 rounded-full px-4 md:px-5 py-2">
               <motion.div
                 className="w-2 h-2 rounded-full bg-rose-400 shrink-0"
-                animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
+                animate={prefersReduced ? {} : { scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
                 transition={{ duration: 1.4, repeat: Infinity }}
               />
               <span className="text-xs text-violet-200 font-medium">
@@ -399,7 +414,7 @@ export default function LandingDesktopClient() {
 
         {/* Right — visual (full width centered on mobile, fixed width on desktop) */}
         <motion.div
-          style={{ y: visualY }}
+          style={prefersReduced ? {} : { y: visualY }}
           {...fadeUp(0.35)}
           className="w-full max-w-[340px] mx-auto md:mr-0 md:ml-auto md:max-w-none md:w-[400px] md:flex-shrink-0 relative mt-6 md:mt-0"
         >
@@ -409,7 +424,7 @@ export default function LandingDesktopClient() {
           {/* Floating chips — desktop only */}
           <motion.div
             className="hidden md:block absolute -left-20 top-14 z-10 bg-[#1a1025]/95 border border-violet-500/30 rounded-2xl px-4 py-3 shadow-xl shadow-black/50 backdrop-blur-sm"
-            animate={{ y: [0, -7, 0] }}
+            animate={prefersReduced ? {} : { y: [0, -7, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           >
             <div className="flex items-center gap-2.5">
@@ -425,7 +440,7 @@ export default function LandingDesktopClient() {
 
           <motion.div
             className="hidden md:block absolute -right-16 bottom-24 z-10 bg-[#1a1025]/95 border border-emerald-500/30 rounded-2xl px-4 py-3 shadow-xl shadow-black/50 backdrop-blur-sm"
-            animate={{ y: [0, 7, 0] }}
+            animate={prefersReduced ? {} : { y: [0, 7, 0] }}
             transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
           >
             <div className="flex items-center gap-2.5">
@@ -441,7 +456,7 @@ export default function LandingDesktopClient() {
 
           <motion.div
             className="hidden md:block absolute -left-10 bottom-36 z-10 bg-[#1a1025]/95 border border-amber-500/30 rounded-2xl px-3.5 py-2 shadow-xl shadow-black/50 backdrop-blur-sm"
-            animate={{ y: [0, -5, 0] }}
+            animate={prefersReduced ? {} : { y: [0, -5, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           >
             <div className="flex items-center gap-2">
@@ -848,7 +863,7 @@ export default function LandingDesktopClient() {
               </ul>
 
               <Link
-                href="/register"
+                href={`/register?plan=${plan.id}`}
                 className={[
                   "w-full text-center py-3.5 md:py-4 rounded-2xl text-sm font-bold transition-all",
                   plan.highlighted
@@ -888,7 +903,7 @@ export default function LandingDesktopClient() {
         >
           <motion.div
             className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-8 md:mb-10"
-            animate={{ scale: [1, 1.12, 1, 1.07, 1] }}
+            animate={prefersReduced ? {} : { scale: [1, 1.12, 1, 1.07, 1] }}
             transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.8 }}
           >
             <Image src="/icon.png" alt="Blindfold" width={96} height={96} className="w-full h-full object-contain" />
@@ -939,6 +954,8 @@ export default function LandingDesktopClient() {
         </motion.div>
       </section>
 
+      </main>
+
       {/* ── Footer ── */}
       <footer className="border-t border-white/[0.05] px-6 md:px-10 pt-12 pb-8">
         <div className="max-w-[1280px] mx-auto">
@@ -988,6 +1005,9 @@ export default function LandingDesktopClient() {
               <Link href="/legal/terms" className="text-sm text-white/55 hover:text-white transition-colors">
                 Terms of Service
               </Link>
+              <a href="mailto:info@blindfolddate.com" className="text-sm text-white/55 hover:text-white transition-colors">
+                Contact us
+              </a>
             </div>
           </div>
 

@@ -4,11 +4,36 @@ export const metadata: Metadata = {
   title: "Terms of Service — BlindfoldDate",
 };
 
+const TOC = [
+  { href: "#eligibility", label: "1. Eligibility" },
+  { href: "#account", label: "2. Your account" },
+  { href: "#service", label: "3. The service" },
+  { href: "#ai-content", label: "4. AI-generated content" },
+  { href: "#plus", label: "5. Plus subscription" },
+  { href: "#acceptable-use", label: "6. Acceptable use" },
+  { href: "#liability", label: "7. Limitation of liability" },
+  { href: "#termination", label: "8. Termination" },
+  { href: "#changes", label: "9. Changes to terms" },
+  { href: "#law", label: "10. Governing law" },
+  { href: "#contact", label: "11. Contact" },
+];
+
 export default function TermsPage() {
   return (
     <>
       <h1>Terms of Service</h1>
       <p className="!text-white/35 !text-xs !mb-8">Last updated: 26 April 2026</p>
+
+      <nav className="!mb-8 rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-4 not-prose">
+        <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
+        <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+          {TOC.map(({ href, label }) => (
+            <li key={href}>
+              <a href={href} className="text-xs text-white/50 hover:text-rose-400 transition-colors">{label}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
 
       <p>
         These Terms of Service (&quot;Terms&quot;) govern your use of BlindfoldDate
@@ -19,14 +44,14 @@ export default function TermsPage() {
 
       <hr />
 
-      <h2>1. Eligibility</h2>
+      <h2 id="eligibility">1. Eligibility</h2>
       <p>
         You must be at least <strong>18 years old</strong> to use BlindfoldDate. By
         registering you confirm that you meet this requirement. We may terminate accounts
         that we have reason to believe belong to minors.
       </p>
 
-      <h2>2. Your account</h2>
+      <h2 id="account">2. Your account</h2>
       <ul>
         <li>You are responsible for keeping your password secure and confidential.</li>
         <li>You must provide accurate information when registering.</li>
@@ -34,14 +59,14 @@ export default function TermsPage() {
         <li>You may delete your account at any time by contacting us.</li>
       </ul>
 
-      <h2>3. The service</h2>
+      <h2 id="service">3. The service</h2>
       <p>
         BlindfoldDate generates personalised date suggestions for couples using AI and real venue
         data. We do not guarantee the availability, quality, suitability, or accuracy of any
         suggested venue. Always verify that a venue is open and appropriate before visiting.
       </p>
 
-      <h2>4. AI-generated content</h2>
+      <h2 id="ai-content">4. AI-generated content</h2>
       <p>
         Date suggestions are created by an AI system (Anthropic Claude) using your preferences
         and publicly available venue data. AI-generated content may occasionally be inaccurate,
@@ -50,7 +75,7 @@ export default function TermsPage() {
         following an AI-generated suggestion.
       </p>
 
-      <h2>5. Plus subscription</h2>
+      <h2 id="plus">5. Plus subscription</h2>
 
       <h3>Billing</h3>
       <p>
@@ -83,7 +108,7 @@ export default function TermsPage() {
         acceptance of the new price.
       </p>
 
-      <h2>6. Acceptable use</h2>
+      <h2 id="acceptable-use">6. Acceptable use</h2>
       <p>You must not:</p>
       <ul>
         <li>Use the service if you are under 18</li>
@@ -93,7 +118,7 @@ export default function TermsPage() {
         <li>Provide false information when registering or using the service</li>
       </ul>
 
-      <h2>7. Limitation of liability</h2>
+      <h2 id="liability">7. Limitation of liability</h2>
       <p>
         BlindfoldDate is provided &quot;as is&quot; without warranties of any kind, express or
         implied. To the fullest extent permitted by law, we are not liable for any indirect,
@@ -105,21 +130,21 @@ export default function TermsPage() {
         (including consumer protection rights in your jurisdiction).
       </p>
 
-      <h2>8. Termination</h2>
+      <h2 id="termination">8. Termination</h2>
       <p>
         We may suspend or terminate your account if you breach these Terms or if we have reason
         to believe your use of the service is harmful. Where possible we will give you notice
         before doing so. You may stop using the service and request account deletion at any time.
       </p>
 
-      <h2>9. Changes to these terms</h2>
+      <h2 id="changes">9. Changes to these terms</h2>
       <p>
         We may update these Terms from time to time. We will notify you of material changes by
         email at least 14 days before they take effect. Continued use of the service after the
         effective date constitutes acceptance of the revised Terms.
       </p>
 
-      <h2>10. Governing law</h2>
+      <h2 id="law">10. Governing law</h2>
       <p>
         These Terms are governed by the laws of the Republic of Latvia. Any disputes that
         cannot be resolved informally will be referred to the courts of Latvia. If you are
@@ -129,7 +154,7 @@ export default function TermsPage() {
         </a>.
       </p>
 
-      <h2>11. Contact</h2>
+      <h2 id="contact">11. Contact</h2>
       <p>
         Questions about these Terms:{" "}
         <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isDisposableEmail } from "@/lib/utils/disposable-emails";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import PasswordStrength from "@/components/ui/PasswordStrength";
 
 const registerSchema = z
   .object({
@@ -30,9 +31,13 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailSent, setEmailSent] = useState("");
+  const [resending, setResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const {
     register,
@@ -63,7 +68,7 @@ export default function RegisterClient() {
       email: values.email,
       password: values.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
         // Server-side trigger validate_user_signup() reads these and
         // rejects the insert if either flag is missing or false.
         data: {
@@ -94,6 +99,21 @@ export default function RegisterClient() {
     setLoading(false);
   }
 
+  async function handleResend() {
+    if (resendCooldown > 0 || resending) return;
+    setResending(true);
+    const supabase = createClient();
+    await supabase.auth.resend({ type: "signup", email: emailSent });
+    setResending(false);
+    setResendCooldown(60);
+    const interval = setInterval(() => {
+      setResendCooldown((s) => {
+        if (s <= 1) { clearInterval(interval); return 0; }
+        return s - 1;
+      });
+    }, 1000);
+  }
+
   async function handleGoogle() {
     setError("");
     const valid = await trigger("confirmed");
@@ -104,7 +124,7 @@ export default function RegisterClient() {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}` },
     });
   }
 
@@ -121,21 +141,41 @@ export default function RegisterClient() {
             <CheckCircle className="w-8 h-8 text-emerald-400" />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Check your email</h2>
-          <p className="text-white/50 text-sm mb-1">
-            We sent a confirmation link to
-          </p>
+          <p className="text-white/50 text-sm mb-1">We sent a confirmation link to</p>
           <p className="text-white font-semibold text-sm mb-6">{emailSent}</p>
           <p className="text-white/30 text-xs">
             Click the link to activate your account — we&apos;ll get your first date ready.
-            The link expires in 24 hours.
+            The link expires in 24 hours. Check your spam folder if you don&apos;t see it.
           </p>
-          <button
-            type="button"
-            onClick={() => router.push("/login")}
-            className="mt-8 text-xs text-white/30 hover:text-white/60 transition-colors"
-          >
-            Back to sign in
-          </button>
+
+          <div className="flex flex-col gap-3 mt-8">
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resendCooldown > 0 || resending}
+              className="text-sm text-white/60 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {resending
+                ? "Sending…"
+                : resendCooldown > 0
+                ? `Resend in ${resendCooldown}s`
+                : "Resend confirmation email"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setEmailSent("")}
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
+              Wrong email? Edit and try again
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="text-xs text-white/25 hover:text-white/50 transition-colors"
+            >
+              Back to sign in
+            </button>
+          </div>
         </motion.div>
       </div>
     );
@@ -224,14 +264,17 @@ export default function RegisterClient() {
               error={errors.email?.message}
               {...register("email")}
             />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="Min. 8 characters"
-              icon={<Lock className="w-4 h-4" />}
-              error={errors.password?.message}
-              {...register("password")}
-            />
+            <div>
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Min. 8 characters"
+                icon={<Lock className="w-4 h-4" />}
+                error={errors.password?.message}
+                {...register("password")}
+              />
+              <PasswordStrength password={watch("password") ?? ""} />
+            </div>
             <Input
               label="Confirm Password"
               type="password"

@@ -12,6 +12,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import PasswordStrength from "@/components/ui/PasswordStrength";
 
 const schema = z
   .object({
@@ -30,10 +31,12 @@ export default function ResetPasswordClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -45,12 +48,49 @@ export default function ResetPasswordClient() {
       password: values.password,
     });
     if (updateError) {
-      setError(updateError.message);
+      const isExpired = /session|expired|missing|invalid/i.test(updateError.message);
+      if (isExpired) {
+        setSessionExpired(true);
+      } else {
+        setError(updateError.message);
+      }
       setLoading(false);
       return;
     }
     setDone(true);
     setTimeout(() => router.replace("/dashboard"), 2000);
+  }
+
+  if (sessionExpired) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-full max-w-sm text-center"
+        >
+          <Link href="/" className="flex flex-col items-center gap-3 mb-8">
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+          </Link>
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
+            <p className="text-white font-semibold mb-2">Reset link expired</p>
+            <p className="text-white/50 text-sm mb-5">
+              This link can only be used once and may have expired. Request a new one.
+            </p>
+            <Link
+              href="/forgot-password"
+              className="block w-full text-center py-3 rounded-2xl text-sm font-bold bg-gradient-to-r from-rose-600 to-violet-600 text-white"
+            >
+              Request new reset link
+            </Link>
+          </div>
+          <p className="text-center text-white/30 text-sm mt-6">
+            <Link href="/login" className="text-rose-400 hover:text-rose-300 font-semibold">Back to sign in</Link>
+          </p>
+        </motion.div>
+      </div>
+    );
   }
 
   return (
@@ -90,14 +130,17 @@ export default function ResetPasswordClient() {
               )}
 
               <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                <Input
-                  label="New password"
-                  type="password"
-                  placeholder="At least 8 characters"
-                  icon={<Lock className="w-4 h-4" />}
-                  error={errors.password?.message}
-                  {...register("password")}
-                />
+                <div>
+                  <Input
+                    label="New password"
+                    type="password"
+                    placeholder="At least 8 characters"
+                    icon={<Lock className="w-4 h-4" />}
+                    error={errors.password?.message}
+                    {...register("password")}
+                  />
+                  <PasswordStrength password={watch("password") ?? ""} />
+                </div>
                 <Input
                   label="Confirm password"
                   type="password"

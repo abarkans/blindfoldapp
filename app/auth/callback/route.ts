@@ -26,5 +26,14 @@ export async function GET(request: Request) {
   const ALLOWED_NEXT = new Set(["/dashboard", "/onboarding", "/reset-password"]);
   const next = searchParams.get("next") ?? "/dashboard";
   const safePath = ALLOWED_NEXT.has(next) ? next : "/dashboard";
-  return NextResponse.redirect(`${origin}${safePath}`);
+
+  // Forward ?plan= when landing on onboarding so StepPlan can pre-select.
+  // Only the two known values are forwarded; anything else is dropped.
+  const plan = searchParams.get("plan");
+  const planSuffix =
+    safePath === "/onboarding" && (plan === "free" || plan === "subscription")
+      ? `?plan=${plan}`
+      : "";
+
+  return NextResponse.redirect(`${origin}${safePath}${planSuffix}`);
 }
