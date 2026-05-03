@@ -40,7 +40,7 @@ export default function LoginClient() {
 
   async function onSubmit(values: LoginFormData) {
     if (!captchaToken) {
-      setError("Please complete the captcha challenge.");
+      setError("Security check still loading — please try again in a moment.");
       return;
     }
     setLoading(true);

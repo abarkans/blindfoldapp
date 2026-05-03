@@ -62,7 +62,7 @@ export default function RegisterClient() {
 
   async function onSubmit(values: RegisterFormData) {
     if (!captchaToken) {
-      setError("Please complete the captcha challenge.");
+      setError("Security check still loading — please try again in a moment.");
       return;
     }
     setLoading(true);
@@ -117,7 +117,7 @@ export default function RegisterClient() {
   async function handleResend() {
     if (resendCooldown > 0 || resending) return;
     if (!captchaToken) {
-      setError("Please complete the captcha challenge before resending.");
+      setError("Security check still loading — please try again in a moment.");
       return;
     }
     setResending(true);

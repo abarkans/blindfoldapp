@@ -23,16 +23,14 @@ const CaptchaWidget = forwardRef<TurnstileInstance | null, Props>(
       return null;
     }
     return (
-      <div className="flex justify-center">
-        <Turnstile
-          ref={ref}
-          siteKey={SITE_KEY}
-          onSuccess={onToken}
-          onError={() => onClear?.()}
-          onExpire={() => onClear?.()}
-          options={{ theme: "dark", size: "flexible" }}
-        />
-      </div>
+      <Turnstile
+        ref={ref}
+        siteKey={SITE_KEY}
+        onSuccess={onToken}
+        onError={() => onClear?.()}
+        onExpire={() => onClear?.()}
+        options={{ theme: "dark", size: "invisible" }}
+      />
     );
   }
 );
