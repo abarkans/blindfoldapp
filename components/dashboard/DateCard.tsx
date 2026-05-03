@@ -282,7 +282,8 @@ export default function DateCard({
         await rerollDate();
         // dateIdea prop updates via RSC re-render; accepted syncs via useEffect
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Something went wrong");
+        void e;
+        setError("Couldn't find a new date. Your original date is still saved.");
       }
     });
   }
@@ -477,10 +478,10 @@ export default function DateCard({
                         ].join(" ")}
                       >
                         <Shuffle className="w-4 h-4" />
-                        Re-roll
+                        Try another
                         <span className={`text-[10px] font-normal ${canReroll ? "text-white/55" : "text-white/30"}`}>
                           {isFree
-                            ? totalRerollsUsed >= 1 ? "No rolls left" : "1 left (lifetime)"
+                            ? totalRerollsUsed >= 1 ? "No swaps left" : "1 swap left"
                             : currentDateRerolled ? "Used for this date" : "1 per date"}
                         </span>
                       </button>
@@ -594,7 +595,10 @@ export default function DateCard({
                         <span className="text-sm font-semibold text-green-300">Saving...</span>
                       </div>
                     ) : (
-                      <HoldToCompleteButton onComplete={handleComplete} />
+                      <>
+                        <HoldToCompleteButton onComplete={handleComplete} />
+                        <p className="text-center text-[10px] text-white/30 mt-1.5">Press and hold to confirm</p>
+                      </>
                     )}
                   </>
 
@@ -653,7 +657,10 @@ export default function DateCard({
                         <span className="text-sm font-semibold text-green-300">Saving...</span>
                       </div>
                     ) : (
-                      <HoldToCompleteButton onComplete={handleComplete} />
+                      <>
+                        <HoldToCompleteButton onComplete={handleComplete} />
+                        <p className="text-center text-[10px] text-white/30 mt-1.5">Press and hold to confirm</p>
+                      </>
                     )}
                   </>
                 )}
@@ -758,7 +765,7 @@ export default function DateCard({
                   </button>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-2">Re-roll this date?</h3>
+                <h3 className="text-lg font-bold text-white mb-2">Try a different date?</h3>
 
                 {isFree ? (
                   <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
@@ -768,9 +775,11 @@ export default function DateCard({
                     </p>
                   </div>
                 ) : (
-                  <p className="text-sm text-white/50 mb-4 leading-relaxed">
-                    You get <span className="text-white font-medium">1 re-roll per date</span>. We&apos;ll find you a different date.
-                  </p>
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl px-3 py-2.5 mb-4">
+                    <p className="text-xs text-blue-300 leading-relaxed">
+                      You get <span className="font-bold">1 swap per date</span>. We&apos;ll find you something different.
+                    </p>
+                  </div>
                 )}
 
                 <p className="text-xs text-white/55 mb-5">
@@ -783,7 +792,7 @@ export default function DateCard({
                     onClick={handleRerollConfirm}
                     className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold text-sm shadow-lg shadow-violet-500/20 hover:from-violet-400 hover:to-purple-500 transition-all active:scale-[0.98]"
                   >
-                    {isFree ? "Use my re-roll" : "Re-roll date"}
+                    {isFree ? "Yes, try another" : "Find another date"}
                   </button>
                   <button
                     type="button"
