@@ -54,7 +54,11 @@ export default function LoginClient() {
     });
 
     if (signInError) {
-      setError(signInError.message);
+      setError(
+        /captcha/i.test(signInError.message)
+          ? "Security check expired — please try again."
+          : signInError.message
+      );
       setLoading(false);
       resetCaptcha();
       return;

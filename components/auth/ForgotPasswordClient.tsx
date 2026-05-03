@@ -49,11 +49,16 @@ export default function ForgotPasswordClient() {
       captchaToken,
     });
     if (resetError) {
-      setError(resetError.message);
+      setError(
+        /captcha/i.test(resetError.message)
+          ? "Security check expired — please try again."
+          : resetError.message
+      );
       setLoading(false);
       resetCaptcha();
       return;
     }
+    resetCaptcha();
     setSent(true);
     setLoading(false);
   }

@@ -93,7 +93,11 @@ export default function RegisterClient() {
     });
 
     if (signUpError) {
-      setError(signUpError.message);
+      setError(
+        /captcha/i.test(signUpError.message)
+          ? "Security check expired — please try again."
+          : signUpError.message
+      );
       setLoading(false);
       resetCaptcha();
       return;
@@ -110,6 +114,7 @@ export default function RegisterClient() {
     // Don't redirect yet — Supabase requires email confirmation before the
     // session is active. Show a holding screen; the auth callback handles
     // the final redirect once the user clicks the confirmation link.
+    resetCaptcha();
     setEmailSent(values.email);
     setLoading(false);
   }
