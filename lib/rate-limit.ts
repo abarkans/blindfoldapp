@@ -80,3 +80,22 @@ export async function checkStripeRateLimit(userId: string): Promise<void> {
 export async function checkPlacePhotoRateLimit(userId: string): Promise<void> {
   await check(`place-photo:${userId}`, 120, 3600, true);
 }
+
+/**
+ * Enforce per-IP rate limits on the signed-token branch of place-photo.
+ * A signed URL has a short TTL but is shareable for that window — without
+ * an IP cap a leaked URL could burn unbounded Google Places quota.
+ * Limit: 60 per minute per IP. Fails closed: paid Google Maps quota.
+ */
+export async function checkPlacePhotoIpRateLimit(ip: string): Promise<void> {
+  await check(`place-photo-ip:${ip}`, 60, 60, true);
+}
+
+/**
+ * Enforce per-user rate limits on account-deletion email requests.
+ * Limit: 3 per hour. Fails closed: prevents inbox flooding from a
+ * stolen session and limits spend on transactional email.
+ */
+export async function checkDeletionRequestRateLimit(userId: string): Promise<void> {
+  await check(`delete-req:${userId}`, 3, 3600, true);
+}

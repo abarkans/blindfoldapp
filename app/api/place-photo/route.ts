@@ -1,7 +1,18 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { checkPlacePhotoRateLimit } from "@/lib/rate-limit";
+import { checkPlacePhotoRateLimit, checkPlacePhotoIpRateLimit } from "@/lib/rate-limit";
 import { verifyPlacePhotoToken } from "@/lib/place-photo-token";
+
+function clientIp(req: NextRequest): string {
+  // x-forwarded-for can be a comma-separated list — take the first hop,
+  // which on Vercel is the real client IP. Fall back to x-real-ip then a
+  // sentinel so the rate-limit key is still bounded if no header present.
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0].trim();
+  const xri = req.headers.get("x-real-ip");
+  if (xri) return xri.trim();
+  return "unknown";
+}
 
 // Allowlist: Google Places API (New) photo names are always in this shape
 const PHOTO_REF_PATTERN = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
@@ -33,7 +44,15 @@ export async function GET(request: NextRequest) {
     if (!verifyPlacePhotoToken(ref, exp, sig)) {
       return new Response("Invalid or expired token", { status: 401 });
     }
-    // Token is valid — skip session auth and per-user rate limit.
+    // Token is valid — skip session auth, but still cap by source IP.
+    // A signed URL is shareable for the TTL window (2h). Without an IP
+    // cap a leaked URL could burn unbounded Google Places quota.
+    try {
+      await checkPlacePhotoIpRateLimit(clientIp(request));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Rate limited";
+      return new Response(msg, { status: 429 });
+    }
   } else {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

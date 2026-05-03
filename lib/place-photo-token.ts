@@ -6,12 +6,13 @@ import { createHmac, timingSafeEqual } from "crypto";
 // cookies, which is why the original session-based auth gate on
 // /api/place-photo broke <Image> rendering.
 //
-// Tokens are bearer credentials with a 24h TTL. They're issued only by
-// server-rendered pages (RSC) that have already authenticated the
-// caller, so no anonymous burn vector — but they ARE shareable for the
-// duration of the TTL. The 24h horizon limits damage if a token leaks.
+// Tokens are bearer credentials. They're issued only by server-rendered
+// pages (RSC) that have already authenticated the caller, so no anonymous
+// burn vector — but they ARE shareable for the duration of the TTL. The
+// short horizon plus an IP-keyed rate limit on the signed branch (see
+// app/api/place-photo/route.ts) bounds damage if a token leaks.
 
-const TTL_SECONDS = 60 * 60 * 24; // 24h
+const TTL_SECONDS = 60 * 60 * 2; // 2h
 
 function getSecret(): string {
   const s = process.env.PLACE_PHOTO_HMAC_SECRET;

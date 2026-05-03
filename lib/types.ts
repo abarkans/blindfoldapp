@@ -69,18 +69,24 @@ export interface Database {
           user_id: string;
           expires_at: string;
           created_at: string;
+          request_ip: string | null;
+          user_agent: string | null;
         };
         Insert: {
           token_hash: string;
           user_id: string;
           expires_at: string;
           created_at?: string;
+          request_ip?: string | null;
+          user_agent?: string | null;
         };
         Update: {
           token_hash?: string;
           user_id?: string;
           expires_at?: string;
           created_at?: string;
+          request_ip?: string | null;
+          user_agent?: string | null;
         };
         Relationships: [];
       };
