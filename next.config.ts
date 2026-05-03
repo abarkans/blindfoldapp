@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const securityHeaders = [
@@ -16,6 +17,13 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Pin Turbopack workspace root. Next 16.2.4 tightened root inference and
+  // started panicking ("Next.js package not found") when it couldn't walk
+  // up to a single project directory unambiguously. Anchoring to __dirname
+  // makes the project root explicit.
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     localPatterns: [
