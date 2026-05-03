@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,6 +11,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
 
 const schema = z.object({
   email: z.string().email("Invalid email"),
@@ -21,6 +22,8 @@ export default function ForgotPasswordClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const {
     register,
@@ -28,16 +31,27 @@ export default function ForgotPasswordClient() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  function resetCaptcha() {
+    setCaptchaToken("");
+    turnstileRef.current?.reset();
+  }
+
   async function onSubmit(values: FormData) {
+    if (!captchaToken) {
+      setError("Please complete the captcha challenge.");
+      return;
+    }
     setLoading(true);
     setError("");
     const supabase = createClient();
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(values.email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+      captchaToken,
     });
     if (resetError) {
       setError(resetError.message);
       setLoading(false);
+      resetCaptcha();
       return;
     }
     setSent(true);
@@ -82,6 +96,11 @@ export default function ForgotPasswordClient() {
                   icon={<Mail className="w-4 h-4" />}
                   error={errors.email?.message}
                   {...register("email")}
+                />
+                <CaptchaWidget
+                  ref={turnstileRef}
+                  onToken={setCaptchaToken}
+                  onClear={() => setCaptchaToken("")}
                 />
                 <Button type="submit" size="lg" className="w-full mt-1" loading={loading}>
                   Send reset link

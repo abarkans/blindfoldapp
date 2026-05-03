@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +14,7 @@ import { isDisposableEmail } from "@/lib/utils/disposable-emails";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PasswordStrength from "@/components/ui/PasswordStrength";
+import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
 
 const registerSchema = z
   .object({
@@ -38,6 +39,13 @@ export default function RegisterClient() {
   const [emailSent, setEmailSent] = useState("");
   const [resending, setResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
+
+  function resetCaptcha() {
+    setCaptchaToken("");
+    turnstileRef.current?.reset();
+  }
 
   const {
     register,
@@ -53,6 +61,10 @@ export default function RegisterClient() {
   const oauthReady = watch("confirmed");
 
   async function onSubmit(values: RegisterFormData) {
+    if (!captchaToken) {
+      setError("Please complete the captcha challenge.");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -69,6 +81,7 @@ export default function RegisterClient() {
       password: values.password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
+        captchaToken,
         // Server-side trigger validate_user_signup() reads these and
         // rejects the insert if either flag is missing or false.
         data: {
@@ -82,6 +95,7 @@ export default function RegisterClient() {
     if (signUpError) {
       setError(signUpError.message);
       setLoading(false);
+      resetCaptcha();
       return;
     }
 
@@ -89,6 +103,7 @@ export default function RegisterClient() {
     if (data.user && data.user.identities?.length === 0) {
       setError("User already registered");
       setLoading(false);
+      resetCaptcha();
       return;
     }
 
@@ -101,9 +116,14 @@ export default function RegisterClient() {
 
   async function handleResend() {
     if (resendCooldown > 0 || resending) return;
+    if (!captchaToken) {
+      setError("Please complete the captcha challenge before resending.");
+      return;
+    }
     setResending(true);
     const supabase = createClient();
-    await supabase.auth.resend({ type: "signup", email: emailSent });
+    await supabase.auth.resend({ type: "signup", email: emailSent, options: { captchaToken } });
+    resetCaptcha();
     setResending(false);
     setResendCooldown(60);
     const interval = setInterval(() => {
@@ -148,7 +168,15 @@ export default function RegisterClient() {
             The link expires in 24 hours. Check your spam folder if you don&apos;t see it.
           </p>
 
-          <div className="flex flex-col gap-3 mt-8">
+          <div className="mt-6">
+            <CaptchaWidget
+              ref={turnstileRef}
+              onToken={setCaptchaToken}
+              onClear={() => setCaptchaToken("")}
+            />
+          </div>
+
+          <div className="flex flex-col gap-3 mt-6">
             <button
               type="button"
               onClick={handleResend}
@@ -282,6 +310,12 @@ export default function RegisterClient() {
               icon={<Lock className="w-4 h-4" />}
               error={errors.confirm?.message}
               {...register("confirm")}
+            />
+
+            <CaptchaWidget
+              ref={turnstileRef}
+              onToken={setCaptchaToken}
+              onClear={() => setCaptchaToken("")}
             />
 
             <Button type="submit" size="lg" className="w-full mt-1" loading={loading}>

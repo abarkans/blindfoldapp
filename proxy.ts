@@ -23,6 +23,8 @@ function buildCsp(nonce: string): string {
     "'strict-dynamic'",
     ...(isDev ? ["'unsafe-eval'", "'unsafe-inline'"] : []),
     ...(isPreview ? ["https://vercel.live"] : []),
+    // Cloudflare Turnstile loader (api.js + challenge platform).
+    "https://challenges.cloudflare.com",
     // TODO: production still needs 'unsafe-eval' — Next.js 16 / Turbopack
     // runtime chunk uses eval. Track upstream; remove once chunk identified
     // and patched. Nonce + strict-dynamic + no unsafe-inline still big win
@@ -38,7 +40,10 @@ function buildCsp(nonce: string): string {
     ...(isPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
   ].join(" ");
 
-  const frameSrc = isPreview ? "https://vercel.live" : "'none'";
+  const frameSrc = [
+    "https://challenges.cloudflare.com",
+    ...(isPreview ? ["https://vercel.live"] : []),
+  ].join(" ");
 
   return [
     "default-src 'self'",

@@ -10,6 +10,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "3.0.68",
     "@hookform/resolvers": "5.2.2",
+    "@marsidev/react-turnstile": "^1.5.1",
     "@supabase/ssr": "0.10.0",
     "@supabase/supabase-js": "2.102.1",
     "@upstash/ratelimit": "2.0.8",

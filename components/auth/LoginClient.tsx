@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -23,6 +24,8 @@ export default function LoginClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const {
     register,
@@ -30,7 +33,16 @@ export default function LoginClient() {
     formState: { errors },
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
+  function resetCaptcha() {
+    setCaptchaToken("");
+    turnstileRef.current?.reset();
+  }
+
   async function onSubmit(values: LoginFormData) {
+    if (!captchaToken) {
+      setError("Please complete the captcha challenge.");
+      return;
+    }
     setLoading(true);
     setError("");
     const supabase = createClient();
@@ -38,11 +50,13 @@ export default function LoginClient() {
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
+      options: { captchaToken },
     });
 
     if (signInError) {
       setError(signInError.message);
       setLoading(false);
+      resetCaptcha();
       return;
     }
 
@@ -142,6 +156,14 @@ export default function LoginClient() {
               Sign In
             </Button>
           </form>
+
+          <div className="mt-5">
+            <CaptchaWidget
+              ref={turnstileRef}
+              onToken={setCaptchaToken}
+              onClear={() => setCaptchaToken("")}
+            />
+          </div>
         </div>
 
         <p className="text-center text-white/30 text-sm mt-6">
