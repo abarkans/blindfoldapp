@@ -50,7 +50,7 @@ export async function rerollDate(): Promise<void> {
   if (isFree) {
     const { data: claimed } = await admin
       .from("profiles")
-      .update({ total_rerolls_used: 1 })
+      .update({ total_rerolls_used: 1, current_date_rerolled: true })
       .eq("id", user.id)
       .eq("total_rerolls_used", 0)
       .select("id");
@@ -137,7 +137,7 @@ export async function rerollDate(): Promise<void> {
   } catch (err) {
     // Generation failed — roll back the atomic claim so the user can retry
     if (isFree) {
-      await admin.from("profiles").update({ total_rerolls_used: 0 }).eq("id", user.id);
+      await admin.from("profiles").update({ total_rerolls_used: 0, current_date_rerolled: false }).eq("id", user.id);
     } else {
       await admin.from("profiles").update({ current_date_rerolled: false }).eq("id", user.id);
     }

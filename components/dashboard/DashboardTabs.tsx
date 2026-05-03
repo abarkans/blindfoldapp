@@ -224,11 +224,18 @@ function DateTabContent({
   isDateCompleted: boolean;
   onGoToProgress: () => void;
 }) {
-  const cadenceLabel: Record<string, string> = {
-    weekly: "Weekly",
-    biweekly: "Bi-weekly",
-    monthly: "Monthly",
-  };
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem("blindfold_welcomed")) {
+      setShowWelcome(true);
+    }
+  }, []);
+
+  function dismissWelcome() {
+    localStorage.setItem("blindfold_welcomed", "1");
+    setShowWelcome(false);
+  }
 
   return (
     <div>
@@ -236,6 +243,50 @@ function DateTabContent({
         <h2 className="text-2xl font-bold text-white">Your next date</h2>
         <p className="text-white/55 text-sm mt-1">Tap reveal when you&apos;re both ready.</p>
       </div>
+
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.25 }}
+            className="mb-4 bg-gradient-to-br from-rose-500/10 to-violet-600/10 border border-rose-500/20 rounded-3xl p-5"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-rose-400" />
+                <p className="text-xs font-semibold text-rose-400 uppercase tracking-widest">How it works</p>
+              </div>
+              <button
+                onClick={dismissWelcome}
+                className="text-white/30 hover:text-white/60 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-2.5 mb-4">
+              {[
+                { emoji: "🔓", text: "Reveal your mystery date" },
+                { emoji: "💑", text: "Go on the date together" },
+                { emoji: "✅", text: "Hold to mark it done" },
+                { emoji: "⏳", text: "Your next date unlocks on schedule" },
+              ].map(({ emoji, text }) => (
+                <div key={text} className="flex items-center gap-3">
+                  <span className="text-base w-6 text-center leading-none">{emoji}</span>
+                  <p className="text-sm text-white/70">{text}</p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={dismissWelcome}
+              className="w-full py-2.5 rounded-2xl bg-white/8 border border-white/10 text-sm font-semibold text-white/70 hover:bg-white/12 hover:text-white transition-all active:scale-[0.98]"
+            >
+              Got it
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <DateCard
         partnerNames={profile.partner_names}

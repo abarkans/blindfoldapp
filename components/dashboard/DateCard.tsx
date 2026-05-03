@@ -231,6 +231,7 @@ export default function DateCard({
   const [completed, setCompleted] = useState(isDateCompleted);
   const [accepted, setAccepted] = useState(!!dateAcceptedAt);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
+  const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
 
   // Sync accepted state when the server updates dateAcceptedAt (after reroll resets it)
@@ -489,12 +490,14 @@ export default function DateCard({
                       {/* Accept button */}
                       <button
                         type="button"
-                        onClick={handleAccept}
+                        onClick={() => canReroll ? setAcceptConfirmOpen(true) : handleAccept()}
                         className="flex flex-col items-center gap-1.5 py-3.5 rounded-2xl border bg-gradient-to-br from-pink-500/20 to-rose-500/10 border-pink-500/50 text-pink-200 text-sm font-semibold hover:from-pink-500/30 hover:border-pink-400/60 transition-all active:scale-95"
                       >
                         <Check className="w-4 h-4" />
                         Accept & Reveal
-                        <span className="text-[10px] font-normal text-pink-300/50">See the full details</span>
+                        <span className="text-[10px] font-normal text-pink-300/50">
+                          {canReroll ? "Can't swap after" : "See the full details"}
+                        </span>
                       </button>
                     </div>
                   </motion.div>
@@ -806,6 +809,58 @@ export default function DateCard({
             </div>
           </>
         )}
+
+      {/* ── ACCEPT CONFIRMATION MODAL ── */}
+      {acceptConfirmOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+            onClick={() => setAcceptConfirmOpen(false)}
+          />
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
+            <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/60">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-11 h-11 rounded-2xl bg-pink-500/15 border border-pink-500/20 flex items-center justify-center">
+                  <Check className="w-5 h-5 text-pink-400" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAcceptConfirmOpen(false)}
+                  className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-4 h-4 text-white/60" />
+                </button>
+              </div>
+
+              <h3 className="text-lg font-bold text-white mb-2">Reveal this date?</h3>
+
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
+                <p className="text-xs text-amber-300 leading-relaxed">
+                  Once revealed, you <span className="font-bold">won&apos;t be able to swap</span> this date.
+                  {isFree && " You still have your 1 lifetime swap — you can use it on this date or save it for a future one."}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setAcceptConfirmOpen(false); handleAccept(); }}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold text-sm shadow-lg shadow-pink-500/20 hover:from-pink-400 hover:to-rose-500 transition-all active:scale-[0.98]"
+                >
+                  Reveal it
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAcceptConfirmOpen(false)}
+                  className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
+                >
+                  Let me think
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Success modal */}
       {modalData && (
