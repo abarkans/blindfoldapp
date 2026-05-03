@@ -10,11 +10,20 @@ const CADENCE_DAYS: Record<string, number> = {
 
 // Server-side pepper bumps the hash from "trivially rainbow-tabled email
 // hash" toward "anonymized data". Required at runtime — fail loud rather
-// than silently degrade to weaker hashing.
+// than silently degrade to weaker hashing. Min length matches
+// PLACE_PHOTO_HMAC_SECRET to prevent a too-short pepper from making the
+// hash space tractable to bulk crackers.
+const PEPPER_MIN_LEN = 32;
+
 function getPepper(): string {
   const pepper = process.env.DELETION_HOLD_PEPPER;
   if (!pepper) {
     throw new Error("DELETION_HOLD_PEPPER env var not set");
+  }
+  if (pepper.length < PEPPER_MIN_LEN) {
+    throw new Error(
+      `DELETION_HOLD_PEPPER must be at least ${PEPPER_MIN_LEN} characters`,
+    );
   }
   return pepper;
 }
