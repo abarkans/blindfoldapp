@@ -14,7 +14,10 @@ import { adoptDeletionHold } from "@/lib/deletion-hold";
 const profileSchema = z.object({
   plan_type: z.string(),
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
-  interests: z.array(z.string()),
+  // Cap entry length and array length so an attacker who poisoned profiles.interests
+  // (via the SettingsPanel client write or a future RLS gap) cannot balloon the
+  // AI prompt for cost amplification.
+  interests: z.array(z.string().max(40)).max(10),
   constraints: z.object({
     budget_max: z.number().min(10).max(200),
     has_car: z.boolean(),

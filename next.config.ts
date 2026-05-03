@@ -34,11 +34,21 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
+    // Defense in depth against archive crawlers / log scrapers picking up
+    // PKCE codes, password-reset tokens, or deletion-confirmation tokens
+    // that briefly appear in URLs on these routes. The site-wide
+    // metadata.robots noindex tag is HTML-only; this is HTTP-level.
+    const noIndex = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
     return [
       {
         source: "/(.*)",
         headers: securityHeaders,
       },
+      { source: "/login/:path*", headers: noIndex },
+      { source: "/register/:path*", headers: noIndex },
+      { source: "/auth/:path*", headers: noIndex },
+      { source: "/account/:path*", headers: noIndex },
+      { source: "/reset-password/:path*", headers: noIndex },
     ];
   },
 };

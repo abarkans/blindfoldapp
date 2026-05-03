@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { checkStripeRateLimit } from "@/lib/rate-limit";
+import { safeLogValue } from "@/lib/log";
 
 const STATIC_ORIGINS = new Set(
   [process.env.NEXT_PUBLIC_APP_URL, "http://localhost:3000"].filter(Boolean) as string[]
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
   } catch (err) {
     // Stripe error strings can leak request IDs / parameter context.
     // Log internally; return generic message to the client.
-    console.error(`[stripe/portal] uid=${user.id} err=${err instanceof Error ? err.message : String(err)}`);
+    console.error(`[stripe/portal] uid=${safeLogValue(user.id)} err=${safeLogValue(err)}`);
     return NextResponse.json({ error: "Could not open billing portal. Please try again." }, { status: 500 });
   }
 }

@@ -238,9 +238,13 @@ Also provide: a short catchy title (max 5 words), a single emoji, a 2-4 word vib
   }
 
   // Pure AI fallback — no venue
+  // previousTitles comes from date_ideas.idea.title which is RLS-writable by
+  // the row owner. Sanitize each entry so an attacker who edited a past row
+  // cannot inject prompt instructions via this channel.
+  const safePreviousTitles = previousTitles.map((t) => sanitize(t, 80)).filter(Boolean);
   const avoidClause =
-    previousTitles.length > 0
-      ? `\nYou MUST NOT generate any of the following past date ideas — they are strictly forbidden: ${previousTitles.join(", ")}. The new idea must be meaningfully different in activity type, not just renamed.`
+    safePreviousTitles.length > 0
+      ? `\nYou MUST NOT generate any of the following past date ideas — they are strictly forbidden: ${safePreviousTitles.join(", ")}. The new idea must be meaningfully different in activity type, not just renamed.`
       : "";
 
   const transportNote = hasCar

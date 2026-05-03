@@ -5,17 +5,24 @@ import { z } from "zod";
 // "Mary-Jane", "J.K."). Blocks control characters and injection characters.
 const nameRegex = /^[\p{L}\p{M}\s'\-.]+$/u;
 
+// Collapse runs of combining marks down to one. Stops Zalgo-style stacking
+// abuse (U+0300-range marks repeated until layout breaks) while preserving
+// legitimate single-mark accents.
+const collapseCombiningMarks = (s: string) => s.replace(/(\p{M})\p{M}+/gu, "$1");
+
 export const identitySchema = z.object({
   partner1: z
     .string()
     .min(1, "Partner 1 name is required")
     .max(50, "Name too long")
-    .regex(nameRegex, "Name contains invalid characters"),
+    .regex(nameRegex, "Name contains invalid characters")
+    .transform(collapseCombiningMarks),
   partner2: z
     .string()
     .min(1, "Partner 2 name is required")
     .max(50, "Name too long")
-    .regex(nameRegex, "Name contains invalid characters"),
+    .regex(nameRegex, "Name contains invalid characters")
+    .transform(collapseCombiningMarks),
 });
 
 export const interestsSchema = z.object({

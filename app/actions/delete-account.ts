@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hashEmail, isCooldownActive, cooldownExpiry } from "@/lib/deletion-hold";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { deleteConfirmationEmail } from "@/lib/email/templates/delete-confirmation";
+import { safeLogValue } from "@/lib/log";
 
 const TOKEN_TTL_MINUTES = 15;
 
@@ -47,7 +48,7 @@ export async function requestAccountDeletion(): Promise<{ email: string }> {
     .insert({ token_hash: tokenHash, user_id: user.id, expires_at: expiresAt.toISOString() });
 
   if (insertErr) {
-    console.error(`[audit] delete-request: insert failed uid=${user.id} msg=${insertErr.message}`);
+    console.error(`[audit] delete-request: insert failed uid=${safeLogValue(user.id)} msg=${safeLogValue(insertErr.message)}`);
     throw new Error("Could not start deletion. Please try again.");
   }
 
@@ -70,11 +71,11 @@ export async function requestAccountDeletion(): Promise<{ email: string }> {
     // matches no real email. Best-effort; a stale row will be cleaned up
     // by cleanup_account_deletion_tokens() within 24h regardless.
     await admin.from("account_deletion_tokens").delete().eq("token_hash", tokenHash);
-    console.error(`[audit] delete-request: email failed uid=${user.id} msg=${sendErr.message}`);
+    console.error(`[audit] delete-request: email failed uid=${safeLogValue(user.id)} msg=${safeLogValue(sendErr.message)}`);
     throw new Error("Could not send confirmation email. Please try again.");
   }
 
-  console.info(`[audit] delete-request: token issued uid=${user.id}`);
+  console.info(`[audit] delete-request: token issued uid=${safeLogValue(user.id)}`);
   return { email: user.email };
 }
 
@@ -108,20 +109,20 @@ export async function confirmAccountDeletion(plaintextToken: string): Promise<vo
     .maybeSingle();
 
   if (!row) {
-    console.warn(`[audit] delete-confirm: unknown token uid=${user.id}`);
+    console.warn(`[audit] delete-confirm: unknown token uid=${safeLogValue(user.id)}`);
     throw new Error("Confirmation link is invalid or already used");
   }
 
   if (row.user_id !== user.id) {
     // Token was issued for a different account. Do not delete it — the
     // legitimate owner may still need to use it. Just reject.
-    console.warn(`[audit] delete-confirm: cross-user uid=${user.id} token_uid=${row.user_id}`);
+    console.warn(`[audit] delete-confirm: cross-user uid=${safeLogValue(user.id)} token_uid=${safeLogValue(row.user_id)}`);
     throw new Error("Confirmation link is invalid");
   }
 
   if (new Date(row.expires_at).getTime() <= Date.now()) {
     await admin.from("account_deletion_tokens").delete().eq("token_hash", tokenHash);
-    console.warn(`[audit] delete-confirm: expired token uid=${user.id}`);
+    console.warn(`[audit] delete-confirm: expired token uid=${safeLogValue(user.id)}`);
     throw new Error("Confirmation link has expired. Please request a new one.");
   }
 
@@ -151,10 +152,10 @@ export async function confirmAccountDeletion(plaintextToken: string): Promise<vo
 
   const { error } = await admin.auth.admin.deleteUser(user.id);
   if (error) {
-    console.error(`[audit] delete-confirm: deleteUser failed uid=${user.id} msg=${error.message}`);
+    console.error(`[audit] delete-confirm: deleteUser failed uid=${safeLogValue(user.id)} msg=${safeLogValue(error.message)}`);
     throw new Error("Failed to delete account");
   }
 
   await supabase.auth.signOut();
-  console.info(`[audit] delete-confirm: success uid=${user.id}`);
+  console.info(`[audit] delete-confirm: success uid=${safeLogValue(user.id)}`);
 }

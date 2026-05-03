@@ -22,6 +22,7 @@ import Button from "@/components/ui/Button";
 import Slider from "@/components/ui/Slider";
 import CadenceSelect, { type CadenceValue, CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 import { requestAccountDeletion } from "@/app/actions/delete-account";
+import { updateCadence } from "@/app/actions/update-cadence";
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
@@ -274,6 +275,10 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
     setError("");
     setSaved(false);
     const supabase = createClient();
+    // Cadence is locked down at the DB layer (migration 024) and writable
+    // only via the server action that verifies plan_type === 'subscription'.
+    // Plus users get the cadence write; free users have it stripped here so
+    // the rest of the form still saves.
     const { error: updateError } = await supabase.from("profiles").update({
       partner_names: { partner1: values.partner1, partner2: values.partner2 },
       interests: values.interests,
@@ -282,7 +287,6 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
         has_car: values.has_car,
         prefers_walking: values.prefers_walking,
       },
-      cadence: values.cadence,
       last_lat: lat,
       last_long: lng,
       preferred_radius: radiusKm * 1000,
@@ -290,12 +294,23 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
 
     if (updateError) {
       setError("Failed to save. Please try again.");
-    } else {
-      setSaved(true);
-      reset(values);
-      router.refresh();
-      setTimeout(() => setSaved(false), 3000);
+      setSaving(false);
+      return;
     }
+
+    if (planType === "subscription" && values.cadence !== profile.cadence) {
+      const { error: cadenceError } = await updateCadence(values.cadence);
+      if (cadenceError) {
+        setError(cadenceError);
+        setSaving(false);
+        return;
+      }
+    }
+
+    setSaved(true);
+    reset(values);
+    router.refresh();
+    setTimeout(() => setSaved(false), 3000);
     setSaving(false);
   }
 
