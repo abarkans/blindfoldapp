@@ -12,7 +12,14 @@ import { UNIT_SYSTEM_COOKIE } from "@/lib/get-unit-system";
 // evaluates modules at runtime via Function/eval. Keeping the prod
 // posture clean is the goal — dev relaxation is acceptable since
 // dev never serves real users.
-function buildCsp(nonce: string): string {
+//
+// `enforce` builds the enforced policy (still ships unsafe-eval until
+// the Turbopack runtime chunk is isolated). `false` builds the
+// report-only twin without unsafe-eval — does not block, just emits
+// violation reports to /api/csp-report so we can identify the chunks
+// that need it. Once reports are clean for ~1 week we can flip the
+// enforced policy.
+function buildCsp(nonce: string, enforce: boolean): string {
   const isDev = process.env.NODE_ENV !== "production";
   // Vercel Live (feedback/comments overlay) injects eval-using scripts on
   // preview deploys. Allow only on preview, never on real production.
@@ -25,11 +32,11 @@ function buildCsp(nonce: string): string {
     ...(isPreview ? ["https://vercel.live"] : []),
     // Cloudflare Turnstile loader (api.js + challenge platform).
     "https://challenges.cloudflare.com",
-    // TODO: production still needs 'unsafe-eval' — Next.js 16 / Turbopack
-    // runtime chunk uses eval. Track upstream; remove once chunk identified
-    // and patched. Nonce + strict-dynamic + no unsafe-inline still big win
-    // vs. pre-b41f225 posture.
-    "'unsafe-eval'",
+    // Enforced policy keeps unsafe-eval as a temporary safety net for
+    // Next.js 16 / Turbopack runtime chunks that still call eval. The
+    // report-only twin omits it so we can collect violation reports
+    // and patch the offending chunks before flipping enforcement.
+    ...(enforce ? ["'unsafe-eval'"] : []),
   ].join(" ");
 
   const connectSrc = [
@@ -45,7 +52,7 @@ function buildCsp(nonce: string): string {
     ...(isPreview ? ["https://vercel.live"] : []),
   ].join(" ");
 
-  return [
+  const directives = [
     "default-src 'self'",
     `script-src ${scriptSrc}`,
     // Tailwind + framer-motion inline styles. Acceptable XSS surface
@@ -62,7 +69,14 @@ function buildCsp(nonce: string): string {
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-  ].join("; ");
+  ];
+
+  // Only the report-only header carries report-uri; the enforced
+  // header doesn't need it (we don't want to log violations of the
+  // looser policy).
+  if (!enforce) directives.push("report-uri /api/csp-report");
+
+  return directives.join("; ");
 }
 
 export async function proxy(request: NextRequest) {
@@ -71,7 +85,12 @@ export async function proxy(request: NextRequest) {
   // Per-request nonce. Cryptographically random; base64-encoded for the
   // CSP header. Not stored — regenerated every request.
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const csp = buildCsp(nonce);
+  const csp = buildCsp(nonce, true);
+  // Production-only report-only header used to investigate which
+  // Turbopack chunks still need 'unsafe-eval'. Skip in dev where
+  // Turbopack HMR triggers floods of legitimate eval violations.
+  const cspReportOnly =
+    process.env.NODE_ENV === "production" ? buildCsp(nonce, false) : null;
 
   // First-visit unit-system detection from Vercel geo header.
   // Push into request.cookies immediately so this-request RSCs see it,
@@ -85,6 +104,9 @@ export async function proxy(request: NextRequest) {
   }
   const applyResponseHeaders = (res: NextResponse) => {
     res.headers.set("Content-Security-Policy", csp);
+    if (cspReportOnly) {
+      res.headers.set("Content-Security-Policy-Report-Only", cspReportOnly);
+    }
     res.headers.set("x-nonce", nonce);
     if (pendingUnitCookie) {
       res.cookies.set(UNIT_SYSTEM_COOKIE, pendingUnitCookie, {
