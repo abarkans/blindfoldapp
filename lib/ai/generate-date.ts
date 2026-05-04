@@ -121,6 +121,21 @@ GLOBAL RULES:
 - Tone: a friend who's been there, genuinely excited for them — not a travel brochure
 - Draw on the couple's specific interests to make the output feel personally tailored, not generic`;
 
+// Structured single-line logger for AI events. Designed to be Vercel-log-grepable
+// and trivial to forward to Sentry/PostHog later. Prefix tags ([ai-fallback],
+// [ai-haiku-failed], [ai-fallback-failed]) act as event names.
+function logAiEvent(tag: string, data: Record<string, unknown>) {
+  // eslint-disable-next-line no-console
+  console.warn(`${tag} ${JSON.stringify(data)}`);
+}
+
+function describeErr(err: unknown) {
+  if (err instanceof Error) {
+    return { error: err.message, errorName: err.name };
+  }
+  return { error: String(err), errorName: "Unknown" };
+}
+
 async function callWithFallback({
   system,
   prompt,
@@ -140,15 +155,31 @@ async function callWithFallback({
     });
     return output;
   } catch (err) {
-    if (primaryModel === HAIKU) throw err;
-    console.warn("[ai] sonnet failed, falling back to haiku:", err);
-    const { output } = await generateText({
-      model: anthropic(HAIKU),
-      output: Output.object({ schema: DateIdeaSchema }),
-      system,
-      prompt,
+    if (primaryModel === HAIKU) {
+      // Free-tier path. No fallback model available — surface the failure.
+      logAiEvent("[ai-haiku-failed]", { tier: "free", ...describeErr(err) });
+      throw err;
+    }
+    // Plus-tier path. Sonnet failed; try Haiku silently from the user's
+    // perspective but emit a structured log so we can monitor degradation.
+    logAiEvent("[ai-fallback]", {
+      from: "sonnet",
+      to: "haiku",
+      tier: "plus",
+      ...describeErr(err),
     });
-    return output;
+    try {
+      const { output } = await generateText({
+        model: anthropic(HAIKU),
+        output: Output.object({ schema: DateIdeaSchema }),
+        system,
+        prompt,
+      });
+      return output;
+    } catch (fbErr) {
+      logAiEvent("[ai-fallback-failed]", { tier: "plus", ...describeErr(fbErr) });
+      throw fbErr;
+    }
   }
 }
 
