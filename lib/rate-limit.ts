@@ -110,3 +110,12 @@ export async function checkPlacePhotoIpRateLimit(ip: string): Promise<void> {
 export async function checkDeletionRequestRateLimit(userId: string): Promise<void> {
   await check(`delete-req:${userId}`, 3, 3600, true);
 }
+
+/**
+ * Enforce per-IP rate limits on the public contact form.
+ * Limit: 3 per hour. Fails closed: guards against spam and transactional
+ * email quota burn from unauthenticated visitors.
+ */
+export async function checkContactRateLimit(ip: string): Promise<void> {
+  await check(`contact-ip:${ip}`, 3, 3600, true);
+}
