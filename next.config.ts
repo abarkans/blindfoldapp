@@ -64,9 +64,6 @@ const nextConfig: NextConfig = {
 
 export default withSentryConfig(nextConfig, {
   silent: true,
-  // Don't wrap the CSP report endpoint — Sentry's instrumentation
-  // interferes with the application/csp-report content-type parsing.
-  excludeServerRoutes: ["/api/csp-report"],
   // Source map upload requires SENTRY_AUTH_TOKEN + org/project.
   // Set those in Vercel env to enable stack traces on production errors.
   // Without them, errors still capture but stack frames show minified names.
