@@ -44,8 +44,9 @@ function buildCsp(nonce: string, enforce: boolean): string {
     "https://*.supabase.co",
     "wss://*.supabase.co",
     "https://nominatim.openstreetmap.org",
-    // PostHog EU ingestion
+    // PostHog EU ingestion + assets
     "https://eu.i.posthog.com",
+    "https://eu-assets.i.posthog.com",
     // Sentry EU ingestion (de datacenter)
     "https://o4511336614068224.ingest.de.sentry.io",
     ...(isPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
