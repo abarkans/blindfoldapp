@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: true }, { status: 204 });
+    return new Response(null, { status: 204 });
   }
 
   const report =
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       ? ((body as { "csp-report": CspReport })["csp-report"])
       : null;
 
-  if (!report) return NextResponse.json({ ok: true }, { status: 204 });
+  if (!report) return new Response(null, { status: 204 });
 
   const directive = report["effective-directive"] ?? report["violated-directive"] ?? "unknown";
   const blockedUri = report["blocked-uri"] ?? "unknown";
@@ -79,5 +79,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true }, { status: 204 });
+  return new Response(null, { status: 204 });
 }
