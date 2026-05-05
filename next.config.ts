@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const securityHeaders = [
   // Force HTTPS for 1 year, include subdomains
@@ -61,4 +62,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  // Source map upload requires SENTRY_AUTH_TOKEN + org/project.
+  // Set those in Vercel env to enable stack traces on production errors.
+  // Without them, errors still capture but stack frames show minified names.
+});

@@ -46,6 +46,8 @@ function buildCsp(nonce: string, enforce: boolean): string {
     "https://nominatim.openstreetmap.org",
     // PostHog EU ingestion
     "https://eu.i.posthog.com",
+    // Sentry EU ingestion (de datacenter)
+    "https://o4511336614068224.ingest.de.sentry.io",
     ...(isPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
   ].join(" ");
 
