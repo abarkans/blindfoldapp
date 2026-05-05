@@ -55,6 +55,17 @@ export async function checkRevealRateLimit(userId: string): Promise<void> {
 }
 
 /**
+ * Enforce per-user rate limits on the reroll action.
+ * Limit: 5 per 60 seconds (throttles rapid hammering; atomic DB check still
+ * caps actual rerolls to 1 per date cycle, but without this a burst of
+ * attempts hits the DB unnecessarily).
+ * Fails closed: paid AI + Places spend.
+ */
+export async function checkRerollRateLimit(userId: string): Promise<void> {
+  await check(`reroll:${userId}`, 5, 60, true);
+}
+
+/**
  * Enforce per-user rate limits on the complete action.
  * Limit: 5 completions per 60 seconds (guards against XP/badge farming).
  * Fails open: no external cost — blocking on DB hiccup hurts UX for nothing.

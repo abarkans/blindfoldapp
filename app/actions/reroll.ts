@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
+import { checkRerollRateLimit } from "@/lib/rate-limit";
 
 const profileSchema = z.object({
   plan_type: z.string(),
@@ -37,6 +38,8 @@ export async function rerollDate(): Promise<void> {
     .single();
 
   if (!raw) throw new Error("Profile not found");
+
+  await checkRerollRateLimit(user.id);
 
   const profile = profileSchema.parse(raw);
   const isFree = profile.plan_type !== "subscription";
