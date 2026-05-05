@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock } from "lucide-react";
 import Image from "next/image";
@@ -487,6 +488,13 @@ function SettingsTabContent({ profile, unitSystem }: { profile: Profile; unitSys
 
   return (
     <div>
+      {/* SENTRY TEST — remove after verifying events appear in Sentry dashboard */}
+      <button
+        className="fixed bottom-24 right-4 z-50 bg-red-600 text-white text-xs px-3 py-1.5 rounded-full"
+        onClick={() => { Sentry.captureMessage("Sentry test event from dashboard"); alert("Sent! Check Sentry Issues."); }}
+      >
+        Test Sentry
+      </button>
       <div className="mb-5 overflow-hidden">
         <AnimatePresence mode="wait" custom={headerDir} initial={false}>
           {subpageHeader ? (
