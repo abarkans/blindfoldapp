@@ -45,3 +45,7 @@ next-env.d.ts
 
 # internal security notes
 security-audit-findings.txt
+SECURITY-TODO.txt
+
+# claude project instructions (local only)
+CLAUDE.md
