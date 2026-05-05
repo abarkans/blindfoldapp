@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
+import { usePostHog } from "posthog-js/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X } from "lucide-react";
 import Image from "next/image";
@@ -220,6 +221,7 @@ export default function DateCard({
   currentDateRerolled,
   dateAcceptedAt,
 }: DateCardProps) {
+  const ph = usePostHog();
   const [isPending, startTransition] = useTransition();
   const [isCompletePending, startCompleteTransition] = useTransition();
   const [isRerollPending, startRerollTransition] = useTransition();
@@ -264,6 +266,7 @@ export default function DateCard({
         setRevealed(true);
         setCompleted(false);
         setAccepted(false);
+        ph?.capture("date_revealed", { plan_type: planType });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       }
@@ -281,7 +284,7 @@ export default function DateCard({
     startRerollTransition(async () => {
       try {
         await rerollDate();
-        // dateIdea prop updates via RSC re-render; accepted syncs via useEffect
+        ph?.capture("date_rerolled", { plan_type: planType });
       } catch (e) {
         void e;
         setError("Couldn't find a new date. Your original date is still saved.");
@@ -296,6 +299,7 @@ export default function DateCard({
         const result = await completeDate();
         setCompleted(true);
         setModalData(result);
+        ph?.capture("date_completed", { plan_type: planType });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       }

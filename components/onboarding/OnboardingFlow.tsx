@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -59,6 +60,7 @@ export default function OnboardingFlow({
   unitSystem = "metric",
 }: OnboardingFlowProps) {
   const router = useRouter();
+  const ph = usePostHog();
 
   const startStep = initialStep ?? (initialPlanType === "subscription" ? 3 : 1);
 
@@ -127,6 +129,7 @@ export default function OnboardingFlow({
     const merged = { ...data, ...newData };
     setData(merged);
     const next = step === 1 && merged.plan_type === "subscription" ? 3 : step + 1;
+    ph?.capture("onboarding_step_complete", { step, plan_type: merged.plan_type });
     setDirection(1);
     setStep(next);
     history.pushState({ ...history.state, onboardingStep: next }, "");
@@ -174,6 +177,7 @@ export default function OnboardingFlow({
         setLoading(false);
         return;
       }
+      ph?.capture("plan_upgrade_initiated", { cadence });
       window.location.href = json.url;
     } catch (err) {
       console.error("[checkout]", err);
@@ -206,6 +210,7 @@ export default function OnboardingFlow({
       return;
     }
 
+    ph?.capture("onboarding_completed", { plan_type: data.plan_type, cadence: data.cadence });
     router.replace("/dashboard");
   }
 

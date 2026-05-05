@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import PostHogIdentify from "@/components/dashboard/PostHogIdentify";
 
 // Minimal layout — only handles auth guard.
 // Header + bottom nav are owned by DashboardTabs (client component)
@@ -16,5 +17,10 @@ export default async function DashboardLayout({
 
   if (!user) redirect("/login");
 
-  return <>{children}</>;
+  return (
+    <>
+      <PostHogIdentify userId={user.id} />
+      {children}
+    </>
+  );
 }
