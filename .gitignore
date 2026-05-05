@@ -50,3 +50,7 @@ SECURITY-TODO.txt
 
 # claude project instructions (local only)
 CLAUDE.md
+
+# graphify
+graphify-out/
+.graphify_*
