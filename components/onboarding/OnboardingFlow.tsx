@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -61,26 +61,6 @@ export default function OnboardingFlow({
 }: OnboardingFlowProps) {
   const router = useRouter();
   const ph = usePostHog();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // iOS Safari: keyboard open scrolls body, causing layout shift that doesn't restore.
-  // visualViewport tracks the actual visible area; sync container height to it directly.
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    function update() {
-      if (!containerRef.current) return;
-      containerRef.current.style.height = `${vv!.height}px`;
-      containerRef.current.style.top = `${vv!.offsetTop}px`;
-    }
-    update();
-    vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
-    return () => {
-      vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
-    };
-  }, []);
 
   const startStep = initialStep ?? (initialPlanType === "subscription" ? 3 : 1);
 
@@ -235,7 +215,7 @@ export default function OnboardingFlow({
   }
 
   return (
-    <div ref={containerRef} className="fixed left-0 right-0 flex flex-col bg-[#0d0d14]" style={{ height: "100dvh", top: 0 }}>
+    <div className="fixed inset-0 flex flex-col bg-[#0d0d14]">
       {/* Scrollable step content (header scrolls with content) */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 max-w-sm mx-auto">
