@@ -469,38 +469,36 @@ export default function DateCard({
 
                     {error && <p className="text-xs text-red-400 text-center">{error}</p>}
 
-                    <div className="grid grid-cols-2 gap-3">
-                      {/* Re-roll button */}
+                    <div className="flex flex-col gap-3">
+                      {/* Accept button — primary */}
+                      <button
+                        type="button"
+                        onClick={() => canReroll ? setAcceptConfirmOpen(true) : handleAccept()}
+                        className="w-full py-3.5 rounded-2xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-400 transition-all active:scale-95"
+                      >
+                        Accept & Reveal
+                        <span className="block text-[10px] font-normal text-white/60 mt-0.5">
+                          {canReroll ? "Can't swap after" : "See the full details"}
+                        </span>
+                      </button>
+
+                      {/* Re-roll button — secondary */}
                       <button
                         type="button"
                         disabled={!canReroll}
                         onClick={() => canReroll && setRerollModalOpen(true)}
                         className={[
-                          "flex flex-col items-center gap-1.5 py-3.5 rounded-2xl border text-sm font-semibold transition-all active:scale-95",
+                          "w-full py-3.5 rounded-2xl border text-sm font-semibold transition-all active:scale-95",
                           canReroll
                             ? "bg-white/5 border-white/15 text-white/70 hover:border-white/30 hover:text-white"
                             : "bg-white/3 border-white/8 text-white/25 cursor-not-allowed",
                         ].join(" ")}
                       >
-                        <Shuffle className="w-4 h-4" />
                         Try another
-                        <span className={`text-[10px] font-normal ${canReroll ? "text-white/55" : "text-white/30"}`}>
+                        <span className={`block text-[10px] font-normal mt-0.5 ${canReroll ? "text-white/55" : "text-white/30"}`}>
                           {isFree
                             ? totalRerollsUsed >= 1 ? "No swaps left" : "1 swap left"
                             : currentDateRerolled ? "Used for this date" : "1 per date"}
-                        </span>
-                      </button>
-
-                      {/* Accept button */}
-                      <button
-                        type="button"
-                        onClick={() => canReroll ? setAcceptConfirmOpen(true) : handleAccept()}
-                        className="flex flex-col items-center gap-1.5 py-3.5 rounded-2xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-400 transition-all active:scale-95"
-                      >
-                        <Check className="w-4 h-4" />
-                        Accept & Reveal
-                        <span className="text-[10px] font-normal text-white/60">
-                          {canReroll ? "Can't swap after" : "See the full details"}
                         </span>
                       </button>
                     </div>
