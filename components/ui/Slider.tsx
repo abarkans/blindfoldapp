@@ -62,23 +62,22 @@ export default function Slider({
         </div>
       )}
       <div
-        ref={trackRef}
-        className="relative h-11 flex items-center cursor-pointer select-none touch-none"
+        className="relative h-11 flex items-center cursor-pointer select-none touch-none px-3"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
       >
-        {/* Track */}
-        <div className="relative w-full h-2 rounded-full bg-white/10">
+        {/* Track — ref here so getValueFromPointer measures the actual track width */}
+        <div ref={trackRef} className="relative w-full h-2 rounded-full bg-white/10 overflow-visible">
           <div
             className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500"
             style={{ width: `${pct}%` }}
           />
+          {/* Thumb — positioned relative to track; px-3 on parent absorbs ±12px overhang */}
+          <div
+            className="absolute top-1/2 w-6 h-6 -translate-y-1/2 rounded-full bg-white shadow-lg shadow-pink-500/40 border-2 border-pink-500 pointer-events-none"
+            style={{ left: `calc(${pct}% - 12px)` }}
+          />
         </div>
-        {/* Thumb */}
-        <div
-          className="absolute w-6 h-6 rounded-full bg-white shadow-lg shadow-pink-500/40 border-2 border-pink-500 pointer-events-none"
-          style={{ left: `calc(${pct}% - 12px)` }}
-        />
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95";
 
     const variants = {
-      primary: "bg-gradient-to-r from-rose-600 to-violet-600 text-white shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 hover:brightness-95",
+      primary: "bg-gradient-to-br from-rose-600 to-purple-600 text-white hover:brightness-110",
       secondary: "bg-transparent text-white border border-rose-500 hover:border-rose-400 hover:bg-rose-500/10 backdrop-blur-sm",
       ghost: "text-white/70 hover:text-white hover:bg-white/10",
       danger: "bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30",
