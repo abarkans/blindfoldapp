@@ -243,25 +243,22 @@ export default function CompleteDateModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* Backdrop */}
+        <motion.div
+          className="fixed inset-0 bg-black/80 z-50 overflow-y-auto flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={handleClose}
+        >
           <motion.div
-            className="fixed inset-0 bg-black/80 z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-          />
-
-          {/* Modal */}
-          <motion.div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4"
+            className="w-full max-w-sm my-4"
             initial={{ opacity: 0, scale: 0.85, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60 max-h-[90dvh] overflow-y-auto">
+            <div className="relative bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
               <button
                 onClick={handleClose}
                 className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
@@ -428,7 +425,7 @@ export default function CompleteDateModal({
               )}
             </div>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );
