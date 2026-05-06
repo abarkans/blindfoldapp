@@ -44,9 +44,10 @@ function buildCsp(nonce: string, enforce: boolean): string {
     "https://*.supabase.co",
     "wss://*.supabase.co",
     "https://nominatim.openstreetmap.org",
-    // PostHog EU ingestion + assets
+    // PostHog EU ingestion + assets + toolbar internal endpoint
     "https://eu.i.posthog.com",
     "https://eu-assets.i.posthog.com",
+    "https://internal-j.posthog.com",
     // Sentry EU ingestion (de datacenter)
     "https://o4511336614068224.ingest.de.sentry.io",
     ...(isPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
@@ -63,7 +64,8 @@ function buildCsp(nonce: string, enforce: boolean): string {
     // Tailwind + framer-motion inline styles. Acceptable XSS surface
     // because style-based attacks are limited and Tailwind v4 has no
     // viable alternative without breaking hydration.
-    "style-src 'self' 'unsafe-inline'",
+    // eu.i.posthog.com needed for PostHog toolbar.css (dev toolbar overlay).
+    "style-src 'self' 'unsafe-inline' https://eu.i.posthog.com",
     // Place photos served through internal proxy (/api/place-photo);
     // data: for inline SVGs/favicons; blob: for client-generated assets.
     "img-src 'self' data: blob: https://vercel.live https://vercel.com",
