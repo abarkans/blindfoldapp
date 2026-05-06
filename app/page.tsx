@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LandingDesktopClient from "@/components/landing-desktop/LandingDesktopClient";
+import CapacitorRedirect from "@/components/CapacitorRedirect";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -34,5 +35,10 @@ export default async function HomePage() {
     if (profile?.onboarding_complete) redirect("/dashboard");
   }
 
-  return <LandingDesktopClient />;
+  return (
+    <>
+      <CapacitorRedirect />
+      <LandingDesktopClient />
+    </>
+  );
 }

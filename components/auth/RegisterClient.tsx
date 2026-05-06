@@ -147,10 +147,23 @@ export default function RegisterClient() {
       return;
     }
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}` },
-    });
+    if ((window as any).Capacitor) {
+      const { Browser } = await import('@capacitor/browser')
+      const plan = planParam === 'free' || planParam === 'subscription' ? `&plan=${planParam}` : ''
+      const { data } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `com.blindfolddate.app://login-callback?next=/onboarding${plan}`,
+          skipBrowserRedirect: true,
+        },
+      })
+      if (data.url) await Browser.open({ url: data.url })
+    } else {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}` },
+      });
+    }
   }
 
   if (emailSent) {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import PostHogProvider from "@/components/PostHogProvider";
+import CapacitorAuthHandler from "@/components/CapacitorAuthHandler";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -61,6 +62,7 @@ export default async function RootLayout({
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <CapacitorAuthHandler />
         <PostHogProvider>{children}</PostHogProvider>
       </body>
     </html>

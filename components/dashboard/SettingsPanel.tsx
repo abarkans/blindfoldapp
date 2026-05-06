@@ -317,7 +317,11 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/");
+    if ((window as any).Capacitor) {
+      window.location.replace('https://localhost?signout=1');
+    } else {
+      router.push("/");
+    }
   }
 
   async function handleDeleteAccount() {

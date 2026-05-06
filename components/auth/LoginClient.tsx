@@ -69,10 +69,22 @@ export default function LoginClient() {
 
   async function handleGoogle() {
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+    if ((window as any).Capacitor) {
+      const { Browser } = await import('@capacitor/browser')
+      const { data } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'com.blindfolddate.app://login-callback',
+          skipBrowserRedirect: true,
+        },
+      })
+      if (data.url) await Browser.open({ url: data.url })
+    } else {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+    }
   }
 
   return (
