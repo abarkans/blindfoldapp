@@ -49,6 +49,7 @@ interface OnboardingFlowProps {
   initialCadence?: string;
   initialStep?: number;
   unitSystem?: UnitSystem;
+  fromCancelledCheckout?: boolean;
 }
 
 export default function OnboardingFlow({
@@ -58,6 +59,7 @@ export default function OnboardingFlow({
   initialCadence,
   initialStep,
   unitSystem = "metric",
+  fromCancelledCheckout = false,
 }: OnboardingFlowProps) {
   const router = useRouter();
   const ph = usePostHog();
@@ -100,6 +102,28 @@ export default function OnboardingFlow({
     window.addEventListener("pageshow", onPageShow);
     return () => window.removeEventListener("pageshow", onPageShow);
   }, []);
+
+  // On Stripe cancel return (?checkout=cancelled), history looks like:
+  //   [..., Stripe, /onboarding?checkout=cancelled]
+  // We surgically remove the Stripe entry so back goes to the page before onboarding:
+  //   go(-1) → land on Stripe entry → replaceState with /onboarding step 1
+  //   go(+1) → land back on cancel URL → replaceState with clean /onboarding step 2
+  // Result: [..., /onboarding (step 1), /onboarding (step 2)]
+  useEffect(() => {
+    if (!fromCancelledCheckout || history.length <= 1) return;
+
+    function onReplaceCancel() {
+      history.replaceState({ ...history.state, onboardingStep: startStep }, "", "/onboarding");
+    }
+    function onReplaceStripe() {
+      history.replaceState({ ...history.state, onboardingStep: 1 }, "", "/onboarding");
+      window.addEventListener("popstate", onReplaceCancel, { once: true });
+      history.go(1);
+    }
+    window.addEventListener("popstate", onReplaceStripe, { once: true });
+    history.go(-1);
+    return () => window.removeEventListener("popstate", onReplaceStripe);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Anchor onboarding to browser history so back button moves between steps
   useEffect(() => {

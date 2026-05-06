@@ -57,6 +57,7 @@ export default async function OnboardingPage({
       initialCadence={savedCadence}
       initialStep={initialStep}
       unitSystem={unitSystem}
+      fromCancelledCheckout={checkout === "cancelled"}
     />
   );
 }
