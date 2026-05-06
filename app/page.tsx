@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import LandingDesktopClient from "@/components/landing-desktop/LandingDesktopClient";
-import AppIntroOverlay from "@/components/app/AppIntroOverlay";
+import LandingV3Client from "@/components/landing-v3/LandingV3Client";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -35,10 +34,5 @@ export default async function HomePage() {
     if (profile?.onboarding_complete) redirect("/dashboard");
   }
 
-  return (
-    <>
-      <AppIntroOverlay />
-      <LandingDesktopClient />
-    </>
-  );
+  return <LandingV3Client />;
 }

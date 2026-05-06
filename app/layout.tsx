@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import PostHogProvider from "@/components/PostHogProvider";
 import CapacitorAuthHandler from "@/components/CapacitorAuthHandler";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -54,7 +59,7 @@ export default async function RootLayout({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className={`${plusJakarta.variable} h-full`}>
       <body className="min-h-full bg-[#0d0d14] font-sans antialiased">
         <script
           type="application/ld+json"
