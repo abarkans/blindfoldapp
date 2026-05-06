@@ -109,24 +109,15 @@ export default function OnboardingFlow({
 
   // On Stripe cancel return (?checkout=cancelled), history looks like:
   //   [..., Stripe, /onboarding?checkout=cancelled]
-  // We surgically remove the Stripe entry so back goes to the page before onboarding:
-  //   go(-1) → land on Stripe entry → replaceState with /onboarding step 1
-  //   go(+1) → land back on cancel URL → replaceState with clean /onboarding step 2
-  // Result: [..., /onboarding (step 1), /onboarding (step 2)]
+  // Rewrite it in-place with no navigation (replaceState + pushState don't trigger page loads):
+  //   replaceState → turn cancel URL into /onboarding at step 1
+  //   pushState   → add /onboarding at step 2 as the new current entry
+  // Result: [..., Stripe, /onboarding (step 1), /onboarding (step 2)]
+  // UI back from step 2 → step 1 ✓  (step 1 has no back button, so Stripe is unreachable)
   useEffect(() => {
-    if (!fromCancelledCheckout || history.length <= 1) return;
-
-    function onReplaceCancel() {
-      history.replaceState({ ...history.state, onboardingStep: startStep }, "", "/onboarding");
-    }
-    function onReplaceStripe() {
-      history.replaceState({ ...history.state, onboardingStep: 1 }, "", "/onboarding");
-      window.addEventListener("popstate", onReplaceCancel, { once: true });
-      history.go(1);
-    }
-    window.addEventListener("popstate", onReplaceStripe, { once: true });
-    history.go(-1);
-    return () => window.removeEventListener("popstate", onReplaceStripe);
+    if (!fromCancelledCheckout) return;
+    history.replaceState({ onboardingStep: 1 }, "", "/onboarding");
+    history.pushState({ onboardingStep: startStep }, "", "/onboarding");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Anchor onboarding to browser history so back button moves between steps
