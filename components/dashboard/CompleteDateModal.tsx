@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Lock, Sparkles, Star } from "lucide-react";
+import { X, Zap, Lock, Star } from "lucide-react";
 import confetti, { type CreateTypes } from "canvas-confetti";
 import Button from "@/components/ui/Button";
 import { submitDateFeedback } from "@/app/actions/submit-feedback";
@@ -100,7 +100,7 @@ function FeedbackSection({
               placeholder="Add a note... (optional)"
               maxLength={500}
               rows={2}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 resize-none focus:outline-none focus:border-white/20 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-[16px] text-white placeholder-white/30 resize-none focus:outline-none focus:border-white/20 transition-colors"
             />
             <button
               type="button"
@@ -261,7 +261,7 @@ export default function CompleteDateModal({
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
           >
-            <div className="relative bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+            <div className="relative bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60 max-h-[90dvh] overflow-y-auto">
               <button
                 onClick={handleClose}
                 className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
@@ -324,12 +324,11 @@ export default function CompleteDateModal({
                   )}
 
                   <Button
-                    size="lg"
-                    className="w-full"
+                    size="sm"
+                    className="w-full rounded-xl"
                     onClick={handleUpgrade}
                     disabled={upgrading}
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
                     {upgrading ? "Loading…" : "Upgrade to Plus"}
                   </Button>
                   <button
