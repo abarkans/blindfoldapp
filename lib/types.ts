@@ -309,4 +309,5 @@ export interface CompleteDateResult {
   newBadges: { name: string; description: string; icon_emoji: string }[];
   planType: PlanType;
   gated: boolean;
+  dateIdeaId: string;
 }

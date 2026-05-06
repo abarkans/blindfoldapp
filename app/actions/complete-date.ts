@@ -38,10 +38,12 @@ export async function completeDate(): Promise<CompleteDateResult> {
     total_xp: newXp,
     dates_completed_count: newCount,
     gated,
+    completed_idea_id: dateIdeaId,
   } = result as {
     total_xp: number;
     dates_completed_count: number;
     gated: boolean;
+    completed_idea_id: string;
   };
 
   const planType: PlanType = gated ? "free" : "subscription";
@@ -57,6 +59,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
       newBadges: [],
       planType,
       gated: true,
+      dateIdeaId,
     };
   }
 
@@ -85,5 +88,6 @@ export async function completeDate(): Promise<CompleteDateResult> {
     }),
     planType,
     gated: false,
+    dateIdeaId,
   };
 }

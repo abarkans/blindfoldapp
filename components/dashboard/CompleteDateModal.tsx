@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Lock, Sparkles } from "lucide-react";
+import { X, Zap, Lock, Sparkles, Star } from "lucide-react";
 import confetti, { type CreateTypes } from "canvas-confetti";
 import Button from "@/components/ui/Button";
+import { submitDateFeedback } from "@/app/actions/submit-feedback";
 
 let _fire: CreateTypes | null = null;
 function getFire(): CreateTypes {
@@ -16,6 +17,73 @@ function getFire(): CreateTypes {
   document.body.appendChild(canvas);
   _fire = confetti.create(canvas, { resize: true, useWorker: true });
   return _fire;
+}
+
+function FeedbackSection({
+  rating,
+  hovered,
+  comment,
+  onRate,
+  onHover,
+  onComment,
+}: {
+  rating: number | null;
+  hovered: number | null;
+  comment: string;
+  onRate: (r: number | null) => void;
+  onHover: (r: number | null) => void;
+  onComment: (c: string) => void;
+}) {
+  return (
+    <motion.div
+      className="border-t border-white/8 pt-4 mt-2 mb-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.45 }}
+    >
+      <p className="text-xs text-white/45 text-center mb-3">How was your date?</p>
+      <div className="flex justify-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => onRate(star === rating ? null : star)}
+            onMouseEnter={() => onHover(star)}
+            onMouseLeave={() => onHover(null)}
+            className="p-1.5 transition-transform active:scale-90"
+          >
+            <Star
+              className={`w-7 h-7 transition-colors duration-100 ${
+                star <= (hovered ?? rating ?? 0)
+                  ? "text-amber-400 fill-amber-400"
+                  : "text-white/20"
+              }`}
+            />
+          </button>
+        ))}
+      </div>
+      <AnimatePresence>
+        {rating !== null && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden mt-3"
+          >
+            <textarea
+              value={comment}
+              onChange={(e) => onComment(e.target.value)}
+              placeholder="Add a note... (optional)"
+              maxLength={500}
+              rows={2}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 resize-none focus:outline-none focus:border-white/20 transition-colors"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
 }
 
 const BADGE_IMAGES: Record<string, string> = {
@@ -38,6 +106,7 @@ interface CompleteDateModalProps {
   newLevel: number;
   newBadges: NewBadge[];
   gated: boolean;
+  dateIdeaId: string;
   onClose: () => void;
   onGoToProgress: () => void;
 }
@@ -49,11 +118,26 @@ export default function CompleteDateModal({
   newLevel,
   newBadges,
   gated,
+  dateIdeaId,
   onClose,
   onGoToProgress,
 }: CompleteDateModalProps) {
   const [upgrading, setUpgrading] = useState(false);
   const [upgradeError, setUpgradeError] = useState("");
+  const [rating, setRating] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [comment, setComment] = useState("");
+  const [feedbackSaved, setFeedbackSaved] = useState(false);
+
+  function handleClose() {
+    if (rating !== null && !feedbackSaved && dateIdeaId) {
+      setFeedbackSaved(true);
+      submitDateFeedback(dateIdeaId, rating, comment || undefined).catch((e) =>
+        console.error("[feedback]", e)
+      );
+    }
+    onClose();
+  }
 
   // Lock background scroll while modal is open
   useEffect(() => {
@@ -127,7 +211,7 @@ export default function CompleteDateModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           {/* Modal */}
@@ -140,7 +224,7 @@ export default function CompleteDateModal({
           >
             <div className="relative bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
                 aria-label="Close"
               >
@@ -188,6 +272,15 @@ export default function CompleteDateModal({
                     <p className="text-xs text-rose-400 mb-3">{upgradeError}</p>
                   )}
 
+                  <FeedbackSection
+                    rating={rating}
+                    hovered={hovered}
+                    comment={comment}
+                    onRate={setRating}
+                    onHover={setHovered}
+                    onComment={setComment}
+                  />
+
                   <Button
                     size="lg"
                     className="w-full"
@@ -198,7 +291,7 @@ export default function CompleteDateModal({
                     {upgrading ? "Loading…" : "Upgrade to Plus"}
                   </Button>
                   <button
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
                   >
                     Maybe later
@@ -268,11 +361,28 @@ export default function CompleteDateModal({
                     </motion.div>
                   )}
 
-                  <Button size="lg" className="w-full" onClick={onClose}>
+                  <FeedbackSection
+                    rating={rating}
+                    hovered={hovered}
+                    comment={comment}
+                    onRate={setRating}
+                    onHover={setHovered}
+                    onComment={setComment}
+                  />
+
+                  <Button size="lg" className="w-full" onClick={handleClose}>
                     Awesome!
                   </Button>
                   <button
-                    onClick={onGoToProgress}
+                    onClick={() => {
+                      if (rating !== null && !feedbackSaved && dateIdeaId) {
+                        setFeedbackSaved(true);
+                        submitDateFeedback(dateIdeaId, rating, comment || undefined).catch((e) =>
+                          console.error("[feedback]", e)
+                        );
+                      }
+                      onGoToProgress();
+                    }}
                     className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
                   >
                     View my progress →
