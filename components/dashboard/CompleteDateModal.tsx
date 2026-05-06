@@ -26,6 +26,7 @@ function FeedbackSection({
   onRate,
   onHover,
   onComment,
+  divider = "bottom",
 }: {
   rating: number | null;
   hovered: number | null;
@@ -33,13 +34,18 @@ function FeedbackSection({
   onRate: (r: number | null) => void;
   onHover: (r: number | null) => void;
   onComment: (c: string) => void;
+  divider?: "top" | "bottom";
 }) {
+  const cls =
+    divider === "top"
+      ? "border-t border-white/8 pt-4 mt-2 mb-4"
+      : "border-b border-white/8 pb-4 mb-4";
   return (
     <motion.div
-      className="border-t border-white/8 pt-4 mt-2 mb-4"
+      className={cls}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 0.45 }}
+      transition={{ delay: 0.18 }}
     >
       <p className="text-xs text-white/45 text-center mb-3">How was your date?</p>
       <div className="flex justify-center gap-1">
@@ -246,7 +252,16 @@ export default function CompleteDateModal({
 
               {gated ? (
                 <>
-                  {/* Upsell card — replaces XP/badges for free plan */}
+                  <FeedbackSection
+                    rating={rating}
+                    hovered={hovered}
+                    comment={comment}
+                    onRate={setRating}
+                    onHover={setHovered}
+                    onComment={setComment}
+                  />
+
+                  {/* Upsell card */}
                   <motion.div
                     className="bg-gradient-to-br from-violet-500/20 to-rose-500/10 border border-violet-500/25 rounded-2xl p-4 mb-4 text-left"
                     initial={{ opacity: 0, y: 10 }}
@@ -271,15 +286,6 @@ export default function CompleteDateModal({
                   {upgradeError && (
                     <p className="text-xs text-rose-400 mb-3">{upgradeError}</p>
                   )}
-
-                  <FeedbackSection
-                    rating={rating}
-                    hovered={hovered}
-                    comment={comment}
-                    onRate={setRating}
-                    onHover={setHovered}
-                    onComment={setComment}
-                  />
 
                   <Button
                     size="lg"
@@ -368,6 +374,7 @@ export default function CompleteDateModal({
                     onRate={setRating}
                     onHover={setHovered}
                     onComment={setComment}
+                    divider="top"
                   />
 
                   <Button size="lg" className="w-full" onClick={handleClose}>
