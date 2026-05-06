@@ -211,7 +211,7 @@ export default function LandingDesktopClient() {
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-gradient-to-r from-rose-600 to-violet-600 hover:from-rose-500 hover:to-violet-500 px-5 h-9 rounded-xl transition-all shadow-lg shadow-rose-500/20"
+              className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-9 rounded-2xl transition-all"
             >
               Get started free
               <ArrowRight className="w-3.5 h-3.5" />
@@ -311,7 +311,7 @@ export default function LandingDesktopClient() {
                 <Link
                   href="/register"
                   onClick={() => setMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-r from-rose-600 to-violet-600 h-14 rounded-2xl shadow-lg shadow-rose-500/20"
+                  className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all"
                 >
                   <Sparkles className="w-4 h-4 text-rose-200" />
                   Get started free
@@ -378,8 +378,7 @@ export default function LandingDesktopClient() {
           >
             <Link
               href="/register"
-              className="group relative inline-flex items-center justify-center text-white font-semibold px-7 py-4 rounded-2xl text-base transition-all overflow-hidden shadow-2xl shadow-rose-500/25"
-              style={{ background: "linear-gradient(135deg, #e11d48 0%, #9333ea 100%)" }}
+              className="group relative inline-flex items-center justify-center text-white font-semibold px-7 py-4 rounded-2xl text-base transition-all overflow-hidden bg-rose-500 hover:bg-rose-400"
             >
               <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               Get started free
@@ -867,7 +866,7 @@ export default function LandingDesktopClient() {
                 className={[
                   "w-full text-center py-3.5 md:py-4 rounded-2xl text-sm font-bold transition-all",
                   plan.highlighted
-                    ? "bg-gradient-to-r from-pink-500 to-violet-600 text-white shadow-xl shadow-pink-500/20 hover:from-pink-400 hover:to-violet-500"
+                    ? "bg-rose-500 text-white hover:bg-rose-400"
                     : "bg-white/8 text-white/65 border border-white/10 hover:bg-white/12 hover:text-white",
                 ].join(" ")}
               >
@@ -930,8 +929,7 @@ export default function LandingDesktopClient() {
 
           <Link
             href="/register"
-            className="group relative inline-flex items-center gap-3 text-white font-bold px-8 py-5 md:px-12 md:py-6 rounded-2xl text-base md:text-lg transition-all overflow-hidden shadow-2xl shadow-rose-500/40"
-            style={{ background: "linear-gradient(135deg, #e11d48 0%, #9333ea 100%)" }}
+            className="group relative inline-flex items-center gap-3 text-white font-bold px-8 py-5 md:px-12 md:py-6 rounded-2xl text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400"
           >
             <motion.span
               className="absolute inset-0 bg-white/10"

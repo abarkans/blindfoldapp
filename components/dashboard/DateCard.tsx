@@ -495,11 +495,11 @@ export default function DateCard({
                       <button
                         type="button"
                         onClick={() => canReroll ? setAcceptConfirmOpen(true) : handleAccept()}
-                        className="flex flex-col items-center gap-1.5 py-3.5 rounded-2xl border bg-gradient-to-br from-pink-500/20 to-rose-500/10 border-pink-500/50 text-pink-200 text-sm font-semibold hover:from-pink-500/30 hover:border-pink-400/60 transition-all active:scale-95"
+                        className="flex flex-col items-center gap-1.5 py-3.5 rounded-2xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-400 transition-all active:scale-95"
                       >
                         <Check className="w-4 h-4" />
                         Accept & Reveal
-                        <span className="text-[10px] font-normal text-pink-300/50">
+                        <span className="text-[10px] font-normal text-white/60">
                           {canReroll ? "Can't swap after" : "See the full details"}
                         </span>
                       </button>
@@ -797,7 +797,7 @@ export default function DateCard({
                   <button
                     type="button"
                     onClick={handleRerollConfirm}
-                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold text-sm shadow-lg shadow-violet-500/20 hover:from-violet-400 hover:to-purple-500 transition-all active:scale-[0.98]"
+                    className="w-full py-3 rounded-2xl bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
                   >
                     {isFree ? "Yes, try another" : "Find another date"}
                   </button>
@@ -849,7 +849,7 @@ export default function DateCard({
                 <button
                   type="button"
                   onClick={() => { setAcceptConfirmOpen(false); handleAccept(); }}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold text-sm shadow-lg shadow-pink-500/20 hover:from-pink-400 hover:to-rose-500 transition-all active:scale-[0.98]"
+                  className="w-full py-3 rounded-2xl bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
                 >
                   Reveal it
                 </button>

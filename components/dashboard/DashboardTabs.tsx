@@ -459,7 +459,7 @@ function ProgressUpsell({
           type="button"
           onClick={handleUpgrade}
           disabled={upgrading}
-          className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-500 to-rose-500 text-white font-semibold text-sm shadow-lg shadow-violet-500/20 hover:from-violet-400 hover:to-rose-400 transition-all active:scale-[0.98] disabled:opacity-60"
+          className="w-full py-3 rounded-2xl bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98] disabled:opacity-60"
         >
           {upgrading ? "Loading…" : "Upgrade to Plus"}
         </button>

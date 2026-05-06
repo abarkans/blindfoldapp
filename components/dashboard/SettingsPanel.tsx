@@ -919,7 +919,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                       <button
                         type="button"
                         onClick={handleUpgradePlan}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-sm font-bold shadow-lg shadow-pink-500/25 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500 text-white text-sm font-bold hover:bg-rose-400 transition-all active:scale-[0.98]"
                       >
                         <Zap className="w-4 h-4 text-rose-200" />
                         Subscribe · €5.99/mo
