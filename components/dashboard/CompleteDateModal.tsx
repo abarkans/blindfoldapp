@@ -244,14 +244,15 @@ export default function CompleteDateModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/80 z-50 overflow-y-auto flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 z-50 overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={handleClose}
         >
+          <div className="min-h-full flex items-center justify-center p-4">
           <motion.div
-            className="w-full max-w-sm my-4"
+            className="w-full max-w-sm"
             initial={{ opacity: 0, scale: 0.85, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
@@ -425,6 +426,7 @@ export default function CompleteDateModal({
               )}
             </div>
           </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
