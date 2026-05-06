@@ -26,6 +26,9 @@ function FeedbackSection({
   onRate,
   onHover,
   onComment,
+  onSubmit,
+  submitted,
+  submitting,
   divider = "bottom",
 }: {
   rating: number | null;
@@ -34,6 +37,9 @@ function FeedbackSection({
   onRate: (r: number | null) => void;
   onHover: (r: number | null) => void;
   onComment: (c: string) => void;
+  onSubmit: () => void;
+  submitted: boolean;
+  submitting: boolean;
   divider?: "top" | "bottom";
 }) {
   const cls =
@@ -53,10 +59,11 @@ function FeedbackSection({
           <button
             key={star}
             type="button"
-            onClick={() => onRate(star === rating ? null : star)}
-            onMouseEnter={() => onHover(star)}
+            onClick={() => !submitted && onRate(star === rating ? null : star)}
+            onMouseEnter={() => !submitted && onHover(star)}
             onMouseLeave={() => onHover(null)}
-            className="p-1.5 transition-transform active:scale-90"
+            className="p-1.5 transition-transform active:scale-90 disabled:cursor-default"
+            disabled={submitted}
           >
             <Star
               className={`w-7 h-7 transition-colors duration-100 ${
@@ -68,9 +75,19 @@ function FeedbackSection({
           </button>
         ))}
       </div>
-      <AnimatePresence>
-        {rating !== null && (
+      <AnimatePresence mode="wait">
+        {submitted ? (
+          <motion.p
+            key="confirmed"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 text-xs text-emerald-400 text-center"
+          >
+            ✓ Thanks for your feedback!
+          </motion.p>
+        ) : rating !== null ? (
           <motion.div
+            key="input"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -85,8 +102,16 @@ function FeedbackSection({
               rows={2}
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 resize-none focus:outline-none focus:border-white/20 transition-colors"
             />
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={submitting}
+              className="mt-2 w-full py-2.5 rounded-xl bg-white/8 border border-white/15 text-sm font-semibold text-white hover:bg-white/12 transition-colors disabled:opacity-50"
+            >
+              {submitting ? "Saving…" : "Submit rating"}
+            </button>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </motion.div>
   );
@@ -134,15 +159,23 @@ export default function CompleteDateModal({
   const [hovered, setHovered] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [feedbackSaved, setFeedbackSaved] = useState(false);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   function handleClose() {
-    if (rating !== null && !feedbackSaved && dateIdeaId) {
-      setFeedbackSaved(true);
-      submitDateFeedback(dateIdeaId, rating, comment || undefined).catch((e) =>
-        console.error("[feedback]", e)
-      );
-    }
     onClose();
+  }
+
+  async function handleFeedbackSubmit() {
+    if (rating === null || feedbackSaved || !dateIdeaId || feedbackSubmitting) return;
+    setFeedbackSubmitting(true);
+    try {
+      await submitDateFeedback(dateIdeaId, rating, comment || undefined);
+      setFeedbackSaved(true);
+    } catch (e) {
+      console.error("[feedback]", e);
+    } finally {
+      setFeedbackSubmitting(false);
+    }
   }
 
   // Lock background scroll while modal is open
@@ -259,6 +292,9 @@ export default function CompleteDateModal({
                     onRate={setRating}
                     onHover={setHovered}
                     onComment={setComment}
+                    onSubmit={handleFeedbackSubmit}
+                    submitted={feedbackSaved}
+                    submitting={feedbackSubmitting}
                   />
 
                   {/* Upsell card */}
@@ -374,6 +410,9 @@ export default function CompleteDateModal({
                     onRate={setRating}
                     onHover={setHovered}
                     onComment={setComment}
+                    onSubmit={handleFeedbackSubmit}
+                    submitted={feedbackSaved}
+                    submitting={feedbackSubmitting}
                     divider="top"
                   />
 
@@ -381,15 +420,7 @@ export default function CompleteDateModal({
                     Awesome!
                   </Button>
                   <button
-                    onClick={() => {
-                      if (rating !== null && !feedbackSaved && dateIdeaId) {
-                        setFeedbackSaved(true);
-                        submitDateFeedback(dateIdeaId, rating, comment || undefined).catch((e) =>
-                          console.error("[feedback]", e)
-                        );
-                      }
-                      onGoToProgress();
-                    }}
+                    onClick={onGoToProgress}
                     className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
                   >
                     View my progress →
