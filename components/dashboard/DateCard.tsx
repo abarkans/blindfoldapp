@@ -477,9 +477,6 @@ export default function DateCard({
                         className="w-full py-3.5 rounded-2xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-400 transition-all active:scale-95"
                       >
                         Accept & Reveal
-                        <span className="block text-[10px] font-normal text-white/60 mt-0.5">
-                          {canReroll ? "Can't swap after" : "See the full details"}
-                        </span>
                       </button>
 
                       {/* Re-roll button — secondary */}
@@ -495,11 +492,6 @@ export default function DateCard({
                         ].join(" ")}
                       >
                         Try another
-                        <span className={`block text-[10px] font-normal mt-0.5 ${canReroll ? "text-white/55" : "text-white/30"}`}>
-                          {isFree
-                            ? totalRerollsUsed >= 1 ? "No swaps left" : "1 swap left"
-                            : currentDateRerolled ? "Used for this date" : "1 per date"}
-                        </span>
                       </button>
                     </div>
                   </motion.div>
