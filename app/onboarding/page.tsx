@@ -37,16 +37,29 @@ export default async function OnboardingPage({
   const savedPlanType = (profile?.plan_type as PlanId | null) ?? undefined;
   const savedCadence = (profile?.cadence as string | null) ?? undefined;
 
-  // When returning from a cancelled Stripe session with names already saved,
-  // skip straight to plan selection instead of making the user re-enter names.
   const { checkout, plan } = await searchParams;
-  const initialStep = checkout === "cancelled" && !!savedPartner1 ? 2 : undefined;
-
-  // Pre-select plan from landing pricing CTA (?plan=free|subscription).
-  // DB value wins if already set (returning user / post-Stripe).
-  // On Stripe cancel return, pass nothing — user must choose fresh (no pre-selection, no timing bug).
   const planFromUrl = plan === "free" || plan === "subscription" ? (plan as PlanId) : undefined;
-  const resolvedPlanType = checkout === "cancelled" ? undefined : (savedPlanType ?? planFromUrl);
+
+  // Step to start on:
+  //   - Stripe cancel return with names saved → step 2 (plan selection, fresh)
+  //   - DB-confirmed subscriber → step 3 (plan already done)
+  //   - Landing CTA with ?plan=subscription → explicit step 1 to prevent subscription skip
+  const initialStep =
+    checkout === "cancelled" && !!savedPartner1 ? 2 :
+    savedPlanType === "subscription" ? 3 :
+    planFromUrl === "subscription" ? 1 :
+    undefined;
+
+  // Plan to pre-select in step 2:
+  //   - Stripe cancel return → nothing (user chooses fresh)
+  //   - DB subscription → pass it (skip logic above handles the step)
+  //   - URL param → use it (landing CTA intent)
+  //   - DB "free" default → don't pre-select (not an explicit choice)
+  const resolvedPlanType: PlanId | undefined = checkout === "cancelled"
+    ? undefined
+    : savedPlanType === "subscription"
+      ? "subscription"
+      : planFromUrl;
   const unitSystem = await getUnitSystem();
 
   return (
