@@ -25,6 +25,12 @@ if (typeof window !== "undefined") {
     autocapture: false,
     capture_pageview: false,
     capture_pageleave: false,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    loaded: (ph: any) => {
+      if (process.env.NODE_ENV === "production") {
+        ph.set_config({ disable_toolbar: true });
+      }
+    },
   });
 }
 
