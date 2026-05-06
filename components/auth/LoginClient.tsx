@@ -25,6 +25,7 @@ export default function LoginClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaActive, setCaptchaActive] = useState(false);
   const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const {
@@ -104,7 +105,7 @@ export default function LoginClient() {
         </Link>
 
         {/* Card */}
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
           <h2 className="text-lg font-bold text-white mb-5">Welcome back</h2>
 
           <Button
@@ -173,13 +174,15 @@ export default function LoginClient() {
             </Button>
           </form>
 
-          <div className="mt-5">
-            <CaptchaWidget
-              ref={turnstileRef}
-              onToken={setCaptchaToken}
-              onClear={() => setCaptchaToken("")}
-            />
-          </div>
+          {captchaActive && (
+            <div className="mt-5">
+              <CaptchaWidget
+                ref={turnstileRef}
+                onToken={setCaptchaToken}
+                onClear={() => setCaptchaToken("")}
+              />
+            </div>
+          )}
         </div>
 
         <p className="text-center text-white/30 text-sm mt-6">

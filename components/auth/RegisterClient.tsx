@@ -64,6 +64,7 @@ export default function RegisterClient() {
   const [resending, setResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaActive, setCaptchaActive] = useState(false);
   const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   useEffect(() => {
@@ -210,13 +211,15 @@ export default function RegisterClient() {
             The link expires in 24 hours. Check your spam folder if you don&apos;t see it.
           </p>
 
-          <div className="mt-6">
-            <CaptchaWidget
-              ref={turnstileRef}
-              onToken={setCaptchaToken}
-              onClear={() => setCaptchaToken("")}
-            />
-          </div>
+          {captchaActive && (
+            <div className="mt-6">
+              <CaptchaWidget
+                ref={turnstileRef}
+                onToken={setCaptchaToken}
+                onClear={() => setCaptchaToken("")}
+              />
+            </div>
+          )}
 
           <div className="flex flex-col gap-3 mt-6">
             <button
@@ -264,7 +267,7 @@ export default function RegisterClient() {
           <p className="text-white/40 text-sm">Your first date is two minutes away</p>
         </Link>
 
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm overflow-hidden">
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm overflow-hidden" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
           <AnimatePresence mode="wait" initial={false}>
             {!emailStep ? (
               <motion.div
@@ -367,11 +370,13 @@ export default function RegisterClient() {
                     {...register("confirm")}
                   />
 
-                  <CaptchaWidget
-                    ref={turnstileRef}
-                    onToken={setCaptchaToken}
-                    onClear={() => setCaptchaToken("")}
-                  />
+                  {captchaActive && (
+                    <CaptchaWidget
+                      ref={turnstileRef}
+                      onToken={setCaptchaToken}
+                      onClear={() => setCaptchaToken("")}
+                    />
+                  )}
 
                   <Button type="submit" size="lg" className="w-full mt-1" loading={loading}>
                     Create Account
