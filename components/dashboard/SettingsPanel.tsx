@@ -906,7 +906,10 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-pink-400" />
                         <p className="text-sm font-bold text-white">Unlock Plus</p>
-                        <span className="ml-auto text-base font-black text-white">€5.99<span className="text-xs font-normal text-white/60">/mo</span></span>
+                        <div className="ml-auto text-right">
+                          <p className="text-base font-black text-white">€1.49<span className="text-xs font-normal text-white/60"> first month</span></p>
+                          <p className="text-[10px] text-white/40">then €5.99/mo</p>
+                        </div>
                       </div>
                       <ul className="flex flex-col gap-2">
                         {PLANS.find((p) => p.id === "subscription")!.features.map((text) => (
@@ -922,7 +925,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500 text-white text-sm font-bold hover:bg-rose-400 transition-all active:scale-[0.98]"
                       >
                         <Zap className="w-4 h-4 text-rose-200" />
-                        Subscribe · €5.99/mo
+                        Subscribe · €1.49 first month
                       </button>
                     </div>
                   )}

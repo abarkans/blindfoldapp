@@ -36,10 +36,20 @@ export async function POST(req: Request) {
     : "monthly";
   const returnPath = isSafeReturnPath(rawReturnPath) ? rawReturnPath : "/dashboard";
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("stripe_customer_id")
+    .eq("id", user.id)
+    .single();
+  const isFirstTimeSubscriber = !profile?.stripe_customer_id;
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
+      ...(process.env.STRIPE_INTRO_COUPON_ID && isFirstTimeSubscriber
+        ? { discounts: [{ coupon: process.env.STRIPE_INTRO_COUPON_ID }] }
+        : {}),
       customer_email: user.email,
       success_url: `${origin}/dashboard/upgrade?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: (() => { const base = `${origin}${returnPath}`; return base.includes("?") ? `${base}&checkout=cancelled` : `${base}?checkout=cancelled`; })(),

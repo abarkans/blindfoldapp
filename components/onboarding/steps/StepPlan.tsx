@@ -137,11 +137,16 @@ export default function StepPlan({
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <div className="text-right">
-                          <p className={`font-black text-lg ${plan.highlighted ? "text-white" : "text-white/70"}`}>
-                            {plan.priceLine.split(" ")[0]}
-                          </p>
-                          {plan.highlighted && (
-                            <p className="text-[10px] text-white/55 mt-0.5">per month</p>
+                          {plan.introPrice !== null ? (
+                            <>
+                              <p className="font-black text-lg text-white">€{plan.introPrice}</p>
+                              <p className="text-[10px] text-white/55 mt-0.5">first month</p>
+                              <p className="text-[10px] text-pink-300/70">then €{plan.price}/mo</p>
+                            </>
+                          ) : (
+                            <p className={`font-black text-lg ${plan.highlighted ? "text-white" : "text-white/70"}`}>
+                              {plan.priceLine.split(" ")[0]}
+                            </p>
                           )}
                         </div>
                         {/* Selection indicator */}
