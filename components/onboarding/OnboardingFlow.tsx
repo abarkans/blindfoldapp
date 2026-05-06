@@ -46,6 +46,7 @@ interface OnboardingFlowProps {
   initialPartner1?: string;
   initialPartner2?: string;
   initialPlanType?: PlanId;
+  initialSelectedPlan?: PlanId;
   initialCadence?: string;
   initialStep?: number;
   unitSystem?: UnitSystem;
@@ -56,6 +57,7 @@ export default function OnboardingFlow({
   initialPartner1 = "",
   initialPartner2 = "",
   initialPlanType,
+  initialSelectedPlan,
   initialCadence,
   initialStep,
   unitSystem = "metric",
@@ -299,7 +301,7 @@ export default function OnboardingFlow({
                     onCanContinueChange={setCanContinue}
                     onContinueLabelChange={setContinueLabel}
                     onSubstepChange={setPlanSubStep}
-                    planType={data.plan_type}
+                    planType={data.plan_type ?? initialSelectedPlan}
                   />
                 )}
                 {step === 3 && (

@@ -39,38 +39,36 @@ export default async function OnboardingPage({
 
   const { checkout, plan } = await searchParams;
   const planFromUrl = plan === "free" || plan === "subscription" ? (plan as PlanId) : undefined;
+  const isCancelReturn = checkout === "cancelled";
+
+  // initialPlanType: DB-confirmed value only. Drives step-skip and data.plan_type init.
+  // DB "free" default is not a meaningful choice, so don't pass it.
+  const initialPlanType: PlanId | undefined = savedPlanType === "subscription" ? "subscription" : undefined;
+
+  // initialSelectedPlan: only for StepPlan pre-selection UI. Does NOT affect step-skip.
+  //   - Cancel return → nothing (choose fresh)
+  //   - URL param (?plan=subscription from landing CTA) → pre-select it
+  const initialSelectedPlan: PlanId | undefined = isCancelReturn ? undefined : planFromUrl;
 
   // Step to start on:
-  //   - Stripe cancel return with names saved → step 2 (plan selection, fresh)
-  //   - DB-confirmed subscriber → step 3 (plan already done)
-  //   - Landing CTA with ?plan=subscription → explicit step 1 to prevent subscription skip
+  //   - Cancel return with names saved → step 2 (fresh plan selection)
+  //   - DB-confirmed subscriber → step 3 (plan already done, skip it)
   const initialStep =
-    checkout === "cancelled" && !!savedPartner1 ? 2 :
-    savedPlanType === "subscription" ? 3 :
-    planFromUrl === "subscription" ? 1 :
+    isCancelReturn && !!savedPartner1 ? 2 :
+    initialPlanType === "subscription" ? 3 :
     undefined;
-
-  // Plan to pre-select in step 2:
-  //   - Stripe cancel return → nothing (user chooses fresh)
-  //   - DB subscription → pass it (skip logic above handles the step)
-  //   - URL param → use it (landing CTA intent)
-  //   - DB "free" default → don't pre-select (not an explicit choice)
-  const resolvedPlanType: PlanId | undefined = checkout === "cancelled"
-    ? undefined
-    : savedPlanType === "subscription"
-      ? "subscription"
-      : planFromUrl;
   const unitSystem = await getUnitSystem();
 
   return (
     <OnboardingFlow
       initialPartner1={savedPartner1}
       initialPartner2={savedPartner2}
-      initialPlanType={resolvedPlanType}
+      initialPlanType={initialPlanType}
+      initialSelectedPlan={initialSelectedPlan}
       initialCadence={savedCadence}
       initialStep={initialStep}
       unitSystem={unitSystem}
-      fromCancelledCheckout={checkout === "cancelled"}
+      fromCancelledCheckout={isCancelReturn}
     />
   );
 }
