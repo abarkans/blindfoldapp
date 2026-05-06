@@ -125,13 +125,6 @@ const NAV_LINKS = [
 ];
 
 export default function LandingDesktopClient() {
-  const [isCapacitor] = useState(() => typeof window !== 'undefined' && !!(window as any).Capacitor)
-  useEffect(() => {
-    if (isCapacitor) window.location.replace('https://localhost')
-  }, [isCapacitor])
-
-  if (isCapacitor) return null
-
   const prefersReducedRaw = useReducedMotion();
   // Defer to false until after hydration so SSR and initial client render match.
   // SSR always returns null from useReducedMotion (no media query access).

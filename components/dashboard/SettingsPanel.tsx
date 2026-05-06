@@ -318,10 +318,9 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
     const supabase = createClient();
     await supabase.auth.signOut();
     if ((window as any).Capacitor) {
-      window.location.replace('https://localhost?signout=1');
-    } else {
-      router.push("/");
+      localStorage.removeItem('intro_seen');
     }
+    router.push("/");
   }
 
   async function handleDeleteAccount() {
