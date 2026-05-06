@@ -84,9 +84,11 @@ export default function OnboardingFlow({
   const [planSubStep, setPlanSubStep] = useState<"plan" | "frequency" | null>(null);
   const [planBackTrigger, setPlanBackTrigger] = useState(0);
 
-  // Reset nav state whenever the step changes
+  // Reset nav state whenever the step changes.
+  // canContinue is NOT reset here — each step's mount effect always fires
+  // onCanContinueChange with the correct initial value, and resetting here
+  // would override it when the step mounts with pre-filled default values.
   useEffect(() => {
-    setCanContinue(false);
     setContinueLabel(step === 5 ? "Finish Setup" : "Continue");
     setPlanSubStep(null);
   }, [step]);
