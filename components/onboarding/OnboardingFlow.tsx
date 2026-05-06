@@ -178,7 +178,9 @@ export default function OnboardingFlow({
         return;
       }
       ph?.capture("plan_upgrade_initiated", { cadence });
-      window.location.href = json.url;
+      // replace() removes /onboarding from history so browser back skips it.
+      // Stripe's own cancel button returns the user via cancel_url.
+      window.location.replace(json.url);
     } catch (err) {
       console.error("[checkout]", err);
       setError("Couldn't start checkout. Please try again.");

@@ -92,7 +92,7 @@ export default function StepPlan({
               <p className="text-white/50 text-sm">You can change this anytime from settings.</p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-5">
               {PLANS.map((plan) => {
                 const Icon = PLAN_ICONS[plan.id];
                 const isSelected = selectedPlan === plan.id;

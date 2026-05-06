@@ -44,8 +44,9 @@ export default async function OnboardingPage({
 
   // Pre-select plan from landing pricing CTA (?plan=free|subscription).
   // DB value wins if already set (returning user / post-Stripe).
+  // On Stripe cancel return, pass nothing — user must choose fresh (no pre-selection, no timing bug).
   const planFromUrl = plan === "free" || plan === "subscription" ? (plan as PlanId) : undefined;
-  const resolvedPlanType = savedPlanType ?? planFromUrl;
+  const resolvedPlanType = checkout === "cancelled" ? undefined : (savedPlanType ?? planFromUrl);
   const unitSystem = await getUnitSystem();
 
   return (
