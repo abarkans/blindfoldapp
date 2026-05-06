@@ -733,11 +733,21 @@ export default function LandingV3Client() {
                     </div>
                     <p className="font-bold text-white text-lg">{plan.name}</p>
                   </div>
-                  <p className={`text-4xl md:text-[42px] font-black mb-1 ${plan.highlighted ? "text-white" : "text-white/50"}`}>
-                    {plan.priceLine.split("/")[0].trim()}
-                  </p>
-                  {plan.highlighted && (
-                    <p className="text-sm text-white/55 mb-3">per month · cancel anytime</p>
+                  {plan.introPrice !== null ? (
+                    <>
+                      <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.introPrice}</p>
+                      <p className="text-sm text-white/55">first month</p>
+                      <p className="text-xs text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className={`text-4xl md:text-[42px] font-black mb-1 ${plan.highlighted ? "text-white" : "text-white/50"}`}>
+                        {plan.priceLine.split("/")[0].trim()}
+                      </p>
+                      {plan.highlighted && (
+                        <p className="text-sm text-white/55 mb-3">per month · cancel anytime</p>
+                      )}
+                    </>
                   )}
                   <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>
                 </div>

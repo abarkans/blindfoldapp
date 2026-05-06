@@ -820,17 +820,27 @@ export default function LandingDesktopClient() {
                   </div>
                   <p className="font-semibold text-white text-base md:text-lg">{plan.name}</p>
                 </div>
-                <p
-                  className={`text-3xl md:text-[38px] font-bold mb-1 ${
-                    plan.highlighted ? "text-white" : "text-white/55"
-                  }`}
-                >
-                  {plan.priceLine.split("/")[0].trim()}
-                </p>
-                {plan.highlighted && (
-                  <p className="text-xs md:text-sm text-white/60 mb-3">
-                    per month · cancel anytime
-                  </p>
+                {plan.introPrice !== null ? (
+                  <>
+                    <p className="text-3xl md:text-[38px] font-bold mb-0.5 text-white">€{plan.introPrice}</p>
+                    <p className="text-xs md:text-sm text-white/55">first month</p>
+                    <p className="text-[11px] text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
+                  </>
+                ) : (
+                  <>
+                    <p
+                      className={`text-3xl md:text-[38px] font-bold mb-1 ${
+                        plan.highlighted ? "text-white" : "text-white/55"
+                      }`}
+                    >
+                      {plan.priceLine.split("/")[0].trim()}
+                    </p>
+                    {plan.highlighted && (
+                      <p className="text-xs md:text-sm text-white/60 mb-3">
+                        per month · cancel anytime
+                      </p>
+                    )}
+                  </>
                 )}
                 <p className="text-sm md:text-base text-white/60 mt-2 md:mt-3">{plan.tagline}</p>
               </div>

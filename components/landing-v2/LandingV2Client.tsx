@@ -402,11 +402,21 @@ export default function LandingV2Client() {
                   </div>
                   <p className="font-bold text-white text-lg">{plan.name}</p>
                 </div>
-                <p className={`text-3xl font-black ${plan.highlighted ? "text-white" : "text-white/70"}`}>
-                  {plan.priceLine.split("/")[0].trim()}
-                </p>
-                {plan.highlighted && (
-                  <p className="text-xs text-white/60 mt-1">per month · cancel anytime</p>
+                {plan.introPrice !== null ? (
+                  <>
+                    <p className="text-3xl font-black text-white">€{plan.introPrice}</p>
+                    <p className="text-xs text-white/55 mt-0.5">first month</p>
+                    <p className="text-[11px] text-pink-300/70 mt-0.5">then €{plan.price}/mo · cancel anytime</p>
+                  </>
+                ) : (
+                  <>
+                    <p className={`text-3xl font-black ${plan.highlighted ? "text-white" : "text-white/70"}`}>
+                      {plan.priceLine.split("/")[0].trim()}
+                    </p>
+                    {plan.highlighted && (
+                      <p className="text-xs text-white/60 mt-1">per month · cancel anytime</p>
+                    )}
+                  </>
                 )}
                 <p className="text-sm text-white/55 mt-2">{plan.tagline}</p>
               </div>
