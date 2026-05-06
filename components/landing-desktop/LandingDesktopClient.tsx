@@ -329,7 +329,6 @@ export default function LandingDesktopClient() {
         className="relative flex flex-col md:flex-row items-center pt-24 pb-8 md:pt-[180px] md:pb-[100px] gap-10 md:gap-16 max-w-[1440px] mx-auto px-6 md:px-14"
       >
         {/* Background glows */}
-        <div className="absolute top-1/3 -left-20 w-[400px] md:w-[600px] h-[400px] md:h-[500px] bg-rose-600/6 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/4 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-violet-600/6 rounded-full blur-3xl pointer-events-none" />
 
         {/* Left — content */}
