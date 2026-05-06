@@ -3,8 +3,6 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const ALLOWED_NEXT = new Set(['/dashboard', '/onboarding'])
-
 export default function CapacitorAuthHandler() {
   const router = useRouter()
 
@@ -28,15 +26,27 @@ export default function CapacitorAuthHandler() {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) return
 
-        const next = url.searchParams.get('next') ?? '/dashboard'
-        const safePath = ALLOWED_NEXT.has(next) ? next : '/dashboard'
-        const plan = url.searchParams.get('plan')
-        const planSuffix =
-          safePath === '/onboarding' && (plan === 'free' || plan === 'subscription')
-            ? `?plan=${plan}`
-            : ''
+        // Determine destination from actual profile state — avoids embedding
+        // ?next= in the redirectTo URL (which Supabase validates strictly).
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
 
-        router.replace(`${safePath}${planSuffix}`)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_complete')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        // plan param stored in localStorage by RegisterClient before OAuth
+        const plan = localStorage.getItem('capacitor_oauth_plan') ?? null
+        localStorage.removeItem('capacitor_oauth_plan')
+
+        if (profile?.onboarding_complete) {
+          router.replace('/dashboard')
+        } else {
+          const planSuffix = plan === 'free' || plan === 'subscription' ? `?plan=${plan}` : ''
+          router.replace(`/onboarding${planSuffix}`)
+        }
       })
 
       cleanup = () => listener.remove()

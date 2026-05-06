@@ -149,11 +149,16 @@ export default function RegisterClient() {
     const supabase = createClient();
     if ((window as any).Capacitor) {
       const { Browser } = await import('@capacitor/browser')
-      const plan = planParam === 'free' || planParam === 'subscription' ? `&plan=${planParam}` : ''
+      // Store plan so CapacitorAuthHandler can read it after OAuth completes.
+      // redirectTo must be the bare URL — Supabase validates it exactly and
+      // rejects any URL with query params that aren't in the allowed list.
+      if (planParam === 'free' || planParam === 'subscription') {
+        localStorage.setItem('capacitor_oauth_plan', planParam)
+      }
       const { data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `com.blindfolddate.app://login-callback?next=/onboarding${plan}`,
+          redirectTo: 'com.blindfolddate.app://login-callback',
           skipBrowserRedirect: true,
         },
       })
