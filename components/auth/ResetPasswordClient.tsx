@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion } from "framer-motion";
 import { Lock, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -64,12 +63,7 @@ export default function ResetPasswordClient() {
   if (sessionExpired) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-sm text-center"
-        >
+        <div className="w-full max-w-sm text-center">
           <Link href="/" className="flex flex-col items-center gap-3 mb-8">
             <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
           </Link>
@@ -88,19 +82,14 @@ export default function ResetPasswordClient() {
           <p className="text-center text-white/30 text-sm mt-6">
             <Link href="/login" className="text-rose-400 hover:text-rose-300 font-semibold">Back to sign in</Link>
           </p>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-sm"
-      >
+      <div className="w-full max-w-sm">
         <Link href="/" className="flex flex-col items-center gap-3 mb-8">
           <Image
             src="/logo.png"
@@ -162,7 +151,7 @@ export default function ResetPasswordClient() {
             Back to sign in
           </Link>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

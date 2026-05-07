@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, CheckCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -194,12 +193,7 @@ export default function RegisterClient() {
   if (emailSent) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-sm text-center"
-        >
+        <div className="w-full max-w-sm text-center">
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-8 h-8 text-emerald-400" />
           </div>
@@ -249,34 +243,22 @@ export default function RegisterClient() {
               Back to sign in
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-sm"
-      >
+      <div className="w-full max-w-sm">
         <Link href="/" className="flex flex-col items-center gap-3 mb-8 group">
           <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
           <p className="text-white/40 text-sm">Your first date is two minutes away</p>
         </Link>
 
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm overflow-hidden" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
-          <AnimatePresence mode="wait" initial={false}>
             {!emailStep ? (
-              <motion.div
-                key="main"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              >
+              <div>
                 <h2 className="text-lg font-bold text-white mb-5">Create account</h2>
 
                 <Button
@@ -311,15 +293,9 @@ export default function RegisterClient() {
                 </button>
 
                 <ConsentText />
-              </motion.div>
+              </div>
             ) : (
-              <motion.div
-                key="email"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              >
+              <div>
                 <div className="flex items-center gap-3 mb-5">
                   <button
                     type="button"
@@ -384,9 +360,8 @@ export default function RegisterClient() {
                 </form>
 
                 <ConsentText />
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
         </div>
 
         <p className="text-center text-white/30 text-sm mt-6">
@@ -395,7 +370,7 @@ export default function RegisterClient() {
             Sign in
           </Link>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }
