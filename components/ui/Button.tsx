@@ -1,16 +1,24 @@
 "use client";
 
-import { ButtonHTMLAttributes, forwardRef } from "react";
+import { ButtonHTMLAttributes, forwardRef, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
+  loadingDelay?: number;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", loading, children, disabled, ...props }, ref) => {
+  ({ className, variant = "primary", size = "md", loading, loadingDelay = 200, children, disabled, ...props }, ref) => {
+    const [showSpinner, setShowSpinner] = useState(false);
+    useEffect(() => {
+      if (!loading) { setShowSpinner(false); return; }
+      const t = setTimeout(() => setShowSpinner(true), loadingDelay);
+      return () => clearTimeout(t);
+    }, [loading, loadingDelay]);
+
     const base =
       "inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95";
 
@@ -34,7 +42,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         {...props}
       >
-        {loading ? (
+        {showSpinner ? (
           <span className="flex items-center gap-2">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             {children}
