@@ -41,7 +41,7 @@ export default function StepFrequency({ defaultValues, onNext, onBack, loading }
             type="button"
             onClick={() => setValue("cadence", value, { shouldValidate: true })}
             className={[
-              "flex items-center gap-4 p-4 rounded-xl border text-left transition-all duration-200",
+              "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-200",
               selected === value
                 ? "bg-gradient-to-r from-pink-500/20 to-rose-500/10 border-pink-500 text-white"
                 : "bg-white/5 border-white/10 text-white/80 hover:border-white/30",
