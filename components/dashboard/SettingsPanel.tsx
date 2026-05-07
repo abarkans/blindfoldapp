@@ -159,6 +159,21 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const viewRef = useRef<SettingsView>(view);
+  const onHeaderChangeRef = useRef(onHeaderChange);
+  useEffect(() => { viewRef.current = view; }, [view]);
+  useEffect(() => { onHeaderChangeRef.current = onHeaderChange; }, [onHeaderChange]);
+  useEffect(() => {
+    function onPop() {
+      if (viewRef.current !== "list") {
+        setDirection(-1);
+        setView("list");
+        onHeaderChangeRef.current?.(null, null, -1);
+      }
+    }
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   useEffect(() => {
     if (profile.last_lat && profile.last_long) {
@@ -406,7 +421,8 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
     if (to === "list") {
       onHeaderChange?.(null, null, dir);
     } else {
-      onHeaderChange?.(VIEW_LABELS[to] ?? to, () => navigate("list"), dir);
+      window.history.pushState({ settingsView: to }, "");
+      onHeaderChange?.(VIEW_LABELS[to] ?? to, () => window.history.back(), dir);
     }
   }
 
