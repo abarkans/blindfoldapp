@@ -168,7 +168,7 @@ export default function OnboardingFlow({
     }
   }
 
-  async function handleSubscribeNow(cadence: string) {
+  async function handleSubscribeNow(cadence: string, billingInterval: "monthly" | "yearly" = "monthly") {
     setLoading(true);
     setError("");
     try {
@@ -188,7 +188,7 @@ export default function OnboardingFlow({
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cadence, returnPath: "/onboarding" }),
+        body: JSON.stringify({ cadence, billingInterval, returnPath: "/onboarding" }),
       });
       const json = await res.json();
       if (!json.url || json.error) {
@@ -196,7 +196,7 @@ export default function OnboardingFlow({
         setLoading(false);
         return;
       }
-      ph?.capture("plan_upgrade_initiated", { cadence });
+      ph?.capture("plan_upgrade_initiated", { cadence, billingInterval });
       // replace() removes /onboarding from history so browser back skips it.
       // Stripe's own cancel button returns the user via cancel_url.
       window.location.replace(json.url);

@@ -8,7 +8,7 @@ import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 
 interface StepPlanProps {
   onNext: (data: { plan_type: PlanId; cadence: string }) => void;
-  onSubscribeNow: (cadence: string) => void;
+  onSubscribeNow: (cadence: string, billingInterval: "monthly" | "yearly") => void;
   continueTrigger: number;
   backTrigger: number;
   onCanContinueChange: (can: boolean) => void;
@@ -37,6 +37,7 @@ export default function StepPlan({
   const [subStep, setSubStep] = useState<SubStep>("plan");
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(planType ?? null);
   const [selectedCadence, setSelectedCadence] = useState<"weekly" | "biweekly" | "monthly" | null>(null);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const mountTrigger = useRef(continueTrigger);
   const mountBackTrigger = useRef(backTrigger);
 
@@ -53,7 +54,7 @@ export default function StepPlan({
       }
     } else {
       if (!selectedCadence) return;
-      onSubscribeNow(selectedCadence);
+      onSubscribeNow(selectedCadence, billingInterval);
     }
   }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -137,14 +138,22 @@ export default function StepPlan({
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <div className="text-right">
-                          {plan.introPrice !== null ? (
-                            <>
-                              <p className="font-black text-lg text-white">€{plan.introPrice}</p>
-                              <p className="text-[10px] text-white/55 mt-0.5">first month</p>
-                              <p className="text-[10px] text-pink-300/70">then €{plan.price}/mo</p>
-                            </>
+                          {plan.highlighted ? (
+                            billingInterval === "yearly" ? (
+                              <>
+                                <p className="font-black text-lg text-white">€{plan.yearlyPrice}</p>
+                                <p className="text-[10px] text-white/55 mt-0.5">per year</p>
+                                <p className="text-[10px] text-emerald-400/80">~€{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo</p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="font-black text-lg text-white">€{plan.introPrice}</p>
+                                <p className="text-[10px] text-white/55 mt-0.5">first month</p>
+                                <p className="text-[10px] text-pink-300/70">then €{plan.price}/mo</p>
+                              </>
+                            )
                           ) : (
-                            <p className={`font-black text-lg ${plan.highlighted ? "text-white" : "text-white/70"}`}>
+                            <p className="font-black text-lg text-white/70">
                               {plan.priceLine.split(" ")[0]}
                             </p>
                           )}
@@ -160,6 +169,40 @@ export default function StepPlan({
                         </div>
                       </div>
                     </div>
+
+                    {/* Billing interval toggle — Plus card only */}
+                    {plan.highlighted && (
+                      <div
+                        className="flex items-center gap-0.5 bg-black/20 rounded-xl p-0.5 self-start"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setBillingInterval("monthly")}
+                          className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                            billingInterval === "monthly"
+                              ? "bg-white/15 text-white"
+                              : "text-white/45 hover:text-white/70"
+                          }`}
+                        >
+                          Monthly
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setBillingInterval("yearly")}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                            billingInterval === "yearly"
+                              ? "bg-white/15 text-white"
+                              : "text-white/45 hover:text-white/70"
+                          }`}
+                        >
+                          Yearly
+                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1 py-0.5 rounded-full leading-none">
+                            -44%
+                          </span>
+                        </button>
+                      </div>
+                    )}
 
                     <ul className="flex flex-col gap-1.5">
                       {plan.features.map((feat) => (

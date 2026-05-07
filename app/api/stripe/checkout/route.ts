@@ -6,6 +6,7 @@ import { safeLogValue } from "@/lib/log";
 import { isAllowedOrigin } from "@/lib/origin";
 
 const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
+const VALID_BILLING_INTERVALS = new Set(["monthly", "yearly"]);
 
 // Reject anything that isn't a same-origin relative path. Disallow protocol-
 // relative ("//evil.com") and backslash-prefixed forms that some browsers
@@ -29,10 +30,13 @@ export async function POST(req: Request) {
 
   await checkStripeRateLimit(user.id);
 
-  const { cadence: rawCadence, returnPath: rawReturnPath } = await req.json();
+  const { cadence: rawCadence, billingInterval: rawInterval, returnPath: rawReturnPath } = await req.json();
 
   const cadence = typeof rawCadence === "string" && VALID_CADENCES.has(rawCadence)
     ? rawCadence
+    : "monthly";
+  const billingInterval = typeof rawInterval === "string" && VALID_BILLING_INTERVALS.has(rawInterval)
+    ? rawInterval as "monthly" | "yearly"
     : "monthly";
   const returnPath = isSafeReturnPath(rawReturnPath) ? rawReturnPath : "/dashboard";
 
@@ -43,17 +47,24 @@ export async function POST(req: Request) {
     .single();
   const isFirstTimeSubscriber = !profile?.stripe_customer_id;
 
+  const priceId = billingInterval === "yearly"
+    ? process.env.STRIPE_YEARLY_PRICE_ID!
+    : process.env.STRIPE_PRICE_ID!;
+
+  // Intro coupon only applies to monthly — yearly price already reflects the saving.
+  const applyDiscount = billingInterval === "monthly" && !!process.env.STRIPE_INTRO_COUPON_ID && isFirstTimeSubscriber;
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-      ...(process.env.STRIPE_INTRO_COUPON_ID && isFirstTimeSubscriber
-        ? { discounts: [{ coupon: process.env.STRIPE_INTRO_COUPON_ID }] }
+      line_items: [{ price: priceId, quantity: 1 }],
+      ...(applyDiscount
+        ? { discounts: [{ coupon: process.env.STRIPE_INTRO_COUPON_ID! }] }
         : {}),
       customer_email: user.email,
       success_url: `${origin}/dashboard/upgrade?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: (() => { const base = `${origin}${returnPath}`; return base.includes("?") ? `${base}&checkout=cancelled` : `${base}?checkout=cancelled`; })(),
-      metadata: { user_id: user.id, cadence },
+      metadata: { user_id: user.id, cadence, billing_interval: billingInterval },
     });
     return NextResponse.json({ url: session.url });
   } catch (err) {

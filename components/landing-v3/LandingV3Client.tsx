@@ -146,6 +146,7 @@ export default function LandingV3Client() {
   }, []);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -669,6 +670,37 @@ export default function LandingV3Client() {
             </h2>
           </div>
 
+          {/* Billing interval toggle */}
+          <div className="flex justify-center mb-10 md:mb-14">
+            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-2xl p-1">
+              <button
+                type="button"
+                onClick={() => setBillingInterval("monthly")}
+                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  billingInterval === "monthly"
+                    ? "bg-white/15 text-white shadow"
+                    : "text-white/45 hover:text-white/70"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingInterval("yearly")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  billingInterval === "yearly"
+                    ? "bg-white/15 text-white shadow"
+                    : "text-white/45 hover:text-white/70"
+                }`}
+              >
+                Yearly
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">
+                  -44%
+                </span>
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 max-w-sm md:max-w-[840px] mx-auto">
             {PLANS.map((plan, i) => (
               <div
@@ -696,20 +728,25 @@ export default function LandingV3Client() {
                     </div>
                     <p className="font-bold text-white text-lg">{plan.name}</p>
                   </div>
-                  {plan.introPrice !== null ? (
-                    <>
-                      <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.introPrice}</p>
-                      <p className="text-sm text-white/55">first month</p>
-                      <p className="text-xs text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
-                    </>
+                  {plan.highlighted ? (
+                    billingInterval === "yearly" ? (
+                      <>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.yearlyPrice}</p>
+                        <p className="text-sm text-white/55">per year</p>
+                        <p className="text-xs text-emerald-400/80 mb-3">~€{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo · cancel anytime</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.introPrice}</p>
+                        <p className="text-sm text-white/55">first month</p>
+                        <p className="text-xs text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
+                      </>
+                    )
                   ) : (
                     <>
-                      <p className={`text-4xl md:text-[42px] font-black mb-1 ${plan.highlighted ? "text-white" : "text-white/50"}`}>
+                      <p className="text-4xl md:text-[42px] font-black mb-1 text-white/50">
                         {plan.priceLine.split("/")[0].trim()}
                       </p>
-                      {plan.highlighted && (
-                        <p className="text-sm text-white/55 mb-3">per month · cancel anytime</p>
-                      )}
                     </>
                   )}
                   <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>

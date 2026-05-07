@@ -133,6 +133,7 @@ export default function LandingDesktopClient() {
     if (prefersReducedRaw) setPrefersReduced(true);
   }, [prefersReducedRaw]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -783,6 +784,37 @@ export default function LandingDesktopClient() {
           </h2>
         </motion.div>
 
+        {/* Billing interval toggle */}
+        <div className="flex justify-center mb-10 md:mb-14">
+          <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-2xl p-1">
+            <button
+              type="button"
+              onClick={() => setBillingInterval("monthly")}
+              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                billingInterval === "monthly"
+                  ? "bg-white/15 text-white shadow"
+                  : "text-white/45 hover:text-white/70"
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingInterval("yearly")}
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                billingInterval === "yearly"
+                  ? "bg-white/15 text-white shadow"
+                  : "text-white/45 hover:text-white/70"
+              }`}
+            >
+              Yearly
+              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">
+                -44%
+              </span>
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 max-w-sm md:max-w-[820px] mx-auto">
           {PLANS.map((plan, i) => (
             <motion.div
@@ -820,27 +852,24 @@ export default function LandingDesktopClient() {
                   </div>
                   <p className="font-semibold text-white text-base md:text-lg">{plan.name}</p>
                 </div>
-                {plan.introPrice !== null ? (
-                  <>
-                    <p className="text-3xl md:text-[38px] font-bold mb-0.5 text-white">€{plan.introPrice}</p>
-                    <p className="text-xs md:text-sm text-white/55">first month</p>
-                    <p className="text-[11px] text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
-                  </>
+                {plan.highlighted ? (
+                  billingInterval === "yearly" ? (
+                    <>
+                      <p className="text-3xl md:text-[38px] font-bold mb-0.5 text-white">€{plan.yearlyPrice}</p>
+                      <p className="text-xs md:text-sm text-white/55">per year</p>
+                      <p className="text-[11px] text-emerald-400/80 mb-3">~€{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo · cancel anytime</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-3xl md:text-[38px] font-bold mb-0.5 text-white">€{plan.introPrice}</p>
+                      <p className="text-xs md:text-sm text-white/55">first month</p>
+                      <p className="text-[11px] text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
+                    </>
+                  )
                 ) : (
-                  <>
-                    <p
-                      className={`text-3xl md:text-[38px] font-bold mb-1 ${
-                        plan.highlighted ? "text-white" : "text-white/55"
-                      }`}
-                    >
-                      {plan.priceLine.split("/")[0].trim()}
-                    </p>
-                    {plan.highlighted && (
-                      <p className="text-xs md:text-sm text-white/60 mb-3">
-                        per month · cancel anytime
-                      </p>
-                    )}
-                  </>
+                  <p className="text-3xl md:text-[38px] font-bold mb-1 text-white/55">
+                    {plan.priceLine.split("/")[0].trim()}
+                  </p>
                 )}
                 <p className="text-sm md:text-base text-white/60 mt-2 md:mt-3">{plan.tagline}</p>
               </div>

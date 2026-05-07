@@ -124,6 +124,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
   const [signOutConfirm, setSignOutConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [upgradingPlan, setUpgradingPlan] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const [managingSubscription, setManagingSubscription] = useState(false);
   const [planType, setPlanType] = useState<PlanId>(
     (profile.plan_type as PlanId) ?? "free"
@@ -364,7 +365,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cadence: selectedCadence ?? "monthly", returnPath: "/dashboard?tab=settings" }),
+      body: JSON.stringify({ cadence: selectedCadence ?? "monthly", billingInterval, returnPath: "/dashboard?tab=settings" }),
     });
     const { url, error: checkoutError } = await res.json();
     if (checkoutError || !url) {
@@ -401,7 +402,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
 
   const ACCOUNT_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
     { id: "account", label: "Manage account", icon: UserCog, summary: userEmail || "Account settings" },
-    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · €5.99/mo") : "Starter · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : "Starter · Upgrade available" },
   ];
 
   const DATE_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
@@ -916,7 +917,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         {planType === "subscription"
                           ? profile.subscription_ends_at
                             ? `Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
-                            : "€5.99/month · Cancel anytime"
+                            : "Active · Cancel anytime"
                           : "1 date/month · Limited categories"}
                       </p>
                     </div>
@@ -933,10 +934,49 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         <Sparkles className="w-4 h-4 text-pink-400" />
                         <p className="text-sm font-bold text-white">Unlock Plus</p>
                         <div className="ml-auto text-right">
-                          <p className="text-base font-black text-white">€1.49<span className="text-xs font-normal text-white/60"> first month</span></p>
-                          <p className="text-[10px] text-white/40">then €5.99/mo</p>
+                          {billingInterval === "yearly" ? (
+                            <>
+                              <p className="text-base font-black text-white">€39.99<span className="text-xs font-normal text-white/60"> / year</span></p>
+                              <p className="text-[10px] text-emerald-400">~€3.33/mo · save 44%</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-base font-black text-white">€1.49<span className="text-xs font-normal text-white/60"> first month</span></p>
+                              <p className="text-[10px] text-white/40">then €5.99/mo</p>
+                            </>
+                          )}
                         </div>
                       </div>
+
+                      {/* Billing interval toggle */}
+                      <div className="flex items-center gap-0.5 bg-black/20 rounded-xl p-0.5 self-start">
+                        <button
+                          type="button"
+                          onClick={() => setBillingInterval("monthly")}
+                          className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                            billingInterval === "monthly"
+                              ? "bg-white/15 text-white"
+                              : "text-white/45 hover:text-white/70"
+                          }`}
+                        >
+                          Monthly
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setBillingInterval("yearly")}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                            billingInterval === "yearly"
+                              ? "bg-white/15 text-white"
+                              : "text-white/45 hover:text-white/70"
+                          }`}
+                        >
+                          Yearly
+                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1 py-0.5 rounded-full leading-none">
+                            -44%
+                          </span>
+                        </button>
+                      </div>
+
                       <ul className="flex flex-col gap-2">
                         {PLANS.find((p) => p.id === "subscription")!.features.map((text) => (
                           <li key={text} className="flex items-start gap-2">
@@ -952,7 +992,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         onClick={handleUpgradePlan}
                         className="w-full h-auto py-3 text-sm font-bold rounded-2xl gap-2"
                       >
-                        Subscribe · €1.49 first month
+                        {billingInterval === "yearly" ? "Subscribe · €39.99/year" : "Subscribe · €1.49 first month"}
                       </Button>
                     </div>
                   )}
