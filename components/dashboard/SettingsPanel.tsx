@@ -433,7 +433,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
         key={id}
         type="button"
         onClick={() => navigate(id)}
-        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-full hover:border-white/20 transition-colors active:scale-[0.98]"
+        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-2xl hover:border-white/20 transition-colors active:scale-[0.98]"
       >
         <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
           <Icon className="w-4 h-4 text-pink-400" />
