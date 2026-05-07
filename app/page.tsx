@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "BlindfoldDate — Stop Planning. Just Show Up.",
   description: "AI-powered mystery date planning. Tell us your interests once — we find real nearby venues, write your date story, and handle every detail. You just show up.",
   alternates: { canonical: SITE_URL },
+  robots: { index: true, follow: true },
   openGraph: {
     title: "BlindfoldDate — Stop Planning. Just Show Up.",
     description: "AI-powered mystery date planning. Tell us your interests once — we find real nearby venues, write your date story, and handle every detail. You just show up.",

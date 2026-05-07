@@ -106,10 +106,11 @@ export default function DateCarousel() {
 
       {/* Dots */}
       <div className="flex gap-1.5 mt-4">
-        {CARDS.map((_, i) => (
+        {CARDS.map((card, i) => (
           <button
             key={i}
             onClick={() => setActive(i)}
+            aria-label={`View ${card.title}`}
             className={`rounded-full transition-all ${
               i === active ? "w-4 h-1.5 bg-pink-400" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
             }`}

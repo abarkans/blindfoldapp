@@ -178,8 +178,9 @@ export default function LandingV3Client() {
           <button
             onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
             className="flex items-center gap-2.5 group"
+            aria-label="BlindfoldDate — scroll to top"
           >
-            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain group-hover:opacity-75 transition-opacity" />
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} priority className="object-contain group-hover:opacity-75 transition-opacity" />
           </button>
 
           <div className="hidden md:flex items-center gap-8">

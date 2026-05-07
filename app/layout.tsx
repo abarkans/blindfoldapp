@@ -64,6 +64,7 @@ export default async function RootLayout({
         {process.env.NEXT_PUBLIC_SUPABASE_URL && (
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         )}
+        <link rel="preconnect" href="https://challenges.cloudflare.com" />
       </head>
       <body className="min-h-full bg-[#0d0d14] font-sans antialiased">
         <script
