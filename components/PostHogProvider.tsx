@@ -1,46 +1,70 @@
 "use client";
 
-import posthog from "posthog-js";
-import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
+import { useEffect, Suspense, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, Suspense } from "react";
+import type { PostHog } from "posthog-js";
+import type { PostHogProvider as PHProviderType } from "posthog-js/react";
 
-function PostHogPageView() {
+// Type-only — no runtime cost. Real modules loaded lazily via dynamic import below.
+
+function PageViewTracker({ ph }: { ph: PostHog }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const ph = usePostHog();
 
   useEffect(() => {
-    ph?.capture("$pageview", { $current_url: window.location.href });
+    ph.capture("$pageview", { $current_url: window.location.href });
   }, [pathname, searchParams, ph]);
 
   return null;
 }
 
-if (typeof window !== "undefined") {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
-    ui_host: "https://eu.posthog.com",
-    persistence: "memory",
-    autocapture: false,
-    capture_pageview: false,
-    capture_pageleave: false,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    loaded: (ph: any) => {
-      if (process.env.NODE_ENV === "production") {
-        ph.set_config({ disable_toolbar: true });
-      }
-    },
-  });
-}
+type PHProviderComponent = typeof PHProviderType;
 
 export default function PostHogProvider({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState<{ Provider: PHProviderComponent; ph: PostHog } | null>(null);
+
+  useEffect(() => {
+    const init = async () => {
+      const [{ default: posthog }, { PostHogProvider: PHProvider }] = await Promise.all([
+        import("posthog-js"),
+        import("posthog-js/react"),
+      ]);
+
+      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
+        ui_host: "https://eu.posthog.com",
+        persistence: "memory",
+        autocapture: false,
+        capture_pageview: false,
+        capture_pageleave: false,
+        loaded: (instance) => {
+          if (process.env.NODE_ENV === "production") {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (instance as any).set_config({ disable_toolbar: true });
+          }
+        },
+      });
+
+      setReady({ Provider: PHProvider, ph: posthog });
+    };
+
+    if (typeof requestIdleCallback !== "undefined") {
+      const id = requestIdleCallback(init);
+      return () => cancelIdleCallback(id);
+    }
+    const t = setTimeout(init, 1000);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!ready) return <>{children}</>;
+
+  const { Provider, ph } = ready;
   return (
-    <PHProvider client={posthog}>
+    <Provider client={ph}>
       <Suspense fallback={null}>
-        <PostHogPageView />
+        <PageViewTracker ph={ph} />
       </Suspense>
       {children}
-    </PHProvider>
+    </Provider>
   );
 }
