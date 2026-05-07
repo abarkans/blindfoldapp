@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Heart,
   Sparkles,
@@ -25,15 +24,6 @@ import { PLANS } from "@/lib/plans";
 import { MysteryCardBold } from "./MysteryCardBold";
 
 import DateCarousel from "@/components/landing/DateCarousel";
-
-const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
-
-const inView = (delay = 0) => ({
-  initial: { opacity: 0, y: 28 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.65, ease: EASE, delay },
-});
 
 const STEPS = [
   {
@@ -128,12 +118,6 @@ const NAV_LINKS = [
 ];
 
 export default function LandingV3Client() {
-  const prefersReducedRaw = useReducedMotion();
-  const [prefersReduced, setPrefersReduced] = useState(false);
-  useEffect(() => {
-    if (prefersReducedRaw) setPrefersReduced(true);
-  }, [prefersReducedRaw]);
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
     (async () => {
@@ -162,20 +146,11 @@ export default function LandingV3Client() {
   }, []);
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
-
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
-  const visualY = useTransform(scrollYProgress, [0, 1], [0, 35]);
 
   return (
     <div className="relative min-h-screen text-white overflow-x-hidden">
@@ -259,79 +234,61 @@ export default function LandingV3Client() {
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
-            <AnimatePresence mode="wait" initial={false}>
-              {menuOpen ? (
-                <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <X className="w-4 h-4" />
-                </motion.span>
-              ) : (
-                <motion.span key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <Menu className="w-4 h-4" />
-                </motion.span>
-              )}
-            </AnimatePresence>
+            {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </nav>
 
-        {/* Mobile menu */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              key="mobile-menu"
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.22, ease: EASE }}
-              className="md:hidden fixed inset-0 z-50 bg-[#08080f]/98 backdrop-blur-2xl flex flex-col px-6 pb-8"
-            >
-              <div className="flex items-center justify-between h-[68px] shrink-0">
-                <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center gap-2.5">
-                  <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+        {/* Mobile menu — CSS transition, always in DOM */}
+        <div
+          className={`md:hidden fixed inset-0 z-50 bg-[#08080f]/98 backdrop-blur-2xl flex flex-col px-6 pb-8 transition-[opacity,transform] duration-200 ease-out ${
+            menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-3 pointer-events-none"
+          }`}
+        >
+          <div className="flex items-center justify-between h-[68px] shrink-0">
+            <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center gap-2.5">
+              <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+            </button>
+            <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all" aria-label="Close menu">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <nav className="flex flex-col gap-1 flex-1 pt-4">
+            {NAV_LINKS.map(({ label, href, scroll }) =>
+              scroll ? (
+                <button key={label} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors text-left border-b border-white/[0.06]">
+                  {label}
                 </button>
-                <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all" aria-label="Close menu">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <nav className="flex flex-col gap-1 flex-1 pt-4">
-                {NAV_LINKS.map(({ label, href, scroll }) =>
-                  scroll ? (
-                    <button key={label} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors text-left border-b border-white/[0.06]">
-                      {label}
-                    </button>
-                  ) : (
-                    <a key={label} href={href} onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
-                      {label}
-                    </a>
-                  )
-                )}
-                {!isLoggedIn && (
-                  <Link href="/login" onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
-                    Sign in
-                  </Link>
-                )}
-              </nav>
-              <div className="pt-4">
-                {isLoggedIn ? (
-                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
-                    <ArrowRight className="w-4 h-4 text-rose-200" />
-                    Go to Dashboard
-                  </Link>
-                ) : (
-                  <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
-                    <Sparkles className="w-4 h-4 text-rose-200" />
-                    Plan our next date
-                  </Link>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              ) : (
+                <a key={label} href={href} onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
+                  {label}
+                </a>
+              )
+            )}
+            {!isLoggedIn && (
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
+                Sign in
+              </Link>
+            )}
+          </nav>
+          <div className="pt-4">
+            {isLoggedIn ? (
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
+                <ArrowRight className="w-4 h-4 text-rose-200" />
+                Go to Dashboard
+              </Link>
+            ) : (
+              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
+                <Sparkles className="w-4 h-4 text-rose-200" />
+                Plan our next date
+              </Link>
+            )}
+          </div>
+        </div>
       </header>
 
       <main id="main">
         {/* ── Hero ── */}
         <section
-          ref={heroRef}
           className="relative md:min-h-[88dvh] pt-[120px] md:pt-[68px] pb-24 md:pb-20 max-w-[1440px] mx-auto px-6 md:px-14 flex flex-col md:block"
         >
           {/* Background glow orbs — abstract visual language */}
@@ -340,49 +297,28 @@ export default function LandingV3Client() {
           <div className="absolute bottom-1/4 right-1/6 w-[300px] h-[300px] bg-purple-600/6 rounded-full blur-[80px] pointer-events-none" />
 
           {/* Left — text content */}
-          <motion.div
-            style={prefersReduced ? {} : { y: contentY, opacity: contentOpacity }}
-            className="w-full md:max-w-[420px] lg:max-w-[640px] xl:max-w-[700px] flex flex-col justify-center md:min-h-[calc(88dvh-88px)]"
-          >
+          <div className="w-full md:max-w-[420px] lg:max-w-[640px] xl:max-w-[700px] flex flex-col justify-center md:min-h-[calc(88dvh-88px)]">
             {/* Hero headline — Bumble-bold scale */}
             <h1 className="text-[52px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-8 md:mb-10">
-              <motion.span
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.05 }}
-                className="block"
-              >
+              <span className="block">
                 Stop planning.
-              </motion.span>
-              <motion.span
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.15 }}
+              </span>
+              <span
                 className="block bg-clip-text text-transparent"
                 style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
               >
                 Just show up.
-              </motion.span>
+              </span>
             </h1>
 
             {/* Subtext */}
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: EASE, delay: 0.25 }}
-              className="text-white/50 text-base md:text-xl leading-[1.7] mb-10 md:mb-12 max-w-[480px]"
-            >
+            <p className="text-white/50 text-base md:text-xl leading-[1.7] mb-10 md:mb-12 max-w-[480px]">
               Tell us what you like once. We find real venues near you, write your
               date story, and handle every detail.
-            </motion.p>
+            </p>
 
             {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.35 }}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6 md:mb-8"
-            >
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6 md:mb-8">
               {isLoggedIn ? (
                 <Link
                   href="/dashboard"
@@ -408,25 +344,16 @@ export default function LandingV3Client() {
                   </Link>
                 </>
               )}
-            </motion.div>
+            </div>
 
             {/* Trust line */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="text-white/35 text-sm"
-            >
+            <p className="text-white/35 text-sm">
               Free to start · No credit card · Cancel anytime
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
 
           {/* Right — visual: abstract glows + bold card */}
-          <motion.div
-            style={prefersReduced ? {} : { y: visualY }}
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
+          <div
             className="hidden md:block absolute -right-24 lg:-right-10 xl:right-0 top-1/2 -translate-y-1/2 w-[360px] lg:w-[400px]"
           >
             {/* Abstract gradient orb cluster behind card */}
@@ -468,22 +395,21 @@ export default function LandingV3Client() {
             </div>
 
             <MysteryCardBold />
-          </motion.div>
+          </div>
         </section>
 
         {/* ── Stats strip ── */}
         <div className="relative border-y border-white/[0.05] bg-white/[0.015]">
           <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-10 md:py-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-white/[0.07]">
-              {STATS.map(({ icon: Icon, value, label }, i) => (
-                <motion.div
+              {STATS.map(({ icon: Icon, value, label }) => (
+                <div
                   key={label}
-                  {...inView(i * 0.08)}
                   className="flex flex-col items-center md:px-10 text-center gap-2"
                 >
                   <p className="text-2xl md:text-3xl font-black text-white">{value}</p>
                   <p className="text-xs md:text-sm text-white/45 font-medium">{label}</p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -491,7 +417,7 @@ export default function LandingV3Client() {
 
         {/* ── How it works ── */}
         <section id="how-it-works" className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-          <motion.div {...inView()} className="text-center mb-16 md:mb-28">
+          <div className="text-center mb-16 md:mb-28">
             <p className="text-xs text-violet-400 font-medium uppercase tracking-[0.14em] mb-5">
               The ritual
             </p>
@@ -500,13 +426,12 @@ export default function LandingV3Client() {
               <br />
               <span className="text-white/35">then just show up.</span>
             </h2>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-            {STEPS.map((step, i) => (
-              <motion.div
+            {STEPS.map((step) => (
+              <div
                 key={step.number}
-                {...inView(i * 0.12)}
                 className={`relative rounded-3xl border ${step.border} p-8 md:p-10 overflow-hidden group hover:-translate-y-1 transition-transform duration-300`}
               >
                 {/* Background glow */}
@@ -524,7 +449,7 @@ export default function LandingV3Client() {
                   {step.title}
                 </h3>
                 <p className="relative text-white/55 text-sm md:text-base leading-[1.7]">{step.body}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
@@ -532,7 +457,7 @@ export default function LandingV3Client() {
         {/* ── Features ── */}
         <section id="features" className="relative border-y border-white/[0.04] bg-white/[0.01]">
           <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-            <motion.div {...inView()} className="text-center mb-16 md:mb-28">
+            <div className="text-center mb-16 md:mb-28">
               <p className="text-xs text-amber-400 font-medium uppercase tracking-[0.14em] mb-5">
                 Everything included
               </p>
@@ -541,7 +466,7 @@ export default function LandingV3Client() {
                 <br />
                 <span className="text-white/35">what do you want to do?&rdquo;</span>
               </h2>
-            </motion.div>
+            </div>
 
             <style>{`
               @media (min-width: 768px) {
@@ -551,8 +476,7 @@ export default function LandingV3Client() {
 
             <div className="bento-grid-v3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
               {/* Real places — large */}
-              <motion.div
-                {...inView(0)}
+              <div
                 className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/8 p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group"
               >
                 <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover transition-transform duration-700 group-hover:scale-105" src="/features/feat-1.jpg" alt="Mystery date planning" />
@@ -576,11 +500,10 @@ export default function LandingV3Client() {
                     <span className="text-xs text-white/60">Rating ≥ 4.0</span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Written for you */}
-              <motion.div
-                {...inView(0.08)}
+              <div
                 className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 p-6 md:p-7 flex flex-col overflow-hidden relative group"
               >
                 <Image fill sizes="33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" src="/features/feat-2.jpg" alt="Written for you" />
@@ -589,11 +512,10 @@ export default function LandingV3Client() {
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Written for you two</h3>
                   <p className="text-white/55 text-sm leading-[1.65]">AI writes the date like a friend who&apos;s been there.</p>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Budget-aware */}
-              <motion.div
-                {...inView(0.12)}
+              <div
                 className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 p-6 md:p-7 flex flex-col overflow-hidden relative group"
               >
                 <Image fill sizes="33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" src="/features/feat-3.jpg" alt="Budget aware" />
@@ -602,11 +524,10 @@ export default function LandingV3Client() {
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Fits your wallet</h3>
                   <p className="text-white/55 text-sm leading-[1.65]">Set a max spend — every suggestion lands inside it.</p>
                 </div>
-              </motion.div>
+              </div>
 
               {/* One tap */}
-              <motion.div
-                {...inView(0.16)}
+              <div
                 className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 p-6 md:p-7 flex flex-col overflow-hidden relative group"
               >
                 <Image fill sizes="33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" src="/features/feat-4.jpg" alt="One tap" />
@@ -615,11 +536,10 @@ export default function LandingV3Client() {
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">One tap to get there</h3>
                   <p className="text-white/55 text-sm leading-[1.65]">Photo, vibe, directions — waiting the moment you reveal.</p>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Grow together — large */}
-              <motion.div
-                {...inView(0.2)}
+              <div
                 className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/8 p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group"
               >
                 <Image fill sizes="66vw" className="object-cover transition-transform duration-700 group-hover:scale-105" src="/features/feat-5.jpg" alt="Grow together" />
@@ -637,11 +557,10 @@ export default function LandingV3Client() {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
 
               {/* Countdown */}
-              <motion.div
-                {...inView(0.24)}
+              <div
                 className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 p-6 md:p-7 flex flex-col overflow-hidden relative group"
               >
                 <Image fill sizes="33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" src="/features/feat-6.jpg" alt="Anticipation" />
@@ -650,14 +569,14 @@ export default function LandingV3Client() {
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Anticipation built in</h3>
                   <p className="text-white/55 text-sm leading-[1.65]">A live countdown builds excitement between reveals.</p>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* ── Sample dates ── */}
         <section className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-          <motion.div {...inView()} className="text-center mb-16 md:mb-24">
+          <div className="text-center mb-16 md:mb-24">
             <p className="text-xs text-rose-400 font-medium uppercase tracking-[0.14em] mb-5">
               Sneak peek
             </p>
@@ -666,17 +585,16 @@ export default function LandingV3Client() {
               <br />
               <span className="text-white/35">crafted for <em>you.</em></span>
             </h2>
-          </motion.div>
+          </div>
 
           <div className="md:hidden">
             <DateCarousel />
           </div>
 
           <div className="hidden md:grid md:grid-cols-3 gap-6">
-            {SAMPLE_DATES.map((date, i) => (
-              <motion.div
+            {SAMPLE_DATES.map((date) => (
+              <div
                 key={date.title}
-                {...inView(i * 0.1)}
                 className="rounded-3xl border border-white/8 bg-[#0e0c1a] overflow-hidden hover:border-white/16 hover:-translate-y-1.5 transition-all duration-300"
               >
                 <div className={`relative h-56 bg-gradient-to-br ${date.photoBg} flex items-center justify-center overflow-hidden`}>
@@ -723,7 +641,7 @@ export default function LandingV3Client() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
@@ -735,7 +653,7 @@ export default function LandingV3Client() {
         {/* ── Pricing ── */}
         <section id="plans" className="relative border-t border-white/[0.04] bg-white/[0.015]">
         <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-          <motion.div {...inView()} className="text-center mb-16 md:mb-24">
+          <div className="text-center mb-16 md:mb-24">
             <p className="text-xs text-rose-400 font-medium uppercase tracking-[0.14em] mb-5">
               Pricing
             </p>
@@ -744,13 +662,12 @@ export default function LandingV3Client() {
               <br />
               <span className="text-white/35">No surprises on the bill.</span>
             </h2>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 max-w-sm md:max-w-[840px] mx-auto">
             {PLANS.map((plan, i) => (
-              <motion.div
+              <div
                 key={plan.id}
-                {...inView(i * 0.12)}
                 className={[
                   "relative flex flex-col gap-8 rounded-3xl border p-8 md:p-10",
                   plan.highlighted
@@ -816,7 +733,7 @@ export default function LandingV3Client() {
                 >
                   {plan.cta}
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -831,10 +748,7 @@ export default function LandingV3Client() {
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 40% 50% at 20% 50%, #1e0a3e 0%, transparent 60%)" }} />
           </div>
 
-          <motion.div
-            {...inView()}
-            className="relative max-w-[720px] mx-auto px-6 text-center py-32 md:py-52"
-          >
+          <div className="relative max-w-[720px] mx-auto px-6 text-center py-32 md:py-52">
             <div className="w-20 h-20 md:w-28 md:h-28 mx-auto mb-10 md:mb-12">
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
             </div>
@@ -857,12 +771,6 @@ export default function LandingV3Client() {
               href="/register"
               className="group relative inline-flex items-center gap-3 text-white font-bold px-10 py-5 md:px-14 md:py-6 rounded-2xl text-base md:text-xl transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-2xl shadow-rose-500/30"
             >
-              <motion.span
-                className="absolute inset-0 bg-white/10"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: "100%" }}
-                transition={{ duration: 0.5 }}
-              />
               <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-rose-200" />
               Book my first mystery date
               <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
@@ -875,7 +783,7 @@ export default function LandingV3Client() {
               <span className="text-white/20 hidden sm:inline">·</span>
               <span className="text-white/40 text-sm">Cancel anytime</span>
             </div>
-          </motion.div>
+          </div>
         </section>
       </main>
 

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { motion, useMotionValue, PanInfo } from "framer-motion";
+import { useState, useRef } from "react";
 import { Sparkles, Star, Timer, Wallet, Navigation, MapPin } from "lucide-react";
 
 const CARDS = [
@@ -53,64 +52,56 @@ const n = CARDS.length;
 
 export default function DateCarousel() {
   const [active, setActive] = useState(0);
-  const dragX = useMotionValue(0);
+  const touchStartX = useRef<number | null>(null);
 
   const prevIdx = (active - 1 + n) % n;
   const nextIdx = (active + 1) % n;
 
-  function goTo(idx: number) { setActive(idx); }
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
 
-  function handleDragEnd(_: unknown, info: PanInfo) {
-    if (info.offset.x < -50) goTo(nextIdx);
-    else if (info.offset.x > 50) goTo(prevIdx);
-    dragX.set(0);
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (diff < -50) setActive(nextIdx);
+    else if (diff > 50) setActive(prevIdx);
+    touchStartX.current = null;
   }
 
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="relative w-full flex items-center justify-center" style={{ height: 520 }}>
-
+      <div
+        className="relative w-full flex items-center justify-center select-none"
+        style={{ height: 520 }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Left peeking card */}
-        <motion.div
-          key={`left-${prevIdx}`}
+        <div
           className="absolute cursor-pointer"
-          style={{ width: "72%", left: "-8%", zIndex: 10 }}
-          initial={{ scale: 0.88, opacity: 0 }}
-          animate={{ scale: 0.88, opacity: 0.6 }}
-          transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-          onClick={() => goTo(prevIdx)}
+          style={{ width: "72%", left: "-8%", zIndex: 10, transform: "scale(0.88)", opacity: 0.6 }}
+          onClick={() => setActive(prevIdx)}
         >
           <CardFace data={CARDS[prevIdx]} />
-        </motion.div>
+        </div>
 
         {/* Right peeking card */}
-        <motion.div
-          key={`right-${nextIdx}`}
+        <div
           className="absolute cursor-pointer"
-          style={{ width: "72%", right: "-8%", zIndex: 10 }}
-          initial={{ scale: 0.88, opacity: 0 }}
-          animate={{ scale: 0.88, opacity: 0.6 }}
-          transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-          onClick={() => goTo(nextIdx)}
+          style={{ width: "72%", right: "-8%", zIndex: 10, transform: "scale(0.88)", opacity: 0.6 }}
+          onClick={() => setActive(nextIdx)}
         >
           <CardFace data={CARDS[nextIdx]} />
-        </motion.div>
+        </div>
 
         {/* Center active card */}
-        <motion.div
-          key={`center-${active}`}
-          className="absolute cursor-grab active:cursor-grabbing"
+        <div
+          className="absolute"
           style={{ width: "80%", zIndex: 20 }}
-          initial={{ scale: 0.88, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.18}
-          onDragEnd={handleDragEnd}
         >
           <CardFace data={CARDS[active]} active />
-        </motion.div>
+        </div>
       </div>
 
       {/* Dots */}
@@ -118,7 +109,7 @@ export default function DateCarousel() {
         {CARDS.map((_, i) => (
           <button
             key={i}
-            onClick={() => goTo(i)}
+            onClick={() => setActive(i)}
             className={`rounded-full transition-all ${
               i === active ? "w-4 h-1.5 bg-pink-400" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
             }`}
