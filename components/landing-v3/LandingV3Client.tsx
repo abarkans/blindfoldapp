@@ -292,10 +292,10 @@ export default function LandingV3Client() {
         <section
           className="relative md:min-h-[88dvh] pt-[120px] md:pt-[68px] pb-24 md:pb-20 max-w-[1440px] mx-auto px-6 md:px-14 flex flex-col md:block"
         >
-          {/* Background glow orbs — abstract visual language */}
-          <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-rose-600/7 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-violet-600/8 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-1/4 right-1/6 w-[300px] h-[300px] bg-purple-600/6 rounded-full blur-[80px] pointer-events-none" />
+          {/* Background glow orbs — radial-gradient avoids GPU blur layers on mobile */}
+          <div className="absolute top-1/4 right-0 w-[600px] h-[600px] pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(225,29,72,0.07) 0%, transparent 70%)" }} />
+          <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(124,58,237,0.08) 0%, transparent 70%)" }} />
+          <div className="absolute bottom-1/4 right-1/6 w-[300px] h-[300px] pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(147,51,234,0.06) 0%, transparent 70%)" }} />
 
           {/* Left — text content */}
           <div className="w-full md:max-w-[420px] lg:max-w-[640px] xl:max-w-[700px] flex flex-col justify-center md:min-h-[calc(88dvh-88px)]">
@@ -359,8 +359,8 @@ export default function LandingV3Client() {
           >
             {/* Abstract gradient orb cluster behind card */}
             <div className="absolute inset-0 -m-16 pointer-events-none overflow-hidden">
-              <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-rose-500/12 blur-3xl opacity-80" />
-              <div className="absolute bottom-0 right-1/4 w-56 h-56 rounded-full bg-violet-500/10 blur-3xl opacity-70" />
+              <div className="absolute top-0 left-1/4 w-64 h-64 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(244,63,94,0.12) 0%, transparent 70%)", opacity: 0.8 }} />
+              <div className="absolute bottom-0 right-1/4 w-56 h-56 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(139,92,246,0.10) 0%, transparent 70%)", opacity: 0.7 }} />
             </div>
 
             {/* Floating chips — desktop only */}
