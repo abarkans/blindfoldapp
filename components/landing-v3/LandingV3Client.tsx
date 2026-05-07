@@ -348,9 +348,13 @@ export default function LandingV3Client() {
             </div>
 
             {/* Trust line */}
-            <p className="text-white/35 text-sm">
-              Free to start · No credit card · Cancel anytime
-            </p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+              <span className="text-white/35 text-sm">Free to start</span>
+              <span className="text-white/20">·</span>
+              <span className="text-white/35 text-sm">No credit card</span>
+              <span className="text-white/20">·</span>
+              <span className="text-white/35 text-sm">Cancel anytime</span>
+            </div>
           </div>
 
           {/* Right — visual: abstract glows + bold card */}
@@ -749,7 +753,7 @@ export default function LandingV3Client() {
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 40% 50% at 20% 50%, #1e0a3e 0%, transparent 60%)" }} />
           </div>
 
-          <div className="relative max-w-[720px] mx-auto px-6 text-center py-32 md:py-52">
+          <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 text-center py-32 md:py-52">
             <div className="w-20 h-20 md:w-28 md:h-28 mx-auto mb-10 md:mb-12">
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
             </div>
@@ -772,7 +776,6 @@ export default function LandingV3Client() {
               href="/register"
               className="group relative inline-flex items-center gap-3 text-white font-bold px-10 py-5 md:px-14 md:py-6 rounded-2xl text-base md:text-xl transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-2xl shadow-rose-500/30"
             >
-              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-rose-200" />
               Book my first mystery date
               <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
             </Link>

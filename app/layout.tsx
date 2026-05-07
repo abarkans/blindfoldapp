@@ -3,6 +3,8 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import PostHogProvider from "@/components/PostHogProvider";
 import CapacitorAuthHandler from "@/components/CapacitorAuthHandler";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -75,6 +77,8 @@ export default async function RootLayout({
         />
         <CapacitorAuthHandler />
         <PostHogProvider>{children}</PostHogProvider>
+        {process.env.VERCEL_ENV === "production" && <Analytics />}
+        {process.env.VERCEL_ENV === "production" && <SpeedInsights />}
       </body>
     </html>
   );

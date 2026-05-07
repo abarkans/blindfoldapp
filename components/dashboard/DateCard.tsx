@@ -543,7 +543,7 @@ export default function DateCard({
 
                     {dateIdea.ai?.mission && (
                       <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">Your mission</p>
+                        <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">The plan</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.mission}</p>
                       </div>
                     )}
@@ -619,7 +619,7 @@ export default function DateCard({
 
                     {dateIdea.mission && (
                       <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">Your mission</p>
+                        <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">The plan</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.mission}</p>
                       </div>
                     )}

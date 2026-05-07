@@ -8,7 +8,7 @@ import {
   Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, Zap, Crown, UserCog, Trash2,
+  Sparkles, Lock, Check, Crown, UserCog, Trash2,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, type UnitSystem } from "@/lib/units";
@@ -936,7 +936,6 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         onClick={handleUpgradePlan}
                         className="w-full h-auto py-3 text-sm font-bold rounded-2xl gap-2"
                       >
-                        <Zap className="w-4 h-4 text-rose-200" />
                         Subscribe · €1.49 first month
                       </Button>
                     </div>
