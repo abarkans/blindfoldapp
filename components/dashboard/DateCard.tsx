@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import LinkButton from "@/components/ui/LinkButton";
 import { revealDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
 import { acceptDate } from "@/app/actions/accept-date";
@@ -471,28 +472,24 @@ export default function DateCard({
 
                     <div className="flex flex-col gap-3">
                       {/* Accept button — primary */}
-                      <button
-                        type="button"
+                      <Button
+                        size="md"
+                        className="w-full"
                         onClick={() => canReroll ? setAcceptConfirmOpen(true) : handleAccept()}
-                        className="w-full py-3.5 rounded-full bg-rose-500 text-white text-sm font-semibold hover:bg-rose-400 transition-all active:scale-95"
                       >
                         Accept & Reveal
-                      </button>
+                      </Button>
 
                       {/* Re-roll button — secondary */}
-                      <button
-                        type="button"
+                      <Button
+                        size="md"
+                        variant={canReroll ? "outline" : "outline"}
                         disabled={!canReroll}
                         onClick={() => canReroll && setRerollModalOpen(true)}
-                        className={[
-                          "w-full py-3.5 rounded-full border text-sm font-semibold transition-all active:scale-95",
-                          canReroll
-                            ? "bg-white/5 border-white/15 text-white/70 hover:border-white/30 hover:text-white"
-                            : "bg-white/3 border-white/8 text-white/25 cursor-not-allowed",
-                        ].join(" ")}
+                        className="w-full"
                       >
                         Try another
-                      </button>
+                      </Button>
                     </div>
                   </motion.div>
 
@@ -571,15 +568,17 @@ export default function DateCard({
                       </div>
                     )}
 
-                    <a
+                    <LinkButton
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full h-14 rounded-full bg-transparent border border-rose-500 text-white text-sm font-semibold mb-4 hover:border-rose-400 hover:bg-rose-500/10 transition-all active:scale-95"
+                      variant="secondary"
+                      size="lg"
+                      className="w-full mb-4"
                     >
                       <Navigation className="w-4 h-4" />
                       Get Directions
-                    </a>
+                    </LinkButton>
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {isCompletePending ? (
@@ -784,20 +783,12 @@ export default function DateCard({
                 </p>
 
                 <div className="flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={handleRerollConfirm}
-                    className="w-full py-3 rounded-full bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
-                  >
+                  <Button className="w-full" onClick={handleRerollConfirm}>
                     {isFree ? "Yes, try another" : "Find another date"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRerollModalOpen(false)}
-                    className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
-                  >
+                  </Button>
+                  <Button variant="outline" className="w-full" onClick={() => setRerollModalOpen(false)}>
                     Keep this date
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -836,20 +827,12 @@ export default function DateCard({
               </div>
 
               <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setAcceptConfirmOpen(false); handleAccept(); }}
-                  className="w-full py-3 rounded-2xl bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
-                >
+                <Button className="w-full" onClick={() => { setAcceptConfirmOpen(false); handleAccept(); }}>
                   Reveal it
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAcceptConfirmOpen(false)}
-                  className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
-                >
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => setAcceptConfirmOpen(false)}>
                   Let me think
-                </button>
+                </Button>
               </div>
             </div>
           </div>

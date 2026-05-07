@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import LinkButton from "@/components/ui/LinkButton";
 import { motion } from "framer-motion";
 import { Trash2, AlertCircle, ShieldAlert } from "lucide-react";
 import { confirmAccountDeletion } from "@/app/actions/delete-account";
@@ -78,12 +79,9 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
                   <Trash2 className="w-4 h-4" />
                   {submitting ? "Deleting…" : "Yes, delete my account"}
                 </button>
-                <Link
-                  href="/dashboard"
-                  className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors active:scale-[0.98]"
-                >
+                <LinkButton href="/dashboard" variant="outline" className="w-full">
                   Cancel
-                </Link>
+                </LinkButton>
               </div>
             </>
           )}
@@ -95,12 +93,9 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
               </div>
               <h1 className="text-xl font-bold text-white mb-2">Link expired</h1>
               <p className="text-sm text-white/55 mb-6 leading-relaxed">{message}</p>
-              <Link
-                href="/dashboard?tab=settings"
-                className="inline-block w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/80 font-semibold text-sm hover:border-white/20 transition-colors"
-              >
+              <LinkButton href="/dashboard?tab=settings" variant="outline" className="w-full">
                 Back to Settings
-              </Link>
+              </LinkButton>
             </>
           )}
 
@@ -111,12 +106,9 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
               </div>
               <h1 className="text-xl font-bold text-white mb-2">Invalid link</h1>
               <p className="text-sm text-white/55 mb-6 leading-relaxed">{message}</p>
-              <Link
-                href="/dashboard"
-                className="inline-block w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/80 font-semibold text-sm hover:border-white/20 transition-colors"
-              >
+              <LinkButton href="/dashboard" variant="outline" className="w-full">
                 Go to dashboard
-              </Link>
+              </LinkButton>
             </>
           )}
 
@@ -127,12 +119,9 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
               </div>
               <h1 className="text-xl font-bold text-white mb-2">Sign in required</h1>
               <p className="text-sm text-white/55 mb-6 leading-relaxed">{message}</p>
-              <Link
-                href="/login"
-                className="inline-block w-full py-3 rounded-full bg-white/8 border border-white/15 text-white font-semibold text-sm hover:bg-white/12 transition-colors"
-              >
+              <LinkButton href="/login" variant="outline" className="w-full">
                 Sign in
-              </Link>
+              </LinkButton>
             </>
           )}
         </div>

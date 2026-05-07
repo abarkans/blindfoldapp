@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import LinkButton from "@/components/ui/LinkButton";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -274,15 +275,15 @@ export default function LandingV3Client() {
           </nav>
           <div className="pt-4">
             {isLoggedIn ? (
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-full transition-all">
+              <LinkButton href="/dashboard" size="lg" className="w-full gap-2" onClick={() => setMenuOpen(false)}>
                 <ArrowRight className="w-4 h-4 text-rose-200" />
                 Go to Dashboard
-              </Link>
+              </LinkButton>
             ) : (
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-full transition-all">
+              <LinkButton href="/register" size="lg" className="w-full gap-2" onClick={() => setMenuOpen(false)}>
                 Get started free
                 <ArrowRight className="w-4 h-4 text-rose-200" />
-              </Link>
+              </LinkButton>
             )}
           </div>
         </div>
@@ -842,7 +843,7 @@ export default function LandingV3Client() {
 
             <Link
               href="/register"
-              className="group relative inline-flex items-center gap-3 text-white font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-2xl shadow-rose-500/30"
+              className="group relative inline-flex items-center gap-3 font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-all overflow-hidden bg-rose-500 text-white hover:bg-rose-400 shadow-2xl shadow-rose-500/30 focus-visible:outline-none"
             >
               Book my first mystery date
               <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
