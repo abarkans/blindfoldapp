@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
@@ -60,6 +61,15 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     console.error(`[audit] finish-onboarding: uid=${user.id} msg=${error.message}`);
     return { error: "Failed to save onboarding" };
   }
+
+  const cookieStore = await cookies();
+  cookieStore.set("onboarding_complete", "1", {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+  });
 
   revalidatePath("/dashboard");
   return {};

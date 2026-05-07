@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { createClient } from "@/lib/supabase/client";
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Heart,
@@ -133,6 +134,33 @@ export default function LandingV3Client() {
     if (prefersReducedRaw) setPrefersReduced(true);
   }, [prefersReducedRaw]);
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      if (document.cookie.includes("onboarding_complete=1")) {
+        setIsLoggedIn(true);
+        return;
+      }
+
+      // Fallback for existing users without the cookie yet — one-time DB call.
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_complete")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profile?.onboarding_complete) {
+        const secure = location.protocol === "https:" ? "; secure" : "";
+        document.cookie = `onboarding_complete=1; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax${secure}`;
+        setIsLoggedIn(true);
+      }
+    })();
+  }, []);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -202,16 +230,28 @@ export default function LandingV3Client() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/login" className="text-sm text-white/40 hover:text-white transition-colors font-medium">
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-2xl transition-all"
-            >
-              Get started free
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-2xl transition-all"
+              >
+                Dashboard
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm text-white/40 hover:text-white transition-colors font-medium">
+                  Sign in
+                </Link>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-2xl transition-all"
+                >
+                  Get started free
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </>
+            )}
           </div>
 
           <button
@@ -264,15 +304,24 @@ export default function LandingV3Client() {
                     </a>
                   )
                 )}
-                <Link href="/login" onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
-                  Sign in
-                </Link>
+                {!isLoggedIn && (
+                  <Link href="/login" onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
+                    Sign in
+                  </Link>
+                )}
               </nav>
               <div className="pt-4">
-                <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
-                  <Sparkles className="w-4 h-4 text-rose-200" />
-                  Plan our next date
-                </Link>
+                {isLoggedIn ? (
+                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
+                    <ArrowRight className="w-4 h-4 text-rose-200" />
+                    Go to Dashboard
+                  </Link>
+                ) : (
+                  <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
+                    <Sparkles className="w-4 h-4 text-rose-200" />
+                    Plan our next date
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}
@@ -334,19 +383,31 @@ export default function LandingV3Client() {
               transition={{ duration: 0.6, ease: EASE, delay: 0.35 }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6 md:mb-8"
             >
-              <Link
-                href="/register"
-                className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-2xl text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
-              >
-                <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                Plan our next date
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center font-semibold text-base text-white px-8 h-14 md:h-16 rounded-2xl border border-white/15 hover:border-white/30 hover:bg-white/5 backdrop-blur-sm transition-all"
-              >
-                Sign in
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-2xl text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                >
+                  <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-2xl text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                  >
+                    <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    Plan our next date
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center font-semibold text-base text-white px-8 h-14 md:h-16 rounded-2xl border border-white/15 hover:border-white/30 hover:bg-white/5 backdrop-blur-sm transition-all"
+                  >
+                    Sign in
+                  </Link>
+                </>
+              )}
             </motion.div>
 
             {/* Trust line */}

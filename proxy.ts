@@ -172,7 +172,7 @@ export async function proxy(request: NextRequest) {
   // Authenticated → landing/auth pages → send to dashboard only if onboarding is done.
   // Users with incomplete onboarding can visit these pages freely
   // (e.g. to switch accounts or after navigating back from the landing page).
-  if (user && (pathname === "/" || pathname === "/login" || pathname === "/register")) {
+  if (user && (pathname === "/login" || pathname === "/register")) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("onboarding_complete")
