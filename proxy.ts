@@ -131,6 +131,24 @@ export async function proxy(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
 
+  // Fast path: routes that don't need auth checking can skip the
+  // supabase.auth.getUser() round-trip (server → Supabase auth API → server).
+  // This saves ~100–500ms TTFB on every request that isn't a protected or
+  // auth-gating route — most importantly the landing page ("/"), where
+  // Link prefetching is less reliable on Safari/Low Power Mode and the
+  // on-click wait is fully user-visible.
+  const needsAuthCheck =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/onboarding") ||
+    pathname === "/login" ||
+    pathname === "/register";
+
+  if (!needsAuthCheck) {
+    return applyResponseHeaders(
+      NextResponse.next({ request: { headers: requestHeaders } })
+    );
+  }
+
   let supabaseResponse = NextResponse.next({
     request: { headers: requestHeaders },
   });

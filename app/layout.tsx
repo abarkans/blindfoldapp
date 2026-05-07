@@ -60,6 +60,11 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${plusJakarta.variable} h-full`}>
+      <head>
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
+        )}
+      </head>
       <body className="min-h-full bg-[#0d0d14] font-sans antialiased">
         <script
           type="application/ld+json"
