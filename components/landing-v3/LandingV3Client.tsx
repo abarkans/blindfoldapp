@@ -715,7 +715,6 @@ export default function LandingV3Client() {
                 {plan.highlighted && (
                   <div className="absolute -top-4 left-8">
                     <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg shadow-pink-500/25">
-                      <Zap className="w-2.5 h-2.5" />
                       Most popular
                     </span>
                   </div>

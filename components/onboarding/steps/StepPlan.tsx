@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Lock, Sparkles, Zap } from "lucide-react";
+import { Check, Lock, Sparkles } from "lucide-react";
 import { PLANS, type PlanId } from "@/lib/plans";
 import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 
@@ -98,13 +98,15 @@ export default function StepPlan({
                 const Icon = PLAN_ICONS[plan.id];
                 const isSelected = selectedPlan === plan.id;
                 return (
-                  <motion.button
+                  <motion.div
                     key={plan.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedPlan(plan.id)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelectedPlan(plan.id); }}
                     className={[
-                      "relative flex flex-col gap-4 p-5 rounded-3xl border text-left transition-all duration-200",
+                      "relative flex flex-col gap-4 p-5 rounded-3xl border text-left transition-all duration-200 cursor-pointer",
                       isSelected
                         ? plan.highlighted
                           ? "bg-gradient-to-br from-pink-500/25 to-violet-500/15 border-pink-500"
@@ -117,7 +119,6 @@ export default function StepPlan({
                     {plan.highlighted && (
                       <div className="absolute -top-3 left-5">
                         <span className="inline-flex items-center gap-1 bg-gradient-to-r from-pink-500 to-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
-                          <Zap className="w-2.5 h-2.5" />
                           Most popular
                         </span>
                       </div>
@@ -212,7 +213,7 @@ export default function StepPlan({
                         </li>
                       ))}
                     </ul>
-                  </motion.button>
+                  </motion.div>
                 );
               })}
             </div>
