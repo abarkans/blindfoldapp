@@ -122,6 +122,9 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
   const [clearingLocation, setClearingLocation] = useState(false);
   const [error, setError] = useState("");
   const [signOutConfirm, setSignOutConfirm] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [upgradingPlan, setUpgradingPlan] = useState(false);
+  const [managingSubscription, setManagingSubscription] = useState(false);
   const [planType, setPlanType] = useState<PlanId>(
     (profile.plan_type as PlanId) ?? "free"
   );
@@ -315,6 +318,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
   }
 
   async function handleSignOut() {
+    setSigningOut(true);
     const supabase = createClient();
     await supabase.auth.signOut();
     if ((window as any).Capacitor) {
@@ -340,6 +344,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
   }
 
   async function handleUpgradePlan() {
+    setUpgradingPlan(true);
     setError("");
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
@@ -349,17 +354,20 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
     const { url, error: checkoutError } = await res.json();
     if (checkoutError || !url) {
       setError("Failed to start checkout. Please try again.");
+      setUpgradingPlan(false);
       return;
     }
     window.location.href = url;
   }
 
   async function handleManageSubscription() {
+    setManagingSubscription(true);
     setError("");
     const res = await fetch("/api/stripe/portal", { method: "POST" });
     const { url, error: portalError } = await res.json();
     if (portalError || !url) {
       setError("Failed to open subscription management. Please try again.");
+      setManagingSubscription(false);
       return;
     }
     window.location.href = url;
@@ -475,13 +483,15 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                       <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
                       <p className="text-sm text-white/55 mb-6">You can always sign back in to continue your mystery dates.</p>
                       <div className="flex flex-col gap-2">
-                        <button
+                        <Button
                           type="button"
+                          variant="danger"
+                          loading={signingOut}
                           onClick={handleSignOut}
-                          className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors duration-100 active:scale-[0.98]"
+                          className="w-full h-auto py-3 text-sm font-semibold rounded-2xl"
                         >
                           Yes, sign out
-                        </button>
+                        </Button>
                         <button
                           type="button"
                           onClick={() => setSignOutConfirm(false)}
@@ -919,25 +929,29 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                           </li>
                         ))}
                       </ul>
-                      <button
+                      <Button
                         type="button"
+                        variant="primary"
+                        loading={upgradingPlan}
                         onClick={handleUpgradePlan}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500 text-white text-sm font-bold hover:bg-rose-400 transition-all active:scale-[0.98]"
+                        className="w-full h-auto py-3 text-sm font-bold rounded-2xl gap-2"
                       >
                         <Zap className="w-4 h-4 text-rose-200" />
                         Subscribe · €1.49 first month
-                      </button>
+                      </Button>
                     </div>
                   )}
 
                   {planType === "subscription" && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      loading={managingSubscription}
                       onClick={handleManageSubscription}
-                      className="w-full py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white/80 hover:border-white/20 transition-all"
+                      className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 rounded-xl border border-white/10 hover:border-white/20"
                     >
                       Manage or cancel subscription
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}
