@@ -370,24 +370,12 @@ export default function LandingV3Client() {
           >
             {/* Abstract gradient orb cluster behind card */}
             <div className="absolute inset-0 -m-16 pointer-events-none overflow-hidden">
-              <motion.div
-                className="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-rose-500/12 blur-3xl"
-                animate={prefersReduced ? {} : { scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <motion.div
-                className="absolute bottom-0 right-1/4 w-56 h-56 rounded-full bg-violet-500/10 blur-3xl"
-                animate={prefersReduced ? {} : { scale: [1, 1.2, 1], opacity: [0.5, 0.9, 0.5] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              />
+              <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-rose-500/12 blur-3xl opacity-80" />
+              <div className="absolute bottom-0 right-1/4 w-56 h-56 rounded-full bg-violet-500/10 blur-3xl opacity-70" />
             </div>
 
             {/* Floating chips — desktop only */}
-            <motion.div
-              className="hidden md:block absolute -left-24 top-10 z-10 bg-[#1a1025]/96 border border-violet-500/30 rounded-2xl px-4 py-3 shadow-xl shadow-black/60 backdrop-blur-sm"
-              animate={prefersReduced ? {} : { y: [0, -8, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            >
+            <div className="hidden md:block absolute -left-24 top-10 z-10 bg-[#1a1025]/96 border border-violet-500/30 rounded-2xl px-4 py-3 shadow-xl shadow-black/60 backdrop-blur-sm">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-violet-500/25 flex items-center justify-center shrink-0">
                   <Sparkles className="w-3.5 h-3.5 text-violet-400" />
@@ -397,13 +385,9 @@ export default function LandingV3Client() {
                   <p className="text-[10px] text-white/50 mt-0.5">Just now · Near you</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="hidden md:block absolute -right-20 bottom-28 z-10 bg-[#1a1025]/96 border border-emerald-500/30 rounded-2xl px-4 py-3 shadow-xl shadow-black/60 backdrop-blur-sm"
-              animate={prefersReduced ? {} : { y: [0, 8, 0] }}
-              transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 0.7 }}
-            >
+            <div className="hidden md:block absolute -right-20 bottom-28 z-10 bg-[#1a1025]/96 border border-emerald-500/30 rounded-2xl px-4 py-3 shadow-xl shadow-black/60 backdrop-blur-sm">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/25 flex items-center justify-center shrink-0">
                   <Trophy className="w-3.5 h-3.5 text-emerald-400" />
@@ -413,18 +397,14 @@ export default function LandingV3Client() {
                   <p className="text-[10px] text-white/50 mt-0.5">Date completed 🎉</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="hidden md:block absolute -left-14 bottom-40 z-10 bg-[#1a1025]/96 border border-amber-500/30 rounded-2xl px-3.5 py-2.5 shadow-xl shadow-black/60 backdrop-blur-sm"
-              animate={prefersReduced ? {} : { y: [0, -6, 0] }}
-              transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
-            >
+            <div className="hidden md:block absolute -left-14 bottom-40 z-10 bg-[#1a1025]/96 border border-amber-500/30 rounded-2xl px-3.5 py-2.5 shadow-xl shadow-black/60 backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 <p className="text-[11px] font-medium text-white/65">Real venue · Rating 4.9</p>
               </div>
-            </motion.div>
+            </div>
 
             <MysteryCardBold />
           </motion.div>
@@ -794,13 +774,9 @@ export default function LandingV3Client() {
             {...inView()}
             className="relative max-w-[720px] mx-auto px-6 text-center py-32 md:py-52"
           >
-            <motion.div
-              className="w-20 h-20 md:w-28 md:h-28 mx-auto mb-10 md:mb-12"
-              animate={prefersReduced ? {} : { scale: [1, 1.1, 1, 1.06, 1] }}
-              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.6 }}
-            >
+            <div className="w-20 h-20 md:w-28 md:h-28 mx-auto mb-10 md:mb-12">
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
-            </motion.div>
+            </div>
 
             <h2 className="text-[40px] sm:text-[56px] md:text-[72px] font-black mb-7 md:mb-8 leading-[1.05] tracking-tight">
               Your next great date

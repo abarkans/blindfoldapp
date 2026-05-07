@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import LandingV3Client from "@/components/landing-v3/LandingV3Client";
 
 const SITE_URL = "https://blindfolddate.com";
@@ -18,21 +16,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function HomePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("onboarding_complete")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.onboarding_complete) redirect("/dashboard");
-  }
-
+export default function HomePage() {
   return <LandingV3Client />;
 }

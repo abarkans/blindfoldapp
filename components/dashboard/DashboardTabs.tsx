@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock } from "lucide-react";
@@ -21,7 +21,7 @@ interface EarnedBadge {
 
 interface DashboardTabsProps {
   profile: Profile;
-  earnedBadges: EarnedBadge[];
+  earnedBadgesPromise: Promise<EarnedBadge[]>;
   isDateCompleted: boolean;
   unitSystem?: UnitSystem;
 }
@@ -34,7 +34,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
 
 export default function DashboardTabs({
   profile,
-  earnedBadges,
+  earnedBadgesPromise,
   isDateCompleted,
   unitSystem = "metric",
 }: DashboardTabsProps) {
@@ -164,7 +164,9 @@ export default function DashboardTabs({
                 />
               )}
               {activeTab === "progress" && (
-                <ProgressTabContent profile={profile} earnedBadges={earnedBadges} />
+                <Suspense fallback={<ProgressTabSkeleton />}>
+                  <ProgressTabContent profile={profile} earnedBadgesPromise={earnedBadgesPromise} />
+                </Suspense>
               )}
               {activeTab === "settings" && (
                 <SettingsTabContent profile={profile} unitSystem={unitSystem} />
@@ -306,13 +308,29 @@ function DateTabContent({
 
 // ─── Progress Tab ─────────────────────────────────────────────────────────────
 
+function ProgressTabSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-8 w-40 bg-white/10 rounded-full mb-2" />
+      <div className="h-4 w-56 bg-white/10 rounded-full mb-5" />
+      <div className="h-12 w-full bg-white/10 rounded-2xl mb-4" />
+      <div className="grid grid-cols-2 gap-3">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-24 bg-white/10 rounded-2xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ProgressTabContent({
   profile,
-  earnedBadges,
+  earnedBadgesPromise,
 }: {
   profile: Profile;
-  earnedBadges: EarnedBadge[];
+  earnedBadgesPromise: Promise<EarnedBadge[]>;
 }) {
+  const earnedBadges = use(earnedBadgesPromise);
   const isFree = (profile.plan_type ?? "free") !== "subscription";
 
   if (isFree) {

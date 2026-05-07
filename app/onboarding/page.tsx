@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getClientAndUser } from "@/lib/supabase/get-client-and-user";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import type { PlanId } from "@/lib/plans";
 import { getUnitSystem } from "@/lib/get-unit-system";
@@ -9,8 +9,7 @@ export default async function OnboardingPage({
 }: {
   searchParams: Promise<{ checkout?: string; plan?: string }>;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await getClientAndUser();
 
   if (!user) redirect("/login");
 

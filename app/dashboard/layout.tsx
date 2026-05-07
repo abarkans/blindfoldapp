@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getClientAndUser } from "@/lib/supabase/get-client-and-user";
 import PostHogIdentify from "@/components/dashboard/PostHogIdentify";
 
 // Minimal layout — only handles auth guard.
@@ -10,10 +10,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getClientAndUser();
 
   if (!user) redirect("/login");
 
