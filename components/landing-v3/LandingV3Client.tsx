@@ -280,8 +280,8 @@ export default function LandingV3Client() {
               </Link>
             ) : (
               <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
-                <Sparkles className="w-4 h-4 text-rose-200" />
-                Plan our next date
+                Get started free
+                <ArrowRight className="w-4 h-4 text-rose-200" />
               </Link>
             )}
           </div>
