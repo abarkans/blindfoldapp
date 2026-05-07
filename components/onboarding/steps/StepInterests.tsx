@@ -119,7 +119,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-pink-500/20 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
+            className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-pink-500/20 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
           >
             Switch to Plus
             <ArrowRight className="w-3.5 h-3.5" />
