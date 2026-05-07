@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -670,8 +670,8 @@ export default function LandingV3Client() {
             </h2>
           </div>
 
-          {/* Billing interval toggle */}
-          <div className="flex justify-center mb-10 md:mb-14">
+          {/* Billing interval toggle — desktop only; mobile version renders between cards */}
+          <div className="hidden md:flex justify-center mb-10 md:mb-14">
             <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-2xl p-1">
               <button
                 type="button"
@@ -703,8 +703,39 @@ export default function LandingV3Client() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 max-w-sm md:max-w-[840px] mx-auto">
             {PLANS.map((plan, i) => (
+              <React.Fragment key={plan.id}>
+                {i === 1 && (
+                  <div className="md:hidden flex justify-center">
+                    <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-2xl p-1">
+                      <button
+                        type="button"
+                        onClick={() => setBillingInterval("monthly")}
+                        className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          billingInterval === "monthly"
+                            ? "bg-white/15 text-white shadow"
+                            : "text-white/45 hover:text-white/70"
+                        }`}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBillingInterval("yearly")}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          billingInterval === "yearly"
+                            ? "bg-white/15 text-white shadow"
+                            : "text-white/45 hover:text-white/70"
+                        }`}
+                      >
+                        Yearly
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">
+                          -44%
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               <div
-                key={plan.id}
                 className={[
                   "relative flex flex-col gap-8 rounded-3xl border p-8 md:p-10",
                   plan.highlighted
@@ -775,6 +806,7 @@ export default function LandingV3Client() {
                   {plan.cta}
                 </Link>
               </div>
+              </React.Fragment>
             ))}
           </div>
         </div>
