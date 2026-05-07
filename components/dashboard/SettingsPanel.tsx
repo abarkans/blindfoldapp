@@ -433,7 +433,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
         key={id}
         type="button"
         onClick={() => navigate(id)}
-        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-2xl hover:border-white/20 transition-colors active:scale-[0.98]"
+        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-full hover:border-white/20 transition-colors active:scale-[0.98]"
       >
         <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
           <Icon className="w-4 h-4 text-pink-400" />
@@ -479,7 +479,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
             <button
               type="button"
               onClick={() => setSignOutConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-white/10 text-white/55 hover:text-white hover:border-white/20 transition-all text-sm mt-6"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/20 transition-all text-sm mt-6"
             >
               <LogOut className="w-4 h-4" />
               Sign out
@@ -505,14 +505,14 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                           variant="danger"
                           loading={signingOut}
                           onClick={handleSignOut}
-                          className="w-full h-auto py-3 text-sm font-semibold rounded-2xl"
+                          className="w-full h-auto py-3 text-sm font-semibold"
                         >
                           Yes, sign out
                         </Button>
                         <button
                           type="button"
                           onClick={() => setSignOutConfirm(false)}
-                          className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98]"
+                          className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98]"
                         >
                           Cancel
                         </button>
@@ -577,7 +577,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                   <button
                     type="button"
                     onClick={() => setDeleteConfirm(true)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:bg-red-500/20 hover:border-red-500/40 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:bg-red-500/20 hover:border-red-500/40 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                     Delete my account
@@ -610,7 +610,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                                   type="button"
                                   onClick={handleDeleteAccount}
                                   disabled={deleting}
-                                  className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
+                                  className="w-full py-3 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
                                 >
                                   {deleting ? "Sending…" : "Send confirmation email"}
                                 </button>
@@ -618,7 +618,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                                   type="button"
                                   onClick={() => setDeleteConfirm(false)}
                                   disabled={deleting}
-                                  className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
+                                  className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
                                 >
                                   Cancel
                                 </button>
@@ -641,7 +641,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                               <button
                                 type="button"
                                 onClick={() => { setDeleteConfirm(false); setDeleteSent(false); }}
-                                className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/70 font-semibold text-sm hover:border-white/20 transition-colors duration-100 active:scale-[0.98]"
+                                className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/70 font-semibold text-sm hover:border-white/20 transition-colors duration-100 active:scale-[0.98]"
                               >
                                 Close
                               </button>
@@ -692,7 +692,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                           type="button"
                           onClick={() => toggleInterest(id)}
                           className={[
-                            "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
+                            "flex flex-col items-center gap-1.5 p-3 rounded-full border text-center transition-all duration-200 active:scale-95",
                             isSelected
                               ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
                               : "bg-white/5 border-white/10 text-white/70 hover:border-white/30 hover:text-white",
@@ -738,7 +738,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         type="button"
                         onClick={() => setValue(key, !val)}
                         className={[
-                          "flex-1 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
+                          "flex-1 py-3 px-4 rounded-full border text-sm font-medium transition-all",
                           val
                             ? "bg-pink-500/20 border-pink-500 text-pink-300"
                             : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
@@ -768,7 +768,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         <button
                           type="button"
                           onClick={() => { setLocStatus("search"); setLat(null); setLng(null); setLocationLabel(""); }}
-                          className="text-xs font-semibold text-pink-400 hover:text-pink-300 transition-colors shrink-0 px-2.5 py-1 rounded-lg bg-pink-500/10 hover:bg-pink-500/20"
+                          className="text-xs font-semibold text-pink-400 hover:text-pink-300 transition-colors shrink-0 px-2.5 py-1 rounded-full bg-pink-500/10 hover:bg-pink-500/20"
                         >
                           Change
                         </button>
@@ -796,7 +796,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                           <button
                             type="button"
                             onClick={handleDetectLocation}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/60 hover:border-white/25 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-sm text-white/60 hover:border-white/25 transition-colors"
                           >
                             <Navigation className="w-3.5 h-3.5 text-pink-400" />
                             Detect
@@ -804,7 +804,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                           <button
                             type="button"
                             onClick={() => setLocStatus("search")}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/60 hover:border-white/25 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-sm text-white/60 hover:border-white/25 transition-colors"
                           >
                             <Search className="w-3.5 h-3.5 text-pink-400" />
                             Search city
@@ -953,7 +953,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         <button
                           type="button"
                           onClick={() => setBillingInterval("monthly")}
-                          className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                             billingInterval === "monthly"
                               ? "bg-white/15 text-white"
                               : "text-white/45 hover:text-white/70"
@@ -964,7 +964,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         <button
                           type="button"
                           onClick={() => setBillingInterval("yearly")}
-                          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                             billingInterval === "yearly"
                               ? "bg-white/15 text-white"
                               : "text-white/45 hover:text-white/70"
@@ -990,7 +990,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         variant="primary"
                         loading={upgradingPlan}
                         onClick={handleUpgradePlan}
-                        className="w-full h-auto py-3 text-sm font-bold rounded-2xl gap-2"
+                        className="w-full h-auto py-3 text-sm font-bold gap-2"
                       >
                         {billingInterval === "yearly" ? "Subscribe · €39.99/year" : "Subscribe · €1.49 first month"}
                       </Button>
@@ -1003,7 +1003,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                       variant="ghost"
                       loading={managingSubscription}
                       onClick={handleManageSubscription}
-                      className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 rounded-xl border border-white/10 hover:border-white/20"
+                      className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 border border-white/10 hover:border-white/20"
                     >
                       Manage or cancel subscription
                     </Button>

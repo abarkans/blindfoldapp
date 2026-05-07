@@ -210,7 +210,7 @@ export default function LandingV3Client() {
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-2xl transition-all"
+                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-all"
               >
                 Dashboard
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -222,7 +222,7 @@ export default function LandingV3Client() {
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-2xl transition-all"
+                  className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-all"
                 >
                   Get started free
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -274,12 +274,12 @@ export default function LandingV3Client() {
           </nav>
           <div className="pt-4">
             {isLoggedIn ? (
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-full transition-all">
                 <ArrowRight className="w-4 h-4 text-rose-200" />
                 Go to Dashboard
               </Link>
             ) : (
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-2xl transition-all">
+              <Link href="/register" onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 text-base font-bold text-white bg-rose-500 hover:bg-rose-400 h-14 rounded-full transition-all">
                 Get started free
                 <ArrowRight className="w-4 h-4 text-rose-200" />
               </Link>
@@ -324,7 +324,7 @@ export default function LandingV3Client() {
               {isLoggedIn ? (
                 <Link
                   href="/dashboard"
-                  className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-2xl text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                  className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                 >
                   <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   Go to Dashboard
@@ -333,14 +333,14 @@ export default function LandingV3Client() {
                 <>
                   <Link
                     href="/register"
-                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-2xl text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     Plan our next date
                   </Link>
                   <Link
                     href="/login"
-                    className="inline-flex items-center justify-center font-semibold text-base text-white px-8 h-14 md:h-16 rounded-2xl border border-white/15 hover:border-white/30 hover:bg-white/5 backdrop-blur-sm transition-all"
+                    className="inline-flex items-center justify-center font-semibold text-base text-white px-8 h-14 md:h-16 rounded-full border border-white/15 hover:border-white/30 hover:bg-white/5 backdrop-blur-sm transition-all"
                   >
                     Sign in
                   </Link>
@@ -797,7 +797,7 @@ export default function LandingV3Client() {
                 <Link
                   href={`/register?plan=${plan.id}`}
                   className={[
-                    "w-full text-center py-4 md:py-5 rounded-2xl text-sm font-bold transition-all",
+                    "w-full text-center py-4 md:py-5 rounded-full text-sm font-bold transition-all",
                     plan.highlighted
                       ? "bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
                       : "bg-white/8 text-white/60 border border-white/10 hover:bg-white/12 hover:text-white",
@@ -842,7 +842,7 @@ export default function LandingV3Client() {
 
             <Link
               href="/register"
-              className="group relative inline-flex items-center gap-3 text-white font-bold px-10 py-5 md:px-14 md:py-6 rounded-2xl text-base md:text-xl transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-2xl shadow-rose-500/30"
+              className="group relative inline-flex items-center gap-3 text-white font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-2xl shadow-rose-500/30"
             >
               Book my first mystery date
               <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />

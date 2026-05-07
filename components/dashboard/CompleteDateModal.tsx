@@ -106,7 +106,7 @@ function FeedbackSection({
               type="button"
               onClick={onSubmit}
               disabled={submitting}
-              className="mt-2 w-full py-2.5 rounded-xl bg-white/8 border border-white/15 text-sm font-semibold text-white hover:bg-white/12 transition-colors disabled:opacity-50"
+              className="mt-2 w-full py-2.5 rounded-full bg-white/8 border border-white/15 text-sm font-semibold text-white hover:bg-white/12 transition-colors disabled:opacity-50"
             >
               {submitting ? "Saving…" : "Submit rating"}
             </button>
@@ -323,7 +323,7 @@ export default function CompleteDateModal({
 
                   <Button
                     size="sm"
-                    className="w-full rounded-xl"
+                    className="w-full"
                     onClick={handleUpgrade}
                     disabled={upgrading}
                   >

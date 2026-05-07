@@ -20,7 +20,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }, [loading, loadingDelay]);
 
     const base =
-      "inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95";
+      "inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95";
 
     const variants = {
       primary: "bg-rose-500 text-white hover:bg-rose-400",

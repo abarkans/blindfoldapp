@@ -73,14 +73,14 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
                   type="button"
                   onClick={handleConfirm}
                   disabled={submitting}
-                  className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   <Trash2 className="w-4 h-4" />
                   {submitting ? "Deleting…" : "Yes, delete my account"}
                 </button>
                 <Link
                   href="/dashboard"
-                  className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors active:scale-[0.98]"
+                  className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors active:scale-[0.98]"
                 >
                   Cancel
                 </Link>
@@ -97,7 +97,7 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
               <p className="text-sm text-white/55 mb-6 leading-relaxed">{message}</p>
               <Link
                 href="/dashboard?tab=settings"
-                className="inline-block w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/80 font-semibold text-sm hover:border-white/20 transition-colors"
+                className="inline-block w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/80 font-semibold text-sm hover:border-white/20 transition-colors"
               >
                 Back to Settings
               </Link>
@@ -113,7 +113,7 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
               <p className="text-sm text-white/55 mb-6 leading-relaxed">{message}</p>
               <Link
                 href="/dashboard"
-                className="inline-block w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/80 font-semibold text-sm hover:border-white/20 transition-colors"
+                className="inline-block w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/80 font-semibold text-sm hover:border-white/20 transition-colors"
               >
                 Go to dashboard
               </Link>
@@ -129,7 +129,7 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
               <p className="text-sm text-white/55 mb-6 leading-relaxed">{message}</p>
               <Link
                 href="/login"
-                className="inline-block w-full py-3 rounded-2xl bg-white/8 border border-white/15 text-white font-semibold text-sm hover:bg-white/12 transition-colors"
+                className="inline-block w-full py-3 rounded-full bg-white/8 border border-white/15 text-white font-semibold text-sm hover:bg-white/12 transition-colors"
               >
                 Sign in
               </Link>

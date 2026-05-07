@@ -180,7 +180,7 @@ export default function StepPlan({
                         <button
                           type="button"
                           onClick={() => setBillingInterval("monthly")}
-                          className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                             billingInterval === "monthly"
                               ? "bg-white/15 text-white"
                               : "text-white/45 hover:text-white/70"
@@ -191,7 +191,7 @@ export default function StepPlan({
                         <button
                           type="button"
                           onClick={() => setBillingInterval("yearly")}
-                          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                             billingInterval === "yearly"
                               ? "bg-white/15 text-white"
                               : "text-white/45 hover:text-white/70"
@@ -242,7 +242,7 @@ export default function StepPlan({
                   type="button"
                   onClick={() => setSelectedCadence(value)}
                   className={[
-                    "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-200",
+                    "flex items-center gap-4 p-4 rounded-full border text-left transition-all duration-200",
                     selectedCadence === value
                       ? "bg-gradient-to-r from-pink-500/20 to-rose-500/10 border-pink-500 text-white"
                       : "bg-white/5 border-white/10 text-white/80 hover:border-white/30",

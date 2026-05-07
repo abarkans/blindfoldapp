@@ -286,7 +286,7 @@ export default function RegisterClient() {
                 <button
                   type="button"
                   onClick={() => router.push(planParam ? `?plan=${planParam}&step=email` : "?step=email", { scroll: false })}
-                  className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl border border-white/15 text-white/70 text-sm font-medium hover:border-white/25 hover:text-white hover:bg-white/5 transition-all"
+                  className="w-full flex items-center justify-center gap-2 h-12 rounded-full border border-white/15 text-white/70 text-sm font-medium hover:border-white/25 hover:text-white hover:bg-white/5 transition-all"
                 >
                   <Mail className="w-4 h-4" />
                   Continue with email

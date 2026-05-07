@@ -160,7 +160,7 @@ function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
 
   return (
     <button
-      className="relative w-full h-14 rounded-2xl overflow-hidden select-none cursor-pointer"
+      className="relative w-full h-14 rounded-full overflow-hidden select-none cursor-pointer"
       style={{ WebkitUserSelect: "none", touchAction: "none" }}
       onMouseDown={startHold}
       onMouseUp={cancelHold}
@@ -169,10 +169,10 @@ function HoldToCompleteButton({ onComplete }: { onComplete: () => void }) {
       onTouchEnd={cancelHold}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <div className="absolute inset-0 rounded-2xl bg-green-500/15 border border-green-500/30" />
+      <div className="absolute inset-0 rounded-full bg-green-500/15 border border-green-500/30" />
       <div
-        className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 shadow-md shadow-green-500/30"
-        style={{ clipPath: `inset(0 ${(1 - progress) * 100}% 0 0 round 16px)` }}
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 shadow-md shadow-green-500/30"
+        style={{ clipPath: `inset(0 ${(1 - progress) * 100}% 0 0 round 9999px)` }}
       />
       <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
         <CheckCircle2
@@ -474,7 +474,7 @@ export default function DateCard({
                       <button
                         type="button"
                         onClick={() => canReroll ? setAcceptConfirmOpen(true) : handleAccept()}
-                        className="w-full py-3.5 rounded-2xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-400 transition-all active:scale-95"
+                        className="w-full py-3.5 rounded-full bg-rose-500 text-white text-sm font-semibold hover:bg-rose-400 transition-all active:scale-95"
                       >
                         Accept & Reveal
                       </button>
@@ -485,7 +485,7 @@ export default function DateCard({
                         disabled={!canReroll}
                         onClick={() => canReroll && setRerollModalOpen(true)}
                         className={[
-                          "w-full py-3.5 rounded-2xl border text-sm font-semibold transition-all active:scale-95",
+                          "w-full py-3.5 rounded-full border text-sm font-semibold transition-all active:scale-95",
                           canReroll
                             ? "bg-white/5 border-white/15 text-white/70 hover:border-white/30 hover:text-white"
                             : "bg-white/3 border-white/8 text-white/25 cursor-not-allowed",
@@ -575,7 +575,7 @@ export default function DateCard({
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full h-14 rounded-2xl bg-transparent border border-rose-500 text-white text-sm font-semibold mb-4 hover:border-rose-400 hover:bg-rose-500/10 transition-all active:scale-95"
+                      className="flex items-center justify-center gap-2 w-full h-14 rounded-full bg-transparent border border-rose-500 text-white text-sm font-semibold mb-4 hover:border-rose-400 hover:bg-rose-500/10 transition-all active:scale-95"
                     >
                       <Navigation className="w-4 h-4" />
                       Get Directions
@@ -583,7 +583,7 @@ export default function DateCard({
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {isCompletePending ? (
-                      <div className="flex items-center justify-center gap-2 h-14 rounded-2xl bg-green-500/20 border border-green-500/30">
+                      <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
                         <motion.div
                           className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
                           animate={{ rotate: 360 }}
@@ -645,7 +645,7 @@ export default function DateCard({
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {isCompletePending ? (
-                      <div className="flex items-center justify-center gap-2 h-14 rounded-2xl bg-green-500/20 border border-green-500/30">
+                      <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
                         <motion.div
                           className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
                           animate={{ rotate: 360 }}
@@ -756,7 +756,7 @@ export default function DateCard({
                   <button
                     type="button"
                     onClick={() => setRerollModalOpen(false)}
-                    className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                    className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
                   >
                     <X className="w-4 h-4 text-white/60" />
                   </button>
@@ -787,14 +787,14 @@ export default function DateCard({
                   <button
                     type="button"
                     onClick={handleRerollConfirm}
-                    className="w-full py-3 rounded-2xl bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
+                    className="w-full py-3 rounded-full bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
                   >
                     {isFree ? "Yes, try another" : "Find another date"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setRerollModalOpen(false)}
-                    className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
+                    className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 transition-colors"
                   >
                     Keep this date
                   </button>

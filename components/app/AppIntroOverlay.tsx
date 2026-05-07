@@ -103,14 +103,14 @@ export default function AppIntroOverlay() {
 
       <div className="w-full max-w-[340px] px-8 flex flex-col gap-3">
         <button
-          className="w-full py-[18px] rounded-2xl text-white text-[17px] font-semibold"
+          className="w-full py-[18px] rounded-full text-white text-[17px] font-semibold"
           style={{ background: slide.accent }}
           onClick={handleGetStarted}
         >
           Get Started
         </button>
         <button
-          className="w-full py-4 rounded-2xl bg-transparent border border-white/[0.13] text-white/80 text-[17px] font-medium"
+          className="w-full py-4 rounded-full bg-transparent border border-white/[0.13] text-white/80 text-[17px] font-medium"
           onClick={handleSignIn}
         >
           Sign In
