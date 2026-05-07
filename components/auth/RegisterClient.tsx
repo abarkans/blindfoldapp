@@ -251,7 +251,7 @@ export default function RegisterClient() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <Link href="/" className="flex flex-col items-center gap-3 mb-8 group">
+        <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
           <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
           <p className="text-white/40 text-sm">Your first date is two minutes away</p>
         </Link>
