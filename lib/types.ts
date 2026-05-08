@@ -11,11 +11,12 @@ export interface Database {
             title: string;
             description: string;
             mission?: string;
-            emoji: string;
             vibe: string;
             duration: string;
             budget_range: string;
             tags: string[];
+            preparation?: string;
+            conversation_starter?: string;
           };
           status: string;
           generated_at: string;
@@ -180,11 +181,12 @@ export interface Database {
             title: string;
             description: string;
             mission?: string;
-            emoji: string;
             vibe: string;
             duration: string;
             budget_range: string;
             tags: string[];
+            preparation?: string;
+            conversation_starter?: string;
           } | null;
           total_xp: number;
           dates_completed_count: number;

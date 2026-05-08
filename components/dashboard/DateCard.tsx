@@ -39,8 +39,9 @@ interface AIDateIdea {
   title: string;
   description: string;
   mission?: string;
-  emoji: string;
   vibe: string;
+  preparation?: string;
+  conversation_starter?: string;
   duration: string;
   budget_range: string;
   tags: string[];
@@ -384,7 +385,7 @@ export default function DateCard({
                     {isVenue(dateIdea) ? (
                       <MapPin className="w-7 h-7 text-pink-400 shrink-0" />
                     ) : (
-                      <span className="text-3xl shrink-0">{dateIdea.emoji}</span>
+                      <Sparkles className="w-7 h-7 text-pink-400 shrink-0" />
                     )}
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-white truncate">
@@ -457,7 +458,6 @@ export default function DateCard({
                         </>
                       ) : (
                         <>
-                          <div className="text-4xl mb-3">{dateIdea.emoji}</div>
                           <p className="text-base font-bold text-white mb-1">{dateIdea.title}</p>
                           <p className="text-xs text-rose-300">{dateIdea.vibe}</p>
                         </>
@@ -521,7 +521,6 @@ export default function DateCard({
                     {dateIdea.ai ? (
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-2xl">{dateIdea.ai.emoji}</span>
                           <h3 className="text-xl font-bold text-white">{dateIdea.ai.title}</h3>
                         </div>
                         <p className="text-xs text-rose-300 font-medium mb-1">{dateIdea.ai.vibe}</p>
@@ -542,6 +541,20 @@ export default function DateCard({
                       <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">The plan</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.mission}</p>
+                      </div>
+                    )}
+
+                    {dateIdea.ai?.preparation && (
+                      <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Before you go</p>
+                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.preparation}</p>
+                      </div>
+                    )}
+
+                    {dateIdea.ai?.conversation_starter && (
+                      <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Conversation starter</p>
+                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.conversation_starter}</p>
                       </div>
                     )}
 
@@ -602,14 +615,6 @@ export default function DateCard({
                   /* ── ACCEPTED AI ── */
                   <>
                     <div className="bg-gradient-to-br from-rose-500/20 to-violet-600/10 rounded-2xl p-5 mb-4 text-center border border-rose-500/20">
-                      <motion.div
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
-                        className="text-5xl mb-3"
-                      >
-                        {dateIdea.emoji}
-                      </motion.div>
                       <h3 className="text-xl font-bold text-white mb-1">{dateIdea.title}</h3>
                       <p className="text-xs text-rose-300 font-medium">{dateIdea.vibe}</p>
                     </div>
@@ -620,6 +625,20 @@ export default function DateCard({
                       <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">The plan</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.mission}</p>
+                      </div>
+                    )}
+
+                    {dateIdea.preparation && (
+                      <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Before you go</p>
+                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.preparation}</p>
+                      </div>
+                    )}
+
+                    {dateIdea.conversation_starter && (
+                      <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Conversation starter</p>
+                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.conversation_starter}</p>
                       </div>
                     )}
 

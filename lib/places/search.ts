@@ -2,11 +2,12 @@ export interface VenueAIEnrichment {
   title: string;
   description: string;
   mission: string;
-  emoji: string;
   vibe: string;
   duration: string;
   budget_range: string;
   tags: string[];
+  preparation?: string;
+  conversation_starter?: string;
 }
 
 export interface VenueMeta {

@@ -605,7 +605,7 @@ export default function LandingV3Client() {
                 className="rounded-3xl border border-white/8 bg-[#0e0c1a] overflow-hidden hover:border-white/16 hover:-translate-y-1.5 transition-all duration-300"
               >
                 <div className={`relative h-56 bg-gradient-to-br ${date.photoBg} flex items-center justify-center overflow-hidden`}>
-                  <span className="text-7xl relative z-10">{date.emoji}</span>
+                  <Sparkles className="w-14 h-14 text-pink-400/60 relative z-10" />
                   <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
                     <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
                     <span className="text-xs font-bold text-white">{date.rating}</span>

@@ -47,7 +47,6 @@ const DateIdeaSchema = z.object({
     .describe(
       "2-3 sentences: a fun challenge the couple does TOGETHER at this specific place. Slightly competitive, silly, or requires vulnerability. Tone: a friend daring you, not a life coach."
     ),
-  emoji: z.string().describe("Single emoji that captures the vibe"),
   vibe: z.string().describe("2-4 word vibe label, e.g. 'Romantic & Adventurous'"),
   duration: z.string().describe("Estimated duration, e.g. '2–3 hours'"),
   budget_range: z
@@ -56,6 +55,14 @@ const DateIdeaSchema = z.object({
   tags: z
     .array(z.string())
     .describe("2-4 short tags like 'Indoor', 'Evening', 'Active', 'Romantic'"),
+  preparation: z
+    .string()
+    .optional()
+    .describe("Plus plan only. One instruction for what to wear or bring. Start with 'Wear' or 'Bring'. Max 15 words. Specific to venue vibe."),
+  conversation_starter: z
+    .string()
+    .optional()
+    .describe("Plus plan only. One question tailored to their interests AND the venue. Feels specific to this date, not generic. Max 25 words."),
 });
 
 export type GeneratedDateIdea = z.infer<typeof DateIdeaSchema>;
@@ -116,10 +123,34 @@ MISSION RULES:
 - Tone: a fun friend daring you, not a life coach assigning homework
 - The mission must feel fresh — not recycled from other date apps
 
+MISSION ESCALATION — scale difficulty to the "Mission tier" in the prompt:
+- BEGINNER (0–2 dates): warm and forgiving — the couple is still finding their rhythm. Low stakes, easy to start, no vulnerability required.
+- REGULAR (3–9 dates): they know each other better — raise the ante. More daring, a bit sillier, medium stakes.
+- VETERAN (10+ dates): they've done this before — go harder. More vulnerable, sillier, higher stakes. Assume they can handle it.
+
+PREPARATION RULES:
+- One short instruction: what to wear or bring to set the mood
+- Start with "Wear" or "Bring" — max 15 words
+- Specific to venue vibe — jazz bar ≠ hiking trail ≠ gallery
+- Playful, one item or concept only (not a full outfit)
+- Examples: "Wear something you'd want to be photographed in tonight", "Bring €5 in coins — trust the process"
+
+CONVERSATION STARTER RULES:
+- One question tailored to their interests AND this specific venue type
+- Not generic — must feel like it belongs to this exact date
+- Slightly unexpected, invites a real answer neither has rehearsed
+- Max 25 words
+
 GLOBAL RULES:
 - Use only the place data provided — never invent specific menu items, staff names, or room details
 - Tone: a friend who's been there, genuinely excited for them — not a travel brochure
 - Draw on the couple's specific interests to make the output feel personally tailored, not generic`;
+
+function missionTier(datesCompleted: number): string {
+  if (datesCompleted >= 10) return "VETERAN";
+  if (datesCompleted >= 3) return "REGULAR";
+  return "BEGINNER";
+}
 
 // Structured single-line logger for AI events. Designed to be Vercel-log-grepable
 // and trivial to forward to Sentry/PostHog later. Prefix tags ([ai-fallback],
@@ -190,6 +221,7 @@ export async function generateAIDateIdea({
   hasCar,
   prefersWalking,
   isSubscribed = false,
+  datesCompleted = 0,
   previousTitles = [],
   venue,
 }: {
@@ -199,6 +231,7 @@ export async function generateAIDateIdea({
   hasCar: boolean;
   prefersWalking: boolean;
   isSubscribed?: boolean;
+  datesCompleted?: number;
   previousTitles?: string[];
   venue?: {
     name: string;
@@ -241,6 +274,7 @@ export async function generateAIDateIdea({
       .filter(Boolean)
       .join(" | ");
 
+    const tier = missionTier(datesCompleted);
     const userPrompt = `Generate a date idea for this destination.
 
 <venue_data>
@@ -256,10 +290,10 @@ Review excerpts: ${safeReviews || "not available"}
 <couple_context>
 Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
-Max budget: €${budgetMax}
+Max budget: €${budgetMax}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
 </couple_context>
 
-Also provide: a short catchy title (max 5 words), a single emoji, a 2-4 word vibe label, estimated duration, rough budget range within €${budgetMax}, and 2-4 tags.`;
+Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimated duration, rough budget range within €${budgetMax}, and 2-4 tags.${isSubscribed ? " Also provide: a preparation instruction and a conversation starter." : ""}`;
 
     return callWithFallback({
       system: isSubscribed ? VENUE_SYSTEM_PROMPT_PRO : VENUE_SYSTEM_PROMPT,
@@ -284,19 +318,20 @@ Also provide: a short catchy title (max 5 words), a single emoji, a 2-4 word vib
     ? "They prefer walking — keep destinations within walking distance."
     : "They have no car — keep destinations reachable by public transport.";
 
+  const tier = missionTier(datesCompleted);
   const fallbackPrompt = `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
 
 <couple_context>
 Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget: €${budgetMax}
-Transport: ${transportNote}
+Transport: ${transportNote}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
 </couple_context>
 ${avoidClause}
 
 The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.
 
-Also write a mission: a fun challenge the couple does TOGETHER at this type of place. Must start immediately, no prep needed. Slightly competitive or silly. Forbidden: "take a photo together", "share a dessert", anything wellness-adjacent. Tone: a friend daring you.${isSubscribed ? " Include a small forfeit or reward for the loser to raise the stakes." : ""}`;
+Also write a mission: a fun challenge the couple does TOGETHER at this type of place. Must start immediately, no prep needed. Slightly competitive or silly. Forbidden: "take a photo together", "share a dessert", anything wellness-adjacent. Tone: a friend daring you.${isSubscribed ? ` Include a small forfeit or reward for the loser. Scale difficulty to the mission tier: BEGINNER = warm and forgiving, REGULAR = medium stakes, VETERAN = harder/more vulnerable/higher stakes. Also provide: a preparation instruction (what to wear or bring, max 15 words) and a conversation starter tailored to their interests (max 25 words).` : ""}`;
 
   return callWithFallback({ prompt: fallbackPrompt, isSubscribed });
 }

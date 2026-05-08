@@ -137,7 +137,7 @@ function CardFace({ data, active = false }: { data: (typeof CARDS)[0]; active?: 
         <div className="absolute inset-0 opacity-30">
           <div className={`absolute inset-0 bg-gradient-to-br ${data.gradient}`} />
         </div>
-        <span className="text-5xl relative z-10">{data.emoji}</span>
+        <Sparkles className="w-10 h-10 text-pink-400/60 relative z-10" />
         {/* Rating badge */}
         <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
           <Star className="w-3 h-3 text-amber-400 fill-amber-400" />

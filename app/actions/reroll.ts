@@ -12,6 +12,7 @@ const profileSchema = z.object({
   plan_type: z.string(),
   total_rerolls_used: z.number(),
   current_date_rerolled: z.boolean(),
+  dates_completed_count: z.number().min(0).default(0),
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
   // Cap entry length and array length so a poisoned interests array cannot
   // balloon the AI prompt. Mirrors the bound enforced in reveal.ts.
@@ -33,7 +34,7 @@ export async function rerollDate(): Promise<void> {
 
   const { data: raw } = await supabase
     .from("profiles")
-    .select("plan_type, total_rerolls_used, current_date_rerolled, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
+    .select("plan_type, total_rerolls_used, current_date_rerolled, dates_completed_count, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
     .eq("id", user.id)
     .single();
 
@@ -107,6 +108,7 @@ export async function rerollDate(): Promise<void> {
         hasCar: constraints.has_car,
         prefersWalking: constraints.prefers_walking,
         isSubscribed: !isFree,
+        datesCompleted: profile.dates_completed_count,
         venue: {
           name: venue.display_name,
           address: venue.formatted_address,
@@ -136,6 +138,7 @@ export async function rerollDate(): Promise<void> {
         hasCar: constraints.has_car,
         prefersWalking: constraints.prefers_walking,
         isSubscribed: !isFree,
+        datesCompleted: profile.dates_completed_count,
         previousTitles,
       });
     }

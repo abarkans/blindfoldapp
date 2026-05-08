@@ -28,6 +28,7 @@ const profileSchema = z.object({
   last_lat: z.number().min(-90).max(90).nullable(),
   last_long: z.number().min(-180).max(180).nullable(),
   preferred_radius: z.number().min(1000).max(50000).nullable(),
+  dates_completed_count: z.number().min(0).default(0),
 });
 
 const CADENCE_DAYS: Record<string, number> = {
@@ -63,7 +64,7 @@ export async function revealDate() {
 
   const { data: raw } = await supabase
     .from("profiles")
-    .select("plan_type, partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius")
+    .select("plan_type, partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius, dates_completed_count")
     .eq("id", user.id)
     .single();
 
@@ -133,6 +134,7 @@ export async function revealDate() {
         hasCar: constraints.has_car,
         prefersWalking: constraints.prefers_walking,
         isSubscribed,
+        datesCompleted: profile.dates_completed_count,
         venue: {
           name: venue.display_name,
           address: venue.formatted_address,
@@ -163,6 +165,7 @@ export async function revealDate() {
         hasCar: constraints.has_car,
         prefersWalking: constraints.prefers_walking,
         isSubscribed,
+        datesCompleted: profile.dates_completed_count,
         previousTitles,
       });
     }
