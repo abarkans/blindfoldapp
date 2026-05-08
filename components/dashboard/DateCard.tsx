@@ -586,8 +586,8 @@ export default function DateCard({
                       target="_blank"
                       rel="noopener noreferrer"
                       variant="secondary"
-                      size="lg"
-                      className="w-full mb-4"
+                      size="md"
+                      className="w-full mb-4 h-14 gap-3"
                     >
                       <Navigation className="w-4 h-4" />
                       Get Directions
