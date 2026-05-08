@@ -544,14 +544,14 @@ export default function DateCard({
                       </div>
                     )}
 
-                    {dateIdea.ai?.preparation && (
+                    {!isFree && dateIdea.ai?.preparation && (
                       <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Before you go</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.preparation}</p>
                       </div>
                     )}
 
-                    {dateIdea.ai?.conversation_starter && (
+                    {!isFree && dateIdea.ai?.conversation_starter && (
                       <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Conversation starter</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.conversation_starter}</p>
@@ -628,14 +628,14 @@ export default function DateCard({
                       </div>
                     )}
 
-                    {dateIdea.preparation && (
+                    {!isFree && dateIdea.preparation && (
                       <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Before you go</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.preparation}</p>
                       </div>
                     )}
 
-                    {dateIdea.conversation_starter && (
+                    {!isFree && dateIdea.conversation_starter && (
                       <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Conversation starter</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.conversation_starter}</p>
