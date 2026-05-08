@@ -692,7 +692,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                           type="button"
                           onClick={() => toggleInterest(id)}
                           className={[
-                            "flex flex-col items-center gap-1.5 p-3 rounded-full border text-center transition-all duration-200 active:scale-95",
+                            "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                             isSelected
                               ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
                               : "bg-white/5 border-white/10 text-white/70 hover:border-white/30 hover:text-white",
@@ -738,7 +738,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                         type="button"
                         onClick={() => setValue(key, !val)}
                         className={[
-                          "flex-1 py-3 px-4 rounded-full border text-sm font-medium transition-all",
+                          "flex-1 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
                           val
                             ? "bg-pink-500/20 border-pink-500 text-pink-300"
                             : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",

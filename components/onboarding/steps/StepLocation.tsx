@@ -167,9 +167,6 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
         <p className="text-white/50 text-sm">
           We&apos;ll use this to suggest real venues near you.
         </p>
-        <p className="text-white/55 text-xs leading-relaxed">
-          Your location is saved to your account to find nearby venues. You can update or remove it anytime in Settings.
-        </p>
       </div>
 
       <AnimatePresence mode="wait">
@@ -187,7 +184,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
                 <Navigation className="w-4 h-4 text-pink-400" />
               </div>
               <p className="text-sm text-white/70 leading-relaxed">
-                Blindfold uses your location to find <span className="text-white font-medium">real, highly-rated venues</span> near you — restaurants, parks, galleries and more.
+                We find <span className="text-white font-medium">real venues</span> near you — restaurants, parks, galleries.
               </p>
             </div>
             <Button size="lg" className="w-full" onClick={handleAllowLocation}>
@@ -333,14 +330,9 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
           formatValue={(v) => formatRadius(v, unitSystem)}
         />
         <div className="flex justify-between text-[10px] text-white/55 px-1">
-          <span>Walking distance</span>
-          <span>{planType === "subscription" ? "Long drive / Countryside" : `${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} max on Starter`}</span>
+          <span>Nearby</span>
+          <span>{planType === "subscription" ? "Far away" : `Max ${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} · Plus unlocks ${formatRadius(PAID_MAX_RADIUS_KM, unitSystem)}`}</span>
         </div>
-        {planType !== "subscription" && (
-          <p className="text-[11px] text-white/55 px-1">
-            Plus plan unlocks up to {formatRadius(PAID_MAX_RADIUS_KM, unitSystem)}.
-          </p>
-        )}
       </div>
 
     </div>
