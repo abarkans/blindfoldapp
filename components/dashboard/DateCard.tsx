@@ -7,7 +7,7 @@ import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, Cal
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import LinkButton from "@/components/ui/LinkButton";
-import { revealDate } from "@/app/actions/reveal";
+import { revealDate, startDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
 import { acceptDate } from "@/app/actions/accept-date";
 import { rerollDate } from "@/app/actions/reroll";
@@ -64,6 +64,12 @@ interface VenueDateIdea {
 }
 
 type DateIdea = AIDateIdea | VenueDateIdea;
+type DateTeaser = {
+  vibe: string;
+  activity_level: string;
+  price: string;
+  hook: string;
+};
 
 function isVenue(idea: DateIdea): idea is VenueDateIdea {
   return (idea as VenueDateIdea).type === "venue";
@@ -74,12 +80,19 @@ interface DateCardProps {
   cadence: string;
   revealedAt: string | null;
   dateIdea: DateIdea | null;
+  dateTeaser: DateTeaser | null;
   isDateCompleted: boolean;
   onGoToProgress: () => void;
   planType: string;
   totalRerollsUsed: number;
   currentDateRerolled: boolean;
   dateAcceptedAt: string | null;
+  memberRole: "owner" | "partner";
+  ownerReadyAt: string | null;
+  partnerReadyAt: string | null;
+  hasAcceptedPartner: boolean;
+  partnerInviteState: "none" | "pending" | "expired" | "accepted";
+  onGoToSettings: () => void;
 }
 
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
@@ -216,35 +229,49 @@ export default function DateCard({
   cadence,
   revealedAt,
   dateIdea,
+  dateTeaser,
   isDateCompleted,
   onGoToProgress,
   planType,
   totalRerollsUsed,
   currentDateRerolled,
   dateAcceptedAt,
+  memberRole,
+  ownerReadyAt,
+  partnerReadyAt,
+  hasAcceptedPartner,
+  partnerInviteState,
+  onGoToSettings,
 }: DateCardProps) {
   const ph = usePostHog();
   const [isPending, startTransition] = useTransition();
   const [isCompletePending, startCompleteTransition] = useTransition();
   const [isRerollPending, startRerollTransition] = useTransition();
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [revealed, setRevealed] = useState(
-    !!dateIdea && !!revealedAt && !isRevealAvailable(revealedAt, cadence)
+    !!dateIdea && !!dateAcceptedAt
   );
   const [completed, setCompleted] = useState(isDateCompleted);
   const [accepted, setAccepted] = useState(!!dateAcceptedAt);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
   const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
+  const [localRevealReady, setLocalRevealReady] = useState(false);
 
   // Sync accepted state when the server updates dateAcceptedAt (after reroll resets it)
   useEffect(() => { setAccepted(!!dateAcceptedAt); }, [dateAcceptedAt]);
+  useEffect(() => {
+    if (dateTeaser) setSuccessMessage("");
+  }, [dateTeaser]);
 
   const isFree = planType !== "subscription";
   const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
 
   const canReveal = isRevealAvailable(revealedAt, cadence);
+  const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
+  const otherPartnerReady = memberRole === "owner" ? !!partnerReadyAt : !!ownerReadyAt;
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
   const countdown = useCountdown(completed && nextRevealDate ? nextRevealDate : null);
 
@@ -260,14 +287,42 @@ export default function DateCard({
     return () => clearInterval(interval);
   }, [isLoading, isRerollPending]);
 
-  function handleReveal() {
+  function handleStartDate() {
     setError("");
+    setSuccessMessage("");
     startTransition(async () => {
       try {
-        await revealDate();
+        const result = await startDate();
+        if (result.status === "error") {
+          setError(result.error);
+          return;
+        }
+        setSuccessMessage("Date started. The teaser is ready.");
+        ph?.capture("date_started", { plan_type: planType });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong");
+      }
+    });
+  }
+
+  function handleReveal() {
+    setError("");
+    setSuccessMessage("");
+    startTransition(async () => {
+      try {
+        const result = await revealDate();
+        if (result.status === "error") {
+          setError(result.error);
+          return;
+        }
+        if (result.status === "waiting") {
+          setLocalRevealReady(true);
+          setSuccessMessage("You're ready. Waiting for your partner to reveal too.");
+          return;
+        }
         setRevealed(true);
         setCompleted(false);
-        setAccepted(false);
+        setAccepted(true);
         ph?.capture("date_revealed", { plan_type: planType });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
@@ -283,6 +338,7 @@ export default function DateCard({
   function handleRerollConfirm() {
     setRerollModalOpen(false);
     setError("");
+    setSuccessMessage("");
     startRerollTransition(async () => {
       try {
         await rerollDate();
@@ -296,6 +352,7 @@ export default function DateCard({
 
   function handleComplete() {
     setError("");
+    setSuccessMessage("");
     startCompleteTransition(async () => {
       try {
         const result = await completeDate();
@@ -713,9 +770,57 @@ export default function DateCard({
                   ))}
                 </div>
 
+                {successMessage && <p className="text-xs text-emerald-300 mb-3 text-center">{successMessage}</p>}
                 {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
 
-                {isPending ? (
+                {dateIdea && dateTeaser && !revealed ? (
+                  <div className="flex flex-col gap-4">
+                    <div className="rounded-2xl border border-rose-500/20 bg-gradient-to-br from-rose-500/12 to-violet-600/10 p-4">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-rose-300">The teaser</p>
+                      <div className="grid grid-cols-1 gap-2">
+                        {[
+                          ["Vibe", dateTeaser.vibe],
+                          ["Activity level", dateTeaser.activity_level],
+                          ["Price", dateTeaser.price],
+                          ["The hook", dateTeaser.hook],
+                        ].map(([label, value]) => (
+                          <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2.5">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/35">{label}</p>
+                            <p className="mt-0.5 text-sm font-semibold text-white/80">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {successMessage && <p className="text-xs text-emerald-300 text-center">{successMessage}</p>}
+                    {error && <p className="text-xs text-red-400 text-center">{error}</p>}
+                    <Button size="lg" className="w-full" disabled={currentUserReady} onClick={!currentUserReady ? handleReveal : undefined}>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      {currentUserReady ? "Waiting for partner" : "I'm ready"}
+                    </Button>
+                    <Button
+                      size="md"
+                      variant="outline"
+                      disabled={!canReroll || currentUserReady}
+                      onClick={() => canReroll && setRerollModalOpen(true)}
+                      className="w-full"
+                    >
+                      Try another teaser
+                    </Button>
+                  </div>
+                ) : !hasAcceptedPartner ? (
+                  <div className="flex flex-col gap-2">
+                    <p className="text-xs text-white/50 text-center">
+                      {partnerInviteState === "pending"
+                        ? "Your invite has been sent. Dates unlock after your partner creates an account and accepts it."
+                        : partnerInviteState === "expired"
+                        ? "The last invite expired. Send a fresh invite when you're ready."
+                        : "Dates unlock after your partner accepts the invite and both of you tap reveal."}
+                    </p>
+                    <Button size="lg" className="w-full" onClick={onGoToSettings}>
+                      {partnerInviteState === "pending" ? "Manage invite" : partnerInviteState === "expired" ? "Send new invite" : "Invite partner"}
+                    </Button>
+                  </div>
+                ) : isPending ? (
                   <div className="flex flex-col items-center gap-3 py-4">
                     <div className="flex gap-1.5">
                       {[0, 1, 2].map((i) => (
@@ -741,10 +846,10 @@ export default function DateCard({
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleReveal : undefined}>
+                  <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleStartDate : undefined}>
                     <Sparkles className="w-4 h-4 mr-2" />
                     {canReveal
-                      ? "Reveal Mystery Date"
+                      ? "Start next date"
                       : nextRevealDate
                       ? `Available ${formatRelative(nextRevealDate)}`
                       : "Not available yet"}

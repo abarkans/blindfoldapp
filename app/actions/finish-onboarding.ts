@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
 import { hashEmail } from "@/lib/deletion-hold";
+import { sendPartnerInviteForOnboarding } from "@/app/actions/partner-invite";
 
 export async function finishOnboarding(input: FullOnboardingData): Promise<{ error?: string }> {
   const supabase = await createClient();
@@ -61,6 +62,9 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     console.error(`[audit] finish-onboarding: uid=${user.id} msg=${error.message}`);
     return { error: "Failed to save onboarding" };
   }
+
+  const inviteResult = await sendPartnerInviteForOnboarding(user.id, user.id, v.partner_email?.toLowerCase());
+  if (inviteResult.error) return { error: inviteResult.error };
 
   const cookieStore = await cookies();
   cookieStore.set("onboarding_complete", "1", {

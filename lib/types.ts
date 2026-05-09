@@ -40,6 +40,66 @@ export interface Database {
         };
         Relationships: [];
       };
+      couple_members: {
+        Row: {
+          profile_id: string;
+          user_id: string;
+          role: "owner" | "partner";
+          created_at: string;
+        };
+        Insert: {
+          profile_id: string;
+          user_id: string;
+          role: "owner" | "partner";
+          created_at?: string;
+        };
+        Update: {
+          profile_id?: string;
+          user_id?: string;
+          role?: "owner" | "partner";
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      partner_invites: {
+        Row: {
+          id: string;
+          profile_id: string;
+          inviter_user_id: string;
+          invited_email: string;
+          token_hash: string;
+          expires_at: string;
+          accepted_at: string | null;
+          accepted_user_id: string | null;
+          revoked_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          inviter_user_id: string;
+          invited_email: string;
+          token_hash: string;
+          expires_at: string;
+          accepted_at?: string | null;
+          accepted_user_id?: string | null;
+          revoked_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          profile_id?: string;
+          inviter_user_id?: string;
+          invited_email?: string;
+          token_hash?: string;
+          expires_at?: string;
+          accepted_at?: string | null;
+          accepted_user_id?: string | null;
+          revoked_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       milestones: {
         Row: {
           id: string;
@@ -188,6 +248,12 @@ export interface Database {
             preparation?: string;
             conversation_starter?: string;
           } | null;
+          date_teaser: {
+            vibe: string;
+            activity_level: string;
+            price: string;
+            hook: string;
+          } | null;
           total_xp: number;
           dates_completed_count: number;
           preferred_radius: number;
@@ -200,6 +266,8 @@ export interface Database {
           total_rerolls_used: number;
           current_date_rerolled: boolean;
           date_accepted_at: string | null;
+          reveal_owner_ready_at: string | null;
+          reveal_partner_ready_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -216,6 +284,7 @@ export interface Database {
           onboarding_complete?: boolean;
           revealed_at?: string | null;
           date_idea?: Json | null;
+          date_teaser?: Json | null;
           total_xp?: number;
           dates_completed_count?: number;
           preferred_radius?: number;
@@ -228,6 +297,8 @@ export interface Database {
           total_rerolls_used?: number;
           current_date_rerolled?: boolean;
           date_accepted_at?: string | null;
+          reveal_owner_ready_at?: string | null;
+          reveal_partner_ready_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -244,6 +315,7 @@ export interface Database {
           onboarding_complete?: boolean;
           revealed_at?: string | null;
           date_idea?: Json | null;
+          date_teaser?: Json | null;
           total_xp?: number;
           dates_completed_count?: number;
           preferred_radius?: number;
@@ -256,6 +328,8 @@ export interface Database {
           total_rerolls_used?: number;
           current_date_rerolled?: boolean;
           date_accepted_at?: string | null;
+          reveal_owner_ready_at?: string | null;
+          reveal_partner_ready_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

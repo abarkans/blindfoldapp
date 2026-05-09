@@ -23,7 +23,7 @@ export async function GET(request: Request) {
   // Explicit allowlist of post-callback destinations. Falls back to /dashboard
   // for any unrecognised value to defeat open-redirect attempts that smuggle
   // path-prefix traversal or query-string payloads through `next`.
-  const ALLOWED_NEXT = new Set(["/dashboard", "/onboarding", "/reset-password"]);
+  const ALLOWED_NEXT = new Set(["/dashboard", "/onboarding", "/reset-password", "/partner-invite"]);
   const next = searchParams.get("next") ?? "/dashboard";
   const safePath = ALLOWED_NEXT.has(next) ? next : "/dashboard";
 
@@ -34,6 +34,11 @@ export async function GET(request: Request) {
     safePath === "/onboarding" && (plan === "free" || plan === "subscription")
       ? `?plan=${plan}`
       : "";
+  const invite = searchParams.get("invite");
+  const inviteSuffix =
+    safePath === "/partner-invite" && invite && /^[A-Za-z0-9_-]{20,256}$/.test(invite)
+      ? `?token=${encodeURIComponent(invite)}`
+      : "";
 
-  return NextResponse.redirect(`${origin}${safePath}${planSuffix}`);
+  return NextResponse.redirect(`${origin}${safePath}${planSuffix}${inviteSuffix}`);
 }

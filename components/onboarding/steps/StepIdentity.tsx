@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User } from "lucide-react";
+import { Mail, User } from "lucide-react";
 import { identitySchema, type IdentityFormData } from "@/lib/schemas/onboarding";
 import Input from "@/components/ui/Input";
 
@@ -63,6 +63,17 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
           error={errors.partner2?.message}
           {...register("partner2")}
         />
+        <Input
+          label="Partner email (optional)"
+          type="email"
+          placeholder="jamie@example.com"
+          icon={<Mail className="w-4 h-4" />}
+          error={errors.partner_email?.message}
+          {...register("partner_email")}
+        />
+        <p className="text-xs leading-relaxed text-white/40">
+          You can skip this now and invite your partner from Settings later. Dates unlock once both accounts are connected.
+        </p>
       </div>
     </form>
   );

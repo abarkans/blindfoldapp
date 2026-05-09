@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { calcLevel } from "@/lib/utils";
 import type { CompleteDateResult, PlanType } from "@/lib/types";
 import { checkCompleteRateLimit } from "@/lib/rate-limit";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getCoupleAccess } from "@/lib/partner-invites";
 
 const XP_PER_DATE = 100;
 
@@ -19,13 +21,15 @@ export async function completeDate(): Promise<CompleteDateResult> {
   }
 
   await checkCompleteRateLimit(user.id);
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
 
   // Atomically: find the revealed idea (with row lock), mark it completed,
   // and increment XP + count in a single DB round-trip. The RPC also reads
   // plan_type and skips the XP/count increment for non-subscription users,
   // returning gated=true so we know to suppress the badge fetch.
   const { data: result, error } = await supabase.rpc("complete_date_atomic", {
-    p_user_id: user.id,
+    p_user_id: access.profileId,
     p_xp_gain: XP_PER_DATE,
   });
 
@@ -68,7 +72,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
   const { data: newBadgeRows } = await supabase
     .from("user_badges")
     .select("earned_at, milestones(name, description, icon_emoji)")
-    .eq("user_id", user.id)
+    .eq("user_id", access.profileId)
     .gte("earned_at", cutoff);
 
   console.info(`[audit] complete: success uid=${user.id} xp=${newXp} dates=${newCount}`);

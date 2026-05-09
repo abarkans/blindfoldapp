@@ -11,6 +11,7 @@ import BadgeGrid from "@/components/dashboard/BadgeGrid";
 import SettingsPanel from "@/components/dashboard/SettingsPanel";
 import type { Profile } from "@/lib/types";
 import type { UnitSystem } from "@/lib/units";
+import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 
 type Tab = "date" | "progress" | "settings";
 
@@ -24,6 +25,8 @@ interface DashboardTabsProps {
   earnedBadgesPromise: Promise<EarnedBadge[]>;
   isDateCompleted: boolean;
   unitSystem?: UnitSystem;
+  memberRole: CoupleRole;
+  partnerInviteStatus: PartnerInviteStatus;
 }
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
@@ -37,6 +40,8 @@ export default function DashboardTabs({
   earnedBadgesPromise,
   isDateCompleted,
   unitSystem = "metric",
+  memberRole,
+  partnerInviteStatus,
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
   const [showCancelBanner, setShowCancelBanner] = useState(false);
@@ -161,6 +166,9 @@ export default function DashboardTabs({
                   profile={profile}
                   isDateCompleted={isDateCompleted}
                   onGoToProgress={() => switchTab("progress")}
+                  memberRole={memberRole}
+                  partnerInviteStatus={partnerInviteStatus}
+                  onGoToSettings={() => switchTab("settings")}
                 />
               )}
               {activeTab === "progress" && (
@@ -169,7 +177,12 @@ export default function DashboardTabs({
                 </Suspense>
               )}
               {activeTab === "settings" && (
-                <SettingsTabContent profile={profile} unitSystem={unitSystem} />
+                <SettingsTabContent
+                  profile={profile}
+                  unitSystem={unitSystem}
+                  memberRole={memberRole}
+                  partnerInviteStatus={partnerInviteStatus}
+                />
               )}
             </motion.div>
           </AnimatePresence>
@@ -221,10 +234,16 @@ function DateTabContent({
   profile,
   isDateCompleted,
   onGoToProgress,
+  onGoToSettings,
+  memberRole,
+  partnerInviteStatus,
 }: {
   profile: Profile;
   isDateCompleted: boolean;
   onGoToProgress: () => void;
+  onGoToSettings: () => void;
+  memberRole: CoupleRole;
+  partnerInviteStatus: PartnerInviteStatus;
 }) {
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -295,12 +314,19 @@ function DateTabContent({
         cadence={profile.cadence}
         revealedAt={profile.revealed_at ?? null}
         dateIdea={profile.date_idea as Parameters<typeof DateCard>[0]["dateIdea"]}
+        dateTeaser={profile.date_teaser as Parameters<typeof DateCard>[0]["dateTeaser"]}
         isDateCompleted={isDateCompleted}
         onGoToProgress={onGoToProgress}
         planType={profile.plan_type ?? "free"}
         totalRerollsUsed={profile.total_rerolls_used ?? 0}
         currentDateRerolled={profile.current_date_rerolled ?? false}
         dateAcceptedAt={profile.date_accepted_at ?? null}
+        memberRole={memberRole}
+        ownerReadyAt={profile.reveal_owner_ready_at ?? null}
+        partnerReadyAt={profile.reveal_partner_ready_at ?? null}
+        hasAcceptedPartner={partnerInviteStatus.state === "accepted"}
+        partnerInviteState={partnerInviteStatus.state}
+        onGoToSettings={onGoToSettings}
       />
     </div>
   );
@@ -494,7 +520,17 @@ const headerSlideVariants = {
   exit: (dir: number) => ({ opacity: 0, x: -dir * 40 }),
 };
 
-function SettingsTabContent({ profile, unitSystem }: { profile: Profile; unitSystem: UnitSystem }) {
+function SettingsTabContent({
+  profile,
+  unitSystem,
+  memberRole,
+  partnerInviteStatus,
+}: {
+  profile: Profile;
+  unitSystem: UnitSystem;
+  memberRole: CoupleRole;
+  partnerInviteStatus: PartnerInviteStatus;
+}) {
   const [subpageHeader, setSubpageHeader] = useState<{ title: string; onBack: () => void } | null>(null);
   const [headerDir, setHeaderDir] = useState(1);
 
@@ -542,7 +578,13 @@ function SettingsTabContent({ profile, unitSystem }: { profile: Profile; unitSys
           )}
         </AnimatePresence>
       </div>
-      <SettingsPanel profile={profile} onHeaderChange={handleHeaderChange} unitSystem={unitSystem} />
+      <SettingsPanel
+        profile={profile}
+        onHeaderChange={handleHeaderChange}
+        unitSystem={unitSystem}
+        memberRole={memberRole}
+        partnerInviteStatus={partnerInviteStatus}
+      />
     </div>
   );
 }

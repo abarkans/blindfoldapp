@@ -56,6 +56,8 @@ export default function RegisterClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
+  const inviteParam = searchParams.get("invite");
+  const invitedEmailParam = searchParams.get("email");
   const emailStep = searchParams.get("step") === "email";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -82,6 +84,9 @@ export default function RegisterClient() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: invitedEmailParam ?? "",
+    },
   });
 
   async function onSubmit(values: RegisterFormData) {
@@ -104,7 +109,9 @@ export default function RegisterClient() {
       email: values.email,
       password: values.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
+        emailRedirectTo: inviteParam
+          ? `${window.location.origin}/auth/callback?next=/partner-invite&invite=${encodeURIComponent(inviteParam)}`
+          : `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
         captchaToken,
         // Server-side trigger validate_user_signup() reads these and
         // rejects the insert if either flag is missing or false.
@@ -185,7 +192,11 @@ export default function RegisterClient() {
     } else {
       await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}` },
+          options: {
+            redirectTo: inviteParam
+              ? `${window.location.origin}/auth/callback?next=/partner-invite&invite=${encodeURIComponent(inviteParam)}`
+              : `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
+          },
       });
     }
   }
@@ -285,7 +296,7 @@ export default function RegisterClient() {
 
                 <button
                   type="button"
-                  onClick={() => router.push(planParam ? `?plan=${planParam}&step=email` : "?step=email", { scroll: false })}
+                  onClick={() => router.push(inviteParam ? `?invite=${encodeURIComponent(inviteParam)}${invitedEmailParam ? `&email=${encodeURIComponent(invitedEmailParam)}` : ""}&step=email` : planParam ? `?plan=${planParam}&step=email` : "?step=email", { scroll: false })}
                   className="w-full flex items-center justify-center gap-2 h-12 rounded-full border border-white/15 text-white/70 text-sm font-medium hover:border-white/25 hover:text-white hover:bg-white/5 transition-all"
                 >
                   <Mail className="w-4 h-4" />

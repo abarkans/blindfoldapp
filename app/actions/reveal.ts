@@ -8,15 +8,16 @@ import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRevealRateLimit } from "@/lib/rate-limit";
 import { adoptDeletionHold } from "@/lib/deletion-hold";
+import { getCoupleAccess } from "@/lib/partner-invites";
+import { createDateTeaser } from "@/lib/date-teaser";
+import { resend, FROM_ADDRESS } from "@/lib/email/resend";
+import { dateInitiatedEmail } from "@/lib/email/templates/date-initiated";
+import type { Database, Json } from "@/lib/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-// Validate the shape of the profile row fetched from the DB.
-// Prevents compromised/malformed data from reaching AI prompts or place searches.
 const profileSchema = z.object({
   plan_type: z.string(),
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
-  // Cap entry length and array length so an attacker who poisoned profiles.interests
-  // (via the SettingsPanel client write or a future RLS gap) cannot balloon the
-  // AI prompt for cost amplification.
   interests: z.array(z.string().max(40)).max(10),
   constraints: z.object({
     budget_max: z.number().min(10).max(200),
@@ -29,6 +30,8 @@ const profileSchema = z.object({
   last_long: z.number().min(-180).max(180).nullable(),
   preferred_radius: z.number().min(1000).max(50000).nullable(),
   dates_completed_count: z.number().min(0).default(0),
+  date_idea: z.unknown().nullable().optional(),
+  date_accepted_at: z.string().nullable().optional(),
 });
 
 const CADENCE_DAYS: Record<string, number> = {
@@ -42,82 +45,92 @@ const VALID_INTERESTS = new Set([
   "books", "coffee", "beach", "photography", "gaming", "romance",
 ]);
 
-export async function revealDate() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+type RevealResult =
+  | { status: "started" }
+  | { status: "waiting" }
+  | { status: "revealed" }
+  | { status: "error"; error: string };
 
-  if (!user) {
-    console.warn("[audit] reveal: unauthenticated attempt");
-    throw new Error("Not authenticated");
+export async function startDate(): Promise<RevealResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { status: "error", error: "Not authenticated" };
+
+  try {
+    await checkRevealRateLimit(user.id);
+  } catch (error) {
+    return {
+      status: "error",
+      error: error instanceof Error ? error.message : "Too many reveal attempts. Try again shortly.",
+    };
   }
 
-  await checkRevealRateLimit(user.id);
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
+  await adoptDeletionHold(admin, access.profileId, user.email);
 
-  // Defense-in-depth: adopt any active deletion hold for this email before
-  // the cooldown gate runs. finishOnboarding is the primary adoption point;
-  // this catches edge cases where reveal is invoked on a profile that was
-  // created without going through finishOnboarding (skipped/partial flow).
-  const admin0 = createAdminClient();
-  await adoptDeletionHold(admin0, user.id, user.email);
-
-  const { data: raw } = await supabase
+  const { data: raw, error: profileError } = await admin
     .from("profiles")
-    .select("plan_type, partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius, dates_completed_count")
-    .eq("id", user.id)
+    .select("plan_type, partner_names, interests, constraints, cadence, revealed_at, last_lat, last_long, preferred_radius, dates_completed_count, date_idea, date_accepted_at")
+    .eq("id", access.profileId)
     .single();
 
-  if (!raw) throw new Error("Profile not found");
+  if (profileError || !raw) {
+    console.error(`[audit] start-date: profile fetch failed uid=${user.id} profile=${access.profileId} msg=${profileError?.message ?? "missing"}`);
+    return { status: "error", error: "Profile not found" };
+  }
 
-  // Validate + type the profile row at the server trust boundary
-  const profile = profileSchema.parse(raw);
+  const parsed = profileSchema.safeParse(raw);
+  if (!parsed.success) {
+    console.error(`[audit] start-date: profile validation failed uid=${user.id} profile=${access.profileId}`);
+    return { status: "error", error: "Profile needs setup before starting a date." };
+  }
+  const profile = parsed.data;
 
-  // Atomic eligibility claim — single conditional UPDATE either succeeds
-  // for the first concurrent request or returns 0 rows for everyone else.
-  // This is both the cooldown gate AND the spam-protection gate, replacing
-  // the old SELECT-then-decide pattern that allowed concurrent rapid
-  // requests to all pass and each fire (paid) AI + Places calls.
+  const { data: partnerMember, error: partnerError } = await admin
+    .from("couple_members")
+    .select("user_id")
+    .eq("profile_id", access.profileId)
+    .eq("role", "partner")
+    .maybeSingle();
+
+  if (partnerError) {
+    console.error(`[audit] start-date: partner fetch failed uid=${user.id} profile=${access.profileId} msg=${partnerError.message}`);
+    return { status: "error", error: "Could not check partner status. Please try again." };
+  }
+  if (!partnerMember) return { status: "error", error: "Invite your partner before starting a date." };
+  if (profile.date_idea && !profile.date_accepted_at) return { status: "started" };
+  if (!isRevealAvailableForProfile(profile.revealed_at, profile.cadence)) {
+    return { status: "error", error: "Next date not available yet" };
+  }
+
+  const nowIso = new Date().toISOString();
   const days = CADENCE_DAYS[profile.cadence];
   const cooldownCutoff = new Date(Date.now() - days * 86_400_000).toISOString();
-  const nowIso = new Date().toISOString();
-  const admin = admin0;
-
   let claimQuery = admin
     .from("profiles")
     .update({ revealed_at: nowIso })
-    .eq("id", user.id);
+    .eq("id", access.profileId);
   claimQuery = profile.revealed_at
     ? claimQuery.lte("revealed_at", cooldownCutoff)
     : claimQuery.is("revealed_at", null);
   const { data: claimed } = await claimQuery.select("id");
+  if (!claimed?.length) return { status: "error", error: "Next date not available yet" };
 
-  if (!claimed?.length) {
-    const reason = profile.revealed_at ? "cooldown_or_race" : "race";
-    console.warn(`[audit] reveal: claim failed uid=${user.id} reason=${reason}`);
-    throw new Error("Next date not available yet");
-  }
-
-  const { constraints } = profile;
-  const isSubscribed = profile.plan_type === "subscription";
   const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
-
   let idea: object;
 
   try {
     if (profile.last_lat && profile.last_long) {
-      // Venue-based: fetch previously visited place IDs to avoid repeats
-      const { data: pastIdeas } = await supabase
+      const { data: pastIdeas } = await admin
         .from("date_ideas")
         .select("idea")
-        .eq("user_id", user.id)
+        .eq("user_id", access.profileId)
         .order("generated_at", { ascending: false })
         .limit(50);
-
       const previousPlaceIds = (pastIdeas ?? [])
         .map((row) => (row.idea as { place_id?: string })?.place_id)
         .filter(Boolean) as string[];
-
       const venue = await searchNearbyVenues({
         interests: safeInterests,
         lat: profile.last_lat,
@@ -125,15 +138,13 @@ export async function revealDate() {
         radiusMeters: profile.preferred_radius ?? 10000,
         previousPlaceIds,
       });
-
-      // Enrich the venue with AI-generated description, vibe, tags etc.
       const aiEnrichment = await generateAIDateIdea({
         partnerNames: profile.partner_names,
         interests: safeInterests,
-        budgetMax: constraints.budget_max,
-        hasCar: constraints.has_car,
-        prefersWalking: constraints.prefers_walking,
-        isSubscribed,
+        budgetMax: profile.constraints.budget_max,
+        hasCar: profile.constraints.has_car,
+        prefersWalking: profile.constraints.prefers_walking,
+        isSubscribed: profile.plan_type === "subscription",
         datesCompleted: profile.dates_completed_count,
         venue: {
           name: venue.display_name,
@@ -143,66 +154,155 @@ export async function revealDate() {
           meta: venue.meta,
         },
       });
-
       idea = { ...venue, ai: aiEnrichment };
     } else {
-      // AI fallback: no location set
-      const { data: pastIdeas } = await supabase
+      const { data: pastIdeas } = await admin
         .from("date_ideas")
         .select("idea")
-        .eq("user_id", user.id)
+        .eq("user_id", access.profileId)
         .order("generated_at", { ascending: false })
         .limit(50);
-
       const previousTitles = (pastIdeas ?? [])
         .map((row) => (row.idea as { title?: string })?.title)
         .filter(Boolean) as string[];
-
       idea = await generateAIDateIdea({
         partnerNames: profile.partner_names,
         interests: safeInterests,
-        budgetMax: constraints.budget_max,
-        hasCar: constraints.has_car,
-        prefersWalking: constraints.prefers_walking,
-        isSubscribed,
+        budgetMax: profile.constraints.budget_max,
+        hasCar: profile.constraints.has_car,
+        prefersWalking: profile.constraints.prefers_walking,
+        isSubscribed: profile.plan_type === "subscription",
         datesCompleted: profile.dates_completed_count,
         previousTitles,
       });
     }
-  } catch (err) {
-    // Generation failed — roll back the atomic claim so the user can
-    // retry without waiting for the cadence to elapse. Migration 018
-    // grants service_role the right to roll revealed_at back; the
-    // lockdown trigger continues to block authenticated callers from
-    // doing the same.
-    await admin
-      .from("profiles")
-      .update({ revealed_at: profile.revealed_at })
-      .eq("id", user.id);
-    console.error(`[audit] reveal: generation failed uid=${user.id}, claim rolled back`);
-    throw err;
+  } catch (error) {
+    await admin.from("profiles").update({ revealed_at: profile.revealed_at }).eq("id", access.profileId);
+    console.error(`[audit] start-date: generation failed uid=${user.id} profile=${access.profileId}`);
+    return { status: "error", error: "Couldn't generate a date. Please try again." };
   }
 
-  // Insert into date_ideas history
+  const teaser = createDateTeaser(idea);
   await admin.from("date_ideas").insert({
-    user_id: user.id,
-    idea: idea as unknown as import("@/lib/types").Json,
-    status: "revealed",
+    user_id: access.profileId,
+    idea: idea as Json,
+    status: "pending",
     revealed_at: nowIso,
   });
-
-  // Final write: attach the idea and reset the per-cycle flags.
-  // revealed_at was already stamped by the atomic claim above.
   await admin
     .from("profiles")
     .update({
-      date_idea: idea as unknown as import("@/lib/types").Json,
+      date_idea: idea as Json,
+      date_teaser: teaser as unknown as Json,
       notification_sent_at: null,
       current_date_rerolled: false,
       date_accepted_at: null,
+      reveal_owner_ready_at: null,
+      reveal_partner_ready_at: null,
     })
-    .eq("id", user.id);
+    .eq("id", access.profileId);
 
-  console.info(`[audit] reveal: success uid=${user.id} mode=${profile.last_lat ? "venue" : "ai"}`);
+  await notifyOtherPartner(admin, access.profileId, user.id, profile.partner_names);
   revalidatePath("/dashboard");
+  return { status: "started" };
+}
+
+export async function revealDate(): Promise<RevealResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { status: "error", error: "Not authenticated" };
+
+  try {
+    await checkRevealRateLimit(user.id);
+  } catch (error) {
+    return {
+      status: "error",
+      error: error instanceof Error ? error.message : "Too many reveal attempts. Try again shortly.",
+    };
+  }
+
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("date_idea, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at")
+    .eq("id", access.profileId)
+    .single();
+
+  if (error || !profile?.date_idea) return { status: "error", error: "Start the date first." };
+  if (profile.date_accepted_at) return { status: "revealed" };
+
+  const nowIso = new Date().toISOString();
+  const ownerReadyAt = access.role === "owner" ? nowIso : profile.reveal_owner_ready_at;
+  const partnerReadyAt = access.role === "partner" ? nowIso : profile.reveal_partner_ready_at;
+  const readyUpdate =
+    access.role === "owner"
+      ? { reveal_owner_ready_at: nowIso }
+      : { reveal_partner_ready_at: nowIso };
+
+  const { error: readyError } = await admin
+    .from("profiles")
+    .update(readyUpdate)
+    .eq("id", access.profileId);
+  if (readyError) return { status: "error", error: "Could not mark you ready. Please try again." };
+
+  if (!ownerReadyAt || !partnerReadyAt) {
+    revalidatePath("/dashboard");
+    return { status: "waiting" };
+  }
+
+  await admin
+    .from("profiles")
+    .update({
+      date_accepted_at: nowIso,
+      reveal_owner_ready_at: null,
+      reveal_partner_ready_at: null,
+    })
+    .eq("id", access.profileId);
+  await admin
+    .from("date_ideas")
+    .update({ status: "revealed" })
+    .eq("user_id", access.profileId)
+    .eq("status", "pending");
+
+  revalidatePath("/dashboard");
+  return { status: "revealed" };
+}
+
+function isRevealAvailableForProfile(revealedAt: string | null, cadence: string): boolean {
+  if (!revealedAt) return true;
+  const days = CADENCE_DAYS[cadence] ?? 7;
+  return Date.now() >= new Date(revealedAt).getTime() + days * 86_400_000;
+}
+
+async function notifyOtherPartner(
+  admin: SupabaseClient<Database>,
+  profileId: string,
+  initiatingUserId: string,
+  names: { partner1: string; partner2: string }
+) {
+  const { data: members } = await admin
+    .from("couple_members")
+    .select("user_id, role")
+    .eq("profile_id", profileId);
+  const other = members?.find((member) => member.user_id !== initiatingUserId);
+  if (!other) return;
+
+  const { data: userData } = await admin.auth.admin.getUserById(other.user_id);
+  if (!userData.user?.email) return;
+
+  const initiator = members?.find((member) => member.user_id === initiatingUserId);
+  const initiatorIsOwner = initiator?.role === "owner";
+  const { subject, html } = dateInitiatedEmail({
+    partnerName: initiatorIsOwner ? names.partner1 : names.partner2,
+    inviteeName: initiatorIsOwner ? names.partner2 : names.partner1,
+  });
+
+  const { error } = await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: userData.user.email,
+    subject,
+    html,
+  });
+  if (error) console.warn(`[audit] start-date: email failed profile=${profileId} msg=${error.message}`);
 }

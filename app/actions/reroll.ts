@@ -7,6 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRerollRateLimit } from "@/lib/rate-limit";
+import { getCoupleAccess } from "@/lib/partner-invites";
+import { createDateTeaser } from "@/lib/date-teaser";
 
 const profileSchema = z.object({
   plan_type: z.string(),
@@ -31,11 +33,13 @@ export async function rerollDate(): Promise<void> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
 
   const { data: raw } = await supabase
     .from("profiles")
     .select("plan_type, total_rerolls_used, current_date_rerolled, dates_completed_count, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
-    .eq("id", user.id)
+    .eq("id", access.profileId)
     .single();
 
   if (!raw) throw new Error("Profile not found");
@@ -48,8 +52,6 @@ export async function rerollDate(): Promise<void> {
   // Writes go through the admin client because total_rerolls_used,
   // current_date_rerolled, date_idea, and date_accepted_at are protected by
   // the lockdown trigger from migration 015.
-  const admin = createAdminClient();
-
   // Atomic eligibility claim — single conditional UPDATE prevents concurrent requests
   // from both passing the eligibility check (TOCTOU race condition).
   // Returns 0 rows if the condition wasn't met; throw without touching the counter.
@@ -57,7 +59,7 @@ export async function rerollDate(): Promise<void> {
     const { data: claimed } = await admin
       .from("profiles")
       .update({ total_rerolls_used: 1, current_date_rerolled: true })
-      .eq("id", user.id)
+      .eq("id", access.profileId)
       .eq("total_rerolls_used", 0)
       .select("id");
     if (!claimed?.length) throw new Error("No re-rolls remaining on the basic plan");
@@ -65,7 +67,7 @@ export async function rerollDate(): Promise<void> {
     const { data: claimed } = await admin
       .from("profiles")
       .update({ current_date_rerolled: true })
-      .eq("id", user.id)
+      .eq("id", access.profileId)
       .eq("current_date_rerolled", false)
       .select("id");
     if (!claimed?.length) throw new Error("Already re-rolled this date");
@@ -85,7 +87,7 @@ export async function rerollDate(): Promise<void> {
       const { data: pastIdeas } = await supabase
         .from("date_ideas")
         .select("idea")
-        .eq("user_id", user.id)
+        .eq("user_id", access.profileId)
         .order("generated_at", { ascending: false })
         .limit(50);
 
@@ -123,7 +125,7 @@ export async function rerollDate(): Promise<void> {
       const { data: pastIdeas } = await supabase
         .from("date_ideas")
         .select("idea")
-        .eq("user_id", user.id)
+        .eq("user_id", access.profileId)
         .order("generated_at", { ascending: false })
         .limit(50);
 
@@ -145,18 +147,24 @@ export async function rerollDate(): Promise<void> {
   } catch (err) {
     // Generation failed — roll back the atomic claim so the user can retry
     if (isFree) {
-      await admin.from("profiles").update({ total_rerolls_used: 0, current_date_rerolled: false }).eq("id", user.id);
+      await admin.from("profiles").update({ total_rerolls_used: 0, current_date_rerolled: false }).eq("id", access.profileId);
     } else {
-      await admin.from("profiles").update({ current_date_rerolled: false }).eq("id", user.id);
+      await admin.from("profiles").update({ current_date_rerolled: false }).eq("id", access.profileId);
     }
     throw err;
   }
 
+  await admin
+    .from("date_ideas")
+    .update({ status: "skipped" })
+    .eq("user_id", access.profileId)
+    .eq("status", "pending");
+
   // Insert new idea into history so it won't repeat in future reveals/rerolls
   await admin.from("date_ideas").insert({
-    user_id: user.id,
+    user_id: access.profileId,
     idea: idea as unknown as import("@/lib/types").Json,
-    status: "revealed",
+    status: "pending",
     revealed_at: new Date().toISOString(),
   });
 
@@ -165,9 +173,12 @@ export async function rerollDate(): Promise<void> {
     .from("profiles")
     .update({
       date_idea: idea as unknown as import("@/lib/types").Json,
+      date_teaser: createDateTeaser(idea) as unknown as import("@/lib/types").Json,
       date_accepted_at: null,
+      reveal_owner_ready_at: null,
+      reveal_partner_ready_at: null,
     })
-    .eq("id", user.id);
+    .eq("id", access.profileId);
 
   revalidatePath("/dashboard");
 }

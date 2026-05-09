@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { checkStripeRateLimit } from "@/lib/rate-limit";
 import { safeLogValue } from "@/lib/log";
 import { isAllowedOrigin } from "@/lib/origin";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getCoupleAccess } from "@/lib/partner-invites";
 
 export async function POST(req: Request) {
   const origin = req.headers.get("origin");
@@ -14,6 +16,10 @@ export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const access = await getCoupleAccess(createAdminClient(), user.id);
+  if (access.role !== "owner") {
+    return NextResponse.json({ error: "Only the account owner can manage billing" }, { status: 403 });
+  }
 
   await checkStripeRateLimit(user.id);
 

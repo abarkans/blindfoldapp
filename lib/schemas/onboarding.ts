@@ -23,6 +23,13 @@ export const identitySchema = z.object({
     .max(50, "Name too long")
     .regex(nameRegex, "Name contains invalid characters")
     .transform(collapseCombiningMarks),
+  partner_email: z
+    .string()
+    .trim()
+    .optional()
+    .refine((value) => !value || z.string().email().safeParse(value).success, {
+      message: "Enter a valid email",
+    }),
 });
 
 export const interestsSchema = z.object({
@@ -56,6 +63,7 @@ export const fullOnboardingSchema = z.object({
   has_car: logisticsSchema.shape.has_car,
   prefers_walking: logisticsSchema.shape.prefers_walking,
   cadence: frequencySchema.shape.cadence,
+  partner_email: identitySchema.shape.partner_email,
   lat: z.number().min(-90).max(90).optional(),
   lng: z.number().min(-180).max(180).optional(),
   preferred_radius: z.number().min(1000).max(50000).optional(),

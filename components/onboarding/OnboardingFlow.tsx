@@ -23,6 +23,7 @@ import type { UnitSystem } from "@/lib/units";
 type OnboardingData = {
   partner1?: string;
   partner2?: string;
+  partner_email?: string;
   plan_type?: PlanId;
   interests?: string[];
   budget_max?: number;
@@ -220,6 +221,7 @@ export default function OnboardingFlow({
       has_car: data.has_car ?? false,
       prefers_walking: data.prefers_walking ?? false,
       cadence,
+      partner_email: data.partner_email,
       lat: loc.lat,
       lng: loc.lng,
       preferred_radius: loc.preferred_radius,
@@ -277,8 +279,8 @@ export default function OnboardingFlow({
               >
                 {step === 1 && (
                   <StepIdentity
-                    defaultValues={{ partner1: data.partner1, partner2: data.partner2 }}
-                    onNext={(d: IdentityFormData) => goNext({ partner1: d.partner1, partner2: d.partner2 })}
+                    defaultValues={{ partner1: data.partner1, partner2: data.partner2, partner_email: data.partner_email }}
+                    onNext={(d: IdentityFormData) => goNext({ partner1: d.partner1, partner2: d.partner2, partner_email: d.partner_email })}
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
                   />

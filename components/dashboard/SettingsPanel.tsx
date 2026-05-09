@@ -8,7 +8,7 @@ import {
   Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, Crown, UserCog, Trash2,
+  Sparkles, Lock, Check, Crown, UserCog, Trash2, Mail,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, type UnitSystem } from "@/lib/units";
@@ -23,6 +23,8 @@ import Slider from "@/components/ui/Slider";
 import CadenceSelect, { type CadenceValue, CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 import { requestAccountDeletion } from "@/app/actions/delete-account";
 import { updateCadence } from "@/app/actions/update-cadence";
+import { sendPartnerInvite } from "@/app/actions/partner-invite";
+import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
@@ -100,6 +102,8 @@ interface SettingsPanelProps {
   profile: Profile;
   onHeaderChange?: (title: string | null, onBack: (() => void) | null, direction?: number) => void;
   unitSystem?: UnitSystem;
+  memberRole: CoupleRole;
+  partnerInviteStatus: PartnerInviteStatus;
 }
 
 const slideVariants = {
@@ -114,7 +118,13 @@ const noAnimation = {
   exit: { opacity: 0, x: 0 },
 };
 
-export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "metric" }: SettingsPanelProps) {
+export default function SettingsPanel({
+  profile,
+  onHeaderChange,
+  unitSystem = "metric",
+  memberRole,
+  partnerInviteStatus,
+}: SettingsPanelProps) {
   const [view, setView] = useState<SettingsView>("list");
   const [direction, setDirection] = useState(1);
   const [saved, setSaved] = useState(false);
@@ -129,6 +139,9 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
   const [planType, setPlanType] = useState<PlanId>(
     (profile.plan_type as PlanId) ?? "free"
   );
+  const [partnerInviteEmail, setPartnerInviteEmail] = useState(partnerInviteStatus.invitedEmail ?? "");
+  const [partnerInviteSending, setPartnerInviteSending] = useState(false);
+  const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
 
   // Manage account state
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -270,6 +283,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
       has_car: profile.constraints.has_car,
       prefers_walking: profile.constraints.prefers_walking,
       cadence: profile.cadence as FullOnboardingData["cadence"],
+      partner_email: "",
     },
   });
 
@@ -389,6 +403,20 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
     window.location.href = url;
   }
 
+  async function handlePartnerInvite() {
+    setPartnerInviteSending(true);
+    setPartnerInviteMessage("");
+    setError("");
+    const result = await sendPartnerInvite(partnerInviteEmail);
+    setPartnerInviteSending(false);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+    setPartnerInviteMessage("Invite sent. It expires in 24 hours.");
+    router.refresh();
+  }
+
   const interestsSummary = interests?.length > 0
     ? interests.slice(0, 2).map((id) => INTEREST_LABEL[id] ?? id).join(", ") +
       (interests.length > 2 ? ` +${interests.length - 2}` : "")
@@ -465,7 +493,7 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
               Account
             </p>
             <div className="flex flex-col gap-2 mb-5">
-              {ACCOUNT_ROWS.map(renderRow)}
+              {ACCOUNT_ROWS.filter((row) => memberRole === "owner" || row.id !== "plan").map(renderRow)}
             </div>
 
             {/* Date section */}
@@ -666,6 +694,50 @@ export default function SettingsPanel({ profile, onHeaderChange, unitSystem = "m
                 <div className="flex flex-col gap-3">
                   <Input label="Partner 1" error={errors.partner1?.message} {...register("partner1")} />
                   <Input label="Partner 2" error={errors.partner2?.message} {...register("partner2")} />
+                  <div className="mt-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-pink-400" />
+                      <p className="text-sm font-semibold text-white">Partner access</p>
+                    </div>
+                    {partnerInviteStatus.state === "accepted" ? (
+                      <p className="text-xs leading-relaxed text-emerald-300">
+                        Your partner is connected and can use Date, Progress, and date settings.
+                      </p>
+                    ) : memberRole === "owner" ? (
+                      <div className="flex flex-col gap-3">
+                        <p className="text-xs leading-relaxed text-white/50">
+                          Invite your partner to create an account. Dates unlock once both of you tap reveal.
+                        </p>
+                        {partnerInviteStatus.state !== "none" && partnerInviteStatus.invitedEmail && (
+                          <p className="text-xs text-white/45">
+                            Current invite: {partnerInviteStatus.invitedEmail}
+                            {partnerInviteStatus.state === "expired" ? " (expired)" : ""}
+                          </p>
+                        )}
+                        <Input
+                          label="Partner email"
+                          type="email"
+                          value={partnerInviteEmail}
+                          onChange={(e) => setPartnerInviteEmail(e.target.value)}
+                          placeholder="partner@example.com"
+                        />
+                        {partnerInviteMessage && <p className="text-xs text-emerald-300">{partnerInviteMessage}</p>}
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          loading={partnerInviteSending}
+                          onClick={handlePartnerInvite}
+                          className="h-auto w-full py-3 text-sm"
+                        >
+                          {partnerInviteStatus.state === "none" ? "Send invite" : "Send new invite"}
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-xs leading-relaxed text-white/50">
+                        Ask the account owner to send a partner invite.
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
 

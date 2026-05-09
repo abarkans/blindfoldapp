@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,6 +22,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteParam = searchParams.get("invite");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
@@ -64,7 +67,7 @@ export default function LoginClient() {
       return;
     }
 
-    router.replace("/dashboard");
+    router.replace(inviteParam ? `/partner-invite?token=${encodeURIComponent(inviteParam)}` : "/dashboard");
   }
 
   async function handleGoogle() {
@@ -82,7 +85,11 @@ export default function LoginClient() {
     } else {
       await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          redirectTo: inviteParam
+            ? `${window.location.origin}/auth/callback?next=/partner-invite&invite=${encodeURIComponent(inviteParam)}`
+            : `${window.location.origin}/auth/callback`,
+        },
       });
     }
   }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCoupleAccess } from "@/lib/partner-invites";
 
 export async function acceptDate(): Promise<void> {
   const supabase = await createClient();
@@ -12,10 +13,11 @@ export async function acceptDate(): Promise<void> {
   // date_accepted_at is protected by the lockdown trigger from migration 015,
   // so the admin client is required after the explicit auth check above.
   const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
   await admin
     .from("profiles")
     .update({ date_accepted_at: new Date().toISOString() })
-    .eq("id", user.id);
+    .eq("id", access.profileId);
 
   revalidatePath("/dashboard");
 }
