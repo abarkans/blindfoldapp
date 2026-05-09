@@ -856,10 +856,13 @@ export default function DateCard({
                     </Button>
                   </div>
                 ) : !hasAcceptedPartner ? (
-                  <div className="flex flex-col gap-2">
-                    <p className="text-xs text-white/50 text-center">
+                  <div className="flex flex-col">
+                    {partnerInviteState === "pending" && (
+                      <p className="text-base font-bold text-white mb-1 text-left">Waiting for your partner</p>
+                    )}
+                    <p className={`${partnerInviteState === "pending" ? "text-sm text-white/60 leading-relaxed mb-4 text-left" : "text-xs text-white/50 mb-2 text-center"}`}>
                       {partnerInviteState === "pending"
-                        ? "Your invite has been sent. Dates unlock after your partner creates an account and accepts it."
+                        ? "Once your partner creates an account and accepts the invite, you’ll be able to initiate date nights together."
                         : partnerInviteState === "expired"
                         ? "The last invite expired. Send a fresh invite when you're ready."
                         : "Dates unlock after your partner accepts the invite and both of you tap reveal."}
