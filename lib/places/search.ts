@@ -31,6 +31,7 @@ export interface VenueDateIdea {
   place_id: string;
   display_name: string;
   formatted_address: string;
+  short_formatted_address: string | null;
   national_phone_number: string | null;
   international_phone_number: string | null;
   photo_name: string | null;
@@ -66,6 +67,41 @@ const PRICE_LEVEL_LABELS: Record<string, string> = {
 
 export function getPriceLevelLabel(priceLevel: string): string {
   return PRICE_LEVEL_LABELS[priceLevel] ?? "";
+}
+
+interface PlaceAddressComponent {
+  longText?: string;
+  shortText?: string;
+  types?: string[];
+}
+
+function getAddressComponent(
+  components: PlaceAddressComponent[] | undefined,
+  type: string
+): string | null {
+  const component = components?.find((item) => item.types?.includes(type));
+  return component?.longText ?? component?.shortText ?? null;
+}
+
+function formatShortAddress(
+  components: PlaceAddressComponent[] | undefined,
+  formattedAddress: string
+): string | null {
+  const streetNumber = getAddressComponent(components, "street_number");
+  const route = getAddressComponent(components, "route");
+  const city =
+    getAddressComponent(components, "locality") ??
+    getAddressComponent(components, "postal_town") ??
+    getAddressComponent(components, "administrative_area_level_2") ??
+    getAddressComponent(components, "administrative_area_level_1");
+
+  const street = [route, streetNumber].filter(Boolean).join(" ");
+  const shortAddress = [street, city].filter(Boolean).join(", ");
+
+  if (shortAddress) return shortAddress;
+
+  const fallbackParts = formattedAddress.split(",").map((part) => part.trim());
+  return fallbackParts.slice(0, 2).join(", ") || null;
 }
 
 export async function searchNearbyVenues({
@@ -180,7 +216,7 @@ export async function searchNearbyVenues({
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.photos,places.rating,places.priceLevel,places.primaryType,places.types,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
+          "places.id,places.displayName,places.formattedAddress,places.addressComponents,places.nationalPhoneNumber,places.internationalPhoneNumber,places.photos,places.rating,places.priceLevel,places.primaryType,places.types,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
       },
       body: JSON.stringify(body),
     }
@@ -196,6 +232,7 @@ export async function searchNearbyVenues({
     id: string;
     displayName: { text: string };
     formattedAddress: string;
+    addressComponents?: PlaceAddressComponent[];
     nationalPhoneNumber?: string;
     internationalPhoneNumber?: string;
     photos?: { name: string }[];
@@ -266,6 +303,10 @@ export async function searchNearbyVenues({
     place_id: place.id,
     display_name: place.displayName.text,
     formatted_address: place.formattedAddress,
+    short_formatted_address: formatShortAddress(
+      place.addressComponents,
+      place.formattedAddress
+    ),
     national_phone_number: place.nationalPhoneNumber ?? null,
     international_phone_number: place.internationalPhoneNumber ?? null,
     photo_name: place.photos?.[0]?.name ?? null,

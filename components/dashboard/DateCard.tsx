@@ -56,6 +56,7 @@ interface VenueDateIdea {
   place_id: string;
   display_name: string;
   formatted_address: string;
+  short_formatted_address?: string | null;
   national_phone_number?: string | null;
   international_phone_number?: string | null;
   photo_name: string | null;
@@ -78,6 +79,13 @@ type DateTeaser = {
 
 function isVenue(idea: DateIdea): idea is VenueDateIdea {
   return (idea as VenueDateIdea).type === "venue";
+}
+
+function getShortAddress(venue: VenueDateIdea): string {
+  if (venue.short_formatted_address) return venue.short_formatted_address;
+
+  const parts = venue.formatted_address.split(",").map((part) => part.trim());
+  return parts.slice(0, 2).join(", ") || venue.formatted_address;
 }
 
 interface DateCardProps {
@@ -289,6 +297,8 @@ export default function DateCard({
   const venuePhoneHref = venuePhoneNumber
     ? `tel:${venuePhoneNumber.replace(/[^\d+]/g, "")}`
     : null;
+  const venueShortAddress =
+    dateIdea && isVenue(dateIdea) ? getShortAddress(dateIdea) : null;
   const useImageActionLayout = REVEALED_VENUE_LAYOUT_VARIANT === "image-actions";
 
   const isLoading = isPending || isRerollPending;
@@ -592,7 +602,7 @@ export default function DateCard({
                         <span className="text-xs font-bold text-white">{dateIdea.rating.toFixed(1)}</span>
                       </div>
                       {useImageActionLayout && (
-                        <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3">
+                        <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-16">
                           <div className="min-w-0 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#17131f] shadow-lg shadow-black/20">
                             <span className="block max-w-[10rem] truncate">{dateIdea.ai?.vibe ?? "Date spot"}</span>
                           </div>
@@ -631,13 +641,25 @@ export default function DateCard({
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="text-xl font-bold text-white">{dateIdea.ai.title}</h3>
                         </div>
-                        <p className="text-xs text-rose-300 font-medium mb-1">{dateIdea.ai.vibe}</p>
-                        <p className="text-sm text-white/50">{dateIdea.display_name} · {dateIdea.formatted_address}</p>
+                        <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Timer className="h-3.5 w-3.5 text-rose-300/70" />
+                            {dateIdea.ai.duration}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Wallet className="h-3.5 w-3.5 text-rose-300/70" />
+                            {dateIdea.ai.budget_range || getPriceLevelLabel(dateIdea.price_level)}
+                          </span>
+                          <span className="inline-flex min-w-0 items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 shrink-0 text-rose-300/70" />
+                            <span className="truncate">{venueShortAddress}</span>
+                          </span>
+                        </div>
                       </div>
                     ) : (
                       <div className="mb-4">
                         <h3 className="text-xl font-bold text-white mb-1">{dateIdea.display_name}</h3>
-                        <p className="text-sm text-white/50">{dateIdea.formatted_address}</p>
+                        <p className="text-sm text-white/50">{venueShortAddress}</p>
                       </div>
                     )}
 
@@ -669,19 +691,6 @@ export default function DateCard({
                             {dateIdea.ai.conversation_starter}
                           </p>
                         )}
-                      </div>
-                    )}
-
-                    {dateIdea.ai && (
-                      <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Timer className="h-3.5 w-3.5 text-rose-300/70" />
-                          {dateIdea.ai.duration}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Wallet className="h-3.5 w-3.5 text-rose-300/70" />
-                          {dateIdea.ai.budget_range || getPriceLevelLabel(dateIdea.price_level)}
-                        </span>
                       </div>
                     )}
 
