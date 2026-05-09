@@ -295,7 +295,6 @@ async function notifyOtherPartner(
   const initiatorIsOwner = initiator?.role === "owner";
   const { subject, html } = dateInitiatedEmail({
     partnerName: initiatorIsOwner ? names.partner1 : names.partner2,
-    inviteeName: initiatorIsOwner ? names.partner2 : names.partner1,
   });
 
   const { error } = await resend.emails.send({

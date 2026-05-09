@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, Clock, Unlock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X } from "lucide-react";
+import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import LinkButton from "@/components/ui/LinkButton";
@@ -34,6 +34,9 @@ const REROLL_MESSAGES = [
   "Searching for the perfect swap...",
 ];
 
+const REVEALED_VENUE_LAYOUT_VARIANT: "image-actions" | "compact-actions" =
+  "image-actions";
+
 // AI-generated idea shape
 interface AIDateIdea {
   title: string;
@@ -53,6 +56,8 @@ interface VenueDateIdea {
   place_id: string;
   display_name: string;
   formatted_address: string;
+  national_phone_number?: string | null;
+  international_phone_number?: string | null;
   photo_name: string | null;
   // Signed `/api/place-photo?ref=...&exp=...&sig=...` URL injected by
   // the dashboard RSC so the Next.js image optimizer can fetch the
@@ -262,6 +267,7 @@ export default function DateCard({
 
   // Sync accepted state when the server updates dateAcceptedAt (after reroll resets it)
   useEffect(() => { setAccepted(!!dateAcceptedAt); }, [dateAcceptedAt]);
+  useEffect(() => { setCompleted(isDateCompleted && !dateIdea); }, [isDateCompleted, dateIdea]);
   useEffect(() => {
     if (dateTeaser) setSuccessMessage("");
   }, [dateTeaser]);
@@ -273,7 +279,17 @@ export default function DateCard({
   const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
   const otherPartnerReady = memberRole === "owner" ? !!partnerReadyAt : !!ownerReadyAt;
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
-  const countdown = useCountdown(completed && nextRevealDate ? nextRevealDate : null);
+  const hasActiveDate = !!dateIdea;
+  const showCompletedCooldown = completed && !hasActiveDate;
+  const countdown = useCountdown(showCompletedCooldown && nextRevealDate ? nextRevealDate : null);
+  const venuePhoneNumber =
+    dateIdea && isVenue(dateIdea)
+      ? dateIdea.international_phone_number ?? dateIdea.national_phone_number ?? null
+      : null;
+  const venuePhoneHref = venuePhoneNumber
+    ? `tel:${venuePhoneNumber.replace(/[^\d+]/g, "")}`
+    : null;
+  const useImageActionLayout = REVEALED_VENUE_LAYOUT_VARIANT === "image-actions";
 
   const isLoading = isPending || isRerollPending;
 
@@ -297,6 +313,7 @@ export default function DateCard({
           setError(result.error);
           return;
         }
+        setCompleted(false);
         setSuccessMessage("Date started. The teaser is ready.");
         ph?.capture("date_started", { plan_type: planType });
       } catch (e) {
@@ -368,7 +385,7 @@ export default function DateCard({
   return (
     <>
       {/* Countdown card — shown first when date is completed */}
-      {completed && countdown && nextRevealDate && (
+      {showCompletedCooldown && countdown && nextRevealDate && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -418,7 +435,7 @@ export default function DateCard({
                 {revealed ? (completed ? "Completed Date" : "Current Date") : "Mystery Date"}
               </span>
             </div>
-            {nextRevealDate && !canReveal && (
+            {nextRevealDate && !canReveal && !hasActiveDate && (
               <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1">
                 <Clock className="w-3 h-3 text-white/50" />
                 <span className="text-xs text-white/50">Next {formatRelative(nextRevealDate)}</span>
@@ -553,7 +570,7 @@ export default function DateCard({
                 ) : isVenue(dateIdea) ? (
                   /* ── ACCEPTED VENUE ── */
                   <>
-                    <div className="relative h-48 rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/8">
+                    <div className="relative mb-4 h-52 overflow-hidden rounded-2xl bg-white/5">
                       {dateIdea.photo_name && dateIdea.signed_photo_url ? (
                         <Image
                           src={dateIdea.signed_photo_url}
@@ -565,14 +582,48 @@ export default function DateCard({
                           className="object-cover"
                         />
                       ) : (
-                        <div className="w-full h-48 flex items-center justify-center">
+                        <div className="flex h-full w-full items-center justify-center">
                           <MapPin className="w-10 h-10 text-white/20" />
                         </div>
                       )}
+                      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
                       <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
                         <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
                         <span className="text-xs font-bold text-white">{dateIdea.rating.toFixed(1)}</span>
                       </div>
+                      {useImageActionLayout && (
+                        <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3">
+                          <div className="min-w-0 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#17131f] shadow-lg shadow-black/20">
+                            <span className="block max-w-[10rem] truncate">{dateIdea.ai?.vibe ?? "Date spot"}</span>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <LinkButton
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              variant="ghost"
+                              size="sm"
+                              aria-label="Get directions"
+                              title="Get directions"
+                              className="h-11 w-11 rounded-full bg-white text-[#17131f] p-0 shadow-lg shadow-black/25 hover:bg-white/90 hover:text-[#17131f]"
+                            >
+                              <Navigation className="h-5 w-5" />
+                            </LinkButton>
+                            {venuePhoneHref && (
+                              <LinkButton
+                                href={venuePhoneHref}
+                                variant="ghost"
+                                size="sm"
+                                aria-label="Call venue"
+                                title="Call venue"
+                                className="h-11 w-11 rounded-full bg-white text-rose-500 p-0 shadow-lg shadow-black/25 hover:bg-white/90 hover:text-rose-500"
+                              >
+                                <Phone className="h-5 w-5" />
+                              </LinkButton>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {dateIdea.ai ? (
@@ -590,65 +641,76 @@ export default function DateCard({
                       </div>
                     )}
 
-                    {dateIdea.ai?.description && (
-                      <p className="text-white/60 text-sm leading-relaxed mb-4">{dateIdea.ai.description}</p>
-                    )}
-
-                    {dateIdea.ai?.mission && (
-                      <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">The plan</p>
-                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.mission}</p>
+                    {(dateIdea.ai?.description || dateIdea.ai?.mission) && (
+                      <div className="mb-4 rounded-2xl bg-white/[0.04] px-4 py-3">
+                        {dateIdea.ai?.description && (
+                          <p className="text-sm leading-relaxed text-white/65">{dateIdea.ai.description}</p>
+                        )}
+                        {dateIdea.ai?.mission && (
+                          <div className={dateIdea.ai.description ? "mt-3" : ""}>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-violet-300">Your mission</p>
+                            <p className="text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    {!isFree && dateIdea.ai?.preparation && (
-                      <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Before you go</p>
-                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.preparation}</p>
-                      </div>
-                    )}
-
-                    {!isFree && dateIdea.ai?.conversation_starter && (
-                      <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Conversation starter</p>
-                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.ai.conversation_starter}</p>
+                    {!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter) && (
+                      <div className="mb-4 space-y-2 text-sm text-white/60">
+                        {dateIdea.ai?.preparation && (
+                          <p>
+                            <span className="font-semibold text-pink-300">Before you go: </span>
+                            {dateIdea.ai.preparation}
+                          </p>
+                        )}
+                        {dateIdea.ai?.conversation_starter && (
+                          <p>
+                            <span className="font-semibold text-amber-300">Ask: </span>
+                            {dateIdea.ai.conversation_starter}
+                          </p>
+                        )}
                       </div>
                     )}
 
                     {dateIdea.ai && (
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        {[
-                          { icon: Timer, value: dateIdea.ai.duration },
-                          { icon: Wallet, value: dateIdea.ai.budget_range || getPriceLevelLabel(dateIdea.price_level) },
-                          { icon: Star, value: `${dateIdea.rating.toFixed(1)} ★` },
-                        ].map(({ icon: Icon, value }) => (
-                          <div key={value} className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8">
-                            <Icon className="w-3.5 h-3.5 text-rose-400" />
-                            <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
-                          </div>
-                        ))}
+                      <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Timer className="h-3.5 w-3.5 text-rose-300/70" />
+                          {dateIdea.ai.duration}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Wallet className="h-3.5 w-3.5 text-rose-300/70" />
+                          {dateIdea.ai.budget_range || getPriceLevelLabel(dateIdea.price_level)}
+                        </span>
                       </div>
                     )}
 
-                    {dateIdea.ai?.tags && (
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        {dateIdea.ai.tags.map((tag) => (
-                          <span key={tag} className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">{tag}</span>
-                        ))}
+                    {!useImageActionLayout && (
+                      <div className="mb-4 flex gap-2">
+                        <LinkButton
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variant="secondary"
+                          size="md"
+                          className="h-14 flex-1 gap-2 px-4"
+                        >
+                          <Navigation className="w-4 h-4" />
+                          Get Directions
+                        </LinkButton>
+                        {venuePhoneHref && (
+                          <LinkButton
+                            href={venuePhoneHref}
+                            variant="secondary"
+                            size="md"
+                            className="h-14 flex-1 gap-2 px-4"
+                          >
+                            <Phone className="w-4 h-4" />
+                            Call
+                          </LinkButton>
+                        )}
                       </div>
                     )}
-
-                    <LinkButton
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      variant="secondary"
-                      size="md"
-                      className="w-full mb-4 h-14 gap-3"
-                    >
-                      <Navigation className="w-4 h-4" />
-                      Get Directions
-                    </LinkButton>
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {isCompletePending ? (
@@ -740,53 +802,30 @@ export default function DateCard({
             ) : (
               /* ── LOCKED STATE ── */
               <motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <div className="relative rounded-2xl overflow-hidden mb-5">
-                  <div className="bg-gradient-to-br from-rose-500/20 to-violet-600/20 p-6 text-center">
-                    <div className="flex flex-col items-center gap-3 blur-sm select-none pointer-events-none">
-                      <div className="h-10 w-10 rounded-full bg-white/20" />
-                      <div className="h-5 w-40 rounded-full bg-white/20" />
-                      <div className="h-3 w-32 rounded-full bg-white/15" />
-                      <div className="h-3 w-44 rounded-full bg-white/10" />
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                    <motion.div
-                      animate={canReveal ? { y: [0, -5, 0] } : {}}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm"
-                    >
-                      {canReveal ? <Unlock className="w-6 h-6 text-rose-300" /> : <Lock className="w-6 h-6 text-white/40" />}
-                    </motion.div>
-                    <p className="text-white/60 text-sm font-medium">
-                      {canReveal ? "Ready to reveal!" : "Your date is brewing…"}
-                    </p>
-                    <p className="text-white/55 text-xs">{partnerNames.partner1} &amp; {partnerNames.partner2}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mb-5">
-                  {["Surprise", "??–?? hrs", "€??"].map((hint) => (
-                    <div key={hint} className="px-3 py-1 rounded-full bg-white/8 border border-white/10 text-xs text-white/30 blur-[2px]">{hint}</div>
-                  ))}
-                </div>
-
-                {successMessage && <p className="text-xs text-emerald-300 mb-3 text-center">{successMessage}</p>}
-                {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
+                {!(dateIdea && dateTeaser && !revealed) && successMessage && (
+                  <p className="text-xs text-emerald-300 mb-3 text-center">{successMessage}</p>
+                )}
+                {!(dateIdea && dateTeaser && !revealed) && error && (
+                  <p className="text-xs text-red-400 mb-3 text-center">{error}</p>
+                )}
 
                 {dateIdea && dateTeaser && !revealed ? (
                   <div className="flex flex-col gap-4">
-                    <div className="rounded-2xl border border-rose-500/20 bg-gradient-to-br from-rose-500/12 to-violet-600/10 p-4">
+                    <div className="rounded-2xl bg-gradient-to-br from-rose-500/12 to-violet-600/10 p-4">
                       <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-rose-300">The teaser</p>
                       <div className="grid grid-cols-1 gap-2">
                         {[
-                          ["Vibe", dateTeaser.vibe],
-                          ["Activity level", dateTeaser.activity_level],
-                          ["Price", dateTeaser.price],
-                          ["The hook", dateTeaser.hook],
-                        ].map(([label, value]) => (
-                          <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2.5">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/35">{label}</p>
-                            <p className="mt-0.5 text-sm font-semibold text-white/80">{value}</p>
+                          { icon: Sparkles, label: "Vibe", value: dateTeaser.vibe },
+                          { icon: Timer, label: "Activity level", value: dateTeaser.activity_level },
+                          { icon: Wallet, label: "Price", value: dateTeaser.price },
+                          { icon: MapPin, label: "The hook", value: dateTeaser.hook },
+                        ].map(({ icon: Icon, label, value }) => (
+                          <div key={label} className="flex items-center gap-3 py-1.5">
+                            <Icon className="h-4 w-4 shrink-0 text-rose-300/75" />
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/35">{label}</p>
+                              <p className="mt-0.5 text-sm font-semibold leading-snug text-white/80">{value}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -849,7 +888,7 @@ export default function DateCard({
                   <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleStartDate : undefined}>
                     <Sparkles className="w-4 h-4 mr-2" />
                     {canReveal
-                      ? "Start next date"
+                      ? "Initiate date night"
                       : nextRevealDate
                       ? `Available ${formatRelative(nextRevealDate)}`
                       : "Not available yet"}

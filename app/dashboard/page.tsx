@@ -67,7 +67,7 @@ export default async function DashboardPage() {
     <DashboardTabs
       profile={profile}
       earnedBadgesPromise={earnedBadgesPromise}
-      isDateCompleted={!currentDateIdea}
+      isDateCompleted={!profile.date_idea && !currentDateIdea}
       unitSystem={unitSystem}
       memberRole={access.role}
       partnerInviteStatus={partnerInviteStatus}

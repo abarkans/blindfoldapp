@@ -11,7 +11,9 @@ export interface VenueAIEnrichment {
 }
 
 export interface VenueMeta {
+  primary_type?: string;
   primary_type_display_name?: string;
+  types?: string[];
   editorial_summary?: string;
   user_rating_count?: number;
   reviews?: string[];
@@ -29,6 +31,8 @@ export interface VenueDateIdea {
   place_id: string;
   display_name: string;
   formatted_address: string;
+  national_phone_number: string | null;
+  international_phone_number: string | null;
   photo_name: string | null;
   rating: number;
   price_level: string;
@@ -89,9 +93,29 @@ export async function searchNearbyVenues({
     throw new Error("No place types could be mapped from your interests.");
   }
 
-  // Exclude accommodation and event-venue types that are not suitable for dates
+  // Exclude accommodation, utilitarian, and big-box retail types that are not suitable for dates
   // Only using type names confirmed in the Places API (New) type table
   const EXCLUDED_TYPES = [
+    "gas_station",
+    "electric_vehicle_charging_station",
+    "rest_stop",
+    "truck_stop",
+    "parking",
+    "parking_garage",
+    "parking_lot",
+    "car_dealer",
+    "car_rental",
+    "car_repair",
+    "car_wash",
+    "tire_shop",
+    "department_store",
+    "discount_store",
+    "warehouse_store",
+    "supermarket",
+    "grocery_store",
+    "food_store",
+    "asian_grocery_store",
+    "convenience_store",
     "hotel",
     "motel",
     "hostel",
@@ -103,6 +127,38 @@ export async function searchNearbyVenues({
     "wedding_venue",
     "event_venue",
   ];
+
+  const UNSUITABLE_NAME_PATTERNS = [
+    /\bgas\s*station\b/i,
+    /\bwalmart\b/i,
+    /\bsam'?s\s+club\b/i,
+    /\bcostco\b/i,
+    /\btarget\b/i,
+    /\bdollar\s+general\b/i,
+    /\bfamily\s+dollar\b/i,
+    /\bdollar\s+tree\b/i,
+    /\baldi\b/i,
+    /\blidl\b/i,
+    /\btesco\b/i,
+    /\basda\b/i,
+    /\bcarrefour\b/i,
+  ];
+
+  const isSuitableDateVenue = (place: {
+    displayName: { text: string };
+    primaryType?: string;
+    types?: string[];
+  }) => {
+    const placeTypes = new Set(
+      [place.primaryType, ...(place.types ?? [])].filter(Boolean)
+    );
+
+    if (EXCLUDED_TYPES.some((type) => placeTypes.has(type))) return false;
+
+    return !UNSUITABLE_NAME_PATTERNS.some((pattern) =>
+      pattern.test(place.displayName.text)
+    );
+  };
 
   const body = {
     includedTypes: types,
@@ -124,7 +180,7 @@ export async function searchNearbyVenues({
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.photos,places.rating,places.priceLevel,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
+          "places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.photos,places.rating,places.priceLevel,places.primaryType,places.types,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
       },
       body: JSON.stringify(body),
     }
@@ -140,9 +196,13 @@ export async function searchNearbyVenues({
     id: string;
     displayName: { text: string };
     formattedAddress: string;
+    nationalPhoneNumber?: string;
+    internationalPhoneNumber?: string;
     photos?: { name: string }[];
     rating?: number;
     priceLevel?: string;
+    primaryType?: string;
+    types?: string[];
     primaryTypeDisplayName?: { text: string };
     editorialSummary?: { text: string };
     userRatingCount?: number;
@@ -158,14 +218,19 @@ export async function searchNearbyVenues({
 
   // Filter: rating >= 4.0 and not previously visited
   const filtered = allPlaces.filter(
-    (p) => (p.rating ?? 0) >= 4.0 && !previousPlaceIds.includes(p.id)
+    (p) =>
+      (p.rating ?? 0) >= 4.0 &&
+      !previousPlaceIds.includes(p.id) &&
+      isSuitableDateVenue(p)
   );
 
   // Fall back to unvisited places with any rating if none qualify
   const pool =
     filtered.length > 0
       ? filtered
-      : allPlaces.filter((p) => !previousPlaceIds.includes(p.id));
+      : allPlaces.filter(
+          (p) => !previousPlaceIds.includes(p.id) && isSuitableDateVenue(p)
+        );
 
   if (pool.length === 0) {
     throw new Error(
@@ -181,7 +246,9 @@ export async function searchNearbyVenues({
     .slice(0, 2) as string[];
 
   const meta: VenueMeta = {
+    primary_type: place.primaryType,
     primary_type_display_name: place.primaryTypeDisplayName?.text,
+    types: place.types?.length ? place.types : undefined,
     editorial_summary: place.editorialSummary?.text,
     user_rating_count: place.userRatingCount,
     reviews: reviews.length > 0 ? reviews : undefined,
@@ -199,6 +266,8 @@ export async function searchNearbyVenues({
     place_id: place.id,
     display_name: place.displayName.text,
     formatted_address: place.formattedAddress,
+    national_phone_number: place.nationalPhoneNumber ?? null,
+    international_phone_number: place.internationalPhoneNumber ?? null,
     photo_name: place.photos?.[0]?.name ?? null,
     rating: place.rating ?? 0,
     price_level: place.priceLevel ?? "PRICE_LEVEL_UNSPECIFIED",
