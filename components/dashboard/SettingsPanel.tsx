@@ -22,8 +22,8 @@ import Button from "@/components/ui/Button";
 import Slider from "@/components/ui/Slider";
 import CadenceSelect, { type CadenceValue, CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 import { requestAccountDeletion } from "@/app/actions/delete-account";
-import { updateCadence } from "@/app/actions/update-cadence";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
+import { clearSettingsLocation, updateSettings } from "@/app/actions/update-settings";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 
 const INTERESTS = [
@@ -137,8 +137,10 @@ export default function SettingsPanel({
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const [managingSubscription, setManagingSubscription] = useState(false);
   const [planType, setPlanType] = useState<PlanId>(
-    (profile.plan_type as PlanId) ?? "free"
+    profile.plan_type === "subscription" ? "subscription" : "free"
   );
+  const isPlus = planType === "subscription";
+  const isStarter = !isPlus;
   const [partnerInviteEmail, setPartnerInviteEmail] = useState(partnerInviteStatus.invitedEmail ?? "");
   const [partnerInviteSending, setPartnerInviteSending] = useState(false);
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
@@ -166,7 +168,7 @@ export default function SettingsPanel({
   const [lat, setLat] = useState<number | null>(profile.last_lat ?? null);
   const [lng, setLng] = useState<number | null>(profile.last_long ?? null);
   const [locationLabel, setLocationLabel] = useState("");
-  const maxRadiusKm = planType === "subscription" ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
+  const maxRadiusKm = isPlus ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
   const [radiusKm, setRadiusKm] = useState(Math.min((profile.preferred_radius ?? 10000) / 1000, maxRadiusKm));
   const [locStatus, setLocStatus] = useState<"idle" | "requesting" | "granted" | "denied" | "search">("idle");
   const [cityInput, setCityInput] = useState("");
@@ -236,13 +238,9 @@ export default function SettingsPanel({
   async function clearLocation() {
     setClearingLocation(true);
     setError("");
-    const supabase = createClient();
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ last_lat: null, last_long: null })
-      .eq("id", profile.id);
-    if (updateError) {
-      setError("Failed to clear location. Please try again.");
+    const result = await clearSettingsLocation();
+    if (result.error) {
+      setError(result.error);
     } else {
       setLat(null);
       setLng(null);
@@ -307,37 +305,17 @@ export default function SettingsPanel({
     setSaving(true);
     setError("");
     setSaved(false);
-    const supabase = createClient();
-    // Cadence is locked down at the DB layer (migration 024) and writable
-    // only via the server action that verifies plan_type === 'subscription'.
-    // Plus users get the cadence write; free users have it stripped here so
-    // the rest of the form still saves.
-    const { error: updateError } = await supabase.from("profiles").update({
-      partner_names: { partner1: values.partner1, partner2: values.partner2 },
-      interests: values.interests,
-      constraints: {
-        budget_max: values.budget_max,
-        has_car: values.has_car,
-        prefers_walking: values.prefers_walking,
-      },
-      last_lat: lat,
-      last_long: lng,
+    const result = await updateSettings({
+      ...values,
+      lat: lat ?? undefined,
+      lng: lng ?? undefined,
       preferred_radius: radiusKm * 1000,
-    }).eq("id", profile.id);
+    });
 
-    if (updateError) {
-      setError("Failed to save. Please try again.");
+    if (result.error) {
+      setError(result.error);
       setSaving(false);
       return;
-    }
-
-    if (planType === "subscription" && values.cadence !== profile.cadence) {
-      const { error: cadenceError } = await updateCadence(values.cadence);
-      if (cadenceError) {
-        setError(cadenceError);
-        setSaving(false);
-        return;
-      }
     }
 
     setSaved(true);
@@ -430,7 +408,7 @@ export default function SettingsPanel({
 
   const ACCOUNT_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
     { id: "account", label: "Manage account", icon: UserCog, summary: userEmail || "Account settings" },
-    { id: "plan", label: "Plan", icon: Sparkles, summary: planType === "subscription" ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : "Starter · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Sparkles, summary: isPlus ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : "Starter · Upgrade available" },
   ];
 
   const DATE_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
@@ -438,7 +416,7 @@ export default function SettingsPanel({
     { id: "interests", label: "Interests", icon: Tag, summary: interestsSummary },
     { id: "logistics", label: "Logistics", icon: Sliders, summary: logisticsSummary },
     { id: "location", label: "Location", icon: MapPin, summary: locationLabel || "Not set" },
-    ...(planType === "subscription"
+    ...(isPlus
       ? [{ id: "frequency" as SettingsView, label: "Date frequency", icon: Calendar, summary: CADENCE_LABEL[selectedCadence] ?? selectedCadence }]
       : []),
   ];
@@ -744,7 +722,7 @@ export default function SettingsPanel({
               {/* Section: Interests */}
               {view === "interests" && (
                 <>
-                  {planType === "free" && (
+                  {isStarter && (
                     <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-3">
                       <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <p className="text-xs text-amber-300/80">
@@ -753,7 +731,7 @@ export default function SettingsPanel({
                     </div>
                   )}
                   <div className="grid grid-cols-3 gap-2">
-                    {(planType === "free"
+                    {(isStarter
                       ? INTERESTS.filter(({ id }) => (FREE_INTERESTS as readonly string[]).includes(id))
                       : INTERESTS
                     ).map(({ id, label, icon: Icon }) => {
@@ -942,9 +920,9 @@ export default function SettingsPanel({
                   />
                   <div className="flex justify-between text-[10px] text-white/55 px-1 -mt-2">
                     <span>Walking distance</span>
-                    <span>{planType === "subscription" ? "Long drive / Countryside" : `${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} max on Starter`}</span>
+                    <span>{isPlus ? "Long drive / Countryside" : `${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} max on Starter`}</span>
                   </div>
-                  {planType !== "subscription" && (
+                  {isStarter && (
                     <button
                       type="button"
                       onClick={() => navigate("plan")}
@@ -969,38 +947,38 @@ export default function SettingsPanel({
                 <div className="flex flex-col gap-3">
                   <div className={[
                     "flex items-center gap-3 rounded-2xl border p-4",
-                    planType === "subscription"
+                    isPlus
                       ? "bg-gradient-to-br from-pink-500/15 to-violet-500/10 border-pink-500/40"
                       : "bg-white/5 border-white/10",
                   ].join(" ")}>
                     <div className={[
                       "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                      planType === "subscription" ? "bg-pink-500/20" : "bg-white/8",
+                      isPlus ? "bg-pink-500/20" : "bg-white/8",
                     ].join(" ")}>
-                      {planType === "subscription"
+                      {isPlus
                         ? <Crown className="w-4 h-4 text-pink-400" />
                         : <Lock className="w-4 h-4 text-white/40" />}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-white">
-                        {planType === "subscription" ? "Plus" : "Basic"}
+                        {isPlus ? "Plus" : "Basic"}
                       </p>
                       <p className="text-xs text-white/55 mt-0.5">
-                        {planType === "subscription"
+                        {isPlus
                           ? profile.subscription_ends_at
                             ? `Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
                             : "Active · Cancel anytime"
                           : "1 date/month · Limited categories"}
                       </p>
                     </div>
-                    {planType === "subscription" && (
+                    {isPlus && (
                       <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${profile.subscription_ends_at ? "text-amber-400 bg-amber-500/15 border border-amber-500/30" : "text-pink-400 bg-pink-500/15 border border-pink-500/30"}`}>
                         {profile.subscription_ends_at ? "Cancels" : "Active"}
                       </span>
                     )}
                   </div>
 
-                  {planType === "free" && (
+                  {isStarter && (
                     <div className="bg-gradient-to-br from-pink-500/15 to-violet-500/10 border border-pink-500/40 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-pink-400" />
@@ -1069,7 +1047,7 @@ export default function SettingsPanel({
                     </div>
                   )}
 
-                  {planType === "subscription" && (
+                  {isPlus && (
                     <Button
                       type="button"
                       variant="ghost"
