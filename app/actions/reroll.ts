@@ -18,7 +18,7 @@ const profileSchema = z.object({
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
   // Cap entry length and array length so a poisoned interests array cannot
   // balloon the AI prompt. Mirrors the bound enforced in reveal.ts.
-  interests: z.array(z.string().max(40)).max(10),
+  interests: z.array(z.string().max(40)).max(12),
   constraints: z.object({
     budget_max: z.number().min(10).max(200),
     has_car: z.boolean(),

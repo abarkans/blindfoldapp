@@ -7,7 +7,7 @@ import { getUnitSystem } from "@/lib/get-unit-system";
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string; plan?: string }>;
+  searchParams: Promise<{ checkout?: string; plan?: string; cadence?: string; session_id?: string }>;
 }) {
   const { supabase, user } = await getClientAndUser();
 
@@ -36,13 +36,41 @@ export default async function OnboardingPage({
   const savedPlanType = (profile?.plan_type as PlanId | null) ?? undefined;
   const savedCadence = (profile?.cadence as string | null) ?? undefined;
 
-  const { checkout, plan } = await searchParams;
+  const { checkout, plan, cadence, session_id } = await searchParams;
   const planFromUrl = plan === "free" || plan === "subscription" ? (plan as PlanId) : undefined;
   const isCancelReturn = checkout === "cancelled";
+  let isVerifiedCompletedCheckout = false;
+  let verifiedCheckoutCadence: string | undefined;
+  if (checkout === "completed" && session_id && savedPlanType !== "subscription") {
+    try {
+      const { stripe } = await import("@/lib/stripe");
+      const session = await stripe.checkout.sessions.retrieve(session_id);
+      isVerifiedCompletedCheckout =
+        session.status === "complete" &&
+        session.mode === "subscription" &&
+        session.metadata?.user_id === user.id;
+      const rawCadence = session.metadata?.cadence;
+      verifiedCheckoutCadence =
+        rawCadence === "weekly" || rawCadence === "biweekly" || rawCadence === "monthly"
+          ? rawCadence
+          : undefined;
+    } catch (error) {
+      console.error(`[onboarding] checkout verification failed uid=${user.id} msg=${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  const cadenceFromUrl =
+    cadence === "weekly" || cadence === "biweekly" || cadence === "monthly"
+      ? cadence
+      : undefined;
 
-  // initialPlanType: DB-confirmed value only. Drives step-skip and data.plan_type init.
+  // initialPlanType drives step-skip and data.plan_type init.
   // DB "free" default is not a meaningful choice, so don't pass it.
-  const initialPlanType: PlanId | undefined = savedPlanType === "subscription" ? "subscription" : undefined;
+  // A completed Stripe return is only used after verifying the Checkout
+  // session server-side, so users cannot unlock Plus setup via query params.
+  const initialPlanType: PlanId | undefined =
+    savedPlanType === "subscription" || isVerifiedCompletedCheckout
+      ? "subscription"
+      : undefined;
 
   // initialSelectedPlan: only for StepPlan pre-selection UI. Does NOT affect step-skip.
   //   - Cancel return → nothing (choose fresh)
@@ -64,10 +92,11 @@ export default async function OnboardingPage({
       initialPartner2={savedPartner2}
       initialPlanType={initialPlanType}
       initialSelectedPlan={initialSelectedPlan}
-      initialCadence={savedCadence}
+      initialCadence={savedCadence ?? verifiedCheckoutCadence ?? cadenceFromUrl}
       initialStep={initialStep}
       unitSystem={unitSystem}
       fromCancelledCheckout={isCancelReturn}
+      checkoutSessionId={isVerifiedCompletedCheckout ? session_id : undefined}
     />
   );
 }

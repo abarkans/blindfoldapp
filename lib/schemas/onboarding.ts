@@ -36,7 +36,7 @@ export const interestsSchema = z.object({
   interests: z
     .array(z.string())
     .min(1, "Select at least one interest")
-    .max(10, "Max 10 interests"),
+    .max(12, "Max 12 interests"),
 });
 
 export const logisticsSchema = z.object({
@@ -64,6 +64,7 @@ export const fullOnboardingSchema = z.object({
   prefers_walking: logisticsSchema.shape.prefers_walking,
   cadence: frequencySchema.shape.cadence,
   partner_email: identitySchema.shape.partner_email,
+  checkout_session_id: z.string().max(255).optional(),
   lat: z.number().min(-90).max(90).optional(),
   lng: z.number().min(-180).max(180).optional(),
   preferred_radius: z.number().min(1000).max(50000).optional(),

@@ -27,7 +27,7 @@ export default async function UpgradePage({
   // from migration 015. Session ownership has been verified above, so the
   // admin client is the appropriate path for this trusted write.
   const admin = createAdminClient();
-  await admin
+  const { error: upgradeError } = await admin
     .from("profiles")
     .update({
       plan_type: "subscription",
@@ -35,6 +35,10 @@ export default async function UpgradePage({
       ...(cadence ? { cadence } : {}),
     })
     .eq("id", user.id);
+  if (upgradeError) {
+    console.error(`[upgrade] profile update failed uid=${user.id} msg=${upgradeError.message}`);
+    redirect("/onboarding");
+  }
 
   // Retroactively credit any dates this user completed while on the free
   // plan. Idempotent — recomputes from date_ideas history. Trigger
@@ -47,5 +51,13 @@ export default async function UpgradePage({
     .eq("id", user.id)
     .single();
 
-  redirect(profile?.onboarding_complete ? "/dashboard" : "/onboarding");
+  if (profile?.onboarding_complete) redirect("/dashboard");
+
+  const params = new URLSearchParams({
+    checkout: "completed",
+    session_id,
+  });
+  if (cadence) params.set("cadence", cadence);
+
+  redirect(`/onboarding?${params.toString()}`);
 }

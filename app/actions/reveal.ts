@@ -18,7 +18,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const profileSchema = z.object({
   plan_type: z.string(),
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
-  interests: z.array(z.string().max(40)).max(10),
+  interests: z.array(z.string().max(40)).max(12),
   constraints: z.object({
     budget_max: z.number().min(10).max(200),
     has_car: z.boolean(),
