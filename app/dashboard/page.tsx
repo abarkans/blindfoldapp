@@ -16,13 +16,13 @@ export default async function DashboardPage() {
   // Fetch profile + date idea in parallel (needed to render the home tab immediately).
   // Badges are only needed for the Progress tab — fire the query without awaiting so
   // the page shell can stream while badges resolve in the background.
-  const [{ data: profile }, { data: currentDateIdea }] = await Promise.all([
+  const [{ data: profile }, { data: latestDateIdea }] = await Promise.all([
     admin.from("profiles").select("id, partner_names, interests, constraints, plan_type, cadence, date_idea, date_teaser, last_lat, last_long, preferred_radius, onboarding_complete, revealed_at, total_rerolls_used, current_date_rerolled, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at, total_xp, dates_completed_count, subscription_ends_at, notification_sent_at, stripe_customer_id, created_at, updated_at").eq("id", access.profileId).single(),
     admin
       .from("date_ideas")
       .select("id, status")
       .eq("user_id", access.profileId)
-      .eq("status", "revealed")
+      .in("status", ["revealed", "completed"])
       .order("revealed_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
@@ -30,7 +30,7 @@ export default async function DashboardPage() {
 
   const earnedBadgesPromise = (async () => {
     try {
-      const { data } = await supabase
+      const { data } = await admin
         .from("user_badges")
         .select("earned_at, milestones(name, icon_emoji)")
         .eq("user_id", access.profileId)
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
     <DashboardTabs
       profile={profile}
       earnedBadgesPromise={earnedBadgesPromise}
-      isDateCompleted={!profile.date_idea && !currentDateIdea}
+      isDateCompleted={latestDateIdea?.status === "completed" || (!profile.date_idea && !latestDateIdea)}
       unitSystem={unitSystem}
       memberRole={access.role}
       partnerInviteStatus={partnerInviteStatus}

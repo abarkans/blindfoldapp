@@ -4,20 +4,136 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
+import { fullOnboardingSchema, identitySchema, type FullOnboardingData, type IdentityFormData } from "@/lib/schemas/onboarding";
 import { hashEmail } from "@/lib/deletion-hold";
 import { sendPartnerInviteForOnboarding } from "@/app/actions/partner-invite";
+import { FREE_INTERESTS, FREE_MAX_RADIUS_KM } from "@/lib/plans";
+
+function optionalNumber(value: unknown): number | undefined {
+  if (value === "" || value === null || value === undefined) return undefined;
+  const numberValue = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+}
+
+export async function saveOnboardingCheckoutDraft(input: IdentityFormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const parsed = identitySchema.safeParse(input);
+  if (!parsed.success) {
+    const firstMessage = Object.values(parsed.error.flatten().fieldErrors).flat()[0];
+    return { error: firstMessage ?? "Invalid names" };
+  }
+
+  const v = parsed.data;
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      partner_names: { partner1: v.partner1, partner2: v.partner2 },
+    });
+
+  if (error) {
+    console.error(`[audit] save-onboarding-checkout-draft: uid=${user.id} msg=${error.message}`);
+    return { error: "Couldn't save your setup before checkout. Please try again." };
+  }
+
+  return {};
+}
 
 export async function finishOnboarding(input: FullOnboardingData): Promise<{ error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const parsed = fullOnboardingSchema.safeParse(input);
-  if (!parsed.success) return { error: "Invalid onboarding data" };
+  const admin = createAdminClient();
+  let { data: profile } = await admin
+    .from("profiles")
+    .select("plan_type, partner_names, cadence, stripe_customer_id")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.plan_type !== "subscription" && input.checkout_session_id) {
+    try {
+      const { stripe } = await import("@/lib/stripe");
+      const session = await stripe.checkout.sessions.retrieve(input.checkout_session_id);
+      if (
+        session.status === "complete" &&
+        session.mode === "subscription" &&
+        session.metadata?.user_id === user.id
+      ) {
+        const customerId = typeof session.customer === "string" ? session.customer : null;
+        const rawCadence = session.metadata?.cadence;
+        const checkoutCadence =
+          rawCadence === "weekly" || rawCadence === "biweekly" || rawCadence === "monthly"
+            ? rawCadence
+            : undefined;
+
+        const { data: updatedProfile, error: checkoutProfileError } = await admin
+          .from("profiles")
+          .update({
+            plan_type: "subscription",
+            ...(customerId ? { stripe_customer_id: customerId } : {}),
+            ...(checkoutCadence ? { cadence: checkoutCadence } : {}),
+          })
+          .eq("id", user.id)
+          .select("plan_type, partner_names, cadence, stripe_customer_id")
+          .single();
+
+        if (checkoutProfileError) {
+          console.error(
+            `[audit] finish-onboarding: checkout profile update failed uid=${user.id} msg=${checkoutProfileError.message}`
+          );
+        } else {
+          profile = updatedProfile;
+        }
+      }
+    } catch (error) {
+      console.error(
+        `[audit] finish-onboarding: checkout verify failed uid=${user.id} msg=${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  const savedNames = profile?.partner_names as { partner1?: string; partner2?: string } | null;
+  const inputWithSavedRequiredFields = {
+    ...input,
+    partner1: input.partner1 || savedNames?.partner1 || "",
+    partner2: input.partner2 || savedNames?.partner2 || "",
+    cadence: input.cadence || profile?.cadence || "monthly",
+    partner_email: input.partner_email || undefined,
+    budget_max: optionalNumber(input.budget_max) ?? 50,
+    lat: optionalNumber(input.lat),
+    lng: optionalNumber(input.lng),
+    preferred_radius: optionalNumber(input.preferred_radius),
+  };
+
+  const parsed = fullOnboardingSchema.safeParse(inputWithSavedRequiredFields);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    console.error(
+      `[audit] finish-onboarding: invalid uid=${user.id} issues=${JSON.stringify(fieldErrors)}`
+    );
+    const firstMessage = Object.values(fieldErrors).flat()[0];
+    return { error: firstMessage ?? "Invalid onboarding data" };
+  }
   const v = parsed.data;
 
-  const admin = createAdminClient();
+  const isSubscribed = profile?.plan_type === "subscription";
+  const interests = isSubscribed
+    ? v.interests
+    : v.interests.filter((interest) =>
+        (FREE_INTERESTS as readonly string[]).includes(interest)
+      );
+  if (interests.length === 0) return { error: "Select at least one Starter interest" };
+
+  const preferredRadius = isSubscribed
+    ? v.preferred_radius
+    : v.preferred_radius !== undefined
+    ? Math.min(v.preferred_radius, FREE_MAX_RADIUS_KM * 1000)
+    : undefined;
 
   // Carry over any active reveal cooldown from a deleted prior account with
   // the same email. Applied at onboarding finish so the dashboard renders
@@ -43,7 +159,7 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     .from("profiles")
     .update({
       partner_names: { partner1: v.partner1, partner2: v.partner2 },
-      interests: v.interests,
+      interests,
       constraints: {
         budget_max: v.budget_max,
         has_car: v.has_car,
@@ -52,7 +168,7 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
       cadence: carryoverCadence ?? v.cadence,
       last_lat: v.lat ?? null,
       last_long: v.lng ?? null,
-      ...(v.preferred_radius !== undefined ? { preferred_radius: v.preferred_radius } : {}),
+      ...(preferredRadius !== undefined ? { preferred_radius: preferredRadius } : {}),
       ...(carryoverRevealedAt ? { revealed_at: carryoverRevealedAt } : {}),
       onboarding_complete: true,
     })

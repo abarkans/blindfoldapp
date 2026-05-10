@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { finishOnboarding } from "@/app/actions/finish-onboarding";
+import { finishOnboarding, saveOnboardingCheckoutDraft } from "@/app/actions/finish-onboarding";
 import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
 import StepPlan from "./steps/StepPlan";
@@ -52,6 +52,7 @@ interface OnboardingFlowProps {
   initialStep?: number;
   unitSystem?: UnitSystem;
   fromCancelledCheckout?: boolean;
+  checkoutSessionId?: string;
 }
 
 export default function OnboardingFlow({
@@ -63,6 +64,7 @@ export default function OnboardingFlow({
   initialStep,
   unitSystem = "metric",
   fromCancelledCheckout = false,
+  checkoutSessionId,
 }: OnboardingFlowProps) {
   const router = useRouter();
   const ph = usePostHog();
@@ -181,10 +183,16 @@ export default function OnboardingFlow({
         return;
       }
 
-      await supabase.from("profiles").upsert({
-        id: user.id,
-        partner_names: { partner1: data.partner1 ?? "", partner2: data.partner2 ?? "" },
+      const draftResult = await saveOnboardingCheckoutDraft({
+        partner1: data.partner1 ?? "",
+        partner2: data.partner2 ?? "",
+        partner_email: data.partner_email,
       });
+      if (draftResult.error) {
+        setError(draftResult.error);
+        setLoading(false);
+        return;
+      }
 
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -222,6 +230,7 @@ export default function OnboardingFlow({
       prefers_walking: data.prefers_walking ?? false,
       cadence,
       partner_email: data.partner_email,
+      checkout_session_id: checkoutSessionId,
       lat: loc.lat,
       lng: loc.lng,
       preferred_radius: loc.preferred_radius,

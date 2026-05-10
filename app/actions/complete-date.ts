@@ -10,6 +10,16 @@ import { getCoupleAccess } from "@/lib/partner-invites";
 
 const XP_PER_DATE = 100;
 
+type BadgeRow = {
+  earned_at: string;
+  milestones: {
+    name: string;
+    description: string;
+    icon_emoji: string;
+    required_dates: number;
+  } | null;
+};
+
 export async function completeDate(): Promise<CompleteDateResult> {
   const supabase = await createClient();
   const {
@@ -67,13 +77,32 @@ export async function completeDate(): Promise<CompleteDateResult> {
     };
   }
 
-  // Fetch badges earned within the last 10 seconds (just awarded by the trigger)
-  const cutoff = new Date(Date.now() - 10_000).toISOString();
-  const { data: newBadgeRows } = await supabase
+  const previousCount = Math.max(0, newCount - 1);
+
+  // The DB trigger normally awards badges when dates_completed_count increments.
+  // Keep this server action defensive too: backfill any eligible missing badges,
+  // then return the milestones crossed by this completion.
+  const { data: eligibleMilestones } = await admin
+    .from("milestones")
+    .select("id")
+    .lte("required_dates", newCount);
+
+  if (eligibleMilestones?.length) {
+    await admin.from("user_badges").upsert(
+      eligibleMilestones.map((milestone) => ({
+        user_id: access.profileId,
+        milestone_id: milestone.id,
+      })),
+      { onConflict: "user_id,milestone_id" }
+    );
+  }
+
+  const { data: newBadgeRows } = await admin
     .from("user_badges")
-    .select("earned_at, milestones(name, description, icon_emoji)")
+    .select("earned_at, milestones!inner(name, description, icon_emoji, required_dates)")
     .eq("user_id", access.profileId)
-    .gte("earned_at", cutoff);
+    .gt("milestones.required_dates", previousCount)
+    .lte("milestones.required_dates", newCount) as { data: BadgeRow[] | null };
 
   console.info(`[audit] complete: success uid=${user.id} xp=${newXp} dates=${newCount}`);
   revalidatePath("/dashboard");
@@ -83,7 +112,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
     newTotalXp: newXp,
     newLevel: calcLevel(newXp),
     newBadges: (newBadgeRows ?? []).map((b) => {
-      const m = b.milestones as { name: string; description: string; icon_emoji: string } | null;
+      const m = b.milestones;
       return {
         name: m?.name ?? "",
         description: m?.description ?? "",

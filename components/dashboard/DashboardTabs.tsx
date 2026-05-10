@@ -20,6 +20,28 @@ interface EarnedBadge {
   earned_at: string;
 }
 
+const BADGE_MILESTONES = [
+  { threshold: 1, name: "First Spark" },
+  { threshold: 3, name: "Triple Threat" },
+  { threshold: 5, name: "High Five" },
+  { threshold: 10, name: "Perfect 10" },
+];
+
+function badgesFromCompletedCount(
+  earnedBadges: EarnedBadge[],
+  datesCompleted: number,
+  fallbackEarnedAt: string
+) {
+  const earnedByName = new Map(earnedBadges.map((badge) => [badge.name, badge.earned_at]));
+
+  return BADGE_MILESTONES
+    .filter((milestone) => milestone.threshold <= datesCompleted)
+    .map((milestone) => ({
+      name: milestone.name,
+      earned_at: earnedByName.get(milestone.name) ?? fallbackEarnedAt,
+    }));
+}
+
 interface DashboardTabsProps {
   profile: Profile;
   earnedBadgesPromise: Promise<EarnedBadge[]>;
@@ -370,14 +392,12 @@ function ProgressTabContent({
 
   const totalXp = profile.total_xp ?? 0;
   const datesCompleted = profile.dates_completed_count ?? 0;
-
-  const NEXT_MILESTONES = [
-    { threshold: 1, name: "First Spark" },
-    { threshold: 3, name: "Triple Threat" },
-    { threshold: 5, name: "High Five" },
-    { threshold: 10, name: "Perfect 10" },
-  ];
-  const nextMilestone = NEXT_MILESTONES.find((m) => m.threshold > datesCompleted);
+  const displayBadges = badgesFromCompletedCount(
+    earnedBadges,
+    datesCompleted,
+    profile.updated_at ?? profile.created_at
+  );
+  const nextMilestone = BADGE_MILESTONES.find((m) => m.threshold > datesCompleted);
 
   return (
     <div>
@@ -407,7 +427,7 @@ function ProgressTabContent({
         </div>
       )}
 
-      <BadgeGrid earnedBadges={earnedBadges} />
+      <BadgeGrid earnedBadges={displayBadges} />
     </div>
   );
 }

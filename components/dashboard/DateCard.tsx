@@ -237,6 +237,36 @@ function useCountdown(target: Date | null) {
   return timeLeft;
 }
 
+function getPartnerInviteCopy(
+  state: DateCardProps["partnerInviteState"],
+  partnerName: string
+) {
+  if (state === "pending") {
+    return {
+      title: `Waiting for ${partnerName}`,
+      subtitle:
+        "They need to accept the invite before you can start date nights together. After that, both of you tap reveal to unlock the full plan.",
+      button: "Manage invite",
+    };
+  }
+
+  if (state === "expired") {
+    return {
+      title: "Invite expired",
+      subtitle:
+        "Send a fresh invite when you're ready. Dates unlock after your partner accepts and both of you tap reveal.",
+      button: "Send new invite",
+    };
+  }
+
+  return {
+    title: `Invite ${partnerName}`,
+    subtitle:
+      "Dates unlock after your partner accepts the invite. Then both of you tap reveal when you're ready for the full plan.",
+    button: "Invite partner",
+  };
+}
+
 export default function DateCard({
   partnerNames,
   cadence,
@@ -275,7 +305,9 @@ export default function DateCard({
 
   // Sync accepted state when the server updates dateAcceptedAt (after reroll resets it)
   useEffect(() => { setAccepted(!!dateAcceptedAt); }, [dateAcceptedAt]);
-  useEffect(() => { setCompleted(isDateCompleted && !dateIdea); }, [isDateCompleted, dateIdea]);
+  useEffect(() => {
+    if (isDateCompleted) setCompleted(true);
+  }, [isDateCompleted, dateIdea]);
   useEffect(() => {
     if (dateTeaser) setSuccessMessage("");
   }, [dateTeaser]);
@@ -287,8 +319,8 @@ export default function DateCard({
   const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
   const otherPartnerReady = memberRole === "owner" ? !!partnerReadyAt : !!ownerReadyAt;
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
-  const hasActiveDate = !!dateIdea;
-  const showCompletedCooldown = completed && !hasActiveDate;
+  const hasActiveDate = !!dateIdea && !completed;
+  const showCompletedCooldown = completed;
   const countdown = useCountdown(showCompletedCooldown && nextRevealDate ? nextRevealDate : null);
   const venuePhoneNumber =
     dateIdea && isVenue(dateIdea)
@@ -300,6 +332,10 @@ export default function DateCard({
   const venueShortAddress =
     dateIdea && isVenue(dateIdea) ? getShortAddress(dateIdea) : null;
   const useImageActionLayout = REVEALED_VENUE_LAYOUT_VARIANT === "image-actions";
+  const partnerInviteCopy = getPartnerInviteCopy(
+    partnerInviteState,
+    partnerNames.partner2 || "your partner"
+  );
 
   const isLoading = isPending || isRerollPending;
 
@@ -857,18 +893,14 @@ export default function DateCard({
                   </div>
                 ) : !hasAcceptedPartner ? (
                   <div className="flex flex-col">
-                    {partnerInviteState === "pending" && (
-                      <p className="text-base font-bold text-white mb-1 text-left">Waiting for your partner</p>
-                    )}
-                    <p className={`${partnerInviteState === "pending" ? "text-sm text-white/60 leading-relaxed mb-4 text-left" : "text-xs text-white/50 mb-2 text-center"}`}>
-                      {partnerInviteState === "pending"
-                        ? "Once your partner creates an account and accepts the invite, you’ll be able to initiate date nights together."
-                        : partnerInviteState === "expired"
-                        ? "The last invite expired. Send a fresh invite when you're ready."
-                        : "Dates unlock after your partner accepts the invite and both of you tap reveal."}
+                    <p className="text-base font-bold text-white mb-1 text-left">
+                      {partnerInviteCopy.title}
+                    </p>
+                    <p className="text-sm text-white/60 leading-relaxed mb-4 text-left">
+                      {partnerInviteCopy.subtitle}
                     </p>
                     <Button size="lg" className="w-full" onClick={onGoToSettings}>
-                      {partnerInviteState === "pending" ? "Manage invite" : partnerInviteState === "expired" ? "Send new invite" : "Invite partner"}
+                      {partnerInviteCopy.button}
                     </Button>
                   </div>
                 ) : isPending ? (
@@ -897,14 +929,20 @@ export default function DateCard({
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleStartDate : undefined}>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {canReveal
-                      ? "Initiate date night"
-                      : nextRevealDate
-                      ? `Available ${formatRelative(nextRevealDate)}`
-                      : "Not available yet"}
-                  </Button>
+                  <div className="flex flex-col">
+                    <p className="text-base font-bold text-white mb-1 text-left">Ready for your next date night?</p>
+                    <p className="text-sm text-white/60 leading-relaxed mb-4 text-left">
+                      Initiate a date night to get a private teaser. When both of you are ready, the full plan will reveal.
+                    </p>
+                    <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleStartDate : undefined}>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      {canReveal
+                        ? "Initiate date night"
+                        : nextRevealDate
+                        ? `Available ${formatRelative(nextRevealDate)}`
+                        : "Not available yet"}
+                    </Button>
+                  </div>
                 )}
               </motion.div>
             )}
