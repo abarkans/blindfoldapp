@@ -56,24 +56,30 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
           error={errors.partner1?.message}
           {...register("partner1")}
         />
-        <Input
-          label="Partner name"
-          placeholder="e.g. Jamie"
-          icon={<User className="w-4 h-4" />}
-          error={errors.partner2?.message}
-          {...register("partner2")}
-        />
-        <Input
-          label="Partner email (optional)"
-          type="email"
-          placeholder="jamie@example.com"
-          icon={<Mail className="w-4 h-4" />}
-          error={errors.partner_email?.message}
-          {...register("partner_email")}
-        />
-        <p className="text-xs leading-relaxed text-white/40">
-          You can skip this now and invite your partner from Settings later. Dates unlock once both accounts are connected.
-        </p>
+        <div className="flex flex-col gap-4 rounded-2xl border border-white/12 bg-white/[0.04] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.16)]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
+            <Mail className="h-4 w-4 text-pink-300" />
+            <span>Partner details</span>
+          </div>
+          <Input
+            label="Partner name"
+            placeholder="e.g. Jamie"
+            icon={<User className="w-4 h-4" />}
+            error={errors.partner2?.message}
+            {...register("partner2")}
+          />
+          <Input
+            label="Partner email (optional)"
+            type="email"
+            placeholder="jamie@example.com"
+            icon={<Mail className="w-4 h-4" />}
+            error={errors.partner_email?.message}
+            {...register("partner_email")}
+          />
+          <p className="text-xs leading-relaxed text-white/40">
+            You can skip this now and invite your partner from Settings later. Dates unlock once both accounts are connected.
+          </p>
+        </div>
       </div>
     </form>
   );

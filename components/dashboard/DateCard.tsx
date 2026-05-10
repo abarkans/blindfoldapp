@@ -2,15 +2,18 @@
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone } from "lucide-react";
+import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import LinkButton from "@/components/ui/LinkButton";
 import { revealDate, startDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
 import { acceptDate } from "@/app/actions/accept-date";
 import { rerollDate } from "@/app/actions/reroll";
+import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
@@ -105,7 +108,7 @@ interface DateCardProps {
   partnerReadyAt: string | null;
   hasAcceptedPartner: boolean;
   partnerInviteState: "none" | "pending" | "expired" | "accepted";
-  onGoToSettings: () => void;
+  partnerInvitedEmail?: string | null;
 }
 
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
@@ -284,9 +287,10 @@ export default function DateCard({
   partnerReadyAt,
   hasAcceptedPartner,
   partnerInviteState,
-  onGoToSettings,
+  partnerInvitedEmail,
 }: DateCardProps) {
   const ph = usePostHog();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isCompletePending, startCompleteTransition] = useTransition();
   const [isRerollPending, startRerollTransition] = useTransition();
@@ -300,17 +304,30 @@ export default function DateCard({
   const [accepted, setAccepted] = useState(!!dateAcceptedAt);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
   const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
+  const [partnerInviteModalOpen, setPartnerInviteModalOpen] = useState(false);
+  const [partnerInviteEmail, setPartnerInviteEmail] = useState(partnerInvitedEmail ?? "");
+  const [partnerInviteSending, setPartnerInviteSending] = useState(false);
+  const [partnerInviteError, setPartnerInviteError] = useState("");
+  const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
   const [localRevealReady, setLocalRevealReady] = useState(false);
 
   // Sync accepted state when the server updates dateAcceptedAt (after reroll resets it)
   useEffect(() => { setAccepted(!!dateAcceptedAt); }, [dateAcceptedAt]);
   useEffect(() => {
-    if (isDateCompleted) setCompleted(true);
-  }, [isDateCompleted, dateIdea]);
+    setCompleted(isDateCompleted);
+  }, [isDateCompleted]);
   useEffect(() => {
     if (dateTeaser) setSuccessMessage("");
   }, [dateTeaser]);
+  useEffect(() => {
+    setPartnerInviteEmail(partnerInvitedEmail ?? "");
+  }, [partnerInvitedEmail]);
+  useEffect(() => {
+    if (!partnerInviteModalOpen) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [partnerInviteModalOpen]);
 
   const isFree = planType !== "subscription";
   const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
@@ -336,6 +353,8 @@ export default function DateCard({
     partnerInviteState,
     partnerNames.partner2 || "your partner"
   );
+  const waitingForPartnerReveal =
+    !!dateIdea && !!dateTeaser && !revealed && currentUserReady && !accepted;
 
   const isLoading = isPending || isRerollPending;
 
@@ -349,6 +368,14 @@ export default function DateCard({
     return () => clearInterval(interval);
   }, [isLoading, isRerollPending]);
 
+  useEffect(() => {
+    if (!waitingForPartnerReveal) return;
+    const timeout = window.setTimeout(() => {
+      router.refresh();
+    }, 12_000 + Math.floor(Math.random() * 6_000));
+    return () => window.clearTimeout(timeout);
+  }, [waitingForPartnerReveal, router]);
+
   function handleStartDate() {
     setError("");
     setSuccessMessage("");
@@ -360,7 +387,12 @@ export default function DateCard({
           return;
         }
         setCompleted(false);
-        setSuccessMessage("Date started. The teaser is ready.");
+        setSuccessMessage(
+          result.status === "started" && result.warning
+            ? result.warning
+            : "Date started. The teaser is ready."
+        );
+        router.refresh();
         ph?.capture("date_started", { plan_type: planType });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
@@ -381,11 +413,13 @@ export default function DateCard({
         if (result.status === "waiting") {
           setLocalRevealReady(true);
           setSuccessMessage("You're ready. Waiting for your partner to reveal too.");
+          router.refresh();
           return;
         }
         setRevealed(true);
         setCompleted(false);
         setAccepted(true);
+        router.refresh();
         ph?.capture("date_revealed", { plan_type: planType });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
@@ -426,6 +460,20 @@ export default function DateCard({
         setError(e instanceof Error ? e.message : "Something went wrong");
       }
     });
+  }
+
+  async function handlePartnerInvite() {
+    setPartnerInviteSending(true);
+    setPartnerInviteError("");
+    setPartnerInviteMessage("");
+    const result = await sendPartnerInvite(partnerInviteEmail);
+    setPartnerInviteSending(false);
+    if (result.error) {
+      setPartnerInviteError(result.error);
+      return;
+    }
+    setPartnerInviteMessage("Invite sent. It expires in 24 hours.");
+    router.refresh();
   }
 
   return (
@@ -899,7 +947,7 @@ export default function DateCard({
                     <p className="text-sm text-white/60 leading-relaxed mb-4 text-left">
                       {partnerInviteCopy.subtitle}
                     </p>
-                    <Button size="lg" className="w-full" onClick={onGoToSettings}>
+                    <Button size="lg" className="w-full" onClick={() => setPartnerInviteModalOpen(true)}>
                       {partnerInviteCopy.button}
                     </Button>
                   </div>
@@ -950,7 +998,75 @@ export default function DateCard({
         </div>
       </motion.div>
 
-      {/* ── RE-ROLL CONFIRMATION MODAL ── */}
+      {/* Partner invite modal */}
+      {partnerInviteModalOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+            onClick={() => setPartnerInviteModalOpen(false)}
+          />
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
+            <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/60">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-11 h-11 rounded-2xl bg-pink-500/15 border border-pink-500/20 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-pink-400" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPartnerInviteModalOpen(false)}
+                  className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  aria-label="Close partner invite dialog"
+                >
+                  <X className="w-4 h-4 text-white/60" />
+                </button>
+              </div>
+
+              <h3 className="text-lg font-bold text-white mb-3">Partner access</h3>
+
+              {partnerInviteState === "accepted" ? (
+                <p className="text-xs leading-relaxed text-emerald-300">
+                  Your partner is connected and can use Date, Progress, and date settings.
+                </p>
+              ) : memberRole === "owner" ? (
+                <div className="flex flex-col gap-3">
+                  <p className="text-xs leading-relaxed text-white/50">
+                    Invite your partner to create an account. Dates unlock once both of you tap reveal.
+                  </p>
+                  {partnerInviteState !== "none" && partnerInvitedEmail && (
+                    <p className="text-xs text-white/45">
+                      Current invite: {partnerInvitedEmail}
+                      {partnerInviteState === "expired" ? " (expired)" : ""}
+                    </p>
+                  )}
+                  <Input
+                    label="Partner email"
+                    type="email"
+                    value={partnerInviteEmail}
+                    onChange={(e) => setPartnerInviteEmail(e.target.value)}
+                    placeholder="partner@example.com"
+                  />
+                  {partnerInviteError && <p className="text-xs text-red-400">{partnerInviteError}</p>}
+                  {partnerInviteMessage && <p className="text-xs text-emerald-300">{partnerInviteMessage}</p>}
+                  <Button
+                    type="button"
+                    loading={partnerInviteSending}
+                    onClick={handlePartnerInvite}
+                    className="w-full"
+                  >
+                    {partnerInviteState === "none" ? "Send invite" : "Send new invite"}
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-xs leading-relaxed text-white/50">
+                  Ask the account owner to send a partner invite.
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* â”€â”€ RE-ROLL CONFIRMATION MODAL â”€â”€ */}
         {rerollModalOpen && (
           <>
             <div

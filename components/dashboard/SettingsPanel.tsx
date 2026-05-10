@@ -104,6 +104,7 @@ interface SettingsPanelProps {
   unitSystem?: UnitSystem;
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
+  initialView?: SettingsView;
 }
 
 const slideVariants = {
@@ -118,14 +119,22 @@ const noAnimation = {
   exit: { opacity: 0, x: 0 },
 };
 
+function settingsLocationChanged(
+  current: { lat: number | null; lng: number | null; radiusKm: number },
+  saved: { lat: number | null; lng: number | null; radiusKm: number }
+) {
+  return current.lat !== saved.lat || current.lng !== saved.lng || current.radiusKm !== saved.radiusKm;
+}
+
 export default function SettingsPanel({
   profile,
   onHeaderChange,
   unitSystem = "metric",
   memberRole,
   partnerInviteStatus,
+  initialView,
 }: SettingsPanelProps) {
-  const [view, setView] = useState<SettingsView>("list");
+  const [view, setView] = useState<SettingsView>(initialView ?? "list");
   const [direction, setDirection] = useState(1);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -165,11 +174,19 @@ export default function SettingsPanel({
     return () => { document.body.style.overflow = ""; };
   }, [signOutConfirm, deleteConfirm]);
 
-  const [lat, setLat] = useState<number | null>(profile.last_lat ?? null);
-  const [lng, setLng] = useState<number | null>(profile.last_long ?? null);
-  const [locationLabel, setLocationLabel] = useState("");
   const maxRadiusKm = isPlus ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
-  const [radiusKm, setRadiusKm] = useState(Math.min((profile.preferred_radius ?? 10000) / 1000, maxRadiusKm));
+  const initialLat = profile.last_lat ?? null;
+  const initialLng = profile.last_long ?? null;
+  const initialRadiusKm = Math.min((profile.preferred_radius ?? 10000) / 1000, maxRadiusKm);
+  const [savedLocationSettings, setSavedLocationSettings] = useState({
+    lat: initialLat,
+    lng: initialLng,
+    radiusKm: initialRadiusKm,
+  });
+  const [lat, setLat] = useState<number | null>(initialLat);
+  const [lng, setLng] = useState<number | null>(initialLng);
+  const [locationLabel, setLocationLabel] = useState("");
+  const [radiusKm, setRadiusKm] = useState(initialRadiusKm);
   const [locStatus, setLocStatus] = useState<"idle" | "requesting" | "granted" | "denied" | "search">("idle");
   const [cityInput, setCityInput] = useState("");
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
@@ -177,8 +194,18 @@ export default function SettingsPanel({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const viewRef = useRef<SettingsView>(view);
   const onHeaderChangeRef = useRef(onHeaderChange);
+  const initialViewRef = useRef(initialView);
   useEffect(() => { viewRef.current = view; }, [view]);
   useEffect(() => { onHeaderChangeRef.current = onHeaderChange; }, [onHeaderChange]);
+  useEffect(() => {
+    if (!initialViewRef.current || initialViewRef.current === "list") return;
+    window.history.pushState({ settingsView: initialViewRef.current }, "");
+    onHeaderChangeRef.current?.(
+      VIEW_LABELS[initialViewRef.current] ?? initialViewRef.current,
+      () => window.history.back(),
+      1
+    );
+  }, []);
   useEffect(() => {
     function onPop() {
       if (viewRef.current !== "list") {
@@ -244,6 +271,7 @@ export default function SettingsPanel({
     } else {
       setLat(null);
       setLng(null);
+      setSavedLocationSettings((current) => ({ ...current, lat: null, lng: null }));
       setLocationLabel("");
       setLocStatus("idle");
       router.refresh();
@@ -269,7 +297,7 @@ export default function SettingsPanel({
     control,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
   } = useForm<FullOnboardingData>({
     resolver: zodResolver(fullOnboardingSchema),
@@ -298,7 +326,7 @@ export default function SettingsPanel({
     const next = current.includes(id)
       ? current.filter((i) => i !== id)
       : [...current, id];
-    setValue("interests", next, { shouldValidate: true });
+    setValue("interests", next, { shouldValidate: true, shouldDirty: true });
   }
 
   async function onSubmit(values: FullOnboardingData) {
@@ -320,6 +348,7 @@ export default function SettingsPanel({
 
     setSaved(true);
     reset(values);
+    setSavedLocationSettings({ lat, lng, radiusKm });
     router.refresh();
     setTimeout(() => setSaved(false), 3000);
     setSaving(false);
@@ -408,7 +437,13 @@ export default function SettingsPanel({
 
   const hasEnoughInterests = (interests?.length ?? 0) >= MIN_INTEREST_CATEGORIES;
   const hasDateStyle = Boolean(dateOutside || dateAtHome);
+  const hasUnsavedLocationSettings = settingsLocationChanged(
+    { lat, lng, radiusKm },
+    savedLocationSettings
+  );
+  const hasUnsavedSettingsChanges = isDirty || hasUnsavedLocationSettings;
   const canSaveCurrentView =
+    hasUnsavedSettingsChanges &&
     (view !== "interests" || hasEnoughInterests) &&
     (view !== "logistics" || hasDateStyle);
 
@@ -676,8 +711,8 @@ export default function SettingsPanel({
               {/* Section: Partners */}
               {view === "partners" && (
                 <div className="flex flex-col gap-3">
-                  <Input label="Partner 1" error={errors.partner1?.message} {...register("partner1")} />
-                  <Input label="Partner 2" error={errors.partner2?.message} {...register("partner2")} />
+                  <Input label="My name" error={errors.partner1?.message} {...register("partner1")} />
+                  <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
                   <div className="mt-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                     <div className="mb-3 flex items-center gap-2">
                       <Mail className="h-4 w-4 text-pink-400" />
@@ -792,7 +827,7 @@ export default function SettingsPanel({
                       <button
                         key={key}
                         type="button"
-                        onClick={() => setValue(key, !val, { shouldValidate: true })}
+                        onClick={() => setValue(key, !val, { shouldValidate: true, shouldDirty: true })}
                         className={[
                           "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
                           val
@@ -948,7 +983,7 @@ export default function SettingsPanel({
               {view === "frequency" && (
                 <CadenceSelect
                   value={selectedCadence as CadenceValue}
-                  onChange={(v) => setValue("cadence", v)}
+                  onChange={(v) => setValue("cadence", v, { shouldDirty: true })}
                 />
               )}
 

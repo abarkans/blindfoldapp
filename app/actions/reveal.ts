@@ -48,7 +48,7 @@ const VALID_INTERESTS = new Set([
 ]);
 
 type RevealResult =
-  | { status: "started" }
+  | { status: "started"; warning?: string }
   | { status: "waiting" }
   | { status: "revealed" }
   | { status: "error"; error: string };
@@ -204,9 +204,14 @@ export async function startDate(): Promise<RevealResult> {
     })
     .eq("id", access.profileId);
 
-  await notifyOtherPartner(admin, access.profileId, user.id, profile.partner_names);
+  const notificationStatus = await notifyOtherPartner(admin, access.profileId, user.id, profile.partner_names);
   revalidatePath("/dashboard");
-  return { status: "started" };
+  return {
+    status: "started",
+    ...(notificationStatus === "sent"
+      ? {}
+      : { warning: "Date started, but we couldn't email your partner. They'll see it when they open the app." }),
+  };
 }
 
 export async function revealDate(): Promise<RevealResult> {
@@ -282,16 +287,22 @@ async function notifyOtherPartner(
   profileId: string,
   initiatingUserId: string,
   names: { partner1: string; partner2: string }
-) {
+): Promise<"sent" | "skipped" | "failed"> {
   const { data: members } = await admin
     .from("couple_members")
     .select("user_id, role")
     .eq("profile_id", profileId);
   const other = members?.find((member) => member.user_id !== initiatingUserId);
-  if (!other) return;
+  if (!other) {
+    console.warn(`[audit] start-date: email skipped profile=${profileId} reason=no_other_partner`);
+    return "skipped";
+  }
 
   const { data: userData } = await admin.auth.admin.getUserById(other.user_id);
-  if (!userData.user?.email) return;
+  if (!userData.user?.email) {
+    console.warn(`[audit] start-date: email skipped profile=${profileId} partner=${other.user_id} reason=no_email`);
+    return "skipped";
+  }
 
   const initiator = members?.find((member) => member.user_id === initiatingUserId);
   const initiatorIsOwner = initiator?.role === "owner";
@@ -305,5 +316,9 @@ async function notifyOtherPartner(
     subject,
     html,
   });
-  if (error) console.warn(`[audit] start-date: email failed profile=${profileId} msg=${error.message}`);
+  if (error) {
+    console.warn(`[audit] start-date: email failed profile=${profileId} msg=${error.message}`);
+    return "failed";
+  }
+  return "sent";
 }

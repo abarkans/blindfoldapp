@@ -14,6 +14,7 @@ import type { UnitSystem } from "@/lib/units";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 
 type Tab = "date" | "progress" | "settings";
+type SettingsInitialView = "plan";
 
 interface EarnedBadge {
   name: string;
@@ -67,8 +68,10 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
   const [showCancelBanner, setShowCancelBanner] = useState(false);
+  const [settingsInitialView, setSettingsInitialView] = useState<SettingsInitialView | undefined>();
 
   const mainRef = useRef<HTMLElement>(null);
+  const focusRefreshAtRef = useRef(0);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -98,9 +101,43 @@ export default function DashboardTabs({
     }
   }, []);
 
+  useEffect(() => {
+    const shouldRefreshOnFocus =
+      activeTab === "date" &&
+      (
+        partnerInviteStatus.state === "pending" ||
+        partnerInviteStatus.state === "accepted"
+      );
+    if (!shouldRefreshOnFocus) return;
+
+    function refreshSharedDateState() {
+      if (document.visibilityState !== "visible") return;
+      const now = Date.now();
+      if (now - focusRefreshAtRef.current < 15_000) return;
+      focusRefreshAtRef.current = now;
+      router.refresh();
+    }
+
+    window.addEventListener("focus", refreshSharedDateState);
+    document.addEventListener("visibilitychange", refreshSharedDateState);
+    return () => {
+      window.removeEventListener("focus", refreshSharedDateState);
+      document.removeEventListener("visibilitychange", refreshSharedDateState);
+    };
+  }, [activeTab, partnerInviteStatus.state, router]);
+
   function switchTab(tab: Tab) {
+    if (tab !== "settings") setSettingsInitialView(undefined);
     setActiveTab(tab);
     window.history.replaceState({}, "", `/dashboard?tab=${tab}`);
+    mainRef.current?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 });
+  }
+
+  function openPlanSettings() {
+    setSettingsInitialView("plan");
+    setActiveTab("settings");
+    window.history.replaceState({}, "", "/dashboard?tab=settings");
     mainRef.current?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 });
   }
@@ -190,12 +227,15 @@ export default function DashboardTabs({
                   onGoToProgress={() => switchTab("progress")}
                   memberRole={memberRole}
                   partnerInviteStatus={partnerInviteStatus}
-                  onGoToSettings={() => switchTab("settings")}
                 />
               )}
               {activeTab === "progress" && (
                 <Suspense fallback={<ProgressTabSkeleton />}>
-                  <ProgressTabContent profile={profile} earnedBadgesPromise={earnedBadgesPromise} />
+                  <ProgressTabContent
+                    profile={profile}
+                    earnedBadgesPromise={earnedBadgesPromise}
+                    onOpenPlanSettings={openPlanSettings}
+                  />
                 </Suspense>
               )}
               {activeTab === "settings" && (
@@ -204,6 +244,7 @@ export default function DashboardTabs({
                   unitSystem={unitSystem}
                   memberRole={memberRole}
                   partnerInviteStatus={partnerInviteStatus}
+                  initialView={settingsInitialView}
                 />
               )}
             </motion.div>
@@ -256,14 +297,12 @@ function DateTabContent({
   profile,
   isDateCompleted,
   onGoToProgress,
-  onGoToSettings,
   memberRole,
   partnerInviteStatus,
 }: {
   profile: Profile;
   isDateCompleted: boolean;
   onGoToProgress: () => void;
-  onGoToSettings: () => void;
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
 }) {
@@ -348,7 +387,7 @@ function DateTabContent({
         partnerReadyAt={profile.reveal_partner_ready_at ?? null}
         hasAcceptedPartner={partnerInviteStatus.state === "accepted"}
         partnerInviteState={partnerInviteStatus.state}
-        onGoToSettings={onGoToSettings}
+        partnerInvitedEmail={partnerInviteStatus.invitedEmail}
       />
     </div>
   );
@@ -374,9 +413,11 @@ function ProgressTabSkeleton() {
 function ProgressTabContent({
   profile,
   earnedBadgesPromise,
+  onOpenPlanSettings,
 }: {
   profile: Profile;
   earnedBadgesPromise: Promise<EarnedBadge[]>;
+  onOpenPlanSettings: () => void;
 }) {
   const earnedBadges = use(earnedBadgesPromise);
   const isFree = (profile.plan_type ?? "free") !== "subscription";
@@ -386,6 +427,7 @@ function ProgressTabContent({
       <ProgressUpsell
         totalXp={profile.total_xp ?? 0}
         earnedBadges={earnedBadges}
+        onOpenPlanSettings={onOpenPlanSettings}
       />
     );
   }
@@ -437,35 +479,13 @@ function ProgressTabContent({
 function ProgressUpsell({
   totalXp,
   earnedBadges,
+  onOpenPlanSettings,
 }: {
   totalXp: number;
   earnedBadges: EarnedBadge[];
+  onOpenPlanSettings: () => void;
 }) {
-  const [upgrading, setUpgrading] = useState(false);
-  const [upgradeError, setUpgradeError] = useState("");
   const hasHistory = totalXp > 0 || earnedBadges.length > 0;
-
-  async function handleUpgrade() {
-    setUpgradeError("");
-    setUpgrading(true);
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cadence: "monthly", returnPath: "/dashboard?tab=progress" }),
-      });
-      const { url, error } = await res.json();
-      if (error || !url) {
-        setUpgradeError("Couldn't start checkout. Try again.");
-        setUpgrading(false);
-        return;
-      }
-      window.location.href = url;
-    } catch {
-      setUpgradeError("Couldn't start checkout. Try again.");
-      setUpgrading(false);
-    }
-  }
 
   return (
     <div>
@@ -515,17 +535,12 @@ function ProgressUpsell({
             : "Earn 100 XP per date, level up, and collect milestone badges. Plus also includes unlimited re-rolls and a wider reveal radius."}
         </p>
 
-        {upgradeError && (
-          <p className="text-xs text-rose-400 mb-3">{upgradeError}</p>
-        )}
-
         <button
           type="button"
-          onClick={handleUpgrade}
-          disabled={upgrading}
-          className="w-full py-3 rounded-2xl bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98] disabled:opacity-60"
+          onClick={onOpenPlanSettings}
+          className="w-full py-3 rounded-full bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98] disabled:opacity-60"
         >
-          {upgrading ? "Loading…" : "Upgrade to Plus"}
+          Upgrade to Plus
         </button>
       </div>
     </div>
@@ -545,11 +560,13 @@ function SettingsTabContent({
   unitSystem,
   memberRole,
   partnerInviteStatus,
+  initialView,
 }: {
   profile: Profile;
   unitSystem: UnitSystem;
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
+  initialView?: SettingsInitialView;
 }) {
   const [subpageHeader, setSubpageHeader] = useState<{ title: string; onBack: () => void } | null>(null);
   const [headerDir, setHeaderDir] = useState(1);
@@ -604,6 +621,7 @@ function SettingsTabContent({
         unitSystem={unitSystem}
         memberRole={memberRole}
         partnerInviteStatus={partnerInviteStatus}
+        initialView={initialView}
       />
     </div>
   );

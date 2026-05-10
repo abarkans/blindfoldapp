@@ -20,8 +20,7 @@ export default function PartnerInviteAcceptButton({ token }: { token: string }) 
         return;
       }
       setAccepted(true);
-      router.refresh();
-      setTimeout(() => router.replace("/dashboard"), 700);
+      setTimeout(() => router.replace("/dashboard?tab=date"), 700);
     });
   }
 
