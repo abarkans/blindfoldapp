@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fullOnboardingSchema, identitySchema, type FullOnboardingData, type IdentityFormData } from "@/lib/schemas/onboarding";
 import { hashEmail } from "@/lib/deletion-hold";
 import { sendPartnerInviteForOnboarding } from "@/app/actions/partner-invite";
-import { FREE_INTERESTS, FREE_MAX_RADIUS_KM } from "@/lib/plans";
+import { FREE_INTERESTS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES } from "@/lib/plans";
 
 function optionalNumber(value: unknown): number | undefined {
   if (value === "" || value === null || value === undefined) return undefined;
@@ -127,7 +127,9 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     : v.interests.filter((interest) =>
         (FREE_INTERESTS as readonly string[]).includes(interest)
       );
-  if (interests.length === 0) return { error: "Select at least one Starter interest" };
+  if (interests.length < MIN_INTEREST_CATEGORIES) {
+    return { error: `Select at least ${MIN_INTEREST_CATEGORIES} Starter categories` };
+  }
 
   const preferredRadius = isSubscribed
     ? v.preferred_radius
@@ -162,8 +164,8 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
       interests,
       constraints: {
         budget_max: v.budget_max,
-        has_car: v.has_car,
-        prefers_walking: v.prefers_walking,
+        date_outside: v.date_outside,
+        date_at_home: v.date_at_home,
       },
       cadence: carryoverCadence ?? v.cadence,
       last_lat: v.lat ?? null,

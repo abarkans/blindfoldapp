@@ -5,12 +5,12 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Save, User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
+  User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, Crown, UserCog, Trash2, Mail,
+  Sparkles, Lock, Check, Crown, UserCog, Trash2, Mail, House,
 } from "lucide-react";
-import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
+import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, type UnitSystem } from "@/lib/units";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -278,8 +278,8 @@ export default function SettingsPanel({
       partner2: profile.partner_names.partner2,
       interests: profile.interests,
       budget_max: profile.constraints.budget_max,
-      has_car: profile.constraints.has_car,
-      prefers_walking: profile.constraints.prefers_walking,
+      date_outside: profile.constraints.date_outside ?? true,
+      date_at_home: profile.constraints.date_at_home ?? false,
       cadence: profile.cadence as FullOnboardingData["cadence"],
       partner_email: "",
     },
@@ -289,8 +289,8 @@ export default function SettingsPanel({
   const partner2 = watch("partner2");
   const interests = watch("interests");
   const budgetMax = watch("budget_max");
-  const hasCar = watch("has_car");
-  const prefersWalking = watch("prefers_walking");
+  const dateOutside = watch("date_outside");
+  const dateAtHome = watch("date_at_home");
   const selectedCadence = watch("cadence");
 
   function toggleInterest(id: string) {
@@ -298,7 +298,7 @@ export default function SettingsPanel({
     const next = current.includes(id)
       ? current.filter((i) => i !== id)
       : [...current, id];
-    setValue("interests", next);
+    setValue("interests", next, { shouldValidate: true });
   }
 
   async function onSubmit(values: FullOnboardingData) {
@@ -402,9 +402,15 @@ export default function SettingsPanel({
 
   const logisticsSummary = [
     `€${budgetMax}`,
-    hasCar && "Has car",
-    prefersWalking && "Loves walking",
+    dateOutside && "Outside home",
+    dateAtHome && "At home",
   ].filter(Boolean).join(" · ");
+
+  const hasEnoughInterests = (interests?.length ?? 0) >= MIN_INTEREST_CATEGORIES;
+  const hasDateStyle = Boolean(dateOutside || dateAtHome);
+  const canSaveCurrentView =
+    (view !== "interests" || hasEnoughInterests) &&
+    (view !== "logistics" || hasDateStyle);
 
   const ACCOUNT_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
     { id: "account", label: "Manage account", icon: UserCog, summary: userEmail || "Account settings" },
@@ -726,7 +732,7 @@ export default function SettingsPanel({
                     <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-3">
                       <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <p className="text-xs text-amber-300/80">
-                        Free plan covers three date vibes. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> to explore them all.
+                        Starter includes three date vibes. Choose at least {MIN_INTEREST_CATEGORIES}. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> to explore them all.
                       </p>
                     </div>
                   )}
@@ -780,24 +786,28 @@ export default function SettingsPanel({
                   />
                   <div className="flex gap-3">
                     {[
-                      { key: "has_car" as const, label: "Have a car", val: hasCar },
-                      { key: "prefers_walking" as const, label: "Love walking", val: prefersWalking },
-                    ].map(({ key, label, val }) => (
+                      { key: "date_outside" as const, label: "Outside home", val: dateOutside, icon: MapPin },
+                      { key: "date_at_home" as const, label: "At home", val: dateAtHome, icon: House },
+                    ].map(({ key, label, val, icon: Icon }) => (
                       <button
                         key={key}
                         type="button"
-                        onClick={() => setValue(key, !val)}
+                        onClick={() => setValue(key, !val, { shouldValidate: true })}
                         className={[
-                          "flex-1 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
+                          "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
                           val
                             ? "bg-pink-500/20 border-pink-500 text-pink-300"
                             : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
                         ].join(" ")}
                       >
+                        <Icon className="h-4 w-4" />
                         {label}
                       </button>
                     ))}
                   </div>
+                  {errors.date_outside && (
+                    <p className="text-xs text-red-400">{errors.date_outside.message}</p>
+                  )}
                 </div>
               )}
 
@@ -1067,9 +1077,14 @@ export default function SettingsPanel({
                   transition={{ duration: 0.3 }}
                   className="mt-6"
                 >
-                  <Button type="submit" size="lg" className="w-full" loading={saving}>
-                    <Save className="w-4 h-4 mr-2" />
-                    {saved ? "Saved!" : "Save Changes"}
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full"
+                    loading={saving}
+                    disabled={!canSaveCurrentView}
+                  >
+                    {saved ? "All set" : "Apply changes"}
                   </Button>
                 </motion.div>
               )}

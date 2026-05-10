@@ -218,8 +218,8 @@ export async function generateAIDateIdea({
   partnerNames,
   interests,
   budgetMax,
-  hasCar,
-  prefersWalking,
+  dateOutside,
+  dateAtHome,
   isSubscribed = false,
   datesCompleted = 0,
   previousTitles = [],
@@ -228,8 +228,8 @@ export async function generateAIDateIdea({
   partnerNames: { partner1: string; partner2: string };
   interests: string[];
   budgetMax: number;
-  hasCar: boolean;
-  prefersWalking: boolean;
+  dateOutside: boolean;
+  dateAtHome: boolean;
   isSubscribed?: boolean;
   datesCompleted?: number;
   previousTitles?: string[];
@@ -312,11 +312,11 @@ Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimat
       ? `\nYou MUST NOT generate any of the following past date ideas — they are strictly forbidden: ${safePreviousTitles.join(", ")}. The new idea must be meaningfully different in activity type, not just renamed.`
       : "";
 
-  const transportNote = hasCar
-    ? "They have access to a car so you can suggest destinations requiring travel."
-    : prefersWalking
-    ? "They prefer walking — keep destinations within walking distance."
-    : "They have no car — keep destinations reachable by public transport.";
+  const dateStyleNote = dateAtHome && !dateOutside
+    ? "They prefer date nights at home, such as cooking together, games, crafts, or a small shared ritual."
+    : dateAtHome && dateOutside
+    ? "They are open to either going out or staying home, so choose whichever best fits the interests."
+    : "They prefer date nights outside home, using real nearby places or venue-style activities.";
 
   const tier = missionTier(datesCompleted);
   const fallbackPrompt = `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
@@ -325,7 +325,7 @@ Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimat
 Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget: €${budgetMax}
-Transport: ${transportNote}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
+Date style: ${dateStyleNote}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
 </couple_context>
 ${avoidClause}
 

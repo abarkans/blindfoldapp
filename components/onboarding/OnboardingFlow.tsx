@@ -27,8 +27,8 @@ type OnboardingData = {
   plan_type?: PlanId;
   interests?: string[];
   budget_max?: number;
-  has_car?: boolean;
-  prefers_walking?: boolean;
+  date_outside?: boolean;
+  date_at_home?: boolean;
   lat?: number;
   lng?: number;
   preferred_radius?: number;
@@ -226,8 +226,8 @@ export default function OnboardingFlow({
       partner2: data.partner2 ?? "",
       interests: data.interests ?? [],
       budget_max: data.budget_max ?? 50,
-      has_car: data.has_car ?? false,
-      prefers_walking: data.prefers_walking ?? false,
+      date_outside: data.date_outside ?? true,
+      date_at_home: data.date_at_home ?? false,
       cadence,
       partner_email: data.partner_email,
       checkout_session_id: checkoutSessionId,
@@ -320,14 +320,14 @@ export default function OnboardingFlow({
                   <StepLogistics
                     defaultValues={{
                       budget_max: data.budget_max,
-                      has_car: data.has_car,
-                      prefers_walking: data.prefers_walking,
+                      date_outside: data.date_outside,
+                      date_at_home: data.date_at_home,
                     }}
                     onNext={(d: LogisticsFormData) =>
                       goNext({
                         budget_max: d.budget_max,
-                        has_car: d.has_car,
-                        prefers_walking: d.prefers_walking,
+                        date_outside: d.date_outside,
+                        date_at_home: d.date_at_home,
                       })
                     }
                     continueTrigger={continueTrigger}

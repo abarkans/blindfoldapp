@@ -41,6 +41,13 @@ export interface VenueDateIdea {
   ai: VenueAIEnrichment | null;
 }
 
+type PlaceBusinessStatus =
+  | "BUSINESS_STATUS_UNSPECIFIED"
+  | "OPERATIONAL"
+  | "CLOSED_TEMPORARILY"
+  | "CLOSED_PERMANENTLY"
+  | "FUTURE_OPENING";
+
 const INTEREST_TO_PLACE_TYPES: Record<string, string[]> = {
   food: ["restaurant", "cafe", "bakery"],
   music: ["night_club", "bar"],
@@ -184,7 +191,16 @@ export async function searchNearbyVenues({
     displayName: { text: string };
     primaryType?: string;
     types?: string[];
+    businessStatus?: PlaceBusinessStatus;
   }) => {
+    if (
+      place.businessStatus === "CLOSED_TEMPORARILY" ||
+      place.businessStatus === "CLOSED_PERMANENTLY" ||
+      place.businessStatus === "FUTURE_OPENING"
+    ) {
+      return false;
+    }
+
     const placeTypes = new Set(
       [place.primaryType, ...(place.types ?? [])].filter(Boolean)
     );
@@ -216,7 +232,7 @@ export async function searchNearbyVenues({
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.addressComponents,places.nationalPhoneNumber,places.internationalPhoneNumber,places.photos,places.rating,places.priceLevel,places.primaryType,places.types,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
+          "places.id,places.displayName,places.formattedAddress,places.addressComponents,places.nationalPhoneNumber,places.internationalPhoneNumber,places.photos,places.rating,places.priceLevel,places.businessStatus,places.primaryType,places.types,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
       },
       body: JSON.stringify(body),
     }
@@ -238,6 +254,7 @@ export async function searchNearbyVenues({
     photos?: { name: string }[];
     rating?: number;
     priceLevel?: string;
+    businessStatus?: PlaceBusinessStatus;
     primaryType?: string;
     types?: string[];
     primaryTypeDisplayName?: { text: string };

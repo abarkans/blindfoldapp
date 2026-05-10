@@ -60,8 +60,8 @@ export default function PrivacyPolicyPage() {
 
       <h3>Profile data</h3>
       <p>
-        Partner names, interests (up to 12 categories), budget preferences, transport preferences
-        (car access, walking preference), and date cadence. You provide this during onboarding and
+        Partner names, interests (up to 12 categories), budget preferences, date style preferences
+        (outside home or at home), and date cadence. You provide this during onboarding and
         can update it at any time in Settings.
       </p>
 

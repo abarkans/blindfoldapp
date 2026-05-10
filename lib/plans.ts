@@ -1,4 +1,5 @@
 export const FREE_INTERESTS = ["food", "nature", "romance"] as const;
+export const MIN_INTEREST_CATEGORIES = 2;
 export const FREE_MAX_RADIUS_KM = 15;
 export const PAID_MAX_RADIUS_KM = 50;
 

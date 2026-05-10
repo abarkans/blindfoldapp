@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MIN_INTEREST_CATEGORIES } from "@/lib/plans";
 
 // Unicode-aware: allows letters from any script (Latin, CJK, Arabic, etc.),
 // combining marks, spaces, hyphens, apostrophes, and dots (e.g. "O'Brien",
@@ -35,14 +36,20 @@ export const identitySchema = z.object({
 export const interestsSchema = z.object({
   interests: z
     .array(z.string())
-    .min(1, "Select at least one interest")
+    .min(
+      MIN_INTEREST_CATEGORIES,
+      `Select at least ${MIN_INTEREST_CATEGORIES} categories`
+    )
     .max(12, "Max 12 interests"),
 });
 
 export const logisticsSchema = z.object({
   budget_max: z.number().min(10).max(200),
-  has_car: z.boolean(),
-  prefers_walking: z.boolean(),
+  date_outside: z.boolean(),
+  date_at_home: z.boolean(),
+}).refine((d) => d.date_outside || d.date_at_home, {
+  message: "Choose at least one date style",
+  path: ["date_outside"],
 });
 
 export const frequencySchema = z.object({
@@ -55,20 +62,25 @@ export const locationSchema = z.object({
   preferred_radius: z.number().min(1000).max(50000),
 });
 
-export const fullOnboardingSchema = z.object({
-  partner1: identitySchema.shape.partner1,
-  partner2: identitySchema.shape.partner2,
-  interests: interestsSchema.shape.interests,
-  budget_max: logisticsSchema.shape.budget_max,
-  has_car: logisticsSchema.shape.has_car,
-  prefers_walking: logisticsSchema.shape.prefers_walking,
-  cadence: frequencySchema.shape.cadence,
-  partner_email: identitySchema.shape.partner_email,
-  checkout_session_id: z.string().max(255).optional(),
-  lat: z.number().min(-90).max(90).optional(),
-  lng: z.number().min(-180).max(180).optional(),
-  preferred_radius: z.number().min(1000).max(50000).optional(),
-});
+export const fullOnboardingSchema = z
+  .object({
+    partner1: identitySchema.shape.partner1,
+    partner2: identitySchema.shape.partner2,
+    interests: interestsSchema.shape.interests,
+    budget_max: logisticsSchema.shape.budget_max,
+    date_outside: logisticsSchema.shape.date_outside,
+    date_at_home: logisticsSchema.shape.date_at_home,
+    cadence: frequencySchema.shape.cadence,
+    partner_email: identitySchema.shape.partner_email,
+    checkout_session_id: z.string().max(255).optional(),
+    lat: z.number().min(-90).max(90).optional(),
+    lng: z.number().min(-180).max(180).optional(),
+    preferred_radius: z.number().min(1000).max(50000).optional(),
+  })
+  .refine((d) => d.date_outside || d.date_at_home, {
+    message: "Choose at least one date style",
+    path: ["date_outside"],
+  });
 
 export const planSchema = z
   .object({

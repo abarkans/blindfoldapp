@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Car, Footprints } from "lucide-react";
+import { House, MapPin } from "lucide-react";
 import { logisticsSchema, type LogisticsFormData } from "@/lib/schemas/onboarding";
 import Slider from "@/components/ui/Slider";
 
@@ -25,18 +25,18 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
     resolver: zodResolver(logisticsSchema),
     defaultValues: {
       budget_max: defaultValues?.budget_max ?? 50,
-      has_car: defaultValues?.has_car ?? false,
-      prefers_walking: defaultValues?.prefers_walking ?? false,
+      date_outside: defaultValues?.date_outside ?? false,
+      date_at_home: defaultValues?.date_at_home ?? false,
     },
   });
 
-  const hasCar = watch("has_car");
-  const prefersWalking = watch("prefers_walking");
+  const dateOutside = watch("date_outside");
+  const dateAtHome = watch("date_at_home");
   const mountTrigger = useRef(continueTrigger);
 
   useEffect(() => {
-    onCanContinueChange(true);
-  }, [onCanContinueChange]);
+    onCanContinueChange(dateOutside || dateAtHome);
+  }, [dateOutside, dateAtHome, onCanContinueChange]);
 
   useEffect(() => {
     if (continueTrigger <= mountTrigger.current) return;
@@ -47,7 +47,7 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
     <div className="flex flex-col gap-7">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold text-white">Make it work for you</h2>
-        <p className="text-white/50 text-sm">Set your budget and how you get around — we&apos;ll handle the rest.</p>
+        <p className="text-white/50 text-sm">Set your budget and where date night should happen.</p>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -72,42 +72,45 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
       </div>
 
       <div className="flex flex-col gap-3">
-        <p className="text-sm font-medium text-white/70">Transport</p>
-        <div className="flex gap-3">
+        <p className="text-sm font-medium text-white/70">Date style</p>
+        <div className="flex flex-col gap-3">
           <button
             type="button"
-            onClick={() => setValue("has_car", !hasCar)}
+            onClick={() => setValue("date_outside", !dateOutside, { shouldValidate: true })}
             className={[
-              "flex-1 flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200",
-              hasCar
+              "w-full flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200",
+              dateOutside
                 ? "bg-pink-500/20 border-pink-500 text-white"
                 : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
             ].join(" ")}
           >
-            <Car className={`w-5 h-5 ${hasCar ? "text-pink-400" : ""}`} />
+            <MapPin className={`w-5 h-5 ${dateOutside ? "text-pink-400" : ""}`} />
             <div className="text-left">
-              <p className="text-sm font-semibold">Have a car</p>
-              <p className="text-xs opacity-60">We can include drives</p>
+              <p className="text-sm font-semibold">Date night outside home</p>
+              <p className="text-xs opacity-60">Use nearby places</p>
             </div>
           </button>
 
           <button
             type="button"
-            onClick={() => setValue("prefers_walking", !prefersWalking)}
+            onClick={() => setValue("date_at_home", !dateAtHome, { shouldValidate: true })}
             className={[
-              "flex-1 flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200",
-              prefersWalking
+              "w-full flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200",
+              dateAtHome
                 ? "bg-pink-500/20 border-pink-500 text-white"
                 : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
             ].join(" ")}
           >
-            <Footprints className={`w-5 h-5 ${prefersWalking ? "text-pink-400" : ""}`} />
+            <House className={`w-5 h-5 ${dateAtHome ? "text-pink-400" : ""}`} />
             <div className="text-left">
-              <p className="text-sm font-semibold">Love walking</p>
-              <p className="text-xs opacity-60">Walkable dates preferred</p>
+              <p className="text-sm font-semibold">Date night at home</p>
+              <p className="text-xs opacity-60">Cook, play, make something</p>
             </div>
           </button>
         </div>
+        {errors.date_outside && (
+          <p className="text-xs text-red-400">{errors.date_outside.message}</p>
+        )}
       </div>
 
     </div>

@@ -7,7 +7,7 @@ import {
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart,
   Sparkles, ArrowRight,
 } from "lucide-react";
-import { FREE_INTERESTS, type PlanId } from "@/lib/plans";
+import { FREE_INTERESTS, MIN_INTEREST_CATEGORIES, type PlanId } from "@/lib/plans";
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
@@ -39,7 +39,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
   const mountTrigger = useRef(continueTrigger);
 
   useEffect(() => {
-    onCanContinueChange(selected.length > 0);
+    onCanContinueChange(selected.length >= MIN_INTEREST_CATEGORIES);
   }, [selected, onCanContinueChange]);
 
   useEffect(() => {
@@ -60,8 +60,8 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
   }
 
   function handleSubmit() {
-    if (selected.length === 0) {
-      setError("Pick at least one interest");
+    if (selected.length < MIN_INTEREST_CATEGORIES) {
+      setError(`Pick at least ${MIN_INTEREST_CATEGORIES} categories`);
       return;
     }
     onNext({ interests: selected });
@@ -73,8 +73,8 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
         <h2 className="text-2xl font-bold text-white">What do you love?</h2>
         <p className="text-white/50 text-sm">
           {isFree
-            ? "Your Starter plan includes these 3 categories — upgrade anytime."
-            : "Pick what you love — we'll use it to find your perfect date."}
+            ? `Your Starter plan includes these 3 categories. Pick at least ${MIN_INTEREST_CATEGORIES}.`
+            : `Pick at least ${MIN_INTEREST_CATEGORIES} categories so we can keep your dates varied.`}
         </p>
       </div>
 

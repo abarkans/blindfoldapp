@@ -231,8 +231,10 @@ export interface Database {
           interests: string[];
           constraints: {
             budget_max: number;
-            has_car: boolean;
-            prefers_walking: boolean;
+            date_outside: boolean;
+            date_at_home: boolean;
+            has_car?: boolean;
+            prefers_walking?: boolean;
           };
           cadence: string;
           onboarding_complete: boolean;
@@ -277,8 +279,10 @@ export interface Database {
           interests?: string[];
           constraints?: {
             budget_max: number;
-            has_car: boolean;
-            prefers_walking: boolean;
+            date_outside: boolean;
+            date_at_home: boolean;
+            has_car?: boolean;
+            prefers_walking?: boolean;
           };
           cadence?: string;
           onboarding_complete?: boolean;
@@ -308,8 +312,10 @@ export interface Database {
           interests?: string[];
           constraints?: {
             budget_max: number;
-            has_car: boolean;
-            prefers_walking: boolean;
+            date_outside: boolean;
+            date_at_home: boolean;
+            has_car?: boolean;
+            prefers_walking?: boolean;
           };
           cadence?: string;
           onboarding_complete?: boolean;
