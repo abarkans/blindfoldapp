@@ -288,18 +288,46 @@ async function notifyOtherPartner(
   initiatingUserId: string,
   names: { partner1: string; partner2: string }
 ): Promise<"sent" | "skipped" | "failed"> {
-  const { data: members } = await admin
+  const { data: members, error: membersError } = await admin
     .from("couple_members")
     .select("user_id, role")
     .eq("profile_id", profileId);
+  if (membersError) {
+    console.warn(`[audit] start-date: email failed profile=${profileId} reason=members_lookup msg=${membersError.message}`);
+    return "failed";
+  }
+
   const other = members?.find((member) => member.user_id !== initiatingUserId);
   if (!other) {
     console.warn(`[audit] start-date: email skipped profile=${profileId} reason=no_other_partner`);
     return "skipped";
   }
 
-  const { data: userData } = await admin.auth.admin.getUserById(other.user_id);
-  if (!userData.user?.email) {
+  const { data: userData, error: userError } = await admin.auth.admin.getUserById(other.user_id);
+  if (userError) {
+    console.warn(`[audit] start-date: email failed profile=${profileId} partner=${other.user_id} reason=user_lookup msg=${userError.message}`);
+    return "failed";
+  }
+
+  let recipientEmail = userData.user?.email ?? null;
+  if (!recipientEmail) {
+    const { data: acceptedInvite, error: inviteError } = await admin
+      .from("partner_invites")
+      .select("invited_email")
+      .eq("profile_id", profileId)
+      .eq("accepted_user_id", other.user_id)
+      .not("accepted_at", "is", null)
+      .order("accepted_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (inviteError) {
+      console.warn(`[audit] start-date: email failed profile=${profileId} partner=${other.user_id} reason=invite_lookup msg=${inviteError.message}`);
+      return "failed";
+    }
+    recipientEmail = acceptedInvite?.invited_email ?? null;
+  }
+
+  if (!recipientEmail) {
     console.warn(`[audit] start-date: email skipped profile=${profileId} partner=${other.user_id} reason=no_email`);
     return "skipped";
   }
@@ -310,15 +338,21 @@ async function notifyOtherPartner(
     partnerName: initiatorIsOwner ? names.partner1 : names.partner2,
   });
 
-  const { error } = await resend.emails.send({
-    from: FROM_ADDRESS,
-    to: userData.user.email,
-    subject,
-    html,
-  });
-  if (error) {
-    console.warn(`[audit] start-date: email failed profile=${profileId} msg=${error.message}`);
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: recipientEmail,
+      subject,
+      html,
+    });
+    if (error) {
+      console.warn(`[audit] start-date: email failed profile=${profileId} partner=${other.user_id} msg=${error.message}`);
+      return "failed";
+    }
+    console.info(`[audit] start-date: email sent profile=${profileId} partner=${other.user_id} resend_id=${data?.id ?? "unknown"}`);
+    return "sent";
+  } catch (error) {
+    console.warn(`[audit] start-date: email failed profile=${profileId} partner=${other.user_id} msg=${error instanceof Error ? error.message : String(error)}`);
     return "failed";
   }
-  return "sent";
 }

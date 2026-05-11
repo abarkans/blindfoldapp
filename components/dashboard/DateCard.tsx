@@ -312,8 +312,13 @@ export default function DateCard({
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
   const [localRevealReady, setLocalRevealReady] = useState(false);
 
-  // Sync accepted state when the server updates dateAcceptedAt (after reroll resets it)
-  useEffect(() => { setAccepted(!!dateAcceptedAt); }, [dateAcceptedAt]);
+  // Sync local reveal state when the server updates after the other partner is ready.
+  useEffect(() => {
+    const nextRevealed = !!dateIdea && !!dateAcceptedAt;
+    setAccepted(!!dateAcceptedAt);
+    setRevealed(nextRevealed);
+    if (nextRevealed || !dateIdea) setLocalRevealReady(false);
+  }, [dateIdea, dateAcceptedAt]);
   useEffect(() => {
     setCompleted(isDateCompleted);
   }, [isDateCompleted]);
@@ -370,10 +375,20 @@ export default function DateCard({
 
   useEffect(() => {
     if (!waitingForPartnerReveal) return;
-    const timeout = window.setTimeout(() => {
-      router.refresh();
-    }, 12_000 + Math.floor(Math.random() * 6_000));
-    return () => window.clearTimeout(timeout);
+    let timeout: number | null = null;
+    let cancelled = false;
+    const scheduleRefresh = () => {
+      timeout = window.setTimeout(() => {
+        if (cancelled) return;
+        router.refresh();
+        scheduleRefresh();
+      }, 12_000 + Math.floor(Math.random() * 6_000));
+    };
+    scheduleRefresh();
+    return () => {
+      cancelled = true;
+      if (timeout) window.clearTimeout(timeout);
+    };
   }, [waitingForPartnerReveal, router]);
 
   function handleStartDate() {

@@ -22,7 +22,7 @@ export default async function DashboardPage() {
       .from("date_ideas")
       .select("id, status")
       .eq("user_id", access.profileId)
-      .in("status", ["revealed", "completed"])
+      .in("status", ["pending", "revealed", "completed"])
       .order("revealed_at", { ascending: false })
       .limit(1)
       .maybeSingle(),

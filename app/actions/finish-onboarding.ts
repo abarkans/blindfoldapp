@@ -27,12 +27,17 @@ export async function saveOnboardingCheckoutDraft(input: IdentityFormData): Prom
   }
 
   const v = parsed.data;
+  const partnerNamesDraft = {
+    partner1: v.partner1,
+    partner2: v.partner2,
+    ...(v.partner_email ? { partner_email: v.partner_email.toLowerCase() } : {}),
+  };
   const admin = createAdminClient();
   const { error } = await admin
     .from("profiles")
     .upsert({
       id: user.id,
-      partner_names: { partner1: v.partner1, partner2: v.partner2 },
+      partner_names: partnerNamesDraft,
     });
 
   if (error) {
@@ -97,13 +102,13 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     }
   }
 
-  const savedNames = profile?.partner_names as { partner1?: string; partner2?: string } | null;
+  const savedNames = profile?.partner_names as { partner1?: string; partner2?: string; partner_email?: string } | null;
   const inputWithSavedRequiredFields = {
     ...input,
     partner1: input.partner1 || savedNames?.partner1 || "",
     partner2: input.partner2 || savedNames?.partner2 || "",
     cadence: input.cadence || profile?.cadence || "monthly",
-    partner_email: input.partner_email || undefined,
+    partner_email: input.partner_email || savedNames?.partner_email || undefined,
     budget_max: optionalNumber(input.budget_max) ?? 50,
     lat: optionalNumber(input.lat),
     lng: optionalNumber(input.lng),

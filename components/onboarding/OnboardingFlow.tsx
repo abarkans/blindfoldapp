@@ -46,6 +46,7 @@ const slideVariants = {
 interface OnboardingFlowProps {
   initialPartner1?: string;
   initialPartner2?: string;
+  initialPartnerEmail?: string;
   initialPlanType?: PlanId;
   initialSelectedPlan?: PlanId;
   initialCadence?: string;
@@ -58,6 +59,7 @@ interface OnboardingFlowProps {
 export default function OnboardingFlow({
   initialPartner1 = "",
   initialPartner2 = "",
+  initialPartnerEmail = "",
   initialPlanType,
   initialSelectedPlan,
   initialCadence,
@@ -76,6 +78,7 @@ export default function OnboardingFlow({
   const [data, setData] = useState<OnboardingData>({
     partner1: initialPartner1,
     partner2: initialPartner2,
+    partner_email: initialPartnerEmail,
     plan_type: initialPlanType,
     cadence: initialCadence,
   });

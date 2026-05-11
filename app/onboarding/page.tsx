@@ -30,9 +30,10 @@ export default async function OnboardingPage({
     meta?.name?.split(" ")[0] ||
     "";
 
-  const names = profile?.partner_names as { partner1?: string; partner2?: string } | null;
+  const names = profile?.partner_names as { partner1?: string; partner2?: string; partner_email?: string } | null;
   const savedPartner1 = names?.partner1 || firstName;
   const savedPartner2 = names?.partner2 ?? "";
+  const savedPartnerEmail = names?.partner_email ?? "";
   const savedPlanType = (profile?.plan_type as PlanId | null) ?? undefined;
   const savedCadence = (profile?.cadence as string | null) ?? undefined;
 
@@ -90,6 +91,7 @@ export default async function OnboardingPage({
     <OnboardingFlow
       initialPartner1={savedPartner1}
       initialPartner2={savedPartner2}
+      initialPartnerEmail={savedPartnerEmail}
       initialPlanType={initialPlanType}
       initialSelectedPlan={initialSelectedPlan}
       initialCadence={savedCadence ?? verifiedCheckoutCadence ?? cadenceFromUrl}
