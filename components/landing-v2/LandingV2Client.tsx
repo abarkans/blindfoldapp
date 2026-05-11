@@ -88,8 +88,29 @@ const NAV_LINKS = [
   { label: "Pricing", href: "#plans", scroll: false },
 ];
 
+const HERO_VIDEOS = [
+  {
+    poster: "/hero-video-poster.jpg",
+    webm: "/hero-video.webm",
+    mp4: "/hero-video-small.mp4",
+  },
+  {
+    poster: "/hero-video2-poster.jpg",
+    webm: "/hero-video2.webm",
+    mp4: "/hero-video2-small.mp4",
+  },
+];
+
 export default function LandingV2Client() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [heroVideo, setHeroVideo] = useState<(typeof HERO_VIDEOS)[number] | null>(null);
+  const [heroVideoReady, setHeroVideoReady] = useState(false);
+
+  useEffect(() => {
+    setHeroVideoReady(false);
+    setHeroVideo(HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)]);
+  }, []);
+
   useEffect(() => {
     (async () => {
       const supabase = createClient();
@@ -123,6 +144,8 @@ export default function LandingV2Client() {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  const activeHeroVideo = heroVideo ?? HERO_VIDEOS[0];
 
   return (
     <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
@@ -265,27 +288,43 @@ export default function LandingV2Client() {
         <section
           className="relative overflow-hidden border-b border-white/[0.07] bg-black"
         >
-          <video
-            className="absolute inset-0 h-full w-full object-cover opacity-75"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="/hero-video-poster.jpg"
+          <Image
+            src={activeHeroVideo.poster}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="absolute inset-0 object-cover opacity-70"
             aria-hidden="true"
-          >
-            <source src="/hero-video.webm" type="video/webm" />
-            <source src="/hero-video-small.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.54)_78%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/48 via-transparent to-black/68" />
+          />
+          {heroVideo && (
+            <video
+              key={heroVideo.webm}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                heroVideoReady ? "opacity-85" : "opacity-0"
+              }`}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={heroVideo.poster}
+              aria-hidden="true"
+              onLoadedData={() => setHeroVideoReady(true)}
+              onCanPlay={() => setHeroVideoReady(true)}
+            >
+              <source src={heroVideo.webm} type="video/webm" />
+              <source src={heroVideo.mp4} type="video/mp4" />
+            </video>
+          )}
+          <div className="absolute inset-0 bg-black/24" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.48)_78%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/42 via-transparent to-black/62" />
 
-          <div className="relative mx-auto flex min-h-[76dvh] max-w-[1280px] flex-col items-center justify-center px-6 pb-12 pt-[104px] text-center md:px-10 md:pb-8 md:pt-[68px]">
+          <div className="relative mx-auto flex min-h-[76dvh] max-w-[1280px] flex-col items-start justify-center px-6 pb-12 pt-[104px] text-left md:items-center md:px-10 md:pb-8 md:pt-[68px] md:text-center">
             <div className="w-full max-w-[820px]">
             {/* Hero headline — Bumble-bold scale */}
-            <h1 className="text-[52px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-8 md:mb-10">
+            <h1 className="text-[52px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-8 md:mb-10 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
               <span className="block">
                 Stop planning.
               </span>
@@ -298,13 +337,13 @@ export default function LandingV2Client() {
             </h1>
 
             {/* Subtext */}
-            <p className="mx-auto max-w-[560px] text-white/64 text-base md:text-xl leading-[1.7] mb-10 md:mb-12">
+            <p className="mx-auto max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-10 md:mb-12 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
               Tell us what you like once. We find real venues near you, write your
               date story, and handle every detail.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-3 mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start md:justify-center gap-3 mb-6 md:mb-8">
               {isLoggedIn ? (
                 <Link
                   href="/dashboard"
@@ -333,12 +372,12 @@ export default function LandingV2Client() {
             </div>
 
             {/* Trust line */}
-            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
-              <span className="text-white/35 text-sm">Free to start</span>
+            <div className="flex flex-wrap items-center justify-start md:justify-center gap-x-5 gap-y-1.5">
+              <span className="text-white/55 text-sm [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">Free to start</span>
               <span className="text-white/20">·</span>
-              <span className="text-white/35 text-sm">No credit card</span>
+              <span className="text-white/55 text-sm [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">No credit card</span>
               <span className="text-white/20">·</span>
-              <span className="text-white/35 text-sm">Cancel anytime</span>
+              <span className="text-white/55 text-sm [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">Cancel anytime</span>
             </div>
             </div>
           </div>
@@ -579,7 +618,7 @@ export default function LandingV2Client() {
         {/* ── Pricing ── */}
         <section id="plans" className="relative border-t border-white/[0.07] bg-black">
         <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-          <div className="text-center mb-10 md:mb-14">
+          <div className="text-left md:text-center mb-10 md:mb-14">
             <p className="text-xs text-rose-400 font-medium uppercase tracking-[0.14em] mb-5">
               Pricing
             </p>
