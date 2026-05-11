@@ -7,7 +7,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
   return (
     <PublicPageShell>
     <div className="min-h-dvh px-6 py-8 max-w-2xl mx-auto">
-      <div className="sticky top-4 z-20 mb-8 rounded-2xl border border-white/16 bg-black/72 px-4 py-3 backdrop-blur-2xl shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
+      <div className="mb-8">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"
@@ -22,7 +22,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
         </div>
       </div>
 
-      <article className="rounded-3xl border border-white/16 bg-[#030303]/88 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl md:p-8">
+      <article>
       <div className="prose prose-invert prose-sm max-w-none
         [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-white [&_h1]:mb-1
         [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-white [&_h2]:mt-8 [&_h2]:mb-2

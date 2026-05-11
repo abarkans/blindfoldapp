@@ -529,7 +529,7 @@ export default function DateCard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative overflow-hidden rounded-3xl border border-white/16 bg-[#030303] backdrop-blur-sm"
+        className="relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"
       >
         <div className="relative p-6">
           {/* Header */}
@@ -710,7 +710,7 @@ export default function DateCard({
                               size="sm"
                               aria-label="Get directions"
                               title="Get directions"
-                              className="h-11 w-11 rounded-full bg-white text-[#17131f] p-0 shadow-lg shadow-black/25 hover:bg-white/90 hover:text-[#17131f]"
+                              className="h-11 w-11 rounded-full bg-rose-500 text-white p-0 shadow-lg shadow-black/25 hover:bg-rose-400 hover:text-white"
                             >
                               <Navigation className="h-5 w-5" />
                             </LinkButton>
@@ -721,7 +721,7 @@ export default function DateCard({
                                 size="sm"
                                 aria-label="Call venue"
                                 title="Call venue"
-                                className="h-11 w-11 rounded-full bg-white text-white/70 p-0 shadow-lg shadow-black/25 hover:bg-white/90 hover:text-white/70"
+                                className="h-11 w-11 rounded-full bg-rose-500 text-white p-0 shadow-lg shadow-black/25 hover:bg-rose-400 hover:text-white"
                               >
                                 <Phone className="h-5 w-5" />
                               </LinkButton>
@@ -795,7 +795,7 @@ export default function DateCard({
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          variant="secondary"
+                          variant="primary"
                           size="md"
                           className="h-14 flex-1 gap-2 px-4"
                         >
@@ -805,7 +805,7 @@ export default function DateCard({
                         {venuePhoneHref && (
                           <LinkButton
                             href={venuePhoneHref}
-                            variant="secondary"
+                            variant="primary"
                             size="md"
                             className="h-14 flex-1 gap-2 px-4"
                           >
@@ -1017,7 +1017,7 @@ export default function DateCard({
             onClick={() => setPartnerInviteModalOpen(false)}
           />
           <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-            <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
+            <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
                   <Mail className="w-5 h-5 text-white/65" />
@@ -1087,7 +1087,7 @@ export default function DateCard({
             <div
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4"
             >
-              <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
+              <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
                     <Shuffle className="w-5 h-5 text-white/65" />
@@ -1143,7 +1143,7 @@ export default function DateCard({
             onClick={() => setAcceptConfirmOpen(false)}
           />
           <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-            <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
+            <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
                   <Check className="w-5 h-5 text-white/65" />

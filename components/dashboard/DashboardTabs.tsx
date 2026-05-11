@@ -211,7 +211,7 @@ export default function DashboardTabs({
 
       {/* Tab content — wider container on desktop */}
       <main ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
-        <div className="max-w-sm md:max-w-2xl mx-auto">
+        <div className="w-full md:max-w-2xl md:mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -521,7 +521,7 @@ function ProgressUpsell({
       </div>
 
       {/* Upgrade CTA — pulled up to overlap badges */}
-      <div className="-mt-6 relative z-10 bg-gradient-to-br from-white/[0.06] via-white/[0.04] to-white/[0.025] border border-white/18 rounded-3xl p-5 shadow-2xl shadow-black/40 backdrop-blur-sm">
+      <div className="-mt-6 relative z-10 bg-white/[0.035] border border-white/18 rounded-3xl p-5 shadow-2xl shadow-black/40 backdrop-blur-sm">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-4 h-4 text-white/65" />
           <p className="text-xs font-semibold text-white uppercase tracking-widest">Plus</p>

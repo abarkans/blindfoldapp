@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
       <h1>Privacy Policy</h1>
       <p className="!text-white/35 !text-xs !mb-8">Last updated: 26 April 2026</p>
 
-      <nav className="!mb-8 rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-4 not-prose">
+      <nav className="!mb-8 not-prose">
         <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
         <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
           {TOC.map(({ href, label }) => (

@@ -271,7 +271,7 @@ export default function RegisterClient() {
           <p className="text-white/40 text-sm">Your first date is two minutes away</p>
         </Link>
 
-        <div className="bg-[#030303]/88 border border-white/16 rounded-3xl p-6 backdrop-blur-xl overflow-hidden shadow-[0_28px_80px_rgba(0,0,0,0.45)]" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
+        <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 backdrop-blur-xl overflow-hidden shadow-[0_28px_80px_rgba(0,0,0,0.45)]" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
             {!emailStep ? (
               <div>
                 <h2 className="text-lg font-bold text-white mb-5">Create account</h2>

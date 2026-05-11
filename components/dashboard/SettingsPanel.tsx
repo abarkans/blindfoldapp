@@ -540,7 +540,7 @@ export default function SettingsPanel({
                     onClick={() => setSignOutConfirm(false)}
                   />
                   <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-                    <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+                    <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
                       <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
                         <LogOut className="w-5 h-5 text-red-400" />
                       </div>
@@ -639,7 +639,7 @@ export default function SettingsPanel({
                         onClick={() => !deleting && (deleteSent ? (setDeleteConfirm(false), setDeleteSent(false)) : setDeleteConfirm(false))}
                       />
                       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-                        <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+                        <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
                           {!deleteSent ? (
                             <>
                               <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
@@ -785,11 +785,11 @@ export default function SettingsPanel({
                           className={[
                             "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                             isSelected
-                              ? "bg-gradient-to-br from-white/[0.075] to-white/[0.045] border-white/45 text-white"
-                              : "bg-white/[0.035] border-white/16 text-white/70 hover:border-white/30 hover:text-white",
+                              ? "bg-white/[0.075] border-rose-400/70 text-white"
+                              : "bg-white/[0.035] border-white/16 text-white/48 hover:border-white/30 hover:text-white/75",
                           ].join(" ")}
                         >
-                          <Icon className={`w-5 h-5 ${isSelected ? "text-white/65" : "text-white/70"}`} />
+                          <Icon className={`w-5 h-5 ${isSelected ? "text-rose-300" : "text-white/45"}`} />
                           <span className="text-xs font-medium leading-tight">{label}</span>
                         </button>
                       );
@@ -832,11 +832,11 @@ export default function SettingsPanel({
                         className={[
                           "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
                           val
-                            ? "bg-white/[0.06] border-white/45 text-white/70"
-                            : "bg-white/[0.035] border-white/16 text-white/50 hover:border-white/30",
+                            ? "bg-white/[0.075] border-rose-400/70 text-white"
+                            : "bg-white/[0.035] border-white/16 text-white/55 hover:border-white/30",
                         ].join(" ")}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className={`h-4 w-4 ${val ? "text-rose-300" : "text-white/45"}`} />
                         {label}
                       </button>
                     ))}
@@ -995,7 +995,7 @@ export default function SettingsPanel({
                   <div className={[
                     "flex items-center gap-3 rounded-2xl border p-4",
                     isPlus
-                      ? "bg-gradient-to-br from-white/[0.045] to-white/[0.025] border-white/22"
+                      ? "bg-gradient-to-br from-white/[0.045] to-white/[0.025] border-rose-400/45"
                       : "bg-white/[0.035] border-white/16",
                   ].join(" ")}>
                     <div className={[
@@ -1026,7 +1026,7 @@ export default function SettingsPanel({
                   </div>
 
                   {isStarter && (
-                    <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-white/22 rounded-2xl p-5 flex flex-col gap-4">
+                    <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-rose-400/45 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-white/65" />
                         <p className="text-sm font-bold text-white">Unlock Plus</p>
