@@ -15,7 +15,6 @@ import {
   Check,
   Timer,
   Wallet,
-  Menu,
   X,
 
 } from "lucide-react";
@@ -227,11 +226,18 @@ export default function LandingV2Client() {
           </div>
 
           <button
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all"
+            className="md:hidden w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-all"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
-            {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            {menuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <span className="flex w-6 flex-col gap-1.5" aria-hidden="true">
+                <span className="h-0.5 w-full rounded-full bg-current" />
+                <span className="h-0.5 w-full rounded-full bg-current" />
+              </span>
+            )}
           </button>
         </nav>
 
@@ -245,8 +251,8 @@ export default function LandingV2Client() {
             <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center gap-2.5">
               <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
             </button>
-            <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all" aria-label="Close menu">
-              <X className="w-4 h-4" />
+            <button onClick={() => setMenuOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-all" aria-label="Close menu">
+              <X className="w-6 h-6" />
             </button>
           </div>
           <nav className="flex flex-col gap-1 flex-1 pt-4">
