@@ -557,7 +557,7 @@ export default function LandingV2Client() {
           </div>
 
           <div
-            className="relative h-[450px] overflow-hidden md:hidden"
+            className="relative h-[450px] overflow-visible md:hidden"
             onTouchStart={handleSampleTouchStart}
             onTouchEnd={handleSampleTouchEnd}
           >
@@ -565,13 +565,13 @@ export default function LandingV2Client() {
               type="button"
               aria-label={`View ${SAMPLE_DATES[previousSampleDate].title}`}
               onClick={() => setActiveSampleDate(previousSampleDate)}
-              className="absolute left-1/2 top-0 z-10 w-[82%] transition-transform duration-200"
-              style={{ transform: "translateX(-62%) scale(0.94)" }}
+              className="absolute left-1/2 top-0 z-10 w-full transition-transform duration-200"
+              style={{ transform: "translateX(-68%) scale(0.94)" }}
             >
               <DateExampleCard date={SAMPLE_DATES[previousSampleDate]} />
             </button>
             <div
-              className="absolute left-1/2 top-0 z-20 w-[82%] transition-transform duration-200"
+              className="absolute left-1/2 top-0 z-20 w-full transition-transform duration-200"
               style={{ transform: "translateX(-50%)" }}
             >
               <DateExampleCard date={SAMPLE_DATES[activeSampleDate]} />
@@ -580,8 +580,8 @@ export default function LandingV2Client() {
               type="button"
               aria-label={`View ${SAMPLE_DATES[nextSampleDate].title}`}
               onClick={() => setActiveSampleDate(nextSampleDate)}
-              className="absolute left-1/2 top-0 z-10 w-[82%] transition-transform duration-200"
-              style={{ transform: "translateX(-38%) scale(0.94)" }}
+              className="absolute left-1/2 top-0 z-10 w-full transition-transform duration-200"
+              style={{ transform: "translateX(-32%) scale(0.94)" }}
             >
               <DateExampleCard date={SAMPLE_DATES[nextSampleDate]} />
             </button>
