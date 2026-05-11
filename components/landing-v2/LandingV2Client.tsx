@@ -402,7 +402,7 @@ export default function LandingV2Client() {
         {/* ── How it works ── */}
         <section id="how-it-works" className="px-6 md:px-10 pt-14 pb-28 md:pt-20 md:pb-44 max-w-[1280px] mx-auto">
           <div className="text-left md:text-center mb-10 md:mb-16">
-            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
+            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
               Three steps,
               <br />
               <span className="text-white/35">then just show up.</span>
@@ -431,10 +431,10 @@ export default function LandingV2Client() {
         <section id="features" className="relative border-y border-white/[0.07] bg-black">
           <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
             <div className="text-left mb-10 md:mb-16">
-              <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
-                No more &ldquo;I don&apos;t know,
+              <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
+                Pick your vibe.
                 <br />
-                <span className="text-white/35">what do you want to do?&rdquo;</span>
+                <span className="text-white/35">We&rsquo;ll do the rest.</span>
               </h2>
             </div>
 
@@ -530,7 +530,7 @@ export default function LandingV2Client() {
         {/* ── Sample dates ── */}
         <section className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
           <div className="text-left md:text-center mb-10 md:mb-14">
-            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
+            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
               Dates like these,
               <br />
               <span className="text-white/35">crafted for <em>you.</em></span>
@@ -580,7 +580,7 @@ export default function LandingV2Client() {
         <section id="plans" className="relative border-t border-white/[0.07] bg-black">
         <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
           <div className="text-left md:text-center mb-10 md:mb-14">
-            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
+            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
               Simple, honest pricing.
               <br />
               <span className="text-white/35">No surprises on the bill.</span>
@@ -736,7 +736,7 @@ export default function LandingV2Client() {
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
             </div>
 
-            <h2 className="text-[40px] sm:text-[56px] md:text-[72px] font-black mb-7 md:mb-8 leading-[1.05] tracking-tight">
+            <h2 className="text-[40px] sm:text-[56px] md:text-[72px] font-black mb-7 md:mb-8 leading-[1.05] tracking-normal">
               Your next great date
               <br />
               <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #fb7185, #c026d3, #8b5cf6)" }}>
