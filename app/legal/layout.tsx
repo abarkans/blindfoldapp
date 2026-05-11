@@ -1,23 +1,28 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import PublicPageShell from "@/components/ui/PublicPageShell";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen px-6 py-8 max-w-2xl mx-auto">
-      <div className="flex items-center gap-4 mb-10">
-        <Link
-          href="/"
-          className="flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
-        <Link href="/" className="flex items-center ml-2">
-          <Image src="/logo.png" alt="BlindfoldDate" width={80} height={24} className="object-contain" />
-        </Link>
+    <PublicPageShell>
+    <div className="min-h-dvh px-6 py-8 max-w-2xl mx-auto">
+      <div className="sticky top-4 z-20 mb-8 rounded-2xl border border-white/16 bg-black/72 px-4 py-3 backdrop-blur-2xl shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Link>
+          <Link href="/" className="flex items-center">
+            <Image src="/logo.png" alt="BlindfoldDate" width={96} height={28} className="object-contain" />
+          </Link>
+        </div>
       </div>
 
+      <article className="rounded-3xl border border-white/16 bg-[#030303]/88 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl md:p-8">
       <div className="prose prose-invert prose-sm max-w-none
         [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-white [&_h1]:mb-1
         [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-white [&_h2]:mt-8 [&_h2]:mb-2
@@ -33,11 +38,13 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
         [&_hr]:border-white/10 [&_hr]:my-8">
         {children}
       </div>
+      </article>
 
-      <div className="mt-12 pt-6 border-t border-white/10 flex gap-6 text-xs text-white/30">
+      <div className="mt-8 pt-6 border-t border-white/16 flex gap-6 text-xs text-white/35">
         <Link href="/legal/privacy" className="hover:text-white/60 transition-colors">Privacy Policy</Link>
         <Link href="/legal/terms" className="hover:text-white/60 transition-colors">Terms of Service</Link>
       </div>
     </div>
+    </PublicPageShell>
   );
 }

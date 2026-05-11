@@ -143,9 +143,9 @@ export default function DashboardTabs({
   }
 
   return (
-    <div className="min-h-dvh flex flex-col">
+    <div className="min-h-dvh flex flex-col bg-black text-white">
       {/* Sticky header — logo + names on both breakpoints; tab nav injected on desktop */}
-      <header className="md:sticky md:top-0 md:z-30 bg-[#08080f]/90 md:backdrop-blur-md border-b border-white/5 px-4 py-3 md:py-0 md:h-14">
+      <header className="md:sticky md:top-0 md:z-30 bg-black/72 md:backdrop-blur-2xl md:backdrop-saturate-150 border-b border-white/12 px-4 py-3 md:py-0 md:h-14 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
         <div className="max-w-4xl mx-auto flex items-stretch justify-between gap-4 md:h-full">
           {/* Brand */}
           <div className="flex items-center gap-2.5 shrink-0 self-center">
@@ -171,7 +171,7 @@ export default function DashboardTabs({
                 {activeTab === id && (
                   <motion.div
                     layoutId="desktop-tab-underline"
-                    className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-rose-500 to-violet-600"
+                    className="absolute bottom-0 left-0 right-0 h-px bg-white/75"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
@@ -254,7 +254,7 @@ export default function DashboardTabs({
 
       {/* Bottom nav — mobile only */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#08080f]/95 backdrop-blur-xl border-t border-white/8"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-xl border-t border-white/16"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="max-w-sm mx-auto flex items-stretch h-16">
@@ -267,18 +267,18 @@ export default function DashboardTabs({
               {activeTab === id && (
                 <motion.div
                   layoutId="tab-indicator"
-                  className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-gradient-to-r from-rose-500 to-violet-600"
+                  className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-white/75"
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}
               <Icon
                 className={`w-5 h-5 transition-colors duration-150 ${
-                  activeTab === id ? "text-rose-400" : "text-slate-400 group-hover:text-slate-200"
+                  activeTab === id ? "text-white/65" : "text-white/45 group-hover:text-white/75"
                 }`}
               />
               <span
                 className={`text-[10px] font-semibold tracking-wide transition-colors duration-150 ${
-                  activeTab === id ? "text-rose-400" : "text-slate-400 group-hover:text-slate-200"
+                  activeTab === id ? "text-white/65" : "text-white/45 group-hover:text-white/75"
                 }`}
               >
                 {label}
@@ -333,12 +333,12 @@ function DateTabContent({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.25 }}
-            className="mb-4 bg-gradient-to-br from-rose-500/10 to-violet-600/10 border border-rose-500/20 rounded-3xl p-5"
+            className="mb-4 bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-white/16 rounded-3xl p-5"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-rose-400" />
-                <p className="text-xs font-semibold text-rose-400 uppercase tracking-widest">How it works</p>
+                <Sparkles className="w-4 h-4 text-white/65" />
+                <p className="text-xs font-semibold text-white/65 uppercase tracking-widest">How it works</p>
               </div>
               <button
                 onClick={dismissWelcome}
@@ -362,7 +362,7 @@ function DateTabContent({
             </div>
             <button
               onClick={dismissWelcome}
-              className="w-full py-2.5 rounded-2xl bg-white/8 border border-white/10 text-sm font-semibold text-white/70 hover:bg-white/12 hover:text-white transition-all active:scale-[0.98]"
+              className="w-full py-2.5 rounded-2xl bg-white/[0.06] border border-white/16 text-sm font-semibold text-white/70 hover:bg-white/[0.09] hover:text-white transition-all active:scale-[0.98]"
             >
               Got it
             </button>
@@ -398,12 +398,12 @@ function DateTabContent({
 function ProgressTabSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="h-8 w-40 bg-white/10 rounded-full mb-2" />
-      <div className="h-4 w-56 bg-white/10 rounded-full mb-5" />
-      <div className="h-12 w-full bg-white/10 rounded-2xl mb-4" />
+      <div className="h-8 w-40 bg-white/[0.075] rounded-full mb-2" />
+      <div className="h-4 w-56 bg-white/[0.075] rounded-full mb-5" />
+      <div className="h-12 w-full bg-white/[0.075] rounded-2xl mb-4" />
       <div className="grid grid-cols-2 gap-3">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-24 bg-white/10 rounded-2xl" />
+          <div key={i} className="h-24 bg-white/[0.075] rounded-2xl" />
         ))}
       </div>
     </div>
@@ -452,15 +452,15 @@ function ProgressTabContent({
 
       {/* Next milestone nudge */}
       {nextMilestone && (
-        <div className="bg-white/4 border border-white/8 rounded-2xl p-3.5 mb-2 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-white/8 flex items-center justify-center text-base flex-shrink-0">
+        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 mb-2 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center text-base flex-shrink-0">
             🎯
           </div>
           <div>
             <p className="text-xs font-semibold text-white">
               {nextMilestone.threshold - datesCompleted} date
               {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
-              <span className="text-rose-400">{nextMilestone.name}</span>
+              <span className="text-white/65">{nextMilestone.name}</span>
             </p>
             <p className="text-[10px] text-white/55 mt-0.5">
               Complete {nextMilestone.threshold - datesCompleted} more date{nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} to earn this badge
@@ -506,7 +506,7 @@ function ProgressUpsell({
           <XPProgressBar totalXp={totalXp} />
         </div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/16 flex items-center justify-center">
             <Lock className="w-4 h-4 text-white/80" />
           </div>
         </div>
@@ -517,13 +517,13 @@ function ProgressUpsell({
         <div className="pointer-events-none select-none">
           <BadgeGrid earnedBadges={earnedBadges} />
         </div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-[#08080f]/80 to-[#08080f]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-black/80 to-black" />
       </div>
 
       {/* Upgrade CTA — pulled up to overlap badges */}
-      <div className="-mt-6 relative z-10 bg-gradient-to-br from-violet-500/20 via-rose-500/15 to-amber-500/10 border border-violet-500/30 rounded-3xl p-5 shadow-2xl shadow-black/40 backdrop-blur-sm">
+      <div className="-mt-6 relative z-10 bg-gradient-to-br from-white/[0.06] via-white/[0.04] to-white/[0.025] border border-white/18 rounded-3xl p-5 shadow-2xl shadow-black/40 backdrop-blur-sm">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-4 h-4 text-rose-400" />
+          <Sparkles className="w-4 h-4 text-white/65" />
           <p className="text-xs font-semibold text-white uppercase tracking-widest">Plus</p>
         </div>
         <p className="text-base font-bold text-white mb-1">
@@ -594,7 +594,7 @@ function SettingsTabContent({
               <button
                 type="button"
                 onClick={subpageHeader.onBack}
-                className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-white/25 transition-colors shrink-0"
+                className="w-9 h-9 rounded-xl bg-white/[0.035] border border-white/16 flex items-center justify-center hover:border-white/30 transition-colors shrink-0"
               >
                 <ArrowLeft className="w-4 h-4 text-white/60" />
               </button>
@@ -626,3 +626,5 @@ function SettingsTabContent({
     </div>
   );
 }
+
+

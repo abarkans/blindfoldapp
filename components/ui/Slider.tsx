@@ -12,6 +12,7 @@ interface SliderProps {
   label?: string;
   formatValue?: (value: number) => string;
   className?: string;
+  tone?: "rose" | "neutral";
 }
 
 export default function Slider({
@@ -23,6 +24,7 @@ export default function Slider({
   label,
   formatValue,
   className,
+  tone = "rose",
 }: SliderProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const pct = ((value - min) / (max - min)) * 100;
@@ -56,7 +58,7 @@ export default function Slider({
       {label && (
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-white/70">{label}</span>
-          <span className="text-sm font-bold text-pink-400">
+          <span className={cn("text-sm font-bold", tone === "neutral" ? "text-white/78" : "text-pink-400")}>
             {formatValue ? formatValue(value) : value}
           </span>
         </div>
@@ -69,12 +71,18 @@ export default function Slider({
         {/* Track — ref here so getValueFromPointer measures the actual track width */}
         <div ref={trackRef} className="relative w-full h-2 rounded-full bg-white/10 overflow-visible">
           <div
-            className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500"
+            className={cn(
+              "absolute left-0 top-0 h-full rounded-full",
+              tone === "neutral" ? "bg-white/75" : "bg-gradient-to-r from-pink-500 to-rose-500"
+            )}
             style={{ width: `${pct}%` }}
           />
           {/* Thumb — positioned relative to track; px-3 on parent absorbs ±12px overhang */}
           <div
-            className="absolute top-1/2 w-6 h-6 -translate-y-1/2 rounded-full bg-white shadow-lg shadow-pink-500/40 border-2 border-pink-500 pointer-events-none"
+            className={cn(
+              "absolute top-1/2 w-6 h-6 -translate-y-1/2 rounded-full bg-white shadow-lg border-2 pointer-events-none",
+              tone === "neutral" ? "border-white shadow-white/20" : "border-pink-500 shadow-pink-500/40"
+            )}
             style={{ left: `calc(${pct}% - 12px)` }}
           />
         </div>

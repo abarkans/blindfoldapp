@@ -77,7 +77,7 @@ export default function StepPlan({
   }, [subStep, selectedPlan, selectedCadence, onCanContinueChange, onContinueLabelChange, onSubstepChange]);
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
+    <div className="flex flex-col gap-6">
       <AnimatePresence mode="wait">
         {subStep === "plan" && (
           <motion.div
@@ -102,23 +102,22 @@ export default function StepPlan({
                     key={plan.id}
                     role="button"
                     tabIndex={0}
-                    whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedPlan(plan.id)}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelectedPlan(plan.id); }}
                     className={[
-                      "relative flex flex-col gap-4 p-5 rounded-3xl border text-left transition-all duration-200 cursor-pointer",
+                      "relative flex flex-col gap-4 p-5 rounded-3xl border text-left transition-all duration-200 cursor-pointer shadow-[0_18px_60px_rgba(0,0,0,0.22)]",
                       isSelected
                         ? plan.highlighted
-                          ? "bg-gradient-to-br from-pink-500/25 to-violet-500/15 border-pink-500"
-                          : "bg-white/10 border-white/40"
+                          ? "bg-white/[0.075] border-rose-400/70"
+                          : "bg-white/[0.075] border-white/45"
                         : plan.highlighted
-                          ? "bg-gradient-to-br from-pink-500/15 to-violet-500/8 border-pink-500/40"
-                          : "bg-white/5 border-white/10 hover:border-white/20",
+                          ? "bg-[#050202] border-rose-400/40 hover:border-rose-300/65"
+                          : "bg-white/[0.035] border-white/16 hover:border-white/28",
                     ].join(" ")}
                   >
                     {plan.highlighted && (
                       <div className="absolute -top-3 left-5">
-                        <span className="inline-flex items-center gap-1 bg-gradient-to-r from-pink-500 to-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
+                        <span className="inline-flex items-center gap-1 bg-rose-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg shadow-rose-500/20">
                           Most popular
                         </span>
                       </div>
@@ -128,9 +127,9 @@ export default function StepPlan({
                       <div className="flex items-center gap-2.5">
                         <div className={[
                           "w-9 h-9 rounded-xl flex items-center justify-center",
-                          plan.highlighted ? "bg-pink-500/20" : "bg-white/8",
+                          plan.highlighted ? "bg-rose-500/15 border border-rose-400/20" : "bg-white/8 border border-white/12",
                         ].join(" ")}>
-                          <Icon className={`w-4 h-4 ${plan.highlighted ? "text-pink-400" : "text-white/50"}`} />
+                          <Icon className={`w-4 h-4 ${plan.highlighted ? "text-rose-300" : "text-white/55"}`} />
                         </div>
                         <div>
                           <p className="font-bold text-white text-sm">{plan.name}</p>
@@ -150,7 +149,7 @@ export default function StepPlan({
                               <>
                                 <p className="font-black text-lg text-white">€{plan.introPrice}</p>
                                 <p className="text-[10px] text-white/55 mt-0.5">first month</p>
-                                <p className="text-[10px] text-pink-300/70">then €{plan.price}/mo</p>
+                                <p className="text-[10px] text-rose-300/70">then €{plan.price}/mo</p>
                               </>
                             )
                           ) : (
@@ -163,8 +162,8 @@ export default function StepPlan({
                         <div className={[
                           "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0",
                           isSelected
-                            ? plan.highlighted ? "border-pink-500 bg-pink-500" : "border-white bg-white"
-                            : "border-white/20",
+                            ? plan.highlighted ? "border-rose-400 bg-rose-500" : "border-white bg-white"
+                            : "border-white/28",
                         ].join(" ")}>
                           {isSelected && <Check className={`w-3 h-3 ${plan.highlighted ? "text-white" : "text-[#0d0d14]"}`} />}
                         </div>
@@ -174,7 +173,7 @@ export default function StepPlan({
                     {/* Billing interval toggle — Plus card only */}
                     {plan.highlighted && (
                       <div
-                        className="flex items-center gap-0.5 bg-black/20 rounded-xl p-0.5 self-start"
+                        className="flex items-center gap-0.5 bg-white/[0.04] border border-white/16 rounded-xl p-0.5 self-start"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
@@ -198,7 +197,7 @@ export default function StepPlan({
                           }`}
                         >
                           Yearly
-                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1 py-0.5 rounded-full leading-none">
+                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-1 py-0.5 rounded-full leading-none">
                             -44%
                           </span>
                         </button>
@@ -208,7 +207,7 @@ export default function StepPlan({
                     <ul className="flex flex-col gap-1.5">
                       {plan.features.map((feat) => (
                         <li key={feat} className="flex items-start gap-2">
-                          <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-400" />
+                          <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-white/70" />
                           <span className="text-xs text-white/55">{feat}</span>
                         </li>
                       ))}
@@ -230,7 +229,7 @@ export default function StepPlan({
             className="flex flex-col gap-6"
           >
             <div className="flex flex-col gap-2">
-              <p className="text-xs text-pink-400 font-semibold uppercase tracking-widest">Plus</p>
+              <p className="text-xs text-white/45 font-semibold uppercase tracking-widest">Plus</p>
               <h2 className="text-2xl font-bold text-white">How often?</h2>
               <p className="text-white/50 text-sm">We&apos;ll reveal a new date on your chosen schedule.</p>
             </div>
@@ -244,17 +243,17 @@ export default function StepPlan({
                   className={[
                     "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-200",
                     selectedCadence === value
-                      ? "bg-gradient-to-r from-pink-500/20 to-rose-500/10 border-pink-500 text-white"
-                      : "bg-white/5 border-white/10 text-white/80 hover:border-white/30",
+                      ? "bg-white/[0.075] border-rose-400/70 text-white"
+                      : "bg-white/[0.035] border-white/16 text-white/80 hover:border-white/30",
                   ].join(" ")}
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-sm">{label}</p>
-                    <p className={`text-xs mt-0.5 ${selectedCadence === value ? "text-pink-300/70" : "text-white/55"}`}>
+                    <p className={`text-xs mt-0.5 ${selectedCadence === value ? "text-rose-300/70" : "text-white/55"}`}>
                       {sublabel}
                     </p>
                   </div>
-                  {selectedCadence === value && <Check className="w-4 h-4 text-pink-400 shrink-0" />}
+                  {selectedCadence === value && <Check className="w-4 h-4 text-rose-300 shrink-0" />}
                 </button>
               ))}
             </div>

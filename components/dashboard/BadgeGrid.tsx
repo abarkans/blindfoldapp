@@ -100,7 +100,7 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
         {/* Close button */}
         <button
           onClick={onClose}
-          className="pointer-events-auto absolute top-8 right-6 w-10 h-10 rounded-full bg-white/10 border border-white/15 flex items-center justify-center hover:bg-white/20 transition-colors"
+          className="pointer-events-auto absolute top-8 right-6 w-10 h-10 rounded-full bg-white/[0.075] border border-white/15 flex items-center justify-center hover:bg-white/20 transition-colors"
           aria-label="Close"
         >
           <X className="w-5 h-5 text-white/70" />
@@ -228,3 +228,4 @@ export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
     </>
   );
 }
+

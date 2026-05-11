@@ -42,7 +42,7 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
   }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-6 pt-4">
+    <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold text-white">Who are we planning for?</h2>
         <p className="text-white/50 text-sm">We&apos;ll use your names to make dates feel personal.</p>
@@ -56,9 +56,9 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
           error={errors.partner1?.message}
           {...register("partner1")}
         />
-        <div className="flex flex-col gap-4 rounded-2xl border border-white/12 bg-white/[0.04] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.16)]">
+        <div className="flex flex-col gap-4 rounded-2xl border border-white/16 bg-white/[0.035] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
           <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
-            <Mail className="h-4 w-4 text-pink-300" />
+            <Mail className="h-4 w-4 text-white/60" />
             <span>Partner details</span>
           </div>
           <Input

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import LinkButton from "@/components/ui/LinkButton";
+import PublicPageShell from "@/components/ui/PublicPageShell";
 import { motion } from "framer-motion";
 import { Trash2, AlertCircle, ShieldAlert } from "lucide-react";
 import { confirmAccountDeletion } from "@/app/actions/delete-account";
@@ -38,7 +39,8 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
   }
 
   return (
-    <div className="min-h-dvh flex items-center justify-center p-4 bg-[#0d0d14]">
+    <PublicPageShell>
+    <div className="min-h-dvh flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -49,7 +51,7 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
           <Image src="/logo.png" alt="BlindfoldDate" width={140} height={36} className="object-contain" />
         </Link>
 
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm text-center">
+        <div className="bg-[#030303]/88 border border-white/16 rounded-3xl p-6 backdrop-blur-xl text-center shadow-[0_28px_80px_rgba(0,0,0,0.45)]">
           {state === "ready" && (
             <>
               <div className="w-14 h-14 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center mx-auto mb-5">
@@ -127,5 +129,6 @@ export default function ConfirmDeleteClient({ state, token, email, message }: Pr
         </div>
       </motion.div>
     </div>
+    </PublicPageShell>
   );
 }

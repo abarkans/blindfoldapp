@@ -63,6 +63,7 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
               max={200}
               step={5}
               formatValue={(v) => `€${v}`}
+              tone="neutral"
             />
           )}
         />
@@ -80,11 +81,11 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
             className={[
               "w-full flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200",
               dateOutside
-                ? "bg-pink-500/20 border-pink-500 text-white"
-                : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
+                ? "bg-white/[0.075] border-rose-400/70 text-white"
+                : "bg-white/[0.035] border-white/16 text-white/55 hover:border-white/30",
             ].join(" ")}
           >
-            <MapPin className={`w-5 h-5 ${dateOutside ? "text-pink-400" : ""}`} />
+            <MapPin className={`w-5 h-5 ${dateOutside ? "text-rose-300" : "text-white/45"}`} />
             <div className="text-left">
               <p className="text-sm font-semibold">Date night outside home</p>
               <p className="text-xs opacity-60">Use nearby places</p>
@@ -97,11 +98,11 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
             className={[
               "w-full flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200",
               dateAtHome
-                ? "bg-pink-500/20 border-pink-500 text-white"
-                : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
+                ? "bg-white/[0.075] border-rose-400/70 text-white"
+                : "bg-white/[0.035] border-white/16 text-white/55 hover:border-white/30",
             ].join(" ")}
           >
-            <House className={`w-5 h-5 ${dateAtHome ? "text-pink-400" : ""}`} />
+            <House className={`w-5 h-5 ${dateAtHome ? "text-rose-300" : "text-white/45"}`} />
             <div className="text-left">
               <p className="text-sm font-semibold">Date night at home</p>
               <p className="text-xs opacity-60">Cook, play, make something</p>

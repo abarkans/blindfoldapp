@@ -85,16 +85,15 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
             <motion.button
               key={id}
               type="button"
-              whileTap={{ scale: 0.93 }}
               onClick={() => toggle(id)}
               className={[
                 "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200",
                 isSelected
-                  ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
-                  : "bg-white/5 border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200",
+                  ? "bg-white/[0.075] border-rose-400/70 text-white"
+                  : "bg-white/[0.035] border-white/16 text-white/48 hover:border-white/30 hover:text-white/75",
               ].join(" ")}
             >
-              <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : "text-slate-400"}`} />
+              <Icon className={`w-5 h-5 ${isSelected ? "text-rose-300" : "text-white/45"}`} />
               <span className="text-xs font-medium leading-tight">{label}</span>
             </motion.button>
           );
@@ -107,11 +106,11 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="bg-gradient-to-br from-pink-500/15 to-violet-500/10 border border-pink-500/40 rounded-2xl p-4 flex flex-col gap-3"
+          className="bg-[#050202] border border-rose-400/40 rounded-2xl p-4 flex flex-col gap-3 shadow-[0_18px_60px_rgba(0,0,0,0.24)]"
         >
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-pink-500/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+            <div className="w-7 h-7 rounded-lg bg-rose-500/15 border border-rose-400/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-rose-300" />
             </div>
             <p className="text-sm font-bold text-white">Unlock every date category</p>
           </div>
@@ -119,7 +118,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-pink-500/20 hover:from-pink-400 hover:to-violet-500 transition-all active:scale-[0.98]"
+            className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-full bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-500/20 hover:bg-rose-400 transition-all active:scale-[0.98]"
           >
             Switch to Plus
             <ArrowRight className="w-3.5 h-3.5" />

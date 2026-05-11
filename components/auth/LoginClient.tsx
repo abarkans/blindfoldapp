@@ -12,6 +12,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import PublicPageShell from "@/components/ui/PublicPageShell";
 import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
 
 const loginSchema = z.object({
@@ -95,7 +96,8 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <PublicPageShell>
+    <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
@@ -106,7 +108,7 @@ export default function LoginClient() {
         </Link>
 
         {/* Card */}
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
+        <div className="bg-[#030303]/88 border border-white/16 rounded-3xl p-6 backdrop-blur-xl shadow-[0_28px_80px_rgba(0,0,0,0.45)]" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
           <h2 className="text-lg font-bold text-white mb-5">Welcome back</h2>
 
           <Button
@@ -126,9 +128,9 @@ export default function LoginClient() {
           </Button>
 
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 border-t border-white/10" />
+            <div className="flex-1 border-t border-white/16" />
             <span className="text-xs text-white/30">or sign in with email</span>
-            <div className="flex-1 border-t border-white/10" />
+            <div className="flex-1 border-t border-white/16" />
           </div>
 
           {error && (
@@ -194,5 +196,6 @@ export default function LoginClient() {
         </p>
       </div>
     </div>
+    </PublicPageShell>
   );
 }

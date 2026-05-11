@@ -10,6 +10,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import PublicPageShell from "@/components/ui/PublicPageShell";
 import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
 
 const schema = z.object({
@@ -63,13 +64,14 @@ export default function ForgotPasswordClient() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <PublicPageShell>
+    <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8">
           <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
         </Link>
 
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
+        <div className="bg-[#030303]/88 border border-white/16 rounded-3xl p-6 backdrop-blur-xl shadow-[0_28px_80px_rgba(0,0,0,0.45)]">
           {sent ? (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <CheckCircle className="w-10 h-10 text-emerald-400" />
@@ -116,5 +118,6 @@ export default function ForgotPasswordClient() {
         </p>
       </div>
     </div>
+    </PublicPageShell>
   );
 }

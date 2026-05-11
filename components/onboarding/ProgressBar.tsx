@@ -16,16 +16,16 @@ export default function ProgressBar({ current, total, labels }: ProgressBarProps
           Step {current} of {total}
         </span>
         {labels && labels[current - 1] && (
-          <span className="text-xs text-rose-400 font-semibold">
+          <span className="text-xs text-white/70 font-semibold">
             {labels[current - 1]}
           </span>
         )}
       </div>
       <div className="flex gap-1.5">
         {Array.from({ length: total }).map((_, i) => (
-          <div key={i} className="flex-1 h-1 rounded-full overflow-hidden bg-white/10">
+          <div key={i} className="flex-1 h-1 rounded-full overflow-hidden bg-white/12">
             <motion.div
-              className="h-full rounded-full bg-rose-400"
+              className="h-full rounded-full bg-white/75"
               initial={{ width: i < current - 1 ? "100%" : "0%" }}
               animate={{ width: i < current ? "100%" : "0%" }}
               transition={{ duration: 0.4, ease: "easeOut" }}

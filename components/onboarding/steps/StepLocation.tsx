@@ -177,11 +177,11 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="bg-gradient-to-br from-pink-500/10 to-rose-500/5 border border-pink-500/20 rounded-3xl p-5 flex flex-col gap-4"
+            className="bg-white/[0.035] border border-white/16 rounded-3xl p-5 flex flex-col gap-4 shadow-[0_18px_60px_rgba(0,0,0,0.24)]"
           >
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-pink-500/20 flex items-center justify-center shrink-0">
-                <Navigation className="w-4 h-4 text-pink-400" />
+              <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/16 flex items-center justify-center shrink-0">
+                <Navigation className="w-4 h-4 text-white/65" />
               </div>
               <p className="text-sm text-white/70 leading-relaxed">
                 We find <span className="text-white font-medium">real venues</span> near you — restaurants, parks, galleries.
@@ -210,7 +210,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
             className="flex flex-col items-center gap-3 py-8"
           >
             <motion.div
-              className="w-12 h-12 rounded-full border-2 border-pink-500/30 border-t-pink-500"
+              className="w-12 h-12 rounded-full border-2 border-white/18 border-t-white/75"
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             />
@@ -240,7 +240,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-4 flex items-center gap-3"
+            className="bg-emerald-500/10 border border-emerald-500/35 rounded-2xl p-4 flex items-center gap-3"
           >
             <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
               <MapPin className="w-4 h-4 text-emerald-400" />
@@ -282,7 +282,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
               placeholder="Search city or town…"
               value={cityInput}
               onChange={(e) => { setCityInput(e.target.value); setCityError(""); }}
-              className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-pink-500/60 transition-colors"
+              className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/[0.035] border border-white/16 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-rose-400/70 transition-colors"
               style={{ fontSize: "16px" }}
             />
           </div>
@@ -295,7 +295,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.15 }}
-                className="bg-[#1a1a2e] border border-white/10 rounded-2xl overflow-hidden"
+                className="bg-[#030303] border border-white/16 rounded-2xl overflow-hidden shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
               >
                 {suggestions.map((s, i) => (
                   <button
@@ -328,6 +328,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
           max={maxRadiusKm}
           step={1}
           formatValue={(v) => formatRadius(v, unitSystem)}
+          tone="neutral"
         />
         <div className="flex justify-between text-[10px] text-white/55 px-1">
           <span>Nearby</span>

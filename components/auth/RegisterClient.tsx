@@ -13,6 +13,7 @@ import { isDisposableEmail } from "@/lib/utils/disposable-emails";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PasswordStrength from "@/components/ui/PasswordStrength";
+import PublicPageShell from "@/components/ui/PublicPageShell";
 import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
 
 const registerSchema = z
@@ -30,7 +31,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 function ConsentText() {
   return (
-    <p className="text-xs text-white/35 text-center leading-relaxed mt-5 pt-4 border-t border-white/[0.06]">
+    <p className="text-xs text-white/35 text-center leading-relaxed mt-5 pt-4 border-t border-white/14">
       By continuing you confirm you are 18+ and agree to our{" "}
       <Link
         href="/legal/terms"
@@ -203,7 +204,8 @@ export default function RegisterClient() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <PublicPageShell>
+      <div className="min-h-dvh flex items-center justify-center p-4">
         <div className="w-full max-w-sm text-center">
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-8 h-8 text-emerald-400" />
@@ -256,18 +258,20 @@ export default function RegisterClient() {
           </div>
         </div>
       </div>
+      </PublicPageShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <PublicPageShell>
+    <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
           <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
           <p className="text-white/40 text-sm">Your first date is two minutes away</p>
         </Link>
 
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm overflow-hidden" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
+        <div className="bg-[#030303]/88 border border-white/16 rounded-3xl p-6 backdrop-blur-xl overflow-hidden shadow-[0_28px_80px_rgba(0,0,0,0.45)]" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
             {!emailStep ? (
               <div>
                 <h2 className="text-lg font-bold text-white mb-5">Create account</h2>
@@ -289,15 +293,15 @@ export default function RegisterClient() {
                 </Button>
 
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="flex-1 border-t border-white/10" />
+                  <div className="flex-1 border-t border-white/16" />
                   <span className="text-xs text-white/30">or</span>
-                  <div className="flex-1 border-t border-white/10" />
+                  <div className="flex-1 border-t border-white/16" />
                 </div>
 
                 <button
                   type="button"
                   onClick={() => router.push(inviteParam ? `?invite=${encodeURIComponent(inviteParam)}${invitedEmailParam ? `&email=${encodeURIComponent(invitedEmailParam)}` : ""}&step=email` : planParam ? `?plan=${planParam}&step=email` : "?step=email", { scroll: false })}
-                  className="w-full flex items-center justify-center gap-2 h-12 rounded-full border border-white/15 text-white/70 text-sm font-medium hover:border-white/25 hover:text-white hover:bg-white/5 transition-all"
+                  className="w-full flex items-center justify-center gap-2 h-12 rounded-full border border-white/18 text-white/70 text-sm font-medium hover:border-white/30 hover:text-white hover:bg-white/5 transition-all"
                 >
                   <Mail className="w-4 h-4" />
                   Continue with email
@@ -383,5 +387,6 @@ export default function RegisterClient() {
         </p>
       </div>
     </div>
+    </PublicPageShell>
   );
 }

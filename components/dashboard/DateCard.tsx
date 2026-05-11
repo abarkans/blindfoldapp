@@ -499,10 +499,10 @@ export default function DateCard({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="bg-white/5 border border-white/10 rounded-3xl p-5 mb-4"
+          className="bg-white/[0.035] border border-white/16 rounded-3xl p-5 mb-4"
         >
           <div className="flex items-center gap-2 mb-4">
-            <CalendarClock className="w-4 h-4 text-rose-400" />
+            <CalendarClock className="w-4 h-4 text-white/65" />
             <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Next mystery date</p>
           </div>
           <div className="grid grid-cols-4 gap-2">
@@ -512,7 +512,7 @@ export default function DateCard({
               { value: countdown.minutes, label: "Mins" },
               { value: countdown.seconds, label: "Secs" },
             ].map(({ value, label }) => (
-              <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3 text-center">
+              <div key={label} className="bg-white/[0.035] border border-white/16 rounded-2xl py-3 text-center">
                 <p className="text-2xl font-black text-white tabular-nums">{String(value).padStart(2, "0")}</p>
                 <p className="text-[10px] text-white/55 mt-0.5">{label}</p>
               </div>
@@ -529,23 +529,19 @@ export default function DateCard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 backdrop-blur-sm"
+        className="relative overflow-hidden rounded-3xl border border-white/16 bg-[#030303] backdrop-blur-sm"
       >
-        {/* Glow */}
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-rose-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
-
         <div className="relative p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-rose-400" />
-              <span className="text-xs font-semibold text-rose-400 uppercase tracking-widest">
+              <Sparkles className="w-4 h-4 text-white/65" />
+              <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
                 {revealed ? (completed ? "Completed Date" : "Current Date") : "Mystery Date"}
               </span>
             </div>
             {nextRevealDate && !canReveal && !hasActiveDate && (
-              <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1">
+              <div className="flex items-center gap-1.5 bg-white/[0.075] rounded-full px-3 py-1">
                 <Clock className="w-3 h-3 text-white/50" />
                 <span className="text-xs text-white/50">Next {formatRelative(nextRevealDate)}</span>
               </div>
@@ -564,11 +560,11 @@ export default function DateCard({
               >
                 {completed ? (
                   /* ── COMPLETED: collapsed card ── */
-                  <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-4 py-4">
+                  <div className="flex items-center gap-4 bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-4">
                     {isVenue(dateIdea) ? (
-                      <MapPin className="w-7 h-7 text-pink-400 shrink-0" />
+                      <MapPin className="w-7 h-7 text-white/65 shrink-0" />
                     ) : (
-                      <Sparkles className="w-7 h-7 text-pink-400 shrink-0" />
+                      <Sparkles className="w-7 h-7 text-white/65 shrink-0" />
                     )}
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-white truncate">
@@ -591,7 +587,7 @@ export default function DateCard({
                       {[0, 1, 2].map((i) => (
                         <motion.div
                           key={i}
-                          className="w-2 h-2 rounded-full bg-rose-400"
+                          className="w-2 h-2 rounded-full bg-white/70"
                           animate={{ y: [0, -8, 0] }}
                           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
                         />
@@ -621,11 +617,11 @@ export default function DateCard({
                     className="flex flex-col gap-4"
                   >
                     {/* Peek preview */}
-                    <div className="bg-gradient-to-br from-rose-500/15 to-violet-600/10 border border-rose-500/20 rounded-2xl p-4 text-center">
+                    <div className="bg-white/[0.045] border border-white/16 rounded-2xl p-4 text-center">
                       {isVenue(dateIdea) ? (
                         <>
-                          <div className="w-12 h-12 rounded-xl bg-rose-500/20 flex items-center justify-center mx-auto mb-3">
-                            <MapPin className="w-6 h-6 text-rose-400" />
+                          <div className="w-12 h-12 rounded-xl bg-white/[0.06] flex items-center justify-center mx-auto mb-3">
+                            <MapPin className="w-6 h-6 text-white/65" />
                           </div>
                           <p className="text-base font-bold text-white mb-1">{dateIdea.display_name}</p>
                           <div className="flex items-center justify-center gap-1.5">
@@ -634,7 +630,7 @@ export default function DateCard({
                             {dateIdea.ai?.vibe && (
                               <>
                                 <span className="text-white/20">·</span>
-                                <span className="text-xs text-rose-300">{dateIdea.ai.vibe}</span>
+                                <span className="text-xs text-white/70">{dateIdea.ai.vibe}</span>
                               </>
                             )}
                           </div>
@@ -642,7 +638,7 @@ export default function DateCard({
                       ) : (
                         <>
                           <p className="text-base font-bold text-white mb-1">{dateIdea.title}</p>
-                          <p className="text-xs text-rose-300">{dateIdea.vibe}</p>
+                          <p className="text-xs text-white/70">{dateIdea.vibe}</p>
                         </>
                       )}
                     </div>
@@ -679,7 +675,7 @@ export default function DateCard({
                 ) : isVenue(dateIdea) ? (
                   /* ── ACCEPTED VENUE ── */
                   <>
-                    <div className="relative mb-4 h-52 overflow-hidden rounded-2xl bg-white/5">
+                    <div className="relative mb-4 h-52 overflow-hidden rounded-2xl bg-white/[0.035]">
                       {dateIdea.photo_name && dateIdea.signed_photo_url ? (
                         <Image
                           src={dateIdea.signed_photo_url}
@@ -725,7 +721,7 @@ export default function DateCard({
                                 size="sm"
                                 aria-label="Call venue"
                                 title="Call venue"
-                                className="h-11 w-11 rounded-full bg-white text-rose-500 p-0 shadow-lg shadow-black/25 hover:bg-white/90 hover:text-rose-500"
+                                className="h-11 w-11 rounded-full bg-white text-white/70 p-0 shadow-lg shadow-black/25 hover:bg-white/90 hover:text-white/70"
                               >
                                 <Phone className="h-5 w-5" />
                               </LinkButton>
@@ -742,15 +738,15 @@ export default function DateCard({
                         </div>
                         <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45">
                           <span className="inline-flex items-center gap-1.5">
-                            <Timer className="h-3.5 w-3.5 text-rose-300/70" />
+                            <Timer className="h-3.5 w-3.5 text-white/55" />
                             {dateIdea.ai.duration}
                           </span>
                           <span className="inline-flex items-center gap-1.5">
-                            <Wallet className="h-3.5 w-3.5 text-rose-300/70" />
+                            <Wallet className="h-3.5 w-3.5 text-white/55" />
                             {dateIdea.ai.budget_range || getPriceLevelLabel(dateIdea.price_level)}
                           </span>
                           <span className="inline-flex min-w-0 items-center gap-1.5">
-                            <MapPin className="h-3.5 w-3.5 shrink-0 text-rose-300/70" />
+                            <MapPin className="h-3.5 w-3.5 shrink-0 text-white/55" />
                             <span className="truncate">{venueShortAddress}</span>
                           </span>
                         </div>
@@ -769,7 +765,7 @@ export default function DateCard({
                         )}
                         {dateIdea.ai?.mission && (
                           <div className={dateIdea.ai.description ? "mt-3" : ""}>
-                            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-violet-300">Your mission</p>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-white/65">Your mission</p>
                             <p className="text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
                           </div>
                         )}
@@ -780,7 +776,7 @@ export default function DateCard({
                       <div className="mb-4 space-y-2 text-sm text-white/60">
                         {dateIdea.ai?.preparation && (
                           <p>
-                            <span className="font-semibold text-pink-300">Before you go: </span>
+                            <span className="font-semibold text-white/70">Before you go: </span>
                             {dateIdea.ai.preparation}
                           </p>
                         )}
@@ -841,23 +837,23 @@ export default function DateCard({
                 ) : (
                   /* ── ACCEPTED AI ── */
                   <>
-                    <div className="bg-gradient-to-br from-rose-500/20 to-violet-600/10 rounded-2xl p-5 mb-4 text-center border border-rose-500/20">
+                    <div className="bg-gradient-to-br from-white/[0.06] to-white/[0.025] rounded-2xl p-5 mb-4 text-center border border-white/16">
                       <h3 className="text-xl font-bold text-white mb-1">{dateIdea.title}</h3>
-                      <p className="text-xs text-rose-300 font-medium">{dateIdea.vibe}</p>
+                      <p className="text-xs text-white/70 font-medium">{dateIdea.vibe}</p>
                     </div>
 
                     <p className="text-white/60 text-sm leading-relaxed mb-4">{dateIdea.description}</p>
 
                     {dateIdea.mission && (
-                      <div className="bg-violet-500/8 border border-violet-500/20 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">The plan</p>
+                      <div className="bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-white/65 uppercase tracking-wider mb-1">The plan</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.mission}</p>
                       </div>
                     )}
 
                     {!isFree && dateIdea.preparation && (
-                      <div className="bg-pink-500/8 border border-pink-500/20 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">Before you go</p>
+                      <div className="bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-white/65 uppercase tracking-wider mb-1">Before you go</p>
                         <p className="text-sm text-white/70 leading-relaxed">{dateIdea.preparation}</p>
                       </div>
                     )}
@@ -875,8 +871,8 @@ export default function DateCard({
                         { icon: Wallet, value: dateIdea.budget_range },
                         { icon: MapPin, value: dateIdea.tags[0] ?? "Anywhere" },
                       ].map(({ icon: Icon, value }) => (
-                        <div key={value} className="flex flex-col items-center gap-1 bg-white/5 rounded-2xl p-3 border border-white/8">
-                          <Icon className="w-3.5 h-3.5 text-rose-400" />
+                        <div key={value} className="flex flex-col items-center gap-1 bg-white/[0.035] rounded-2xl p-3 border border-white/16">
+                          <Icon className="w-3.5 h-3.5 text-white/65" />
                           <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
                         </div>
                       ))}
@@ -884,7 +880,7 @@ export default function DateCard({
 
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {dateIdea.tags.map((tag) => (
-                        <span key={tag} className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">{tag}</span>
+                        <span key={tag} className="px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/16 text-xs text-white/70">{tag}</span>
                       ))}
                     </div>
 
@@ -919,8 +915,8 @@ export default function DateCard({
 
                 {dateIdea && dateTeaser && !revealed ? (
                   <div className="flex flex-col gap-4">
-                    <div className="rounded-2xl bg-gradient-to-br from-rose-500/12 to-violet-600/10 p-4">
-                      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-rose-300">The teaser</p>
+                    <div className="rounded-2xl bg-white/[0.04] p-4">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/70">The teaser</p>
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           { icon: Sparkles, label: "Vibe", value: dateTeaser.vibe },
@@ -929,7 +925,7 @@ export default function DateCard({
                           { icon: MapPin, label: "The hook", value: dateTeaser.hook },
                         ].map(({ icon: Icon, label, value }) => (
                           <div key={label} className="flex items-center gap-3 py-1.5">
-                            <Icon className="h-4 w-4 shrink-0 text-rose-300/75" />
+                            <Icon className="h-4 w-4 shrink-0 text-white/60" />
                             <div className="min-w-0">
                               <p className="text-[10px] font-semibold uppercase tracking-wider text-white/35">{label}</p>
                               <p className="mt-0.5 text-sm font-semibold leading-snug text-white/80">{value}</p>
@@ -972,7 +968,7 @@ export default function DateCard({
                       {[0, 1, 2].map((i) => (
                         <motion.div
                           key={i}
-                          className="w-2 h-2 rounded-full bg-rose-400"
+                          className="w-2 h-2 rounded-full bg-white/70"
                           animate={{ y: [0, -8, 0] }}
                           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
                         />
@@ -1021,15 +1017,15 @@ export default function DateCard({
             onClick={() => setPartnerInviteModalOpen(false)}
           />
           <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-            <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/60">
+            <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
               <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 rounded-2xl bg-pink-500/15 border border-pink-500/20 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-pink-400" />
+                <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-white/65" />
                 </div>
                 <button
                   type="button"
                   onClick={() => setPartnerInviteModalOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
                   aria-label="Close partner invite dialog"
                 >
                   <X className="w-4 h-4 text-white/60" />
@@ -1091,15 +1087,15 @@ export default function DateCard({
             <div
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4"
             >
-              <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/60">
+              <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-11 h-11 rounded-2xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
-                    <Shuffle className="w-5 h-5 text-violet-400" />
+                  <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
+                    <Shuffle className="w-5 h-5 text-white/65" />
                   </div>
                   <button
                     type="button"
                     onClick={() => setRerollModalOpen(false)}
-                    className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                    className="w-8 h-8 rounded-full bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
                   >
                     <X className="w-4 h-4 text-white/60" />
                   </button>
@@ -1147,15 +1143,15 @@ export default function DateCard({
             onClick={() => setAcceptConfirmOpen(false)}
           />
           <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-            <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/60">
+            <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
               <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 rounded-2xl bg-pink-500/15 border border-pink-500/20 flex items-center justify-center">
-                  <Check className="w-5 h-5 text-pink-400" />
+                <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
+                  <Check className="w-5 h-5 text-white/65" />
                 </div>
                 <button
                   type="button"
                   onClick={() => setAcceptConfirmOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
                 >
                   <X className="w-4 h-4 text-white/60" />
                 </button>
@@ -1200,3 +1196,5 @@ export default function DateCard({
     </>
   );
 }
+
+

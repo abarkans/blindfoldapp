@@ -15,6 +15,7 @@ import StepInterests from "./steps/StepInterests";
 import StepLogistics from "./steps/StepLogistics";
 import StepLocation from "./steps/StepLocation";
 import Button from "@/components/ui/Button";
+import PublicPageShell from "@/components/ui/PublicPageShell";
 import type { IdentityFormData, LogisticsFormData } from "@/lib/schemas/onboarding";
 import type { LocationFormData } from "./steps/StepLocation";
 import type { PlanId } from "@/lib/plans";
@@ -250,7 +251,8 @@ export default function OnboardingFlow({
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[#0d0d14]">
+    <PublicPageShell className="fixed inset-0">
+    <div className="relative z-10 flex h-dvh flex-col">
       {/* Scrollable step content (header scrolls with content) */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 max-w-sm mx-auto">
@@ -386,7 +388,7 @@ export default function OnboardingFlow({
 
       {/* Fixed bottom nav bar — mobile only, outside motion wrapper to avoid transform stacking context */}
       <nav
-        className="md:hidden shrink-0 bg-[#0d0d14] border-t border-white/8 px-4 pt-3"
+        className="md:hidden shrink-0 border-t border-white/16 bg-black/72 px-4 pt-3 shadow-[0_-18px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
         style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="max-w-sm mx-auto flex gap-3">
@@ -415,5 +417,6 @@ export default function OnboardingFlow({
         </div>
       </nav>
     </div>
+    </PublicPageShell>
   );
 }

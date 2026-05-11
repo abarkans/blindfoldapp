@@ -480,10 +480,10 @@ export default function SettingsPanel({
         key={id}
         type="button"
         onClick={() => navigate(id)}
-        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-2xl hover:border-white/20 transition-colors active:scale-[0.98]"
+        className="flex items-center gap-4 p-4 bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors active:scale-[0.98]"
       >
         <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-          <Icon className="w-4 h-4 text-pink-400" />
+          <Icon className="w-4 h-4 text-white/65" />
         </div>
         <div className="flex-1 text-left min-w-0">
           <p className="text-sm font-semibold text-white">{label}</p>
@@ -526,7 +526,7 @@ export default function SettingsPanel({
             <button
               type="button"
               onClick={() => setSignOutConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/20 transition-all text-sm mt-6"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-white/16 text-white/55 hover:text-white hover:border-white/28 transition-all text-sm mt-6"
             >
               <LogOut className="w-4 h-4" />
               Sign out
@@ -540,7 +540,7 @@ export default function SettingsPanel({
                     onClick={() => setSignOutConfirm(false)}
                   />
                   <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-                    <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+                    <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
                       <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
                         <LogOut className="w-5 h-5 text-red-400" />
                       </div>
@@ -559,7 +559,7 @@ export default function SettingsPanel({
                         <button
                           type="button"
                           onClick={() => setSignOutConfirm(false)}
-                          className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98]"
+                          className="w-full py-3 rounded-full bg-white/[0.035] border border-white/16 text-white/60 font-semibold text-sm hover:border-white/28 hover:text-white/80 transition-colors duration-100 active:scale-[0.98]"
                         >
                           Cancel
                         </button>
@@ -589,15 +589,15 @@ export default function SettingsPanel({
                 )}
 
                 {/* Account information */}
-                <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
+                <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4">
                   <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-3">Account information</p>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/75 to-white/45 flex items-center justify-center text-sm font-bold text-white shrink-0">
                         {profile.partner_names.partner1.charAt(0).toUpperCase()}
                       </div>
                       <span className="text-white/40 text-sm font-medium">+</span>
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/55 to-white/30 flex items-center justify-center text-sm font-bold text-white shrink-0">
                         {profile.partner_names.partner2.charAt(0).toUpperCase()}
                       </div>
                     </div>
@@ -611,7 +611,7 @@ export default function SettingsPanel({
                 </div>
 
                 {/* Delete account */}
-                <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
+                <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
                       <Trash2 className="w-4 h-4 text-red-400" />
@@ -639,7 +639,7 @@ export default function SettingsPanel({
                         onClick={() => !deleting && (deleteSent ? (setDeleteConfirm(false), setDeleteSent(false)) : setDeleteConfirm(false))}
                       />
                       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-                        <div className="bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+                        <div className="bg-[#030303] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
                           {!deleteSent ? (
                             <>
                               <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
@@ -665,7 +665,7 @@ export default function SettingsPanel({
                                   type="button"
                                   onClick={() => setDeleteConfirm(false)}
                                   disabled={deleting}
-                                  className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/60 font-semibold text-sm hover:border-white/20 hover:text-white/80 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
+                                  className="w-full py-3 rounded-full bg-white/[0.035] border border-white/16 text-white/60 font-semibold text-sm hover:border-white/28 hover:text-white/80 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
                                 >
                                   Cancel
                                 </button>
@@ -688,7 +688,7 @@ export default function SettingsPanel({
                               <button
                                 type="button"
                                 onClick={() => { setDeleteConfirm(false); setDeleteSent(false); }}
-                                className="w-full py-3 rounded-full bg-white/5 border border-white/10 text-white/70 font-semibold text-sm hover:border-white/20 transition-colors duration-100 active:scale-[0.98]"
+                                className="w-full py-3 rounded-full bg-white/[0.035] border border-white/16 text-white/70 font-semibold text-sm hover:border-white/28 transition-colors duration-100 active:scale-[0.98]"
                               >
                                 Close
                               </button>
@@ -713,9 +713,9 @@ export default function SettingsPanel({
                 <div className="flex flex-col gap-3">
                   <Input label="My name" error={errors.partner1?.message} {...register("partner1")} />
                   <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
-                  <div className="mt-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <div className="mt-2 rounded-2xl border border-white/16 bg-white/[0.04] p-4">
                     <div className="mb-3 flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-pink-400" />
+                      <Mail className="h-4 w-4 text-white/65" />
                       <p className="text-sm font-semibold text-white">Partner access</p>
                     </div>
                     {partnerInviteStatus.state === "accepted" ? (
@@ -785,11 +785,11 @@ export default function SettingsPanel({
                           className={[
                             "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                             isSelected
-                              ? "bg-gradient-to-br from-pink-500/30 to-rose-500/20 border-pink-500 text-white"
-                              : "bg-white/5 border-white/10 text-white/70 hover:border-white/30 hover:text-white",
+                              ? "bg-gradient-to-br from-white/[0.075] to-white/[0.045] border-white/45 text-white"
+                              : "bg-white/[0.035] border-white/16 text-white/70 hover:border-white/30 hover:text-white",
                           ].join(" ")}
                         >
-                          <Icon className={`w-5 h-5 ${isSelected ? "text-pink-400" : "text-white/70"}`} />
+                          <Icon className={`w-5 h-5 ${isSelected ? "text-white/65" : "text-white/70"}`} />
                           <span className="text-xs font-medium leading-tight">{label}</span>
                         </button>
                       );
@@ -816,6 +816,7 @@ export default function SettingsPanel({
                         max={200}
                         step={5}
                         formatValue={(v) => `€${v}`}
+                        tone="neutral"
                       />
                     )}
                   />
@@ -831,8 +832,8 @@ export default function SettingsPanel({
                         className={[
                           "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
                           val
-                            ? "bg-pink-500/20 border-pink-500 text-pink-300"
-                            : "bg-white/5 border-white/10 text-white/50 hover:border-white/30",
+                            ? "bg-white/[0.06] border-white/45 text-white/70"
+                            : "bg-white/[0.035] border-white/16 text-white/50 hover:border-white/30",
                         ].join(" ")}
                       >
                         <Icon className="h-4 w-4" />
@@ -863,7 +864,7 @@ export default function SettingsPanel({
                         <button
                           type="button"
                           onClick={() => { setLocStatus("search"); setLat(null); setLng(null); setLocationLabel(""); }}
-                          className="text-xs font-semibold text-pink-400 hover:text-pink-300 transition-colors shrink-0 px-2.5 py-1 rounded-full bg-pink-500/10 hover:bg-pink-500/20"
+                          className="text-xs font-semibold text-white/65 hover:text-white/70 transition-colors shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.06]"
                         >
                           Change
                         </button>
@@ -872,7 +873,7 @@ export default function SettingsPanel({
                       <motion.div key="requesting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="flex items-center gap-3 px-4 py-3"
                       >
-                        <motion.div className="w-4 h-4 rounded-full border-2 border-pink-500/30 border-t-pink-500"
+                        <motion.div className="w-4 h-4 rounded-full border-2 border-white/18 border-t-white/75"
                           animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
                         <p className="text-sm text-white/55">Detecting location…</p>
@@ -891,17 +892,17 @@ export default function SettingsPanel({
                           <button
                             type="button"
                             onClick={handleDetectLocation}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-sm text-white/60 hover:border-white/25 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/[0.035] border border-white/16 text-sm text-white/60 hover:border-white/30 transition-colors"
                           >
-                            <Navigation className="w-3.5 h-3.5 text-pink-400" />
+                            <Navigation className="w-3.5 h-3.5 text-white/65" />
                             Detect
                           </button>
                           <button
                             type="button"
                             onClick={() => setLocStatus("search")}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-sm text-white/60 hover:border-white/25 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/[0.035] border border-white/16 text-sm text-white/60 hover:border-white/30 transition-colors"
                           >
-                            <Search className="w-3.5 h-3.5 text-pink-400" />
+                            <Search className="w-3.5 h-3.5 text-white/65" />
                             Search city
                           </button>
                         </div>
@@ -925,7 +926,7 @@ export default function SettingsPanel({
                           placeholder="Search city or town…"
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
-                          className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-pink-500/60 transition-colors"
+                          className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/[0.035] border border-white/16 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-white/45 transition-colors"
                           style={{ fontSize: "16px" }}
                         />
                       </div>
@@ -933,14 +934,14 @@ export default function SettingsPanel({
                         {suggestions.length > 0 && (
                           <motion.div
                             initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                            className="bg-[#1a1a2e] border border-white/10 rounded-2xl overflow-hidden"
+                            className="bg-[#030303] border border-white/16 rounded-2xl overflow-hidden"
                           >
                             {suggestions.map((s, i) => (
                               <button
                                 key={i}
                                 type="button"
                                 onClick={() => selectSuggestion(s)}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
+                                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.035] transition-colors border-b border-white/12 last:border-0"
                               >
                                 <MapPin className="w-3.5 h-3.5 text-white/50 shrink-0" />
                                 <span className="text-sm text-white/70 truncate">
@@ -962,6 +963,7 @@ export default function SettingsPanel({
                     max={maxRadiusKm}
                     step={1}
                     formatValue={(v) => formatRadius(v, unitSystem)}
+                    tone="neutral"
                   />
                   <div className="flex justify-between text-[10px] text-white/55 px-1 -mt-2">
                     <span>Walking distance</span>
@@ -971,7 +973,7 @@ export default function SettingsPanel({
                     <button
                       type="button"
                       onClick={() => navigate("plan")}
-                      className="text-[11px] text-violet-400/70 hover:text-violet-400 transition-colors text-left px-1"
+                      className="text-[11px] text-white/55 hover:text-white/75 transition-colors text-left px-1"
                     >
                       Upgrade to Plus for up to {formatRadius(PAID_MAX_RADIUS_KM, unitSystem)} →
                     </button>
@@ -993,15 +995,15 @@ export default function SettingsPanel({
                   <div className={[
                     "flex items-center gap-3 rounded-2xl border p-4",
                     isPlus
-                      ? "bg-gradient-to-br from-pink-500/15 to-violet-500/10 border-pink-500/40"
-                      : "bg-white/5 border-white/10",
+                      ? "bg-gradient-to-br from-white/[0.045] to-white/[0.025] border-white/22"
+                      : "bg-white/[0.035] border-white/16",
                   ].join(" ")}>
                     <div className={[
                       "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                      isPlus ? "bg-pink-500/20" : "bg-white/8",
+                      isPlus ? "bg-white/[0.06]" : "bg-white/[0.06]",
                     ].join(" ")}>
                       {isPlus
-                        ? <Crown className="w-4 h-4 text-pink-400" />
+                        ? <Crown className="w-4 h-4 text-white/65" />
                         : <Lock className="w-4 h-4 text-white/40" />}
                     </div>
                     <div>
@@ -1017,16 +1019,16 @@ export default function SettingsPanel({
                       </p>
                     </div>
                     {isPlus && (
-                      <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${profile.subscription_ends_at ? "text-amber-400 bg-amber-500/15 border border-amber-500/30" : "text-pink-400 bg-pink-500/15 border border-pink-500/30"}`}>
+                      <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${profile.subscription_ends_at ? "text-amber-400 bg-amber-500/15 border border-amber-500/30" : "text-white/65 bg-white/[0.045] border border-white/18"}`}>
                         {profile.subscription_ends_at ? "Cancels" : "Active"}
                       </span>
                     )}
                   </div>
 
                   {isStarter && (
-                    <div className="bg-gradient-to-br from-pink-500/15 to-violet-500/10 border border-pink-500/40 rounded-2xl p-5 flex flex-col gap-4">
+                    <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-white/22 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-pink-400" />
+                        <Sparkles className="w-4 h-4 text-white/65" />
                         <p className="text-sm font-bold text-white">Unlock Plus</p>
                         <div className="ml-auto text-right">
                           {billingInterval === "yearly" ? (
@@ -1075,7 +1077,7 @@ export default function SettingsPanel({
                       <ul className="flex flex-col gap-2">
                         {PLANS.find((p) => p.id === "subscription")!.features.map((text) => (
                           <li key={text} className="flex items-start gap-2">
-                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-pink-400" />
+                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-white/65" />
                             <span className="text-xs text-white font-semibold">{text}</span>
                           </li>
                         ))}
@@ -1098,7 +1100,7 @@ export default function SettingsPanel({
                       variant="ghost"
                       loading={managingSubscription}
                       onClick={handleManageSubscription}
-                      className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 border border-white/10 hover:border-white/20"
+                      className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 border border-white/16 hover:border-white/28"
                     >
                       Manage or cancel subscription
                     </Button>
@@ -1130,3 +1132,5 @@ export default function SettingsPanel({
     </div>
   );
 }
+
+

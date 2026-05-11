@@ -44,8 +44,8 @@ function FeedbackSection({
 }) {
   const cls =
     divider === "top"
-      ? "border-t border-white/8 pt-4 mt-2 mb-4"
-      : "border-b border-white/8 pb-4 mb-4";
+      ? "border-t border-white/16 pt-4 mt-2 mb-4"
+      : "border-b border-white/16 pb-4 mb-4";
   return (
     <motion.div
       className={cls}
@@ -100,13 +100,13 @@ function FeedbackSection({
               placeholder="Add a note... (optional)"
               maxLength={500}
               rows={2}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-[16px] text-white placeholder-white/30 resize-none focus:outline-none focus:border-white/20 transition-colors"
+              className="w-full bg-white/[0.035] border border-white/16 rounded-xl px-3 py-2.5 text-[16px] text-white placeholder-white/30 resize-none focus:outline-none focus:border-white/20 transition-colors"
             />
             <button
               type="button"
               onClick={onSubmit}
               disabled={submitting}
-              className="mt-2 w-full py-2.5 rounded-full bg-white/8 border border-white/15 text-sm font-semibold text-white hover:bg-white/12 transition-colors disabled:opacity-50"
+              className="mt-2 w-full py-2.5 rounded-full bg-white/[0.06] border border-white/15 text-sm font-semibold text-white hover:bg-white/[0.09] transition-colors disabled:opacity-50"
             >
               {submitting ? "Saving…" : "Submit rating"}
             </button>
@@ -259,7 +259,7 @@ export default function CompleteDateModal({
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative bg-[#13131f] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+            <div className="relative bg-[#030303] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
               <button
                 onClick={handleClose}
                 className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
@@ -297,14 +297,14 @@ export default function CompleteDateModal({
 
                   {/* Upsell card */}
                   <motion.div
-                    className="bg-gradient-to-br from-violet-500/20 to-rose-500/10 border border-violet-500/25 rounded-2xl p-4 mb-4 text-left"
+                    className="bg-gradient-to-br from-white/[0.06] to-white/[0.035] border border-white/16 rounded-2xl p-4 mb-4 text-left"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.18 }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center flex-shrink-0">
-                        <Lock className="w-4 h-4 text-violet-300" />
+                      <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/18 flex items-center justify-center flex-shrink-0">
+                        <Lock className="w-4 h-4 text-white/65" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-white mb-1">
@@ -318,7 +318,7 @@ export default function CompleteDateModal({
                   </motion.div>
 
                   {upgradeError && (
-                    <p className="text-xs text-rose-400 mb-3">{upgradeError}</p>
+                    <p className="text-xs text-white/65 mb-3">{upgradeError}</p>
                   )}
 
                   <Button
@@ -432,3 +432,5 @@ export default function CompleteDateModal({
     </AnimatePresence>
   );
 }
+
+
