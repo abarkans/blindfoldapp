@@ -378,9 +378,6 @@ export default function LandingV2Client() {
         {/* ── How it works ── */}
         <section id="how-it-works" className="px-6 md:px-10 pt-14 pb-28 md:pt-20 md:pb-44 max-w-[1280px] mx-auto">
           <div className="text-center mb-10 md:mb-16">
-            <p className="text-xs text-violet-400 font-medium uppercase tracking-[0.14em] mb-5">
-              The ritual
-            </p>
             <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
               Three steps,
               <br />
@@ -412,9 +409,6 @@ export default function LandingV2Client() {
         <section id="features" className="relative border-y border-white/[0.07] bg-black">
           <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
             <div className="text-left mb-10 md:mb-16">
-              <p className="text-xs text-amber-400 font-medium uppercase tracking-[0.14em] mb-5">
-                Everything included
-              </p>
               <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
                 No more &ldquo;I don&apos;t know,
                 <br />
@@ -433,7 +427,7 @@ export default function LandingV2Client() {
               <div
                 className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover" src="/features/feat-1.jpg" alt="Mystery date planning" />
+                <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover grayscale opacity-70" src="/features/feat-1.jpg" alt="Mystery date planning" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
@@ -460,7 +454,7 @@ export default function LandingV2Client() {
               <div
                 className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <Image fill sizes="33vw" className="object-cover" src="/features/feat-2.jpg" alt="Written for you" />
+                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-2.jpg" alt="Written for you" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Written for you two</h3>
@@ -472,7 +466,7 @@ export default function LandingV2Client() {
               <div
                 className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <Image fill sizes="33vw" className="object-cover" src="/features/feat-3.jpg" alt="Budget aware" />
+                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-3.jpg" alt="Budget aware" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Fits your wallet</h3>
@@ -484,7 +478,7 @@ export default function LandingV2Client() {
               <div
                 className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <Image fill sizes="33vw" className="object-cover" src="/features/feat-4.jpg" alt="One tap" />
+                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-4.jpg" alt="One tap" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">One tap to get there</h3>
@@ -496,7 +490,7 @@ export default function LandingV2Client() {
               <div
                 className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <Image fill sizes="66vw" className="object-cover" src="/features/feat-5.jpg" alt="Grow together" />
+                <Image fill sizes="66vw" className="object-cover grayscale opacity-70" src="/features/feat-5.jpg" alt="Grow together" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">Grow together</h3>
@@ -517,7 +511,7 @@ export default function LandingV2Client() {
               <div
                 className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <Image fill sizes="33vw" className="object-cover" src="/features/feat-6.jpg" alt="Anticipation" />
+                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-6.jpg" alt="Anticipation" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Anticipation built in</h3>
@@ -530,10 +524,7 @@ export default function LandingV2Client() {
 
         {/* ── Sample dates ── */}
         <section className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-          <div className="text-left mb-10 md:mb-14">
-            <p className="text-xs text-white/45 font-medium uppercase tracking-[0.14em] mb-5">
-              Sneak peek
-            </p>
+          <div className="text-center mb-10 md:mb-14">
             <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
               Dates like these,
               <br />
@@ -611,9 +602,6 @@ export default function LandingV2Client() {
         <section id="plans" className="relative border-t border-white/[0.07] bg-black">
         <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
           <div className="text-left md:text-center mb-10 md:mb-14">
-            <p className="text-xs text-rose-400 font-medium uppercase tracking-[0.14em] mb-5">
-              Pricing
-            </p>
             <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
               Simple, honest pricing.
               <br />
