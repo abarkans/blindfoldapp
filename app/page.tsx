@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LandingV3Client from "@/components/landing-v3/LandingV3Client";
+import LandingV2Client from "@/components/landing-v2/LandingV2Client";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -18,5 +18,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <LandingV3Client />;
+  return <LandingV2Client />;
 }
