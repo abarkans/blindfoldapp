@@ -448,6 +448,12 @@ export default function DateCard({
   }
 
   function handleRerollConfirm() {
+    if (otherPartnerReady) {
+      setRerollModalOpen(false);
+      setError("Your partner already accepted this date.");
+      return;
+    }
+
     setRerollModalOpen(false);
     setError("");
     setSuccessMessage("");
@@ -456,8 +462,9 @@ export default function DateCard({
         await rerollDate();
         ph?.capture("date_rerolled", { plan_type: planType });
       } catch (e) {
-        void e;
-        setError("Couldn't find a new date. Your original date is still saved.");
+        setError(e instanceof Error && e.message === "Your partner already accepted this date."
+          ? e.message
+          : "Couldn't find a new date. Your original date is still saved.");
       }
     });
   }
@@ -940,15 +947,24 @@ export default function DateCard({
                       <Sparkles className="w-4 h-4 mr-2" />
                       {currentUserReady ? "Waiting for partner" : "I'm ready"}
                     </Button>
-                    <Button
-                      size="md"
-                      variant="outline"
-                      disabled={!canReroll || currentUserReady}
-                      onClick={() => canReroll && setRerollModalOpen(true)}
-                      className="w-full"
-                    >
-                      Try another teaser
-                    </Button>
+                    {!currentUserReady && (
+                      <Button
+                        size="md"
+                        variant="outline"
+                        disabled={!canReroll}
+                        onClick={() => {
+                          if (!canReroll) return;
+                          if (otherPartnerReady) {
+                            setError("Your partner already accepted this date.");
+                            return;
+                          }
+                          setRerollModalOpen(true);
+                        }}
+                        className="w-full"
+                      >
+                        Not feeling it?
+                      </Button>
+                    )}
                   </div>
                 ) : !hasAcceptedPartner ? (
                   <div className="flex flex-col">

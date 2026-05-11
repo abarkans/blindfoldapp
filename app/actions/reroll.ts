@@ -14,6 +14,9 @@ const profileSchema = z.object({
   plan_type: z.string(),
   total_rerolls_used: z.number(),
   current_date_rerolled: z.boolean(),
+  date_accepted_at: z.string().nullable(),
+  reveal_owner_ready_at: z.string().nullable(),
+  reveal_partner_ready_at: z.string().nullable(),
   dates_completed_count: z.number().min(0).default(0),
   partner_names: z.object({ partner1: z.string().max(50), partner2: z.string().max(50) }),
   // Cap entry length and array length so a poisoned interests array cannot
@@ -40,7 +43,7 @@ export async function rerollDate(): Promise<void> {
 
   const { data: raw } = await supabase
     .from("profiles")
-    .select("plan_type, total_rerolls_used, current_date_rerolled, dates_completed_count, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
+    .select("plan_type, total_rerolls_used, current_date_rerolled, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at, dates_completed_count, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
     .eq("id", access.profileId)
     .single();
 
@@ -50,6 +53,12 @@ export async function rerollDate(): Promise<void> {
 
   const profile = profileSchema.parse(raw);
   const isFree = profile.plan_type !== "subscription";
+  const partnerReadyAt =
+    access.role === "owner" ? profile.reveal_partner_ready_at : profile.reveal_owner_ready_at;
+
+  if (profile.date_accepted_at || partnerReadyAt) {
+    throw new Error("Your partner already accepted this date.");
+  }
 
   // Writes go through the admin client because total_rerolls_used,
   // current_date_rerolled, date_idea, and date_accepted_at are protected by
