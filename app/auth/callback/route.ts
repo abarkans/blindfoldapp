@@ -25,7 +25,31 @@ export async function GET(request: Request) {
   // path-prefix traversal or query-string payloads through `next`.
   const ALLOWED_NEXT = new Set(["/dashboard", "/onboarding", "/reset-password", "/partner-invite"]);
   const next = searchParams.get("next") ?? "/dashboard";
-  const safePath = ALLOWED_NEXT.has(next) ? next : "/dashboard";
+  let safePath = ALLOWED_NEXT.has(next) ? next : "/dashboard";
+  const intent = searchParams.get("intent");
+
+  // OAuth is a sign-in-or-sign-up flow. For the register button, decide from
+  // the actual profile state after Google returns.
+  if (safePath === "/onboarding" || intent === "register") {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+
+    if (userId) {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("onboarding_complete")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("[auth/callback] profile lookup failed:", profileError.message);
+      } else if (profile?.onboarding_complete) {
+        safePath = "/dashboard";
+      } else if (intent === "register") {
+        safePath = "/onboarding";
+      }
+    }
+  }
 
   // Forward ?plan= when landing on onboarding so StepPlan can pre-select.
   // Only the two known values are forwarded; anything else is dropped.

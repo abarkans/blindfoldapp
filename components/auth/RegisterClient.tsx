@@ -196,7 +196,7 @@ export default function RegisterClient() {
           options: {
             redirectTo: inviteParam
               ? `${window.location.origin}/auth/callback?next=/partner-invite&invite=${encodeURIComponent(inviteParam)}`
-              : `${window.location.origin}/auth/callback?next=/onboarding${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
+              : `${window.location.origin}/auth/callback?intent=register${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
           },
       });
     }

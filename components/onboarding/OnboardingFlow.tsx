@@ -251,7 +251,7 @@ export default function OnboardingFlow({
   }
 
   return (
-    <PublicPageShell className="fixed inset-0">
+    <PublicPageShell className="fixed inset-0" decorate={false}>
     <div className="relative z-10 flex h-dvh flex-col">
       {/* Scrollable step content (header scrolls with content) */}
       <div className="flex-1 overflow-y-auto">
