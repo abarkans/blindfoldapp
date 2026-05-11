@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
-  Utensils, Music, TreePine, Palette, Dumbbell, Film,
+  Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart,
   Sparkles, ArrowRight,
 } from "lucide-react";
@@ -11,7 +11,7 @@ import { FREE_INTERESTS, MIN_INTEREST_CATEGORIES, type PlanId } from "@/lib/plan
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
-  { id: "music", label: "Live Music", icon: Music },
+  { id: "music", label: "Drinks & Nightlife", icon: Martini },
   { id: "nature", label: "Nature", icon: TreePine },
   { id: "art", label: "Art & Culture", icon: Palette },
   { id: "fitness", label: "Fitness", icon: Dumbbell },

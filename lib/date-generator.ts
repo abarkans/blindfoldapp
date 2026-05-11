@@ -133,16 +133,16 @@ const POOL: PoolItem[] = [
     budget_tier: "low",
     tags: ["Indoor", "Evening", "Competitive"],
   },
-  // Music
+  // Drinks & Nightlife
   {
     interests: ["music"],
-    title: "Mystery Gig Night",
-    description: "Tickets to a live act neither of you knows. Picked by genre only. Dress for the vibes.",
-    vibe: "Electric & Exciting",
-    duration: "3â€“4 hours",
-    budget_range: "â‚¬25â€“60",
+    title: "Mystery Bar Crawl",
+    description: "Three nearby spots, one drink or mocktail each, and a shared rating after every stop.",
+    vibe: "Playful & Social",
+    duration: "2â€“3 hours",
+    budget_range: "â‚¬25â€“50",
     budget_tier: "medium",
-    tags: ["Indoor", "Live Music", "Evening"],
+    tags: ["Indoor", "Nightlife", "Evening"],
   },
   // Fitness & Active
   {
@@ -279,4 +279,3 @@ export function generateDateIdea(
     tags: pick.tags,
   };
 }
-

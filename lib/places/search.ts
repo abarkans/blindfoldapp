@@ -49,18 +49,18 @@ type PlaceBusinessStatus =
   | "FUTURE_OPENING";
 
 const INTEREST_TO_PLACE_TYPES: Record<string, string[]> = {
-  food: ["restaurant", "cafe", "bakery"],
-  music: ["night_club", "bar"],
-  nature: ["park", "national_park"],
-  art: ["art_gallery", "museum"],
-  fitness: ["gym", "spa"],
-  cinema: ["movie_theater"],
+  food: ["restaurant", "cafe", "bakery", "brunch_restaurant", "dessert_restaurant"],
+  music: ["bar", "night_club", "cocktail_bar", "wine_bar", "pub", "brewery"],
+  nature: ["park", "national_park", "botanical_garden", "scenic_spot"],
+  art: ["art_gallery", "museum", "performing_arts_theater", "historical_place"],
+  fitness: ["gym", "spa", "yoga_studio", "ice_skating_rink"],
+  cinema: ["movie_theater", "planetarium"],
   books: ["library", "book_store"],
-  coffee: ["cafe"],
-  beach: ["beach"],
-  photography: ["tourist_attraction", "art_gallery"],
-  gaming: ["amusement_center", "bowling_alley"],
-  romance: ["spa", "restaurant"],
+  coffee: ["cafe", "coffee_shop", "tea_house"],
+  beach: ["beach", "lake", "marina"],
+  photography: ["tourist_attraction", "art_gallery", "observation_deck", "scenic_spot"],
+  gaming: ["amusement_center", "bowling_alley", "video_arcade", "miniature_golf_course"],
+  romance: ["spa", "restaurant", "wine_bar", "botanical_garden"],
 };
 
 const PRICE_LEVEL_LABELS: Record<string, string> = {
@@ -130,7 +130,7 @@ export async function searchNearbyVenues({
   // Map interests to place types, deduplicate
   const types = [
     ...new Set(interests.flatMap((i) => INTEREST_TO_PLACE_TYPES[i] ?? [])),
-  ].slice(0, 20);
+  ].slice(0, 50);
 
   if (types.length === 0) {
     throw new Error("No place types could be mapped from your interests.");

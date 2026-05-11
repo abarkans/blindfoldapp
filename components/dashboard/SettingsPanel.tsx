@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
-  AlertCircle, Utensils, Music, TreePine, Palette, Dumbbell, Film,
+  AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
   Sparkles, Lock, Check, Crown, UserCog, Trash2, Mail, House,
 } from "lucide-react";
@@ -28,7 +28,7 @@ import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
-  { id: "music", label: "Live Music", icon: Music },
+  { id: "music", label: "Drinks & Nightlife", icon: Martini },
   { id: "nature", label: "Nature", icon: TreePine },
   { id: "art", label: "Art & Culture", icon: Palette },
   { id: "fitness", label: "Fitness", icon: Dumbbell },
