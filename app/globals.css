@@ -35,3 +35,90 @@ summary {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
 }
+
+/* Keep lucide SVG strokes opaque. Fractional text colors make overlapping
+   strokes darker at intersections, so icon-only grays are full-color hexes. */
+.lucide.text-white\/20,
+.text-white\/20 .lucide:not([class*="text-"]) {
+  color: #333333;
+}
+
+.lucide.text-white\/25,
+.text-white\/25 .lucide:not([class*="text-"]) {
+  color: #404040;
+}
+
+.lucide.text-white\/30,
+.text-white\/30 .lucide:not([class*="text-"]) {
+  color: #4d4d4d;
+}
+
+.lucide.text-white\/35,
+.text-white\/35 .lucide:not([class*="text-"]) {
+  color: #595959;
+}
+
+.lucide.text-white\/40,
+.text-white\/40 .lucide:not([class*="text-"]) {
+  color: #666666;
+}
+
+.lucide.text-white\/45,
+.text-white\/45 .lucide:not([class*="text-"]) {
+  color: #737373;
+}
+
+.lucide.text-white\/50,
+.text-white\/50 .lucide:not([class*="text-"]) {
+  color: #808080;
+}
+
+.lucide.text-white\/55,
+.text-white\/55 .lucide:not([class*="text-"]) {
+  color: #8c8c8c;
+}
+
+.lucide.text-white\/60,
+.text-white\/60 .lucide:not([class*="text-"]) {
+  color: #999999;
+}
+
+.lucide.text-white\/62 {
+  color: #9e9e9e;
+}
+
+.lucide.text-white\/65,
+.text-white\/65 .lucide:not([class*="text-"]) {
+  color: #a6a6a6;
+}
+
+.lucide.text-white\/70,
+.text-white\/70 .lucide:not([class*="text-"]) {
+  color: #b3b3b3;
+}
+
+.lucide.text-white\/72 {
+  color: #b8b8b8;
+}
+
+.lucide.text-white\/75,
+.text-white\/75 .lucide:not([class*="text-"]) {
+  color: #bfbfbf;
+}
+
+.lucide.text-white\/80,
+.text-white\/80 .lucide:not([class*="text-"]) {
+  color: #cccccc;
+}
+
+.group:hover .lucide.group-hover\:text-white\/70 {
+  color: #b3b3b3;
+}
+
+.group:hover .lucide.group-hover\:text-white\/75 {
+  color: #bfbfbf;
+}
+
+.lucide.fill-white\/72 {
+  fill: #b8b8b8;
+}

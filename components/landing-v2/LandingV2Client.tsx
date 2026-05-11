@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import LinkButton from "@/components/ui/LinkButton";
 import Image from "next/image";
@@ -104,6 +104,24 @@ export default function LandingV2Client() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [heroVideo, setHeroVideo] = useState<(typeof HERO_VIDEOS)[number] | null>(null);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
+  const [activeSampleDate, setActiveSampleDate] = useState(0);
+  const sampleTouchStartX = useRef<number | null>(null);
+
+  const sampleDateCount = SAMPLE_DATES.length;
+  const previousSampleDate = (activeSampleDate - 1 + sampleDateCount) % sampleDateCount;
+  const nextSampleDate = (activeSampleDate + 1) % sampleDateCount;
+
+  function handleSampleTouchStart(e: React.TouchEvent) {
+    sampleTouchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleSampleTouchEnd(e: React.TouchEvent) {
+    if (sampleTouchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - sampleTouchStartX.current;
+    if (diff < -50) setActiveSampleDate(nextSampleDate);
+    if (diff > 50) setActiveSampleDate(previousSampleDate);
+    sampleTouchStartX.current = null;
+  }
 
   useEffect(() => {
     setHeroVideoReady(false);
@@ -538,64 +556,53 @@ export default function LandingV2Client() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            className="relative h-[450px] overflow-hidden md:hidden"
+            onTouchStart={handleSampleTouchStart}
+            onTouchEnd={handleSampleTouchEnd}
+          >
+            <button
+              type="button"
+              aria-label={`View ${SAMPLE_DATES[previousSampleDate].title}`}
+              onClick={() => setActiveSampleDate(previousSampleDate)}
+              className="absolute left-1/2 top-0 z-10 w-[82%] transition-transform duration-200"
+              style={{ transform: "translateX(-62%) scale(0.94)" }}
+            >
+              <DateExampleCard date={SAMPLE_DATES[previousSampleDate]} />
+            </button>
+            <div
+              className="absolute left-1/2 top-0 z-20 w-[82%] transition-transform duration-200"
+              style={{ transform: "translateX(-50%)" }}
+            >
+              <DateExampleCard date={SAMPLE_DATES[activeSampleDate]} />
+            </div>
+            <button
+              type="button"
+              aria-label={`View ${SAMPLE_DATES[nextSampleDate].title}`}
+              onClick={() => setActiveSampleDate(nextSampleDate)}
+              className="absolute left-1/2 top-0 z-10 w-[82%] transition-transform duration-200"
+              style={{ transform: "translateX(-38%) scale(0.94)" }}
+            >
+              <DateExampleCard date={SAMPLE_DATES[nextSampleDate]} />
+            </button>
+            <div className="absolute bottom-1 left-0 right-0 z-30 flex justify-center gap-1.5">
+              {SAMPLE_DATES.map((date, i) => (
+                <button
+                  key={date.title}
+                  type="button"
+                  onClick={() => setActiveSampleDate(i)}
+                  aria-label={`View ${date.title}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === activeSampleDate ? "w-5 bg-white" : "w-1.5 bg-[#3f3f3f]"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="hidden md:grid md:grid-cols-3 gap-6">
             {SAMPLE_DATES.map((date) => (
-              <div
-                key={date.title}
-                className="group rounded-3xl border border-white/14 bg-[#030303] overflow-hidden transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
-              >
-                <div className="relative h-56 overflow-hidden bg-black">
-                  <Image
-                    src={date.image}
-                    alt={date.title}
-                    fill
-                    sizes="(min-width: 768px) 33vw, 100vw"
-                    className="object-cover grayscale opacity-70"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/32 to-black/18" />
-                  <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full border border-white/18 bg-black/64 px-2.5 py-1 backdrop-blur-sm">
-                    <Star className="w-3 h-3 text-white/72 fill-white/72" />
-                    <span className="text-xs font-bold text-white">{date.rating}</span>
-                  </div>
-                  <div className="absolute top-4 left-4 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-white/62" />
-                    <span className="text-[10px] font-bold text-white/62 uppercase tracking-widest">Mystery Date</span>
-                  </div>
-                </div>
-
-                <div className="p-7 md:p-8">
-                  <h3 className="text-lg font-bold text-white mb-1">{date.title}</h3>
-                  <p className="text-sm text-white/52 font-semibold mb-3">{date.vibe}</p>
-                  <div className="flex items-center gap-1.5 mb-4">
-                    <MapPin className="w-3.5 h-3.5 text-white/40 shrink-0" />
-                    <p className="text-sm text-white/50 truncate">{date.venue}</p>
-                  </div>
-                  <p className="text-white/55 text-sm leading-[1.65] mb-6 line-clamp-2">{date.description}</p>
-
-                  <div className="grid grid-cols-2 gap-2.5 mb-5">
-                    {[
-                      { icon: Timer, value: date.duration, label: "Duration" },
-                      { icon: Wallet, value: date.budget, label: "Budget" },
-                    ].map(({ icon: Icon, value, label }) => (
-                      <div key={label} className="flex items-center gap-2.5 bg-white/[0.035] border border-white/16 rounded-xl p-3">
-                        <Icon className="w-3.5 h-3.5 text-white/60 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-white/45">{label}</p>
-                          <p className="text-xs font-bold text-white">{value}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5">
-                    {date.tags.map((tag) => (
-                      <span key={tag} className="px-2.5 py-1 rounded-full border border-white/18 bg-white/[0.035] text-[11px] font-medium text-white/58">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <DateExampleCard key={date.title} date={date} />
             ))}
           </div>
 
@@ -827,6 +834,64 @@ export default function LandingV2Client() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function DateExampleCard({ date }: { date: (typeof SAMPLE_DATES)[number] }) {
+  return (
+    <div className="group flex h-[410px] flex-col rounded-3xl border border-white/14 bg-[#030303] overflow-hidden text-left transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)] md:block md:h-auto">
+      <div className="relative h-40 shrink-0 overflow-hidden bg-black md:h-56">
+        <Image
+          src={date.image}
+          alt={date.title}
+          fill
+          sizes="(min-width: 768px) 33vw, 86vw"
+          className="object-cover grayscale opacity-70"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/32 to-black/18" />
+        <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full border border-white/18 bg-black/64 px-2.5 py-1 backdrop-blur-sm">
+          <Star className="w-3 h-3 text-white/72 fill-white/72" />
+          <span className="text-xs font-bold text-white">{date.rating}</span>
+        </div>
+        <div className="absolute top-4 left-4 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-white/62" />
+          <span className="text-[10px] font-bold text-white/62 uppercase tracking-widest">Mystery Date</span>
+        </div>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col p-4 md:block md:p-8">
+        <h3 className="text-lg font-bold text-white mb-1">{date.title}</h3>
+        <p className="text-sm text-white/52 font-semibold mb-2">{date.vibe}</p>
+        <div className="flex items-center gap-1.5 mb-3">
+          <MapPin className="w-3.5 h-3.5 text-white/40 shrink-0" />
+          <p className="text-sm text-white/50 truncate">{date.venue}</p>
+        </div>
+        <p className="text-white/55 text-xs leading-[1.55] mb-3 line-clamp-2 md:mb-6 md:text-sm md:leading-[1.65]">{date.description}</p>
+
+        <div className="grid grid-cols-2 gap-2 mb-3 md:gap-2.5 md:mb-5">
+          {[
+            { icon: Timer, value: date.duration, label: "Duration" },
+            { icon: Wallet, value: date.budget, label: "Budget" },
+          ].map(({ icon: Icon, value, label }) => (
+            <div key={label} className="flex items-center gap-2 bg-white/[0.035] border border-white/16 rounded-xl p-2.5 md:gap-2.5 md:p-3">
+              <Icon className="w-3.5 h-3.5 text-white/60 shrink-0" />
+              <div>
+                <p className="text-[10px] text-white/45">{label}</p>
+                <p className="text-xs font-bold text-white">{value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {date.tags.map((tag) => (
+            <span key={tag} className="px-2.5 py-1 rounded-full border border-white/18 bg-white/[0.035] text-[11px] font-medium text-white/58">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
