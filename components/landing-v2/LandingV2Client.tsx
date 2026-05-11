@@ -1,92 +1,99 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Check,
-  Compass,
-  Eye,
-  MapPin,
-  Menu,
-  Moon,
-  Sparkles,
-  Star,
-  Timer,
-  X,
-} from "lucide-react";
+import LinkButton from "@/components/ui/LinkButton";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import {
+  Heart,
+  Sparkles,
+  ArrowRight,
+  Star,
+  Lock,
+  MapPin,
+  Check,
+  Timer,
+  Wallet,
+  Menu,
+  X,
+
+} from "lucide-react";
 import { PLANS } from "@/lib/plans";
 
-const NAV_LINKS = [
-  { label: "How it works", href: "#ritual" },
-  { label: "Inside", href: "#inside" },
-  { label: "Pricing", href: "#pricing" },
-];
-
-const RITUAL = [
+const STEPS = [
   {
-    step: "01",
-    icon: Moon,
-    title: "Set the mood once",
-    body: "Tell BlindfoldDate your tastes, budget, location, and how adventurous you feel.",
+    number: "01",
+    icon: Heart,
+    title: "Tell us your taste",
+    body: "Your interests, budget, and how far you'll travel. Two minutes, done once. Never fill it in again.",
   },
   {
-    step: "02",
-    icon: Compass,
-    title: "Let the system disappear",
-    body: "We search real places nearby, weigh the fit, and shape a date around your preferences.",
+    number: "02",
+    icon: Sparkles,
+    title: "We do the planning",
+    body: "AI scours real nearby venues, picks the highest-rated hidden gem, and writes a date story just for you two.",
   },
   {
-    step: "03",
-    icon: Eye,
-    title: "Reveal only when ready",
-    body: "The plan stays hidden until date night. Then the route, story, and venue unlock.",
+    number: "03",
+    icon: Lock,
+    title: "Reveal. Go. Enjoy.",
+    body: "Hit reveal when you're ready. The destination unlocks, navigation opens, and the only thing left is to enjoy.",
   },
 ];
 
-const FEATURE_PANELS = [
+const SAMPLE_DATES = [
   {
-    title: "Real venues, not vague prompts",
-    body: "Every reveal points to an actual nearby destination, with distance, budget, and timing considered before it reaches you.",
+    emoji: "📸",
+    title: "Golden Hour Walk",
+    vibe: "Romantic & Creative",
+    venue: "Botanical Garden, Old Town",
+    description: "A mystery route timed perfectly for golden hour. Camera required — you'll want to remember this one.",
+    rating: 4.8,
+    duration: "2 hrs",
+    budget: "€0–15",
+    tags: ["Outdoor", "Romantic"],
     image: "/features/feat-1.jpg",
-    meta: "Live place search",
   },
   {
-    title: "A date that feels composed",
-    body: "The plan arrives as a short story with a clear rhythm, so it feels less like an errand and more like an evening.",
-    image: "/features/feat-4.jpg",
-    meta: "Custom date script",
+    emoji: "🍷",
+    title: "Blind Tasting Night",
+    vibe: "Playful & Sophisticated",
+    venue: "La Cave Wine Bar, City Centre",
+    description: "A curated flight of wines at a hidden wine bar. Guess what you're drinking — loser picks next time.",
+    rating: 4.7,
+    duration: "2 hrs",
+    budget: "€30–60",
+    tags: ["Evening", "Food & Drink"],
+    image: "/features/feat-3.jpg",
   },
   {
-    title: "Controlled suspense",
-    body: "Reveal when you are ready, reroll once if the vibe is off, then show up with the details in hand.",
+    emoji: "🎬",
+    title: "Surprise Cinema Date",
+    vibe: "Spontaneous & Fun",
+    venue: "Forum Cinemas, City Centre",
+    description: "Show up and see whatever starts next. No trailers, no reviews — pure surprise and shared reactions.",
+    rating: 4.6,
+    duration: "3 hrs",
+    budget: "€20–30",
+    tags: ["Indoor", "Cosy"],
     image: "/features/feat-6.jpg",
-    meta: "Mystery reveal",
   },
 ];
 
-const SIGNALS = [
-  "No endless group chat",
-  "No spreadsheet planning",
-  "No generic list of ideas",
-  "No credit card to start",
+const NAV_LINKS = [
+  { label: "Home", href: "#", scroll: true },
+  { label: "How it works", href: "#how-it-works", scroll: false },
+  { label: "Features", href: "#features", scroll: false },
+  { label: "Pricing", href: "#plans", scroll: false },
 ];
 
 export default function LandingV2Client() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
-
   useEffect(() => {
     (async () => {
       const supabase = createClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
       if (document.cookie.includes("onboarding_complete=1")) {
@@ -94,6 +101,7 @@ export default function LandingV2Client() {
         return;
       }
 
+      // Fallback for existing users without the cookie yet — one-time DB call.
       const { data: profile } = await supabase
         .from("profiles")
         .select("onboarding_complete")
@@ -108,424 +116,697 @@ export default function LandingV2Client() {
     })();
   }, []);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
+
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white">
+    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-black"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:bg-violet-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-xl focus:text-sm focus:font-semibold"
       >
         Skip to content
       </a>
 
-      <div className="fixed inset-0 pointer-events-none opacity-[0.055]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.32) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.32) 1px, transparent 1px)",
-            backgroundSize: "80px 80px",
-            maskImage: "linear-gradient(to bottom, black, transparent 72%)",
-          }}
-        />
-      </div>
+      {/* Subtle grid overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.015]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+        }}
+      />
 
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/8 bg-black/78 backdrop-blur-xl">
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
-          <Link href="/" className="flex items-center gap-3" aria-label="BlindfoldDate home">
-            <Image src="/logo.png" alt="BlindfoldDate" width={150} height={37} priority className="object-contain" />
-          </Link>
+      {/* ── Nav ── */}
+      <header className="fixed top-0 left-0 right-0 z-50">
+        <div className="absolute inset-0 bg-black/72 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/[0.12] shadow-[0_1px_0_rgba(255,255,255,0.04),0_18px_60px_rgba(0,0,0,0.45)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.055] to-transparent pointer-events-none" />
+        <nav className="relative flex items-center justify-between px-6 md:px-14 h-[68px] max-w-[1440px] mx-auto">
+          <button
+            onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
+            className="flex items-center gap-2.5 group"
+            aria-label="BlindfoldDate — scroll to top"
+          >
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} priority className="object-contain group-hover:opacity-75 transition-opacity" />
+          </button>
 
-          <div className="hidden items-center gap-8 md:flex">
-            {NAV_LINKS.map((item) => (
-              <a key={item.href} href={item.href} className="text-sm font-medium text-white/48 transition-colors hover:text-white">
-                {item.label}
-              </a>
-            ))}
+          <div className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map(({ label, href, scroll }) =>
+              scroll ? (
+                <button
+                  key={label}
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="text-sm text-white/55 hover:text-white transition-colors font-medium"
+                >
+                  {label}
+                </button>
+              ) : (
+                <a
+                  key={label}
+                  href={href}
+                  className="text-sm text-white/55 hover:text-white transition-colors font-medium"
+                >
+                  {label}
+                </a>
+              )
+            )}
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden md:flex items-center gap-4">
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="inline-flex h-10 items-center gap-2 border border-white/16 bg-white px-4 text-sm font-bold text-black transition-colors hover:bg-white/86"
+                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-all"
               >
                 Dashboard
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (
               <>
-                <Link href="/login" className="text-sm font-medium text-white/48 transition-colors hover:text-white">
+                <Link href="/login" className="text-sm text-white/40 hover:text-white transition-colors font-medium">
                   Sign in
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex h-10 items-center gap-2 border border-white/16 bg-white px-4 text-sm font-bold text-black transition-colors hover:bg-white/86"
+                  className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-all"
                 >
-                  Start free
-                  <ArrowRight className="h-4 w-4" />
+                  Get started free
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </>
             )}
           </div>
 
           <button
-            type="button"
-            className="flex h-10 w-10 items-center justify-center border border-white/12 text-white/70 transition-colors hover:border-white/28 hover:text-white md:hidden"
-            onClick={() => setMenuOpen((open) => !open)}
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all"
+            onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </nav>
 
+        {/* Mobile menu — CSS transition, always in DOM */}
         <div
-          className={`fixed inset-0 z-40 flex min-h-dvh flex-col bg-black px-5 pb-6 pt-16 transition duration-200 md:hidden ${
-            menuOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"
+          className={`md:hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex flex-col px-6 pb-8 transition-[opacity,transform] duration-200 ease-out ${
+            menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-3 pointer-events-none"
           }`}
         >
-          <div className="flex flex-1 flex-col border-t border-white/10 pt-4">
-            {NAV_LINKS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={() => setMenuOpen(false)}
-                className="flex h-16 items-center border-b border-white/8 text-xl font-semibold text-white/72"
-              >
-                {item.label}
-              </a>
-            ))}
+          <div className="flex items-center justify-between h-[68px] shrink-0">
+            <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center gap-2.5">
+              <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+            </button>
+            <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20 transition-all" aria-label="Close menu">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <nav className="flex flex-col gap-1 flex-1 pt-4">
+            {NAV_LINKS.map(({ label, href, scroll }) =>
+              scroll ? (
+                <button key={label} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors text-left border-b border-white/[0.06]">
+                  {label}
+                </button>
+              ) : (
+                <a key={label} href={href} onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
+                  {label}
+                </a>
+              )
+            )}
             {!isLoggedIn && (
-              <Link
-                href="/login"
-                onClick={() => setMenuOpen(false)}
-                className="flex h-16 items-center border-b border-white/8 text-xl font-semibold text-white/72"
-              >
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="flex items-center h-14 text-xl font-semibold text-white/70 hover:text-white transition-colors border-b border-white/[0.06]">
                 Sign in
               </Link>
             )}
+          </nav>
+          <div className="pt-4">
+            {isLoggedIn ? (
+              <LinkButton href="/dashboard" size="lg" className="w-full gap-2" onClick={() => setMenuOpen(false)}>
+                <ArrowRight className="w-4 h-4 text-rose-200" />
+                Go to Dashboard
+              </LinkButton>
+            ) : (
+              <LinkButton href="/register" size="lg" className="w-full gap-2" onClick={() => setMenuOpen(false)}>
+                Get started free
+                <ArrowRight className="w-4 h-4 text-rose-200" />
+              </LinkButton>
+            )}
           </div>
-          <Link
-            href={isLoggedIn ? "/dashboard" : "/register"}
-            onClick={() => setMenuOpen(false)}
-            className="inline-flex h-12 items-center justify-center gap-2 bg-white px-5 text-sm font-bold text-black"
-          >
-            {isLoggedIn ? "Open dashboard" : "Start free"}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </header>
 
       <main id="main">
-        <section className="relative min-h-[94dvh] overflow-hidden border-b border-white/8 bg-black">
-          <Image
-            src="/features/feat-2.jpg"
-            alt="A dark atmospheric date-night venue"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-42"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#000_0%,rgba(0,0,0,0.86)_36%,rgba(0,0,0,0.44)_70%,#000_100%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,#000_0%,rgba(0,0,0,0.22)_34%,#000_92%)]" />
+        {/* ── Hero ── */}
+        <section
+          className="relative overflow-hidden border-b border-white/[0.07] bg-black"
+        >
+          <video
+            className="absolute inset-0 h-full w-full object-cover opacity-75"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="/hero-video-poster.jpg"
+            aria-hidden="true"
+          >
+            <source src="/hero-video.webm" type="video/webm" />
+            <source src="/hero-video-small.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.54)_78%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/48 via-transparent to-black/68" />
 
-          <div className="relative mx-auto flex min-h-[94dvh] max-w-7xl flex-col justify-center px-5 pb-20 pt-28 md:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="max-w-4xl"
-            >
-              <h1 className="max-w-5xl text-[clamp(2.85rem,7.4vw,7.2rem)] font-black leading-[0.92] tracking-normal text-white">
-                The date stays hidden.
-                <span className="block text-white/36">The spark does not.</span>
-              </h1>
+          <div className="relative mx-auto flex min-h-[76dvh] max-w-[1280px] flex-col items-center justify-center px-6 pb-12 pt-[104px] text-center md:px-10 md:pb-8 md:pt-[68px]">
+            <div className="w-full max-w-[820px]">
+            {/* Hero headline — Bumble-bold scale */}
+            <h1 className="text-[52px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-8 md:mb-10">
+              <span className="block">
+                Stop planning.
+              </span>
+              <span
+                className="block bg-clip-text text-transparent"
+                style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
+              >
+                Just show up.
+              </span>
+            </h1>
 
-              <p className="mt-8 max-w-2xl text-base leading-8 text-white/62 md:text-xl md:leading-9">
-                BlindfoldDate plans real date nights around your taste, then keeps the destination sealed until you are ready to reveal it.
-              </p>
+            {/* Subtext */}
+            <p className="mx-auto max-w-[560px] text-white/64 text-base md:text-xl leading-[1.7] mb-10 md:mb-12">
+              Tell us what you like once. We find real venues near you, write your
+              date story, and handle every detail.
+            </p>
 
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-3 mb-6 md:mb-8">
+              {isLoggedIn ? (
                 <Link
-                  href={isLoggedIn ? "/dashboard" : "/register"}
-                  className="inline-flex h-14 items-center justify-center gap-3 bg-white px-7 text-sm font-black text-black transition-colors hover:bg-white/86"
+                  href="/dashboard"
+                  className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                 >
-                  {isLoggedIn ? "Open dashboard" : "Plan the first reveal"}
-                  <ArrowRight className="h-4 w-4" />
+                  <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  Go to Dashboard
                 </Link>
-                <a
-                  href="#ritual"
-                  className="inline-flex h-14 items-center justify-center border border-white/14 bg-black/36 px-7 text-sm font-bold text-white/78 backdrop-blur-md transition-colors hover:border-white/32 hover:text-white"
-                >
-                  See the ritual
-                </a>
-              </div>
-            </motion.div>
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                  >
+                    <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    Plan our next date
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center font-semibold text-base text-white px-8 h-14 md:h-16 rounded-full border border-white/15 hover:border-white/30 hover:bg-white/5 backdrop-blur-sm transition-all"
+                  >
+                    Sign in
+                  </Link>
+                </>
+              )}
+            </div>
 
-            <div className="absolute bottom-0 left-5 right-5 translate-y-1/2 border border-white/10 bg-black/82 backdrop-blur-xl md:left-8 md:right-8">
-              <div className="grid grid-cols-2 divide-x divide-y divide-white/8 md:grid-cols-4 md:divide-y-0">
-                {[
-                  ["Setup", "2 min"],
-                  ["Reveal type", "Locked"],
-                  ["Search radius", "Up to 50 km"],
-                  ["Start", "Free"],
-                ].map(([label, value]) => (
-                  <div key={label} className="min-h-24 p-4 md:p-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/28">{label}</p>
-                    <p className="mt-3 text-xl font-black text-white md:text-2xl">{value}</p>
-                  </div>
-                ))}
-              </div>
+            {/* Trust line */}
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
+              <span className="text-white/35 text-sm">Free to start</span>
+              <span className="text-white/20">·</span>
+              <span className="text-white/35 text-sm">No credit card</span>
+              <span className="text-white/20">·</span>
+              <span className="text-white/35 text-sm">Cancel anytime</span>
+            </div>
             </div>
           </div>
         </section>
 
-        <section id="ritual" className="mx-auto max-w-7xl px-5 pb-24 pt-36 md:px-8 md:pb-36 md:pt-44">
-          <div className="grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-end">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-rose-300/80">How it works</p>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-normal md:text-6xl">
-                A quiet system for better nights out.
+        {/* ── How it works ── */}
+        <section id="how-it-works" className="px-6 md:px-10 pt-14 pb-28 md:pt-20 md:pb-44 max-w-[1280px] mx-auto">
+          <div className="text-left mb-10 md:mb-16">
+            <p className="text-xs text-violet-400 font-medium uppercase tracking-[0.14em] mb-5">
+              The ritual
+            </p>
+            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
+              Three steps,
+              <br />
+              <span className="text-white/35">then just show up.</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+            {STEPS.map((step) => (
+              <div
+                key={step.number}
+                className="relative rounded-3xl border border-white/10 bg-[#030303] p-8 md:p-10 overflow-hidden group transition-all duration-300 hover:border-white/24 hover:bg-white/[0.035] hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+              >
+                <div className="relative flex items-start gap-5 mb-6 md:mb-8">
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/[0.045] border border-white/12 flex items-center justify-center shrink-0 transition-colors duration-300 group-hover:bg-white/[0.075] group-hover:border-white/22">
+                    <step.icon className="w-6 h-6 md:w-7 md:h-7 text-white/68 transition-colors duration-300 group-hover:text-white" />
+                  </div>
+                </div>
+                <h3 className="relative font-bold text-white text-lg md:text-xl mb-4 leading-snug">
+                  {step.title}
+                </h3>
+                <p className="relative text-white/55 text-sm md:text-base leading-[1.7]">{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Features ── */}
+        <section id="features" className="relative border-y border-white/[0.07] bg-black">
+          <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
+            <div className="text-left mb-10 md:mb-16">
+              <p className="text-xs text-amber-400 font-medium uppercase tracking-[0.14em] mb-5">
+                Everything included
+              </p>
+              <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
+                No more &ldquo;I don&apos;t know,
+                <br />
+                <span className="text-white/35">what do you want to do?&rdquo;</span>
               </h2>
             </div>
-            <p className="max-w-xl text-base leading-8 text-white/52 md:justify-self-end md:text-lg">
-              The interface stays simple because the hard work happens underneath: preference matching, venue selection, timing, and reveal logic.
-            </p>
-          </div>
 
-          <div className="mt-14 grid gap-3 md:grid-cols-3">
-            {RITUAL.map(({ step, icon: Icon, title, body }) => (
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.45 }}
-                className="min-h-72 border border-white/10 bg-white/[0.025] p-5"
+            <style>{`
+              @media (min-width: 768px) {
+                .bento-grid-v3 { grid-template-rows: repeat(4, 164px); }
+              }
+            `}</style>
+
+            <div className="bento-grid-v3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+              {/* Real places — large */}
+              <div
+                className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/8 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/20 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-white/32">{step}</span>
-                  <span className="flex h-10 w-10 items-center justify-center border border-white/10 bg-black">
-                    <Icon className="h-4 w-4 text-white/68" />
-                  </span>
+                <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover" src="/features/feat-1.jpg" alt="Mystery date planning" />
+                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
+                <div className="relative z-10">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
+                    Real places. No Googling.
+                  </h3>
+                  <p className="text-white/55 text-sm md:text-base leading-[1.65] max-w-sm">
+                    Every suggestion is a real, top-rated venue near you — picked, vetted,
+                    and ready to go.
+                  </p>
                 </div>
-                <h3 className="mt-16 text-2xl font-black tracking-normal text-white">{title}</h3>
-                <p className="mt-4 text-sm leading-7 text-white/50">{body}</p>
-              </motion.div>
-            ))}
+                <div className="relative z-10 flex items-center gap-2.5 mt-6 md:mt-0">
+                  <div className="flex items-center gap-1.5 bg-white/10 border border-white/12 rounded-xl px-3 py-1.5">
+                    <MapPin className="w-3 h-3 text-rose-400" />
+                    <span className="text-xs text-white/60">Within 50 km</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-white/10 border border-white/12 rounded-xl px-3 py-1.5">
+                    <Star className="w-3 h-3 text-amber-400" />
+                    <span className="text-xs text-white/60">Rating ≥ 4.0</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Written for you */}
+              <div
+                className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/20 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+              >
+                <Image fill sizes="33vw" className="object-cover" src="/features/feat-2.jpg" alt="Written for you" />
+                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
+                <div className="relative z-10">
+                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Written for you two</h3>
+                  <p className="text-white/55 text-sm leading-[1.65]">AI writes the date like a friend who&apos;s been there.</p>
+                </div>
+              </div>
+
+              {/* Budget-aware */}
+              <div
+                className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/20 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+              >
+                <Image fill sizes="33vw" className="object-cover" src="/features/feat-3.jpg" alt="Budget aware" />
+                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
+                <div className="relative z-10">
+                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Fits your wallet</h3>
+                  <p className="text-white/55 text-sm leading-[1.65]">Set a max spend — every suggestion lands inside it.</p>
+                </div>
+              </div>
+
+              {/* One tap */}
+              <div
+                className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/20 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+              >
+                <Image fill sizes="33vw" className="object-cover" src="/features/feat-4.jpg" alt="One tap" />
+                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
+                <div className="relative z-10">
+                  <h3 className="font-bold text-white text-base md:text-lg mb-2">One tap to get there</h3>
+                  <p className="text-white/55 text-sm leading-[1.65]">Photo, vibe, directions — waiting the moment you reveal.</p>
+                </div>
+              </div>
+
+              {/* Grow together — large */}
+              <div
+                className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/8 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/20 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+              >
+                <Image fill sizes="66vw" className="object-cover" src="/features/feat-5.jpg" alt="Grow together" />
+                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
+                <div className="relative z-10">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-3">Grow together</h3>
+                  <p className="text-white/55 text-sm md:text-base leading-[1.65] max-w-sm">
+                    Earn XP and unlock milestone badges for every date you complete.
+                  </p>
+                </div>
+                <div className="relative z-10 flex items-center gap-2 flex-wrap mt-6 md:mt-0">
+                  {["🌟 First Spark", "⚡ Triple Threat", "🖐 High Five", "🔟 Perfect Ten"].map((badge) => (
+                    <div key={badge} className="flex items-center bg-white/10 border border-white/12 rounded-xl px-3 py-1.5">
+                      <span className="text-xs text-white/60">{badge}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Countdown */}
+              <div
+                className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/8 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/20 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+              >
+                <Image fill sizes="33vw" className="object-cover" src="/features/feat-6.jpg" alt="Anticipation" />
+                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
+                <div className="relative z-10">
+                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Anticipation built in</h3>
+                  <p className="text-white/55 text-sm leading-[1.65]">A live countdown builds excitement between reveals.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="inside" className="border-y border-white/8 bg-[#030303]">
-          <div className="mx-auto grid max-w-7xl gap-0 px-5 py-24 md:grid-cols-3 md:px-8 md:py-36">
-            {FEATURE_PANELS.map((panel) => (
-              <article key={panel.title} className="group border border-white/10 bg-black md:-ml-px">
-                <div className="relative aspect-[4/3] overflow-hidden">
+        {/* ── Sample dates ── */}
+        <section className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
+          <div className="text-left mb-10 md:mb-14">
+            <p className="text-xs text-white/45 font-medium uppercase tracking-[0.14em] mb-5">
+              Sneak peek
+            </p>
+            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
+              Dates like these,
+              <br />
+              <span className="text-white/35">crafted for <em>you.</em></span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {SAMPLE_DATES.map((date) => (
+              <div
+                key={date.title}
+                className="group rounded-3xl border border-white/8 bg-[#030303] overflow-hidden transition-all duration-300 hover:border-white/20 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+              >
+                <div className="relative h-56 overflow-hidden bg-black">
                   <Image
-                    src={panel.image}
-                    alt={panel.title}
+                    src={date.image}
+                    alt={date.title}
                     fill
                     sizes="(min-width: 768px) 33vw, 100vw"
-                    className="object-cover opacity-68 transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover grayscale opacity-70"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                  <span className="absolute bottom-4 left-4 border border-white/12 bg-black/70 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/52 backdrop-blur">
-                    {panel.meta}
-                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/32 to-black/18" />
+                  <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full border border-white/12 bg-black/64 px-2.5 py-1 backdrop-blur-sm">
+                    <Star className="w-3 h-3 text-white/72 fill-white/72" />
+                    <span className="text-xs font-bold text-white">{date.rating}</span>
+                  </div>
+                  <div className="absolute top-4 left-4 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-white/62" />
+                    <span className="text-[10px] font-bold text-white/62 uppercase tracking-widest">Mystery Date</span>
+                  </div>
                 </div>
-                <div className="p-5 md:p-7">
-                  <h3 className="text-2xl font-black tracking-normal">{panel.title}</h3>
-                  <p className="mt-4 text-sm leading-7 text-white/50">{panel.body}</p>
+
+                <div className="p-7 md:p-8">
+                  <h3 className="text-lg font-bold text-white mb-1">{date.title}</h3>
+                  <p className="text-sm text-white/52 font-semibold mb-3">{date.vibe}</p>
+                  <div className="flex items-center gap-1.5 mb-4">
+                    <MapPin className="w-3.5 h-3.5 text-white/40 shrink-0" />
+                    <p className="text-sm text-white/50 truncate">{date.venue}</p>
+                  </div>
+                  <p className="text-white/55 text-sm leading-[1.65] mb-6 line-clamp-2">{date.description}</p>
+
+                  <div className="grid grid-cols-2 gap-2.5 mb-5">
+                    {[
+                      { icon: Timer, value: date.duration, label: "Duration" },
+                      { icon: Wallet, value: date.budget, label: "Budget" },
+                    ].map(({ icon: Icon, value, label }) => (
+                      <div key={label} className="flex items-center gap-2.5 bg-white/[0.035] border border-white/10 rounded-xl p-3">
+                        <Icon className="w-3.5 h-3.5 text-white/60 shrink-0" />
+                        <div>
+                          <p className="text-[10px] text-white/45">{label}</p>
+                          <p className="text-xs font-bold text-white">{value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {date.tags.map((tag) => (
+                      <span key={tag} className="px-2.5 py-1 rounded-full border border-white/12 bg-white/[0.035] text-[11px] font-medium text-white/58">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
+
+          <p className="hidden md:block text-center text-white/40 text-sm mt-12">
+            Your actual dates will always be a surprise ✨
+          </p>
         </section>
 
-        <section className="mx-auto grid max-w-7xl gap-12 px-5 py-24 md:grid-cols-[1.05fr_0.95fr] md:px-8 md:py-36">
-          <div className="relative min-h-[560px] overflow-hidden border border-white/10 bg-black">
-            <Image src="/features/feat-3.jpg" alt="An intimate evening table" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover opacity-50" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/54 to-black/10" />
-            <div className="absolute inset-x-0 bottom-0 p-5 md:p-8">
-              <div className="border border-white/12 bg-black/78 p-5 backdrop-blur-xl">
-                <div className="flex items-start justify-between gap-6">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/36">Current reveal</p>
-                    <h3 className="mt-3 text-2xl font-black tracking-normal">The candlelit detour</h3>
-                  </div>
-                  <div className="flex items-center gap-1 border border-amber-400/20 bg-amber-400/8 px-2 py-1 text-xs font-bold text-amber-200">
-                    <Star className="h-3 w-3 fill-amber-200" />
-                    4.8
-                  </div>
-                </div>
-                <div className="mt-5 grid grid-cols-2 gap-2">
-                  {[
-                    [MapPin, "12 min away"],
-                    [Timer, "2.5 hours"],
-                    [Sparkles, "Romantic"],
-                    [Eye, "Hidden until reveal"],
-                  ].map(([Icon, label]) => {
-                    const LucideIcon = Icon as typeof MapPin;
-                    return (
-                      <div key={label as string} className="flex items-center gap-2 border border-white/8 bg-white/[0.03] px-3 py-3 text-xs font-semibold text-white/58">
-                        <LucideIcon className="h-3.5 w-3.5 text-rose-200" />
-                        {label as string}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col justify-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">The difference</p>
-            <h2 className="mt-5 text-4xl font-black leading-tight tracking-normal md:text-6xl">
-              Less deciding. More arriving.
-            </h2>
-            <p className="mt-6 text-base leading-8 text-white/54 md:text-lg">
-              BlindfoldDate narrows the universe for you. It turns preferences into one confident plan, then lets suspense do the rest.
+        {/* ── Pricing ── */}
+        <section id="plans" className="relative border-t border-white/[0.07] bg-black">
+        <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
+          <div className="text-center mb-10 md:mb-14">
+            <p className="text-xs text-rose-400 font-medium uppercase tracking-[0.14em] mb-5">
+              Pricing
             </p>
-            <div className="mt-10 grid gap-2 sm:grid-cols-2">
-              {SIGNALS.map((signal) => (
-                <div key={signal} className="flex items-center gap-3 border border-white/10 bg-white/[0.025] px-4 py-3 text-sm font-semibold text-white/64">
-                  <Check className="h-4 w-4 text-emerald-300" />
-                  {signal}
-                </div>
-              ))}
+            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
+              Simple, honest pricing.
+              <br />
+              <span className="text-white/35">No surprises on the bill.</span>
+            </h2>
+          </div>
+
+          {/* Billing interval toggle — desktop only; mobile version renders between cards */}
+          <div className="hidden md:flex justify-center mb-8 md:mb-10">
+            <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-2xl p-1">
+              <button
+                type="button"
+                onClick={() => setBillingInterval("monthly")}
+                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  billingInterval === "monthly"
+                    ? "bg-white/15 text-white shadow"
+                    : "text-white/45 hover:text-white/70"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingInterval("yearly")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  billingInterval === "yearly"
+                    ? "bg-white/15 text-white shadow"
+                    : "text-white/45 hover:text-white/70"
+                }`}
+              >
+                Yearly
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">
+                  -44%
+                </span>
+              </button>
             </div>
           </div>
-        </section>
 
-        <section id="pricing" className="border-t border-white/8 bg-[#030303]">
-          <div className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-36">
-            <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-rose-300/80">Pricing</p>
-                <h2 className="mt-5 text-4xl font-black leading-tight tracking-normal md:text-6xl">Start quietly. Upgrade when it clicks.</h2>
-              </div>
-              <div className="flex w-fit border border-white/10 bg-black p-1">
-                <button
-                  type="button"
-                  onClick={() => setBillingInterval("monthly")}
-                  className={`h-9 px-4 text-sm font-bold transition-colors ${
-                    billingInterval === "monthly" ? "bg-white text-black" : "text-white/48 hover:text-white"
-                  }`}
-                >
-                  Monthly
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBillingInterval("yearly")}
-                  className={`h-9 px-4 text-sm font-bold transition-colors ${
-                    billingInterval === "yearly" ? "bg-white text-black" : "text-white/48 hover:text-white"
-                  }`}
-                >
-                  Yearly
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-14 grid gap-3 md:grid-cols-2">
-              {PLANS.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`border p-5 md:p-8 ${
-                    plan.highlighted ? "border-white/24 bg-white/[0.055]" : "border-white/10 bg-black"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-5">
-                    <div>
-                      <p className="text-2xl font-black tracking-normal">{plan.name}</p>
-                      <p className="mt-2 text-sm text-white/48">{plan.tagline}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 max-w-sm md:max-w-[840px] mx-auto">
+            {PLANS.map((plan, i) => (
+              <React.Fragment key={plan.id}>
+                {i === 1 && (
+                  <div className="md:hidden flex justify-center">
+                    <div className="flex items-center gap-0.5 bg-white/5 border border-white/10 rounded-2xl p-1">
+                      <button
+                        type="button"
+                        onClick={() => setBillingInterval("monthly")}
+                        className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          billingInterval === "monthly"
+                            ? "bg-white/15 text-white shadow"
+                            : "text-white/45 hover:text-white/70"
+                        }`}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBillingInterval("yearly")}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          billingInterval === "yearly"
+                            ? "bg-white/15 text-white shadow"
+                            : "text-white/45 hover:text-white/70"
+                        }`}
+                      >
+                        Yearly
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">
+                          -44%
+                        </span>
+                      </button>
                     </div>
-                    {plan.highlighted && (
-                      <span className="border border-rose-300/22 bg-rose-300/10 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.16em] text-rose-100">
-                        Plus
-                      </span>
-                    )}
                   </div>
+                )}
+              <div
+                className={[
+                  "relative flex flex-col gap-8 rounded-3xl border p-8 md:p-10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]",
+                  plan.highlighted
+                    ? "bg-[#050202] border-rose-400/45 hover:border-rose-300/70"
+                    : "bg-[#030303] border-white/8 hover:border-white/20",
+                ].join(" ")}
+              >
+                {plan.highlighted && (
+                  <div className="absolute -top-4 left-8">
+                    <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg shadow-pink-500/25">
+                      Most popular
+                    </span>
+                  </div>
+                )}
 
-                  <div className="mt-9">
-                    {plan.highlighted ? (
-                      billingInterval === "yearly" ? (
-                        <>
-                          <p className="text-5xl font-black tracking-normal">EUR {plan.yearlyPrice}</p>
-                          <p className="mt-2 text-sm text-white/45">per year, cancel anytime</p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-5xl font-black tracking-normal">EUR {plan.introPrice}</p>
-                          <p className="mt-2 text-sm text-white/45">first month, then EUR {plan.price}/mo</p>
-                        </>
-                      )
+                <div>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className={["w-11 h-11 rounded-2xl flex items-center justify-center", plan.highlighted ? "bg-pink-500/20" : "bg-white/8"].join(" ")}>
+                      {plan.highlighted ? <Sparkles className="w-5 h-5 text-pink-400" /> : <Lock className="w-5 h-5 text-white/40" />}
+                    </div>
+                    <p className="font-bold text-white text-lg">{plan.name}</p>
+                  </div>
+                  {plan.highlighted ? (
+                    billingInterval === "yearly" ? (
+                      <>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.yearlyPrice}</p>
+                        <p className="text-sm text-white/55">per year</p>
+                        <p className="text-xs text-emerald-400/80 mb-3">~€{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo · cancel anytime</p>
+                      </>
                     ) : (
                       <>
-                        <p className="text-5xl font-black tracking-normal">Free</p>
-                        <p className="mt-2 text-sm text-white/45">no card needed</p>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.introPrice}</p>
+                        <p className="text-sm text-white/55">first month</p>
+                        <p className="text-xs text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
                       </>
-                    )}
-                  </div>
-
-                  <ul className="mt-9 grid gap-3">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex gap-3 text-sm leading-6 text-white/58">
-                        <Check className="mt-1 h-4 w-4 shrink-0 text-emerald-300" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    href={`/register?plan=${plan.id}`}
-                    className={`mt-9 inline-flex h-12 w-full items-center justify-center gap-2 text-sm font-black transition-colors ${
-                      plan.highlighted ? "bg-white text-black hover:bg-white/86" : "border border-white/12 text-white/68 hover:border-white/28 hover:text-white"
-                    }`}
-                  >
-                    {plan.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                    )
+                  ) : (
+                    <>
+                      <p className="text-4xl md:text-[42px] font-black mb-1 text-white/50">
+                        {plan.priceLine.split("/")[0].trim()}
+                      </p>
+                    </>
+                  )}
+                  <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>
                 </div>
-              ))}
-            </div>
+
+                <ul className="flex flex-col gap-3.5 flex-1">
+                  {plan.features.map((feat) => {
+                    const isKey = feat.includes("Full customization") || feat.includes("Weekly");
+                    return (
+                      <li key={feat} className="flex items-start gap-3">
+                        <Check className={`w-4 h-4 shrink-0 mt-0.5 ${isKey && plan.highlighted ? "text-pink-400" : "text-emerald-400/70"}`} />
+                        <span className={`text-sm ${isKey && plan.highlighted ? "text-white font-semibold" : "text-white/55"}`}>{feat}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <Link
+                  href={`/register?plan=${plan.id}`}
+                  className={[
+                    "w-full text-center py-4 md:py-5 rounded-full text-sm font-bold transition-all",
+                    plan.highlighted
+                      ? "bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
+                      : "bg-white/8 text-white/60 border border-white/10 hover:bg-white/12 hover:text-white",
+                  ].join(" ")}
+                >
+                  {plan.cta}
+                </Link>
+              </div>
+              </React.Fragment>
+            ))}
           </div>
+        </div>
         </section>
 
-        <section className="relative min-h-[72dvh] overflow-hidden bg-black">
-          <Image src="/features/feat-5.jpg" alt="A couple's evening experience" fill sizes="100vw" className="object-cover opacity-32" />
-          <div className="absolute inset-0 bg-black/72" />
-          <div className="relative mx-auto flex min-h-[72dvh] max-w-7xl flex-col justify-center px-5 py-24 md:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/42">Ready</p>
-            <h2 className="mt-5 max-w-4xl text-5xl font-black leading-[0.96] tracking-normal md:text-8xl">
-              Give the night a secret.
+        {/* ── Final CTA ── */}
+        <section className="relative overflow-hidden border-t border-white/[0.07] bg-black">
+          <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 text-left py-32 md:py-52">
+            <div className="w-20 h-20 md:w-28 md:h-28 mb-10 md:mb-12">
+              <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
+            </div>
+
+            <h2 className="text-[40px] sm:text-[56px] md:text-[72px] font-black mb-7 md:mb-8 leading-[1.05] tracking-tight">
+              Your next great date
+              <br />
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #fb7185, #c026d3, #8b5cf6)" }}>
+                is one tap away.
+              </span>
             </h2>
-            <div className="mt-10">
-              <Link
-                href={isLoggedIn ? "/dashboard" : "/register"}
-                className="inline-flex h-14 items-center justify-center gap-3 bg-white px-7 text-sm font-black text-black transition-colors hover:bg-white/86"
-              >
-                {isLoggedIn ? "Go to dashboard" : "Start the first mystery"}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+
+            <p className="text-white/55 text-base md:text-xl mb-12 md:mb-16 leading-[1.7]">
+              Join couples who stopped arguing about what to do
+              <br className="hidden sm:block" />
+              — and started actually doing it.
+            </p>
+
+            <Link
+              href="/register"
+              className="group relative inline-flex items-center gap-3 font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-all overflow-hidden bg-rose-500 text-white hover:bg-rose-400 shadow-2xl shadow-rose-500/30 focus-visible:outline-none"
+            >
+              Book my first mystery date
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            <div className="flex flex-wrap items-center justify-start gap-x-5 gap-y-1.5 mt-8">
+              <span className="text-white/40 text-sm">Free to start</span>
+              <span className="text-white/20 hidden sm:inline">·</span>
+              <span className="text-white/40 text-sm">No credit card needed</span>
+              <span className="text-white/20 hidden sm:inline">·</span>
+              <span className="text-white/40 text-sm">Cancel anytime</span>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-white/8 bg-black px-5 py-10 md:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 text-sm text-white/36 md:flex-row md:items-center md:justify-between">
-          <Image src="/logo.png" alt="BlindfoldDate" width={124} height={30} className="object-contain opacity-45" />
-          <div className="flex flex-wrap gap-5">
-            <Link href="/legal/privacy" className="hover:text-white">Privacy</Link>
-            <Link href="/legal/terms" className="hover:text-white">Terms</Link>
-            <Link href="/legal/accessibility" className="hover:text-white">Accessibility</Link>
-            <a href="mailto:info@blindfolddate.com" className="hover:text-white">Contact</a>
+      {/* ── Footer ── */}
+      <footer className="border-t border-white/[0.05] px-6 md:px-10 pt-14 pb-10">
+        <div className="max-w-[1280px] mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 pb-10 border-b border-white/[0.05]">
+            <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
+              <Image src="/logo.png" alt="BlindfoldDate" width={120} height={30} className="object-contain opacity-45" />
+              <p className="text-white/35 text-sm leading-relaxed max-w-[220px]">
+                Date nights, planned for you. Tell us once — we handle the rest.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Product</p>
+              {[{ label: "How it works", href: "#how-it-works" }, { label: "Features", href: "#features" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
+                <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
+              ))}
+            </div>
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Account</p>
+              <Link href="/register" className="text-sm text-white/50 hover:text-white transition-colors">Get started free</Link>
+              <Link href="/login" className="text-sm text-white/50 hover:text-white transition-colors">Sign in</Link>
+            </div>
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Legal</p>
+              <Link href="/legal/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/legal/terms" className="text-sm text-white/50 hover:text-white transition-colors">Terms of Service</Link>
+              <Link href="/legal/accessibility" className="text-sm text-white/50 hover:text-white transition-colors">Accessibility</Link>
+              <a href="mailto:info@blindfolddate.com" className="text-sm text-white/50 hover:text-white transition-colors">Contact us</a>
+            </div>
+          </div>
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-white/20 text-xs">© {new Date().getFullYear()} BlindfoldDate. All rights reserved.</p>
+            <div className="flex items-center gap-5">
+              <Link href="/legal/privacy" className="text-xs text-white/20 hover:text-white/50 transition-colors">Privacy</Link>
+              <Link href="/legal/terms" className="text-xs text-white/20 hover:text-white/50 transition-colors">Terms</Link>
+            </div>
           </div>
         </div>
       </footer>
