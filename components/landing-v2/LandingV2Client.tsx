@@ -377,7 +377,7 @@ export default function LandingV2Client() {
 
         {/* ── How it works ── */}
         <section id="how-it-works" className="px-6 md:px-10 pt-14 pb-28 md:pt-20 md:pb-44 max-w-[1280px] mx-auto">
-          <div className="text-center mb-10 md:mb-16">
+          <div className="text-left md:text-center mb-10 md:mb-16">
             <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
               Three steps,
               <br />
@@ -524,7 +524,7 @@ export default function LandingV2Client() {
 
         {/* ── Sample dates ── */}
         <section className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-          <div className="text-center mb-10 md:mb-14">
+          <div className="text-left md:text-center mb-10 md:mb-14">
             <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-tight">
               Dates like these,
               <br />
