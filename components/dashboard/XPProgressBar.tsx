@@ -14,6 +14,9 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
 
   return (
     <div className="mb-4">
+      <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
+        Level
+      </h3>
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-white/80 to-white/45 flex items-center justify-center shadow-md shadow-white/10">

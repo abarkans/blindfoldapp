@@ -585,9 +585,9 @@ function ProgressUpsell({
         </div>
       </div>
 
-      {/* Badge grid preview — earned badges show through, clipped to a sliver */}
+      {/* Badge grid preview — blurred/locked for free users */}
       <div className="relative max-h-44 overflow-hidden">
-        <div className="pointer-events-none select-none">
+        <div className="pointer-events-none select-none opacity-60 blur-[1px]">
           <BadgeGrid earnedBadges={earnedBadges} />
         </div>
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-black/80 to-black" />
