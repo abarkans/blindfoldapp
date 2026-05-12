@@ -128,8 +128,8 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
                 ? { type: "tween", duration: 0 }          // instant follow while dragging
                 : { type: "spring", stiffness: 400, damping: 40 }
               }
-              className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#13131f] border-t border-white/10 rounded-t-3xl px-4"
-              style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)", touchAction: "none" }}
+              className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#030303] border border-b-0 border-white/14 rounded-t-3xl px-6 shadow-2xl shadow-black/60"
+              style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)", touchAction: "none" }}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
@@ -139,7 +139,7 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
                 <div className="w-10 h-1 rounded-full bg-white/20" />
               </div>
 
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4 px-1">
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
                 How often?
               </p>
 

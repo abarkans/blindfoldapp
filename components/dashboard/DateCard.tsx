@@ -560,9 +560,9 @@ export default function DateCard({
       {/* Countdown card — shown first when date is completed */}
       {showCompletedCooldown && countdown && nextRevealDate && (
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
           className="bg-white/[0.035] border border-white/16 rounded-3xl p-5 mb-4"
         >
           <div className="flex items-center gap-2 mb-4">
@@ -590,9 +590,9 @@ export default function DateCard({
       )}
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
         className="relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"
       >
         <div className="relative p-6">
@@ -622,7 +622,7 @@ export default function DateCard({
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 {completed ? (
                   /* ── COMPLETED: collapsed card ── */
@@ -1205,10 +1205,9 @@ export default function DateCard({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed inset-x-0 bottom-0 z-[60] bg-[#1c1825] rounded-t-3xl max-h-[75vh] overflow-y-auto md:hidden"
+              className="fixed inset-x-0 bottom-0 z-[60] bg-[#030303] border border-b-0 border-white/14 rounded-t-3xl max-h-[75vh] overflow-y-auto shadow-2xl shadow-black/60 md:hidden"
             >
-              <div className="sticky top-0 bg-[#1c1825] pt-3 px-6 pb-3">
-                <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
+              <div className="sticky top-0 bg-[#030303] pt-6 px-6 pb-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-base font-bold text-white">
                     {activeSheet === "description" && "Description"}
@@ -1226,7 +1225,7 @@ export default function DateCard({
                   </button>
                 </div>
               </div>
-              <div className="px-6 pb-10 pt-1">
+              <div className="px-6 pt-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)" }}>
                 {activeSheet === "description" && (
                   <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.description}</p>
                 )}

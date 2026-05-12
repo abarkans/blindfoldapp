@@ -323,7 +323,7 @@ function DateTabContent({
     <div>
       <div className="mb-5">
         <h2 className="text-2xl font-bold text-white">Your next date</h2>
-        <p className="text-white/55 text-sm mt-1">Tap reveal when you&apos;re both ready.</p>
+        <p className="text-white/55 text-sm mt-1">Ready when you are.</p>
       </div>
 
       <AnimatePresence>
