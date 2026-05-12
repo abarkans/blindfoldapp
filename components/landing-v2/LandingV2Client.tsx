@@ -24,8 +24,8 @@ const STEPS = [
   {
     number: "01",
     icon: Heart,
-    title: "Tell us your taste",
-    body: "Your interests, budget, and how far you'll travel. Two minutes, done once. Never fill it in again.",
+    title: "Set it up together",
+    body: "Your interests, budget, and how far you'll travel. Takes two minutes. Invite your partner so the dates work for both of you.",
   },
   {
     number: "02",
@@ -362,8 +362,8 @@ export default function LandingV2Client() {
 
             {/* Subtext */}
             <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-              Tell us what you like once. We find real venues near you, write your
-              date story, and handle every detail.
+              Answer a few questions once — together or solo. We find real venues
+              near you, craft your date story, and handle every detail. You just show up.
             </p>
 
             {/* CTAs */}
@@ -447,7 +447,7 @@ export default function LandingV2Client() {
             <div className="bento-grid-v3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
               {/* Real places — large */}
               <div
-                className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover grayscale opacity-70" src="/features/feat-1.jpg" alt="Mystery date planning" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -500,7 +500,7 @@ export default function LandingV2Client() {
 
               {/* Grow together — large */}
               <div
-                className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[220px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill sizes="66vw" className="object-cover grayscale opacity-70" src="/features/feat-5.jpg" alt="Grow together" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -512,15 +512,15 @@ export default function LandingV2Client() {
                 </div>
               </div>
 
-              {/* Countdown */}
+              {/* Partner invite */}
               <div
                 className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
-                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-6.jpg" alt="Anticipation" />
+                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-4.jpg" alt="Invite partner" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Anticipation built in</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">A live countdown builds excitement between reveals.</p>
+                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Built for two</h3>
+                  <p className="text-white/55 text-sm leading-[1.65]">Invite your partner with one link. Share the mystery, reveal together.</p>
                 </div>
               </div>
             </div>
@@ -731,7 +731,7 @@ export default function LandingV2Client() {
 
         {/* ── Final CTA ── */}
         <section className="relative overflow-hidden border-t border-white/[0.07] bg-black">
-          <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 text-left py-32 md:py-52">
+          <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 text-center py-32 md:py-52 flex flex-col items-center">
             <div className="w-20 h-20 md:w-28 md:h-28 mb-10 md:mb-12">
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
             </div>
@@ -747,7 +747,7 @@ export default function LandingV2Client() {
             <p className="text-white/55 text-base md:text-xl mb-12 md:mb-16 leading-[1.7]">
               Join couples who stopped arguing about what to do
               <br className="hidden sm:block" />
-              — and started actually doing it.
+              — invite your partner and start actually doing it.
             </p>
 
             <Link
