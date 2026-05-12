@@ -314,6 +314,7 @@ export default function DateCard({
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
   const [localRevealReady, setLocalRevealReady] = useState(false);
+  const [checkinSkipped, setCheckinSkipped] = useState(false);
   const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
 
   // Sync local reveal state when the server updates after the other partner is ready.
@@ -940,15 +941,20 @@ export default function DateCard({
                           </span>
                         </div>
                       ) : (
-                        <CheckInButton
-                          partnerName={partnerNames.partner2 || "partner"}
-                          partnerCheckedIn={partnerCheckedIn}
-                          onCompleted={(result) => {
-                            setCompleted(true);
-                            setModalData(result);
-                            ph?.capture("date_completed", { plan_type: planType, method: "checkin" });
-                          }}
-                        />
+                        <>
+                          <CheckInButton
+                            partnerName={partnerNames.partner2 || "partner"}
+                            partnerCheckedIn={partnerCheckedIn}
+                            onCompleted={(result) => {
+                              setCompleted(true);
+                              setModalData(result);
+                              ph?.capture("date_completed", { plan_type: planType, method: "checkin" });
+                            }}
+                          />
+                          <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setCheckinSkipped(true)}>
+                            Skip
+                          </Button>
+                        </>
                       )
                     ) : isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
@@ -1150,6 +1156,14 @@ export default function DateCard({
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {showCheckinFlow && !myCheckedIn && checkinSkipped && !completed && (
+        <div className="mt-3">
+          <Button variant="secondary" size="lg" className="w-full" onClick={handleComplete} loading={isCompletePending} disabled={isCompletePending}>
+            Mark as complete
+          </Button>
+        </div>
+      )}
 
       {/* Bottom sheet — venue date details */}
       <AnimatePresence>

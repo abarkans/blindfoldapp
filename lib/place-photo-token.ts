@@ -32,7 +32,12 @@ function hmac(ref: string, exp: number): string {
  * browser, which has no access to the secret.
  */
 export function signPlacePhotoUrl(ref: string): string {
-  const exp = Math.floor(Date.now() / 1000) + TTL_SECONDS;
+  // Snap to the next 2h boundary so same photo_name yields identical URL
+  // within a window — Next.js Image optimizer deduplicates by URL, so a
+  // changing exp on every RSC render would cache-miss and hit Google on
+  // every page refresh.
+  const now = Math.floor(Date.now() / 1000);
+  const exp = Math.ceil(now / TTL_SECONDS) * TTL_SECONDS;
   const sig = hmac(ref, exp);
   return `/api/place-photo?ref=${encodeURIComponent(ref)}&exp=${exp}&sig=${sig}`;
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import { checkInToDate } from "@/app/actions/check-in";
 import type { CompleteDateResult } from "@/lib/types";
 
@@ -166,17 +166,11 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, onComplet
         className="relative w-full h-14 rounded-full overflow-hidden cursor-pointer bg-rose-500 hover:bg-rose-600 transition-colors active:scale-[0.98]"
       >
         <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
-          <MapPin className="w-4 h-4 text-white" />
-          <span className="text-sm font-semibold text-white">Check In</span>
+          <MapPin className="w-5 h-5 text-white" />
+          <span className="text-lg font-semibold text-white">Check In</span>
         </div>
       </button>
 
-      <div className="flex items-center justify-center gap-1.5">
-        <Clock className="w-3 h-3 text-white/25" />
-        <p className="text-center text-[10px] text-white/30">
-          Must be within 200 m of the venue
-        </p>
-      </div>
     </div>
   );
 }
