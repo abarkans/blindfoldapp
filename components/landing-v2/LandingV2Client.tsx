@@ -350,13 +350,13 @@ export default function LandingV2Client() {
             {/* Hero headline — Bumble-bold scale */}
             <h1 className="text-[52px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
               <span className="block">
-                Stop planning.
+                We plan the date.
               </span>
               <span
-                className="block bg-clip-text text-transparent"
+                className="block bg-clip-text text-transparent pb-2"
                 style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
               >
-                Just show up.
+                You just show up.
               </span>
             </h1>
 
