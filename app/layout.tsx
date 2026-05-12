@@ -63,12 +63,13 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${plusJakarta.variable} h-full`}>
       <head>
+        <meta name="theme-color" content="#000000" />
         {process.env.NEXT_PUBLIC_SUPABASE_URL && (
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         )}
         <link rel="preconnect" href="https://challenges.cloudflare.com" />
       </head>
-      <body className="min-h-full bg-[#0d0d14] font-sans antialiased">
+      <body className="min-h-full bg-black font-sans antialiased">
         <script
           type="application/ld+json"
           nonce={nonce}
