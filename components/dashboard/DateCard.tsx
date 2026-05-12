@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, BookOpen, Target, PackageCheck, MessageCircle } from "lucide-react";
+import { Sparkles, MapPin, Timer, Wallet, CheckCircle2, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, BookOpen, Target, PackageCheck, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
@@ -560,58 +560,40 @@ export default function DateCard({
     <>
       {/* Countdown card — shown first when date is completed */}
       {showCompletedCooldown && countdown && nextRevealDate && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="bg-white/[0.035] border border-white/16 rounded-3xl p-5 mb-4"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <CalendarClock className="w-4 h-4 text-white/65" />
-            <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Next mystery date</p>
-          </div>
+        <div className="mb-8">
+          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-3">Next mystery date</p>
           <div className="grid grid-cols-4 gap-2">
-            {[
-              { value: countdown.days, label: "Days" },
-              { value: countdown.hours, label: "Hours" },
-              { value: countdown.minutes, label: "Mins" },
-              { value: countdown.seconds, label: "Secs" },
-            ].map(({ value, label }) => (
-              <div key={label} className="bg-white/[0.035] border border-white/16 rounded-2xl py-3 text-center">
-                <p className="text-2xl font-black text-white tabular-nums">{String(value).padStart(2, "0")}</p>
-                <p className="text-[10px] text-white/55 mt-0.5">{label}</p>
-              </div>
-            ))}
+          {[
+            { value: countdown.days, label: "Days" },
+            { value: countdown.hours, label: "Hours" },
+            { value: countdown.minutes, label: "Mins" },
+            { value: countdown.seconds, label: "Secs" },
+          ].map(({ value, label }) => (
+            <div key={label} className="bg-white rounded-2xl py-3 text-center">
+              <p className="text-2xl font-black text-zinc-900 tabular-nums">{String(value).padStart(2, "0")}</p>
+              <p className="text-xs font-medium text-zinc-500 mt-0.5">{label}</p>
+            </div>
+          ))}
           </div>
-          <p className="text-xs text-white/55 text-center mt-3">
-            Available on{" "}
-            {nextRevealDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" })}
-          </p>
-        </motion.div>
+        </div>
       )}
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"
+        className={completed ? "" : "relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"}
       >
-        <div className="relative p-6">
+        <div className={completed ? "" : "relative p-6"}>
           {/* Header — hidden when date is active so image can bleed full-width from top */}
           {!(revealed && !completed) && (
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-white/65" />
+                {!completed && <Sparkles className="w-4 h-4 text-white/65" />}
                 <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
                   {completed ? "Completed Date" : "Mystery Date"}
                 </span>
               </div>
-              {nextRevealDate && !canReveal && !hasActiveDate && (
-                <div className="flex items-center gap-1.5 bg-white/[0.075] rounded-full px-3 py-1">
-                  <Clock className="w-3 h-3 text-white/50" />
-                  <span className="text-xs text-white/50">Next {formatRelative(nextRevealDate)}</span>
-                </div>
-              )}
             </div>
           )}
 
@@ -628,12 +610,7 @@ export default function DateCard({
                 {completed ? (
                   /* ── COMPLETED: collapsed card ── */
                   <div className="flex items-center gap-4 bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-4">
-                    {isVenue(dateIdea) ? (
-                      <MapPin className="w-7 h-7 text-white/65 shrink-0" />
-                    ) : (
-                      <Sparkles className="w-7 h-7 text-white/65 shrink-0" />
-                    )}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-white truncate">
                         {isVenue(dateIdea) ? dateIdea.display_name : dateIdea.title}
                       </p>

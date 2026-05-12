@@ -321,7 +321,7 @@ function DateTabContent({
 
   return (
     <div>
-      <div className="mb-5">
+      <div className="mb-10">
         <h2 className="text-2xl font-bold text-white">Your next date</h2>
         <p className="text-white/55 text-sm mt-1">Ready when you are.</p>
       </div>
@@ -496,7 +496,7 @@ function ProgressTabContent({
 
   return (
     <div>
-      <div className="mb-5">
+      <div className="mb-10">
         <h2 className="text-2xl font-bold text-white">Your progress</h2>
         <p className="text-white/55 text-sm mt-1">Every date earns XP and unlocks badges.</p>
       </div>
@@ -555,7 +555,7 @@ function ProgressUpsell({
 
   return (
     <div>
-      <div className="mb-5">
+      <div className="mb-10">
         <h2 className="text-2xl font-bold text-white">
           {hasHistory ? "Your progress is paused" : "Track every date. Earn badges."}
         </h2>
@@ -651,7 +651,7 @@ function SettingsTabContent({
 
   return (
     <div>
-      <div className="mb-5 overflow-hidden">
+      <div className="mb-10 overflow-hidden">
         <AnimatePresence mode="wait" custom={headerDir} initial={false}>
           {subpageHeader ? (
             <motion.div
