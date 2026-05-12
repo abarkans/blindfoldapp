@@ -12,8 +12,24 @@ import {
   hashInviteToken,
   partnerEmailSchema,
 } from "@/lib/partner-invites";
+import { checkPartnerInviteRateLimit } from "@/lib/rate-limit";
 
 type ActionResult = { error?: string; ok?: boolean; waiting?: boolean };
+
+// Gmail and Googlemail treat dots in the local part as insignificant.
+// Strip them only for those domains so "laine.barkane@gmail.com" matches
+// "lainebarkane@gmail.com" without affecting other providers.
+function normalizeEmailForComparison(email: string): string {
+  const lower = email.toLowerCase();
+  const atIdx = lower.lastIndexOf("@");
+  if (atIdx === -1) return lower;
+  const local = lower.slice(0, atIdx);
+  const domain = lower.slice(atIdx + 1);
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    return local.replace(/\./g, "") + "@" + domain;
+  }
+  return lower;
+}
 
 async function createAndSendInvite(profileId: string, inviterUserId: string, email: string) {
   const admin = createAdminClient();
@@ -99,14 +115,18 @@ export async function sendPartnerInvite(email: string): Promise<ActionResult> {
     return { error: "Only the account owner can invite or replace a partner." };
   }
 
+  try {
+    await checkPartnerInviteRateLimit(user.id);
+  } catch {
+    return { error: "Too many invite attempts. Try again later." };
+  }
+
   const result = await createAndSendInvite(access.profileId, user.id, parsed.data);
   revalidatePath("/dashboard");
   return result;
 }
 
 export async function sendPartnerInviteForOnboarding(
-  profileId: string,
-  inviterUserId: string,
   rawEmail?: string | null
 ): Promise<ActionResult> {
   const trimmed = rawEmail?.trim();
@@ -115,13 +135,21 @@ export async function sendPartnerInviteForOnboarding(
   const parsed = partnerEmailSchema.safeParse(trimmed);
   if (!parsed.success) return { error: "Enter a valid partner email." };
 
-  const admin = createAdminClient();
-  const { data: userData } = await admin.auth.admin.getUserById(inviterUserId);
-  if (userData.user?.email?.toLowerCase() === parsed.data) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  if (user.email?.toLowerCase() === parsed.data) {
     return { error: "Use your partner's email, not your own." };
   }
 
-  return createAndSendInvite(profileId, inviterUserId, parsed.data);
+  try {
+    await checkPartnerInviteRateLimit(user.id);
+  } catch {
+    return { error: "Too many invite attempts. Try again later." };
+  }
+
+  return createAndSendInvite(user.id, user.id, parsed.data);
 }
 
 export async function acceptPartnerInvite(token: string): Promise<ActionResult> {
@@ -145,7 +173,7 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
   if (new Date(invite.expires_at).getTime() <= Date.now()) {
     return { error: "This invite expired. Ask your partner to send a new one." };
   }
-  if (invite.invited_email.toLowerCase() !== user.email.toLowerCase()) {
+  if (normalizeEmailForComparison(invite.invited_email) !== normalizeEmailForComparison(user.email)) {
     return { error: `This invite was sent to ${invite.invited_email}. Sign in with that email to accept it.` };
   }
   if (invite.profile_id === user.id) {

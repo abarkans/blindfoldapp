@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAIDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
-import { checkRevealRateLimit } from "@/lib/rate-limit";
+import { checkRevealRateLimit, checkReadyRateLimit } from "@/lib/rate-limit";
 import { adoptDeletionHold } from "@/lib/deletion-hold";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { createDateTeaser } from "@/lib/date-teaser";
@@ -220,11 +220,11 @@ export async function revealDate(): Promise<RevealResult> {
   if (!user) return { status: "error", error: "Not authenticated" };
 
   try {
-    await checkRevealRateLimit(user.id);
+    await checkReadyRateLimit(user.id);
   } catch (error) {
     return {
       status: "error",
-      error: error instanceof Error ? error.message : "Too many reveal attempts. Try again shortly.",
+      error: error instanceof Error ? error.message : "Too many requests. Try again shortly.",
     };
   }
 
@@ -240,8 +240,6 @@ export async function revealDate(): Promise<RevealResult> {
   if (profile.date_accepted_at) return { status: "revealed" };
 
   const nowIso = new Date().toISOString();
-  const ownerReadyAt = access.role === "owner" ? nowIso : profile.reveal_owner_ready_at;
-  const partnerReadyAt = access.role === "partner" ? nowIso : profile.reveal_partner_ready_at;
   const readyUpdate =
     access.role === "owner"
       ? { reveal_owner_ready_at: nowIso }
@@ -253,7 +251,16 @@ export async function revealDate(): Promise<RevealResult> {
     .eq("id", access.profileId);
   if (readyError) return { status: "error", error: "Could not mark you ready. Please try again." };
 
-  if (!ownerReadyAt || !partnerReadyAt) {
+  // Re-read after write so both-ready decision reflects DB state, not local snapshot.
+  // Prevents race where both partners write simultaneously and both see the other's
+  // flag as null in the pre-write snapshot.
+  const { data: fresh, error: freshError } = await admin
+    .from("profiles")
+    .select("reveal_owner_ready_at, reveal_partner_ready_at")
+    .eq("id", access.profileId)
+    .single();
+
+  if (freshError || !fresh?.reveal_owner_ready_at || !fresh?.reveal_partner_ready_at) {
     revalidatePath("/dashboard");
     return { status: "waiting" };
   }

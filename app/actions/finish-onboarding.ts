@@ -186,7 +186,7 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     return { error: "Failed to save onboarding" };
   }
 
-  const inviteResult = await sendPartnerInviteForOnboarding(user.id, user.id, v.partner_email?.toLowerCase());
+  const inviteResult = await sendPartnerInviteForOnboarding(v.partner_email?.toLowerCase());
   if (inviteResult.error) return { error: inviteResult.error };
 
   const cookieStore = await cookies();

@@ -14,6 +14,7 @@ const profileSchema = z.object({
   plan_type: z.string(),
   total_rerolls_used: z.number(),
   current_date_rerolled: z.boolean(),
+  date_idea: z.unknown().nullable(),
   date_accepted_at: z.string().nullable(),
   reveal_owner_ready_at: z.string().nullable(),
   reveal_partner_ready_at: z.string().nullable(),
@@ -41,21 +42,30 @@ export async function rerollDate(): Promise<void> {
   const admin = createAdminClient();
   const access = await getCoupleAccess(admin, user.id);
 
-  const { data: raw } = await supabase
+  await checkRerollRateLimit(user.id);
+
+  const { data: raw, error: profileError } = await admin
     .from("profiles")
-    .select("plan_type, total_rerolls_used, current_date_rerolled, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at, dates_completed_count, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
+    .select("plan_type, total_rerolls_used, current_date_rerolled, date_idea, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at, dates_completed_count, partner_names, interests, constraints, last_lat, last_long, preferred_radius")
     .eq("id", access.profileId)
     .single();
 
-  if (!raw) throw new Error("Profile not found");
+  if (profileError || !raw) {
+    console.error(`[audit] reroll: profile fetch failed uid=${user.id} profile=${access.profileId} msg=${profileError?.message ?? "missing"}`);
+    throw new Error("Profile not found");
+  }
 
-  await checkRerollRateLimit(user.id);
-
-  const profile = profileSchema.parse(raw);
+  const parseResult = profileSchema.safeParse(raw);
+  if (!parseResult.success) {
+    console.error(`[audit] reroll: profile parse failed uid=${user.id} profile=${access.profileId} issues=${JSON.stringify(parseResult.error.issues)}`);
+    throw new Error("Profile setup incomplete. Please check your settings.");
+  }
+  const profile = parseResult.data;
   const isFree = profile.plan_type !== "subscription";
   const partnerReadyAt =
     access.role === "owner" ? profile.reveal_partner_ready_at : profile.reveal_owner_ready_at;
 
+  if (!profile.date_idea) throw new Error("No active date to re-roll.");
   if (profile.date_accepted_at || partnerReadyAt) {
     throw new Error("Your partner already accepted this date.");
   }
@@ -95,7 +105,7 @@ export async function rerollDate(): Promise<void> {
 
   try {
     if (profile.last_lat && profile.last_long) {
-      const { data: pastIdeas } = await supabase
+      const { data: pastIdeas } = await admin
         .from("date_ideas")
         .select("idea")
         .eq("user_id", access.profileId)
@@ -133,7 +143,7 @@ export async function rerollDate(): Promise<void> {
 
       idea = { ...venue, ai: aiEnrichment };
     } else {
-      const { data: pastIdeas } = await supabase
+      const { data: pastIdeas } = await admin
         .from("date_ideas")
         .select("idea")
         .eq("user_id", access.profileId)
@@ -156,6 +166,7 @@ export async function rerollDate(): Promise<void> {
       });
     }
   } catch (err) {
+    console.error(`[audit] reroll: generation failed uid=${user.id} profile=${access.profileId} msg=${err instanceof Error ? err.message : String(err)}`);
     // Generation failed — roll back the atomic claim so the user can retry
     if (isFree) {
       await admin.from("profiles").update({ total_rerolls_used: 0, current_date_rerolled: false }).eq("id", access.profileId);

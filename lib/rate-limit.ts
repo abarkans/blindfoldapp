@@ -119,3 +119,21 @@ export async function checkDeletionRequestRateLimit(userId: string): Promise<voi
 export async function checkContactRateLimit(ip: string): Promise<void> {
   await check(`contact-ip:${ip}`, 3, 3600, true);
 }
+
+/**
+ * Enforce per-user rate limits on partner invite sends.
+ * Limit: 5 per hour. Fails open: no external cost — transactional email
+ * volume is low enough that blocking on a DB hiccup hurts UX for nothing.
+ */
+export async function checkPartnerInviteRateLimit(userId: string): Promise<void> {
+  await check(`partner-invite:${userId}`, 5, 3600, false);
+}
+
+/**
+ * Enforce per-user rate limits on the ready-to-reveal action.
+ * Limit: 10 per 60 seconds. Fails open: cheap timestamp write,
+ * no paid API calls — blocking on DB hiccup hurts UX for nothing.
+ */
+export async function checkReadyRateLimit(userId: string): Promise<void> {
+  await check(`ready:${userId}`, 10, 60, false);
+}

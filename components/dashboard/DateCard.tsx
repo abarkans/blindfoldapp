@@ -462,8 +462,20 @@ export default function DateCard({
         await rerollDate();
         ph?.capture("date_rerolled", { plan_type: planType });
       } catch (e) {
-        setError(e instanceof Error && e.message === "Your partner already accepted this date."
-          ? e.message
+        const msg = e instanceof Error ? e.message : "";
+        const PASSTHROUGH = [
+          "Your partner already accepted this date.",
+          "No re-rolls remaining on the basic plan",
+          "Already re-rolled this date",
+          "No active date to re-roll.",
+          "No venues found nearby. Try increasing your search radius in Settings.",
+          "Profile not found",
+          "Profile setup incomplete",
+          "Too many requests",
+          "Service temporarily unavailable",
+        ];
+        setError(PASSTHROUGH.some((s) => msg.startsWith(s))
+          ? msg
           : "Couldn't find a new date. Your original date is still saved.");
       }
     });

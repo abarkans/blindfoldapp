@@ -38,28 +38,32 @@ export async function getCoupleAccess(
   admin: SupabaseClient<Database>,
   userId: string
 ): Promise<CoupleAccess> {
-  const { data: partnerMembership } = await admin
+  const { data: partnerMembership, error: partnerError } = await admin
     .from("couple_members")
     .select("profile_id, role")
     .eq("user_id", userId)
     .eq("role", "partner")
     .maybeSingle();
 
-  if (partnerMembership) {
+  if (partnerError) {
+    console.warn(`[couple-access] partner lookup failed uid=${userId} msg=${partnerError.message}`);
+  } else if (partnerMembership) {
     return {
       profileId: partnerMembership.profile_id,
       role: partnerMembership.role,
     };
   }
 
-  const { data: ownerMembership } = await admin
+  const { data: ownerMembership, error: ownerError } = await admin
     .from("couple_members")
     .select("profile_id, role")
     .eq("user_id", userId)
     .eq("profile_id", userId)
     .maybeSingle();
 
-  if (ownerMembership) {
+  if (ownerError) {
+    console.warn(`[couple-access] owner lookup failed uid=${userId} msg=${ownerError.message}`);
+  } else if (ownerMembership) {
     return {
       profileId: ownerMembership.profile_id,
       role: ownerMembership.role,
