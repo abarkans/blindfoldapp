@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone, Mail } from "lucide-react";
+import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -37,9 +37,6 @@ const REROLL_MESSAGES = [
   "Conjuring a new mystery...",
   "Searching for the perfect swap...",
 ];
-
-const REVEALED_VENUE_LAYOUT_VARIANT: "image-actions" | "compact-actions" =
-  "image-actions";
 
 // AI-generated idea shape
 interface AIDateIdea {
@@ -317,6 +314,7 @@ export default function DateCard({
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
   const [localRevealReady, setLocalRevealReady] = useState(false);
+  const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
 
   // Sync local reveal state when the server updates after the other partner is ready.
   useEffect(() => {
@@ -339,6 +337,11 @@ export default function DateCard({
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, [partnerInviteModalOpen]);
+  useEffect(() => {
+    if (!activeSheet) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [activeSheet]);
 
   const isFree = planType !== "subscription";
   const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
@@ -367,7 +370,6 @@ export default function DateCard({
     : null;
   const venueShortAddress =
     dateIdea && isVenue(dateIdea) ? getShortAddress(dateIdea) : null;
-  const useImageActionLayout = REVEALED_VENUE_LAYOUT_VARIANT === "image-actions";
   const partnerInviteCopy = getPartnerInviteCopy(
     partnerInviteState,
     partnerNames.partner2 || "your partner"
@@ -591,21 +593,23 @@ export default function DateCard({
         className="relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"
       >
         <div className="relative p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-white/65" />
-              <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
-                {revealed ? (completed ? "Completed Date" : "Current Date") : "Mystery Date"}
-              </span>
-            </div>
-            {nextRevealDate && !canReveal && !hasActiveDate && (
-              <div className="flex items-center gap-1.5 bg-white/[0.075] rounded-full px-3 py-1">
-                <Clock className="w-3 h-3 text-white/50" />
-                <span className="text-xs text-white/50">Next {formatRelative(nextRevealDate)}</span>
+          {/* Header — hidden when date is active so image can bleed full-width from top */}
+          {!(revealed && !completed) && (
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-white/65" />
+                <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
+                  {completed ? "Completed Date" : "Mystery Date"}
+                </span>
               </div>
-            )}
-          </div>
+              {nextRevealDate && !canReveal && !hasActiveDate && (
+                <div className="flex items-center gap-1.5 bg-white/[0.075] rounded-full px-3 py-1">
+                  <Clock className="w-3 h-3 text-white/50" />
+                  <span className="text-xs text-white/50">Next {formatRelative(nextRevealDate)}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           <AnimatePresence mode="wait">
             {/* ── REVEALED STATE ── */}
@@ -734,7 +738,8 @@ export default function DateCard({
                 ) : isVenue(dateIdea) ? (
                   /* ── ACCEPTED VENUE ── */
                   <>
-                    <div className="relative mb-4 h-52 overflow-hidden rounded-2xl bg-white/[0.035]">
+                    {/* Full-bleed image — negative margins cancel the parent p-6 */}
+                    <div className="relative -mx-6 -mt-6 h-60 overflow-hidden">
                       {dateIdea.photo_name && dateIdea.signed_photo_url ? (
                         <Image
                           src={dateIdea.signed_photo_url}
@@ -746,131 +751,157 @@ export default function DateCard({
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center">
+                        <div className="flex h-full w-full items-center justify-center bg-white/[0.035]">
                           <MapPin className="w-10 h-10 text-white/20" />
                         </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2.5 py-1">
-                        <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                        <span className="text-xs font-bold text-white">{dateIdea.rating.toFixed(1)}</span>
-                      </div>
-                      {useImageActionLayout && (
-                        <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-16">
-                          <div className="min-w-0 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#17131f] shadow-lg shadow-black/20">
-                            <span className="block max-w-[10rem] truncate">{dateIdea.ai?.vibe ?? "Date spot"}</span>
-                          </div>
-                          <div className="flex shrink-0 items-center gap-2">
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent" />
+                      {/* Vibe tag (left) + action buttons (right) at top of image */}
+                      <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
+                        {dateIdea.ai?.vibe && (
+                          <span className="rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#17131f] shadow-lg shadow-black/20 max-w-[9rem] truncate block">
+                            {dateIdea.ai.vibe}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2 ml-auto">
+                          <LinkButton
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            variant="ghost"
+                            size="sm"
+                            aria-label="Get directions"
+                            title="Get directions"
+                            className="h-10 w-10 rounded-full bg-rose-500 text-white p-0 shadow-lg shadow-black/25 hover:bg-rose-400 hover:text-white"
+                          >
+                            <Navigation className="h-[18px] w-[18px]" />
+                          </LinkButton>
+                          {venuePhoneHref && (
                             <LinkButton
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              href={venuePhoneHref}
                               variant="ghost"
                               size="sm"
-                              aria-label="Get directions"
-                              title="Get directions"
-                              className="h-11 w-11 rounded-full bg-rose-500 text-white p-0 shadow-lg shadow-black/25 hover:bg-rose-400 hover:text-white"
+                              aria-label="Call venue"
+                              title="Call venue"
+                              className="h-10 w-10 rounded-full bg-rose-500 text-white p-0 shadow-lg shadow-black/25 hover:bg-rose-400 hover:text-white"
                             >
-                              <Navigation className="h-5 w-5" />
+                              <Phone className="h-[18px] w-[18px]" />
                             </LinkButton>
-                            {venuePhoneHref && (
-                              <LinkButton
-                                href={venuePhoneHref}
-                                variant="ghost"
-                                size="sm"
-                                aria-label="Call venue"
-                                title="Call venue"
-                                className="h-11 w-11 rounded-full bg-rose-500 text-white p-0 shadow-lg shadow-black/25 hover:bg-rose-400 hover:text-white"
-                              >
-                                <Phone className="h-5 w-5" />
-                              </LinkButton>
-                            )}
-                          </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
 
-                    {dateIdea.ai ? (
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-xl font-bold text-white">{dateIdea.ai.title}</h3>
-                        </div>
-                        <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Timer className="h-3.5 w-3.5 text-white/55" />
-                            {dateIdea.ai.duration}
-                          </span>
-                          <span className="inline-flex items-center gap-1.5">
-                            <Wallet className="h-3.5 w-3.5 text-white/55" />
-                            {dateIdea.ai.budget_range || getPriceLevelLabel(dateIdea.price_level)}
-                          </span>
-                          <span className="inline-flex min-w-0 items-center gap-1.5">
-                            <MapPin className="h-3.5 w-3.5 shrink-0 text-white/55" />
-                            <span className="truncate">{venueShortAddress}</span>
-                          </span>
-                        </div>
+                    {/* Title + Rating on same row */}
+                    <div className="flex items-start justify-between gap-3 mt-4 mb-1.5">
+                      <h3 className="text-xl font-bold text-white leading-tight">
+                        {dateIdea.ai?.title || dateIdea.display_name}
+                      </h3>
+                      <div className="flex items-center gap-1 shrink-0 mt-1">
+                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                        <span className="text-sm font-bold text-white">{dateIdea.rating.toFixed(1)}</span>
                       </div>
-                    ) : (
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold text-white mb-1">{dateIdea.display_name}</h3>
-                        <p className="text-sm text-white/50">{venueShortAddress}</p>
-                      </div>
-                    )}
+                    </div>
 
-                    {(dateIdea.ai?.description || dateIdea.ai?.mission) && (
-                      <div className="mb-4 rounded-2xl bg-white/[0.04] px-4 py-3">
+                    {/* Metadata row */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45 mb-4">
+                      {dateIdea.ai?.duration && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Timer className="h-3.5 w-3.5 text-white/55" />
+                          {dateIdea.ai.duration}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1.5">
+                        <Wallet className="h-3.5 w-3.5 text-white/55" />
+                        {dateIdea.ai?.budget_range || getPriceLevelLabel(dateIdea.price_level)}
+                      </span>
+                      <span className="inline-flex min-w-0 items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-white/55" />
+                        <span className="truncate">{venueShortAddress}</span>
+                      </span>
+                    </div>
+
+                    {/* Detail rows — bottom sheet on mobile, accordion on desktop */}
+                    {(dateIdea.ai?.description || dateIdea.ai?.mission || (!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter))) && (
+                      <div className="mb-4 rounded-2xl overflow-hidden border border-white/[0.07]">
                         {dateIdea.ai?.description && (
-                          <p className="text-sm leading-relaxed text-white/65">{dateIdea.ai.description}</p>
-                        )}
-                        {dateIdea.ai?.mission && (
-                          <div className={dateIdea.ai.description ? "mt-3" : ""}>
-                            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-white/65">Your mission</p>
-                            <p className="text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
+                          <div className="border-b border-white/[0.07] last:border-b-0">
+                            <button
+                              onClick={() => setActiveSheet(activeSheet === "description" ? null : "description")}
+                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                            >
+                              <span>Description</span>
+                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
+                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
+                                {activeSheet === "description" ? "−" : "+"}
+                              </span>
+                            </button>
+                            <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "description" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                              <div className="overflow-hidden">
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70">{dateIdea.ai.description}</p>
+                              </div>
+                            </div>
                           </div>
                         )}
-                      </div>
-                    )}
-
-                    {!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter) && (
-                      <div className="mb-4 space-y-2 text-sm text-white/60">
-                        {dateIdea.ai?.preparation && (
-                          <p>
-                            <span className="font-semibold text-white/70">Before you go: </span>
-                            {dateIdea.ai.preparation}
-                          </p>
+                        {dateIdea.ai?.mission && (
+                          <div className="border-b border-white/[0.07] last:border-b-0">
+                            <button
+                              onClick={() => setActiveSheet(activeSheet === "mission" ? null : "mission")}
+                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                            >
+                              <span>Mission</span>
+                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
+                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
+                                {activeSheet === "mission" ? "−" : "+"}
+                              </span>
+                            </button>
+                            <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "mission" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                              <div className="overflow-hidden">
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
+                              </div>
+                            </div>
+                          </div>
                         )}
-                        {dateIdea.ai?.conversation_starter && (
-                          <p>
-                            <span className="font-semibold text-amber-300">Ask: </span>
-                            {dateIdea.ai.conversation_starter}
-                          </p>
+                        {!isFree && dateIdea.ai?.preparation && (
+                          <div className="border-b border-white/[0.07] last:border-b-0">
+                            <button
+                              onClick={() => setActiveSheet(activeSheet === "preparation" ? null : "preparation")}
+                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                            >
+                              <span>Before you go</span>
+                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
+                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
+                                {activeSheet === "preparation" ? "−" : "+"}
+                              </span>
+                            </button>
+                            <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "preparation" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                              <div className="overflow-hidden">
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70">{dateIdea.ai.preparation}</p>
+                              </div>
+                            </div>
+                          </div>
                         )}
-                      </div>
-                    )}
-
-                    {!useImageActionLayout && (
-                      <div className="mb-4 flex gap-2">
-                        <LinkButton
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dateIdea.display_name)}&query_place_id=${dateIdea.place_id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          variant="primary"
-                          size="md"
-                          className="h-14 flex-1 gap-2 px-4"
-                        >
-                          <Navigation className="w-4 h-4" />
-                          Get Directions
-                        </LinkButton>
-                        {venuePhoneHref && (
-                          <LinkButton
-                            href={venuePhoneHref}
-                            variant="primary"
-                            size="md"
-                            className="h-14 flex-1 gap-2 px-4"
-                          >
-                            <Phone className="w-4 h-4" />
-                            Call
-                          </LinkButton>
+                        {!isFree && dateIdea.ai?.conversation_starter && (
+                          <div className="border-b border-white/[0.07] last:border-b-0">
+                            <button
+                              onClick={() => setActiveSheet(activeSheet === "conversation" ? null : "conversation")}
+                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                            >
+                              <span>Conversation starter</span>
+                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
+                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
+                                {activeSheet === "conversation" ? "−" : "+"}
+                              </span>
+                            </button>
+                            <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "conversation" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                              <div className="overflow-hidden">
+                                <div className="px-4 pb-4">
+                                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-amber-400">Ask:</p>
+                                  <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.conversation_starter}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
                     )}
@@ -1099,6 +1130,62 @@ export default function DateCard({
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Bottom sheet — venue date details */}
+      <AnimatePresence>
+        {activeSheet && dateIdea && isVenue(dateIdea) && dateIdea.ai && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
+              onClick={() => setActiveSheet(null)}
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="fixed inset-x-0 bottom-0 z-[60] bg-[#1c1825] rounded-t-3xl max-h-[75vh] overflow-y-auto md:hidden"
+            >
+              <div className="sticky top-0 bg-[#1c1825] pt-3 px-6 pb-3">
+                <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
+                <div className="flex items-center justify-between">
+                  <h4 className="text-base font-bold text-white">
+                    {activeSheet === "description" && "Description"}
+                    {activeSheet === "mission" && "Your mission"}
+                    {activeSheet === "preparation" && "Before you go"}
+                    {activeSheet === "conversation" && "Conversation starter"}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSheet(null)}
+                    className="w-8 h-8 rounded-xl bg-white/[0.05] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4 text-white/60" />
+                  </button>
+                </div>
+              </div>
+              <div className="px-6 pb-10 pt-1">
+                {activeSheet === "description" && (
+                  <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.description}</p>
+                )}
+                {activeSheet === "mission" && (
+                  <p className="text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
+                )}
+                {activeSheet === "preparation" && (
+                  <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.preparation}</p>
+                )}
+                {activeSheet === "conversation" && (
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-400">Ask:</p>
+                    <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.conversation_starter}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Partner invite modal */}
       {partnerInviteModalOpen && (
