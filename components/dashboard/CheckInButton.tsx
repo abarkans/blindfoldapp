@@ -163,11 +163,11 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, onComplet
 
       <button
         onClick={handleCheckIn}
-        className="relative w-full h-14 rounded-full overflow-hidden cursor-pointer bg-rose-500/15 border border-rose-500/30 hover:bg-rose-500/25 transition-colors active:scale-[0.98]"
+        className="relative w-full h-14 rounded-full overflow-hidden cursor-pointer bg-rose-500 hover:bg-rose-600 transition-colors active:scale-[0.98]"
       >
         <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
-          <MapPin className="w-4 h-4 text-rose-400" />
-          <span className="text-sm font-semibold text-rose-300">Check In</span>
+          <MapPin className="w-4 h-4 text-white" />
+          <span className="text-sm font-semibold text-white">Check In</span>
         </div>
       </button>
 

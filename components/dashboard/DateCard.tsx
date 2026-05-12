@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight } from "lucide-react";
+import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, BookOpen, Target, PackageCheck, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -823,14 +823,19 @@ export default function DateCard({
 
                     {/* Detail rows — bottom sheet on mobile, accordion on desktop */}
                     {(dateIdea.ai?.description || dateIdea.ai?.mission || (!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter))) && (
-                      <div className="mb-4 rounded-2xl overflow-hidden border border-white/[0.07]">
+                      <div className="mb-4 flex flex-col gap-2">
                         {dateIdea.ai?.description && (
-                          <div className="border-b border-white/[0.07] last:border-b-0">
+                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
                             <button
                               onClick={() => setActiveSheet(activeSheet === "description" ? null : "description")}
-                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                              className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
-                              <span>Description</span>
+                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+                                <BookOpen className="w-4 h-4 text-white/65" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-white">Description</p>
+                              </div>
                               <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
                               <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
                                 {activeSheet === "description" ? "−" : "+"}
@@ -838,18 +843,23 @@ export default function DateCard({
                             </button>
                             <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "description" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                               <div className="overflow-hidden">
-                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70">{dateIdea.ai.description}</p>
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70 border-t border-white/[0.07] pt-3">{dateIdea.ai.description}</p>
                               </div>
                             </div>
                           </div>
                         )}
                         {dateIdea.ai?.mission && (
-                          <div className="border-b border-white/[0.07] last:border-b-0">
+                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
                             <button
                               onClick={() => setActiveSheet(activeSheet === "mission" ? null : "mission")}
-                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                              className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
-                              <span>Mission</span>
+                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+                                <Target className="w-4 h-4 text-white/65" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-white">Mission</p>
+                              </div>
                               <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
                               <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
                                 {activeSheet === "mission" ? "−" : "+"}
@@ -857,18 +867,23 @@ export default function DateCard({
                             </button>
                             <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "mission" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                               <div className="overflow-hidden">
-                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/75 border-t border-white/[0.07] pt-3">{dateIdea.ai.mission}</p>
                               </div>
                             </div>
                           </div>
                         )}
                         {!isFree && dateIdea.ai?.preparation && (
-                          <div className="border-b border-white/[0.07] last:border-b-0">
+                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
                             <button
                               onClick={() => setActiveSheet(activeSheet === "preparation" ? null : "preparation")}
-                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                              className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
-                              <span>Before you go</span>
+                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+                                <PackageCheck className="w-4 h-4 text-white/65" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-white">Before you go</p>
+                              </div>
                               <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
                               <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
                                 {activeSheet === "preparation" ? "−" : "+"}
@@ -876,26 +891,31 @@ export default function DateCard({
                             </button>
                             <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "preparation" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                               <div className="overflow-hidden">
-                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70">{dateIdea.ai.preparation}</p>
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70 border-t border-white/[0.07] pt-3">{dateIdea.ai.preparation}</p>
                               </div>
                             </div>
                           </div>
                         )}
                         {!isFree && dateIdea.ai?.conversation_starter && (
-                          <div className="border-b border-white/[0.07] last:border-b-0">
+                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
                             <button
                               onClick={() => setActiveSheet(activeSheet === "conversation" ? null : "conversation")}
-                              className="flex items-center justify-between w-full px-4 py-3.5 text-sm font-medium text-white/80 hover:bg-white/[0.04] transition-colors text-left"
+                              className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
-                              <span>Conversation starter</span>
+                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+                                <MessageCircle className="w-4 h-4 text-white/65" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-white">Conversation starter</p>
+                              </div>
                               <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
                               <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
                                 {activeSheet === "conversation" ? "−" : "+"}
                               </span>
                             </button>
                             <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "conversation" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                              <div className="overflow-hidden">
-                                <div className="px-4 pb-4">
+                              <div className="overflow-hidden border-t border-white/[0.07]">
+                                <div className="px-4 pb-4 pt-3">
                                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-amber-400">Ask:</p>
                                   <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.conversation_starter}</p>
                                 </div>
