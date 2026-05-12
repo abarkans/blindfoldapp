@@ -37,6 +37,7 @@ export interface VenueDateIdea {
   photo_name: string | null;
   rating: number;
   price_level: string;
+  location: { latitude: number; longitude: number } | null;
   meta: VenueMeta;
   ai: VenueAIEnrichment | null;
 }
@@ -232,7 +233,7 @@ export async function searchNearbyVenues({
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.addressComponents,places.nationalPhoneNumber,places.internationalPhoneNumber,places.photos,places.rating,places.priceLevel,places.businessStatus,places.primaryType,places.types,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable",
+          "places.id,places.displayName,places.formattedAddress,places.addressComponents,places.nationalPhoneNumber,places.internationalPhoneNumber,places.photos,places.rating,places.priceLevel,places.businessStatus,places.primaryType,places.types,places.primaryTypeDisplayName,places.editorialSummary,places.userRatingCount,places.reviews.text,places.outdoorSeating,places.liveMusic,places.servesCocktails,places.servesBeer,places.servesWine,places.servesDinner,places.reservable,places.location",
       },
       body: JSON.stringify(body),
     }
@@ -268,6 +269,7 @@ export async function searchNearbyVenues({
     servesWine?: boolean;
     servesDinner?: boolean;
     reservable?: boolean;
+    location?: { latitude?: number; longitude?: number };
   }[] = data.places ?? [];
 
   // Filter: rating >= 4.0 and not previously visited
@@ -329,6 +331,10 @@ export async function searchNearbyVenues({
     photo_name: place.photos?.[0]?.name ?? null,
     rating: place.rating ?? 0,
     price_level: place.priceLevel ?? "PRICE_LEVEL_UNSPECIFIED",
+    location:
+      place.location?.latitude != null && place.location?.longitude != null
+        ? { latitude: place.location.latitude, longitude: place.location.longitude }
+        : null,
     meta,
     ai: null,
   };

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock } from "lucide-react";
+import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock, MapPin } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -388,6 +388,8 @@ function DateTabContent({
         hasAcceptedPartner={partnerInviteStatus.state === "accepted"}
         partnerInviteState={partnerInviteStatus.state}
         partnerInvitedEmail={partnerInviteStatus.invitedEmail}
+        checkinOwnerAt={profile.checkin_owner_at ?? null}
+        checkinPartnerAt={profile.checkin_partner_at ?? null}
       />
     </div>
   );
@@ -434,6 +436,7 @@ function ProgressTabContent({
 
   const totalXp = profile.total_xp ?? 0;
   const datesCompleted = profile.dates_completed_count ?? 0;
+  const totalCheckins = profile.total_checkins ?? 0;
   const displayBadges = badgesFromCompletedCount(
     earnedBadges,
     datesCompleted,
@@ -449,6 +452,28 @@ function ProgressTabContent({
       </div>
 
       <XPProgressBar totalXp={totalXp} />
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 gap-2 mb-4 mt-3">
+        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
+            <CalendarCheck className="w-4 h-4 text-white/55" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-white tabular-nums">{datesCompleted}</p>
+            <p className="text-[10px] text-white/45">Dates completed</p>
+          </div>
+        </div>
+        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
+            <MapPin className="w-4 h-4 text-white/55" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-white tabular-nums">{totalCheckins}</p>
+            <p className="text-[10px] text-white/45">Venue check-ins</p>
+          </div>
+        </div>
+      </div>
 
       {/* Next milestone nudge */}
       {nextMilestone && (

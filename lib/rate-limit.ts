@@ -137,3 +137,11 @@ export async function checkPartnerInviteRateLimit(userId: string): Promise<void>
 export async function checkReadyRateLimit(userId: string): Promise<void> {
   await check(`ready:${userId}`, 10, 60, false);
 }
+
+/**
+ * Enforce per-user rate limits on the check-in action.
+ * Limit: 10 per 60 seconds. Fails open: GPS + DB write only, no paid APIs.
+ */
+export async function checkCheckInRateLimit(userId: string): Promise<void> {
+  await check(`checkin:${userId}`, 10, 60, false);
+}

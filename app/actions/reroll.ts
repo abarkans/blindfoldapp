@@ -199,6 +199,8 @@ export async function rerollDate(): Promise<void> {
       date_accepted_at: null,
       reveal_owner_ready_at: null,
       reveal_partner_ready_at: null,
+      checkin_owner_at: null,
+      checkin_partner_at: null,
     })
     .eq("id", access.profileId);
 

@@ -1,0 +1,182 @@
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { MapPin, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { checkInToDate } from "@/app/actions/check-in";
+import type { CompleteDateResult } from "@/lib/types";
+
+type CheckInState =
+  | "idle"
+  | "locating"
+  | "checking"
+  | "waiting"
+  | "error";
+
+interface CheckInButtonProps {
+  partnerName: string;
+  partnerCheckedIn: boolean;
+  onCompleted: (result: CompleteDateResult) => void;
+}
+
+export default function CheckInButton({ partnerName, partnerCheckedIn, onCompleted }: CheckInButtonProps) {
+  const [state, setState] = useState<CheckInState>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // If partner already checked in, surface a hint when idle
+  const isWaiting = state === "waiting";
+
+  async function handleCheckIn() {
+    if (state === "checking" || state === "locating" || state === "waiting") return;
+    setErrorMsg("");
+    setState("locating");
+
+    if (!navigator.geolocation) {
+      setErrorMsg("Your browser doesn't support location services.");
+      setState("error");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        setState("checking");
+        try {
+          const result = await checkInToDate({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+
+          if (result.status === "waiting") {
+            setState("waiting");
+            return;
+          }
+
+          if (result.status === "completed") {
+            onCompleted(result.result);
+            return;
+          }
+
+          if (result.status === "too_far") {
+            const meters = result.distanceMeters;
+            const display =
+              meters >= 1000
+                ? `${(meters / 1000).toFixed(1)} km`
+                : `${meters} m`;
+            setErrorMsg(`Not quite there yet — you're ${display} away. Move closer and try again.`);
+            setState("error");
+            return;
+          }
+
+          if (result.status === "no_venue") {
+            setErrorMsg("Check-in is only available for venue dates.");
+            setState("error");
+            return;
+          }
+
+          if (result.status === "error") {
+            setErrorMsg(result.error);
+            setState("error");
+            return;
+          }
+        } catch {
+          setErrorMsg("Something went wrong. Please try again.");
+          setState("error");
+        }
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setErrorMsg("Enable location access in your browser settings, then try again.");
+        } else if (err.code === err.TIMEOUT) {
+          setErrorMsg("Location timed out. Move to a better signal area and retry.");
+        } else {
+          setErrorMsg("Couldn't get your location. Please try again.");
+        }
+        setState("error");
+      },
+      { timeout: 15000, maximumAge: 30000 }
+    );
+  }
+
+  if (isWaiting) {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/15 border border-amber-500/30">
+          <motion.div
+            className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+          />
+          <span className="text-sm font-semibold text-amber-300">
+            Waiting for {partnerName}
+          </span>
+        </div>
+        <p className="text-center text-[10px] text-white/30">
+          They&apos;ll get a nudge to check in too
+        </p>
+      </div>
+    );
+  }
+
+  if (state === "checking") {
+    return (
+      <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-rose-500/20 border border-rose-500/30">
+        <motion.div
+          className="w-3.5 h-3.5 rounded-full border-2 border-rose-400/40 border-t-rose-400"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+        />
+        <span className="text-sm font-semibold text-rose-300">Verifying location…</span>
+      </div>
+    );
+  }
+
+  if (state === "locating") {
+    return (
+      <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+        <motion.div
+          className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+        />
+        <span className="text-sm font-semibold text-white/60">Getting location…</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {partnerCheckedIn && state !== "error" && (
+        <div className="flex items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2.5">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+          <p className="text-xs text-emerald-300 font-medium">
+            {partnerName} is already there — your turn!
+          </p>
+        </div>
+      )}
+
+      {state === "error" && errorMsg && (
+        <div className="flex items-start gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 px-3 py-2.5">
+          <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-red-300">{errorMsg}</p>
+        </div>
+      )}
+
+      <button
+        onClick={handleCheckIn}
+        className="relative w-full h-14 rounded-full overflow-hidden cursor-pointer bg-rose-500/15 border border-rose-500/30 hover:bg-rose-500/25 transition-colors active:scale-[0.98]"
+      >
+        <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
+          <MapPin className="w-4 h-4 text-rose-400" />
+          <span className="text-sm font-semibold text-rose-300">Check In</span>
+        </div>
+      </button>
+
+      <div className="flex items-center justify-center gap-1.5">
+        <Clock className="w-3 h-3 text-white/25" />
+        <p className="text-center text-[10px] text-white/30">
+          Must be within 200 m of the venue
+        </p>
+      </div>
+    </div>
+  );
+}

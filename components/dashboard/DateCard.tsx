@@ -16,6 +16,7 @@ import { rerollDate } from "@/app/actions/reroll";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
+import CheckInButton from "@/components/dashboard/CheckInButton";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
 
 const LOADING_MESSAGES = [
@@ -69,6 +70,7 @@ interface VenueDateIdea {
   signed_photo_url?: string | null;
   rating: number;
   price_level: string;
+  location?: { latitude: number; longitude: number } | null;
   ai: VenueAIEnrichment | null;
 }
 
@@ -109,6 +111,8 @@ interface DateCardProps {
   hasAcceptedPartner: boolean;
   partnerInviteState: "none" | "pending" | "expired" | "accepted";
   partnerInvitedEmail?: string | null;
+  checkinOwnerAt: string | null;
+  checkinPartnerAt: string | null;
 }
 
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
@@ -288,6 +292,8 @@ export default function DateCard({
   hasAcceptedPartner,
   partnerInviteState,
   partnerInvitedEmail,
+  checkinOwnerAt,
+  checkinPartnerAt,
 }: DateCardProps) {
   const ph = usePostHog();
   const router = useRouter();
@@ -336,6 +342,14 @@ export default function DateCard({
 
   const isFree = planType !== "subscription";
   const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
+
+  const myCheckedIn = memberRole === "owner" ? !!checkinOwnerAt : !!checkinPartnerAt;
+  const partnerCheckedIn = memberRole === "owner" ? !!checkinPartnerAt : !!checkinOwnerAt;
+  const hasVenueLocation =
+    dateIdea && isVenue(dateIdea) && !!dateIdea.location?.latitude;
+  // Poll any time the check-in flow is active so either partner's
+  // check-in arrives without a manual refresh.
+  const showCheckinFlow = revealed && accepted && !completed && hasVenueLocation;
 
   const canReveal = isRevealAvailable(revealedAt, cadence);
   const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
@@ -391,6 +405,24 @@ export default function DateCard({
     };
   }, [waitingForPartnerReveal, router]);
 
+  useEffect(() => {
+    if (!showCheckinFlow) return;
+    let timeout: number | null = null;
+    let cancelled = false;
+    const scheduleRefresh = () => {
+      timeout = window.setTimeout(() => {
+        if (cancelled) return;
+        router.refresh();
+        scheduleRefresh();
+      }, 12_000 + Math.floor(Math.random() * 6_000));
+    };
+    scheduleRefresh();
+    return () => {
+      cancelled = true;
+      if (timeout) window.clearTimeout(timeout);
+    };
+  }, [showCheckinFlow, router]);
+
   function handleStartDate() {
     setError("");
     setSuccessMessage("");
@@ -443,8 +475,16 @@ export default function DateCard({
   }
 
   function handleAccept() {
-    setAccepted(true); // optimistic — server confirms via revalidatePath
-    acceptDate().catch(() => setAccepted(false));
+    setError("");
+    setAccepted(true);
+    startTransition(async () => {
+      try {
+        await acceptDate();
+      } catch (e) {
+        setAccepted(false);
+        setError(e instanceof Error ? e.message : "Something went wrong");
+      }
+    });
   }
 
   function handleRerollConfirm() {
@@ -836,7 +876,30 @@ export default function DateCard({
                     )}
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
-                    {isCompletePending ? (
+                    {showCheckinFlow ? (
+                      myCheckedIn && !partnerCheckedIn ? (
+                        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
+                          <motion.div
+                            className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span className="text-sm font-semibold text-amber-300">
+                            Waiting for {partnerNames.partner2 || "partner"}…
+                          </span>
+                        </div>
+                      ) : (
+                        <CheckInButton
+                          partnerName={partnerNames.partner2 || "partner"}
+                          partnerCheckedIn={partnerCheckedIn}
+                          onCompleted={(result) => {
+                            setCompleted(true);
+                            setModalData(result);
+                            ph?.capture("date_completed", { plan_type: planType, method: "checkin" });
+                          }}
+                        />
+                      )
+                    ) : isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
                         <motion.div
                           className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"

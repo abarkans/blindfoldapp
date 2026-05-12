@@ -270,6 +270,9 @@ export interface Database {
           date_accepted_at: string | null;
           reveal_owner_ready_at: string | null;
           reveal_partner_ready_at: string | null;
+          checkin_owner_at: string | null;
+          checkin_partner_at: string | null;
+          total_checkins: number;
           created_at: string;
           updated_at: string;
         };
@@ -303,6 +306,9 @@ export interface Database {
           date_accepted_at?: string | null;
           reveal_owner_ready_at?: string | null;
           reveal_partner_ready_at?: string | null;
+          checkin_owner_at?: string | null;
+          checkin_partner_at?: string | null;
+          total_checkins?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -336,6 +342,9 @@ export interface Database {
           date_accepted_at?: string | null;
           reveal_owner_ready_at?: string | null;
           reveal_partner_ready_at?: string | null;
+          checkin_owner_at?: string | null;
+          checkin_partner_at?: string | null;
+          total_checkins?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -383,6 +392,13 @@ export interface UserPlan {
   planType: PlanType;
   dateFrequency?: "weekly" | "biweekly" | "monthly";
 }
+
+export type CheckInResult =
+  | { status: "waiting" }
+  | { status: "completed"; result: CompleteDateResult }
+  | { status: "too_far"; distanceMeters: number }
+  | { status: "no_venue" }
+  | { status: "error"; error: string };
 
 export interface CompleteDateResult {
   xpGained: number;
