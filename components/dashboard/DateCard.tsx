@@ -932,7 +932,18 @@ export default function DateCard({
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {showCheckinFlow ? (
-                      myCheckedIn && !partnerCheckedIn ? (
+                      myCheckedIn && partnerCheckedIn ? (
+                        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30">
+                          <motion.div
+                            className="w-3.5 h-3.5 rounded-full border-2 border-emerald-400/40 border-t-emerald-400"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span className="text-sm font-semibold text-emerald-300">
+                            Both checked in — completing…
+                          </span>
+                        </div>
+                      ) : myCheckedIn && !partnerCheckedIn ? (
                         <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
                           <motion.div
                             className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"

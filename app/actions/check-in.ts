@@ -73,12 +73,25 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
   }
 
   const nowIso = new Date().toISOString();
-  const checkinUpdate =
-    access.role === "owner"
-      ? { checkin_owner_at: nowIso }
-      : { checkin_partner_at: nowIso };
+  const alreadyCheckedIn =
+    access.role === "owner" ? !!profile.checkin_owner_at : !!profile.checkin_partner_at;
 
-  await admin.from("profiles").update(checkinUpdate).eq("id", access.profileId);
+  if (!alreadyCheckedIn) {
+    const checkinUpdate =
+      access.role === "owner"
+        ? { checkin_owner_at: nowIso }
+        : { checkin_partner_at: nowIso };
+
+    const { error: writeError } = await admin
+      .from("profiles")
+      .update(checkinUpdate)
+      .eq("id", access.profileId);
+
+    if (writeError) {
+      console.error(`[audit] checkin: write failed uid=${user.id} msg=${writeError.message}`);
+      return { status: "error", error: "Failed to record check-in. Please try again." };
+    }
+  }
 
   // Re-read after write — prevents TOCTOU race where both partners write
   // simultaneously and both see the other's flag as null in the pre-write snapshot.
