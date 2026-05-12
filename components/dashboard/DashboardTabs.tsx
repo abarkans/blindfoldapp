@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock, MapPin } from "lucide-react";
+import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock, MapPin, Heart } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -412,6 +412,53 @@ function ProgressTabSkeleton() {
   );
 }
 
+function StatsGrid({
+  datesCompleted,
+  totalCheckins,
+  totalXp,
+  createdAt,
+}: {
+  datesCompleted: number;
+  totalCheckins: number;
+  totalXp: number;
+  createdAt: string;
+}) {
+  const daysOnApp = Math.floor(
+    (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  const stats = [
+    { icon: CalendarCheck, label: "Dates completed", value: datesCompleted },
+    { icon: MapPin, label: "Venue check-ins", value: totalCheckins },
+    { icon: Heart, label: "Days on Blindfold", value: daysOnApp },
+    { icon: Zap, label: "Total XP", value: totalXp },
+  ];
+
+  return (
+    <div className="mt-6 mb-8">
+      <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
+        Statistics
+      </h3>
+      <div className="grid grid-cols-2 gap-2">
+        {stats.map(({ icon: Icon, label, value }) => (
+          <div
+            key={label}
+            className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 flex items-center gap-3"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
+              <Icon className="w-4 h-4 text-white/55" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-white tabular-nums">{value}</p>
+              <p className="text-xs text-white/60">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ProgressTabContent({
   profile,
   earnedBadgesPromise,
@@ -428,6 +475,9 @@ function ProgressTabContent({
     return (
       <ProgressUpsell
         totalXp={profile.total_xp ?? 0}
+        datesCompleted={profile.dates_completed_count ?? 0}
+        totalCheckins={profile.total_checkins ?? 0}
+        createdAt={profile.created_at}
         earnedBadges={earnedBadges}
         onOpenPlanSettings={onOpenPlanSettings}
       />
@@ -453,27 +503,12 @@ function ProgressTabContent({
 
       <XPProgressBar totalXp={totalXp} />
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 gap-2 mb-4 mt-3">
-        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
-            <CalendarCheck className="w-4 h-4 text-white/55" />
-          </div>
-          <div>
-            <p className="text-lg font-bold text-white tabular-nums">{datesCompleted}</p>
-            <p className="text-[10px] text-white/45">Dates completed</p>
-          </div>
-        </div>
-        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
-            <MapPin className="w-4 h-4 text-white/55" />
-          </div>
-          <div>
-            <p className="text-lg font-bold text-white tabular-nums">{totalCheckins}</p>
-            <p className="text-[10px] text-white/45">Venue check-ins</p>
-          </div>
-        </div>
-      </div>
+      <StatsGrid
+        datesCompleted={datesCompleted}
+        totalCheckins={totalCheckins}
+        totalXp={totalXp}
+        createdAt={profile.created_at}
+      />
 
       {/* Next milestone nudge */}
       {nextMilestone && (
@@ -503,10 +538,16 @@ function ProgressTabContent({
 
 function ProgressUpsell({
   totalXp,
+  datesCompleted,
+  totalCheckins,
+  createdAt,
   earnedBadges,
   onOpenPlanSettings,
 }: {
   totalXp: number;
+  datesCompleted: number;
+  totalCheckins: number;
+  createdAt: string;
   earnedBadges: EarnedBadge[];
   onOpenPlanSettings: () => void;
 }) {
@@ -525,7 +566,14 @@ function ProgressUpsell({
         </p>
       </div>
 
-      {/* XP preview — real values for users with history, zeroed for new free users */}
+      <StatsGrid
+        datesCompleted={datesCompleted}
+        totalCheckins={totalCheckins}
+        totalXp={totalXp}
+        createdAt={createdAt}
+      />
+
+      {/* XP preview — blurred/locked for free users */}
       <div className="relative mb-4">
         <div className="pointer-events-none select-none opacity-60 blur-[1px]">
           <XPProgressBar totalXp={totalXp} />
