@@ -13,6 +13,7 @@ import Input from "@/components/ui/Input";
 import LinkButton from "@/components/ui/LinkButton";
 import { revealDate, startDate } from "@/app/actions/reveal";
 import { completeDate } from "@/app/actions/complete-date";
+import { getCompletionResult } from "@/app/actions/get-completion-result";
 import { acceptDate } from "@/app/actions/accept-date";
 import { rerollDate } from "@/app/actions/reroll";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
@@ -327,6 +328,8 @@ export default function DateCard({
     !!dateIdea && !!dateAcceptedAt
   );
   const [completed, setCompleted] = useState(isDateCompleted);
+  const wasCompletedOnMountRef = useRef(isDateCompleted);
+  const completionFetchedRef = useRef(false);
   const [accepted, setAccepted] = useState(!!dateAcceptedAt);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
   const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
@@ -353,6 +356,17 @@ export default function DateCard({
   useEffect(() => {
     setCompleted(isDateCompleted);
   }, [isDateCompleted]);
+  useEffect(() => {
+    if (!isDateCompleted) return;
+    if (wasCompletedOnMountRef.current) return;
+    if (completionFetchedRef.current) return;
+    completionFetchedRef.current = true;
+    // Direct completer already set modalData before this effect fires via RSC revalidation.
+    // Waiting partner sees isDateCompleted go true without modalData — fetch it for them.
+    getCompletionResult().then((result) => {
+      if (result) setModalData((prev) => prev ?? result);
+    });
+  }, [isDateCompleted]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (dateTeaser) setSuccessMessage("");
   }, [dateTeaser]);
@@ -617,20 +631,20 @@ export default function DateCard({
         </div>
       )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
+      {!!dateIdea && !!dateTeaser && !revealed && (
+        <p className="text-xs font-semibold text-white/65 uppercase tracking-widest mb-3">The teaser</p>
+      )}
+
+      <div
         className={completed ? "" : "relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"}
       >
         <div className={completed ? "" : "relative p-6"}>
           {/* Header — hidden when date is active and not yet completed */}
-          {!(revealed && !completed) && (
+          {!(revealed && !completed) && !(!!dateIdea && !!dateTeaser && !revealed) && (
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-
                 <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
-                  {(revealed && completed && dateIdea) ? "Completed Date" : (!!dateIdea && !!dateTeaser && !revealed) ? "Mystery Date" : "Getting started"}
+                  {(revealed && completed && dateIdea) ? "Completed Date" : "Getting started"}
                 </span>
               </div>
             </div>
@@ -641,10 +655,10 @@ export default function DateCard({
             {revealed && dateIdea ? (
               <motion.div
                 key="revealed"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
               >
                 {completed ? (
                   /* ── COMPLETED: collapsed card ── */
@@ -967,7 +981,7 @@ export default function DateCard({
                             transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
                           />
                           <span className="text-sm font-semibold text-amber-300">
-                            Waiting for {partnerNames.partner2 || "partner"}…
+                            Waiting for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}…
                           </span>
                         </div>
                       ) : checkinSkipped ? (
@@ -989,11 +1003,12 @@ export default function DateCard({
                       ) : (
                         <>
                           <CheckInButton
-                            partnerName={partnerNames.partner2 || "partner"}
+                            partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
                             partnerCheckedIn={partnerCheckedIn}
                             onCompleted={(result) => {
                               setCompleted(true);
                               setModalData(result);
+                              router.refresh();
                               ph?.capture("date_completed", { plan_type: planType, method: "checkin" });
                             }}
                           />
@@ -1024,12 +1039,13 @@ export default function DateCard({
                   <>
                     <HomeDateCard
                       idea={dateIdea as AIDateIdea & { location_type: "home" }}
-                      partnerName={partnerNames.partner2 || "partner"}
+                      partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
                       myCheckedIn={myCheckedIn}
                       partnerCheckedIn={partnerCheckedIn}
                       onCompleted={(result) => {
                         setCompleted(true);
                         setModalData(result);
+                        router.refresh();
                         ph?.capture("date_completed", { plan_type: planType, method: "home_sync" });
                       }}
                       onHoldComplete={handleComplete}
@@ -1119,8 +1135,7 @@ export default function DateCard({
 
                 {dateIdea && dateTeaser && !revealed ? (
                   <div className="flex flex-col gap-4">
-                    <div className="rounded-2xl bg-white/[0.04] p-4">
-                      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/70">The teaser</p>
+                    <div>
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           { icon: Sparkles, label: "Vibe", value: dateTeaser.vibe },
@@ -1132,7 +1147,7 @@ export default function DateCard({
                             <Icon className="h-4 w-4 shrink-0 text-white/60" />
                             <div className="min-w-0">
                               <p className="text-[10px] font-semibold uppercase tracking-wider text-white/35">{label}</p>
-                              <p className="mt-0.5 text-sm font-semibold leading-snug text-white/80">{value}</p>
+                              <p className="mt-0.5 text-sm font-semibold leading-snug text-white/80 line-clamp-2">{label === "The hook" ? `${value}…` : value}</p>
                             </div>
                           </div>
                         ))}
@@ -1178,7 +1193,7 @@ export default function DateCard({
                     </Button>
                   </div>
                 ) : isPending ? (
-                  <div className="flex flex-col items-center gap-3 py-4">
+                  <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col items-center gap-3 py-8">
                     <div className="flex gap-1.5">
                       {[0, 1, 2].map((i) => (
                         <motion.div
@@ -1231,7 +1246,7 @@ export default function DateCard({
             )}
           </AnimatePresence>
         </div>
-      </motion.div>
+      </div>
 
       {/* Location picker modal — shown when both outside + home prefs are enabled */}
       <LocationPickerModal

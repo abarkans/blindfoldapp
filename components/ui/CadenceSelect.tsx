@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 export const CADENCE_OPTIONS = [
   { value: "weekly", label: "Weekly", sublabel: "Every week, a new surprise" },
@@ -93,12 +93,12 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
             className={[
               "flex flex-col items-start gap-0.5 p-4 rounded-2xl border text-left transition-all duration-200",
               value === v
-                ? "bg-pink-500/20 border-pink-500"
-                : "bg-white/5 border-white/10 hover:border-white/30",
+                ? "bg-white/[0.075] border-rose-400/70 text-white"
+                : "bg-white/[0.035] border-white/16 text-white/55 hover:border-white/30",
             ].join(" ")}
           >
-            <p className={`font-semibold text-sm ${value === v ? "text-white" : "text-white/80"}`}>{label}</p>
-            <p className={`text-xs ${value === v ? "text-pink-300/70" : "text-white/35"}`}>{sublabel}</p>
+            <p className="font-semibold text-sm">{label}</p>
+            <p className="text-xs opacity-60">{sublabel}</p>
           </button>
         ))}
       </div>
@@ -151,21 +151,16 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
                     onPointerDown={(e) => e.stopPropagation()} // prevent drag hijack on option tap
                     onClick={() => select(v)}
                     className={[
-                      "flex items-center gap-4 p-4 rounded-2xl border transition-all duration-150",
+                      "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-150",
                       value === v
-                        ? "bg-pink-500/20 border-pink-500"
-                        : "bg-white/5 border-white/8 active:bg-white/10",
+                        ? "bg-white/[0.075] border-rose-400/70 text-white"
+                        : "bg-white/[0.035] border-white/16 text-white/55 active:bg-white/[0.06]",
                     ].join(" ")}
                   >
-                    <div className="flex-1 text-left">
-                      <p className={`text-sm font-semibold ${value === v ? "text-white" : "text-white/80"}`}>
-                        {label}
-                      </p>
-                      <p className={`text-xs mt-0.5 ${value === v ? "text-pink-300/70" : "text-white/35"}`}>
-                        {sublabel}
-                      </p>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold">{label}</p>
+                      <p className="text-xs mt-0.5 opacity-60">{sublabel}</p>
                     </div>
-                    {value === v && <Check className="w-4 h-4 text-pink-400 shrink-0" />}
                   </button>
                 ))}
               </div>

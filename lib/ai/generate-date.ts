@@ -72,10 +72,7 @@ const DateIdeaSchema = z.object({
     .array(z.string())
     .optional()
     .describe("Home dates only. 4-7 step-by-step instructions for the evening. Each step max 25 words."),
-  conversation_starters: z
-    .array(z.string())
-    .optional()
-    .describe("Home dates only. Exactly 3 questions tailored to their interests. Max 25 words each."),
+
 });
 
 export type GeneratedDateIdea = z.infer<typeof DateIdeaSchema>;
@@ -471,7 +468,7 @@ ${avoidClause}
 
 The date should feel tailored to their specific interests, not generic. Be creative — think beyond "cook together" or "movie night". Make it feel like a real event they wouldn't have thought of themselves.
 
-Provide: title (max 5 words), description (1 sentence, max 20 words), vibe (2-4 words), mission (2-3 sentences), duration, budget_range within €${budgetMax}, tags (2-4), preparation_list (3-6 items), steps (4-7 steps for the evening), and conversation_starters (exactly 3 questions tailored to their interests).${isSubscribed ? ` Scale mission difficulty to tier: BEGINNER = warm/forgiving, REGULAR = medium stakes, VETERAN = higher stakes/more vulnerable. Include a small forfeit or reward in the mission.` : ""}`;
+Provide: title (max 5 words), description (1 sentence, max 20 words), vibe (2-4 words), mission (2-3 sentences), duration, budget_range within €${budgetMax}, tags (2-4), preparation_list (3-6 items), steps (4-7 steps for the evening).${isSubscribed ? ` Scale mission difficulty to tier: BEGINNER = warm/forgiving, REGULAR = medium stakes, VETERAN = higher stakes/more vulnerable. Include a small forfeit or reward in the mission.` : ""}`;
 
   return callWithFallback({
     system: isSubscribed ? HOME_SYSTEM_PROMPT_PRO : HOME_SYSTEM_PROMPT,

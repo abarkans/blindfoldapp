@@ -303,8 +303,8 @@ export default function SettingsPanel({
   } = useForm<FullOnboardingData>({
     resolver: zodResolver(fullOnboardingSchema),
     defaultValues: {
-      partner1: profile.partner_names.partner1,
-      partner2: profile.partner_names.partner2,
+      partner1: memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1,
+      partner2: memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2,
       interests: profile.interests,
       budget_max: profile.constraints.budget_max,
       date_outside: profile.constraints.date_outside ?? true,
@@ -336,6 +336,8 @@ export default function SettingsPanel({
     setSaved(false);
     const result = await updateSettings({
       ...values,
+      partner1: memberRole === "partner" ? values.partner2 : values.partner1,
+      partner2: memberRole === "partner" ? values.partner1 : values.partner2,
       lat: lat ?? undefined,
       lng: lng ?? undefined,
       preferred_radius: radiusKm * 1000,
@@ -581,16 +583,16 @@ export default function SettingsPanel({
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center gap-1.5">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/75 to-white/45 flex items-center justify-center text-sm font-bold text-white shrink-0">
-                        {profile.partner_names.partner1.charAt(0).toUpperCase()}
+                        {(memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1).charAt(0).toUpperCase()}
                       </div>
                       <span className="text-white/40 text-sm font-medium">+</span>
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/55 to-white/30 flex items-center justify-center text-sm font-bold text-white shrink-0">
-                        {profile.partner_names.partner2.charAt(0).toUpperCase()}
+                        {(memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2).charAt(0).toUpperCase()}
                       </div>
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white truncate">
-                        {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}
+                        {memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1} &amp; {memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2}
                       </p>
                       <p className="text-xs text-white/45 truncate">{userEmail}</p>
                     </div>

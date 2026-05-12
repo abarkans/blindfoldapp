@@ -39,7 +39,7 @@ export async function homeCheckIn(): Promise<CheckInResult> {
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("date_idea, date_accepted_at, checkin_owner_at, checkin_partner_at, total_checkins")
+    .select("date_idea, date_accepted_at, checkin_owner_at, checkin_partner_at")
     .eq("id", access.profileId)
     .single();
 
@@ -102,11 +102,6 @@ export async function homeCheckIn(): Promise<CheckInResult> {
     gated: boolean;
     completed_idea_id: string;
   };
-
-  await admin
-    .from("profiles")
-    .update({ total_checkins: (profile.total_checkins ?? 0) + 1 })
-    .eq("id", access.profileId);
 
   const planType: PlanType = gated ? "free" : "subscription";
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock, MapPin, Heart } from "lucide-react";
+import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock, MapPin, Heart, Target } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -503,8 +503,6 @@ function ProgressTabContent({
         <p className="text-white/55 text-sm mt-1">Every date earns XP and unlocks badges.</p>
       </div>
 
-      <XPProgressBar totalXp={totalXp} />
-
       <StatsGrid
         datesCompleted={datesCompleted}
         totalCheckins={totalCheckins}
@@ -512,11 +510,13 @@ function ProgressTabContent({
         createdAt={profile.created_at}
       />
 
+      <XPProgressBar totalXp={totalXp} />
+
       {/* Next milestone nudge */}
       {nextMilestone && (
         <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 mb-2 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center text-base flex-shrink-0">
-            🎯
+          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
+            <Target className="w-4 h-4 text-white/65" />
           </div>
           <div>
             <p className="text-xs font-semibold text-white">
@@ -553,7 +553,7 @@ function ProgressUpsell({
   earnedBadges: EarnedBadge[];
   onOpenPlanSettings: () => void;
 }) {
-  const hasHistory = totalXp > 0 || earnedBadges.length > 0;
+  const hasHistory = totalXp > 0 || earnedBadges.length > 0 || datesCompleted > 0;
 
   return (
     <div>
