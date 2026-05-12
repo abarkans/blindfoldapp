@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, BookOpen, Target, PackageCheck, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import Dialog from "@/components/ui/Dialog";
 import Input from "@/components/ui/Input";
 import LinkButton from "@/components/ui/LinkButton";
 import { revealDate, startDate } from "@/app/actions/reveal";
@@ -315,6 +316,7 @@ export default function DateCard({
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
   const [localRevealReady, setLocalRevealReady] = useState(false);
   const [checkinSkipped, setCheckinSkipped] = useState(false);
+  const [skipDialogOpen, setSkipDialogOpen] = useState(false);
   const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
 
   // Sync local reveal state when the server updates after the other partner is ready.
@@ -940,6 +942,22 @@ export default function DateCard({
                             Waiting for {partnerNames.partner2 || "partner"}…
                           </span>
                         </div>
+                      ) : checkinSkipped ? (
+                        isCompletePending ? (
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
+                            <motion.div
+                              className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                            />
+                            <span className="text-sm font-semibold text-green-300">Saving...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <HoldToCompleteButton onComplete={handleComplete} />
+                            <p className="text-center text-xs text-white/50 mt-1.5">Press and hold to confirm</p>
+                          </>
+                        )
                       ) : (
                         <>
                           <CheckInButton
@@ -951,7 +969,7 @@ export default function DateCard({
                               ph?.capture("date_completed", { plan_type: planType, method: "checkin" });
                             }}
                           />
-                          <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setCheckinSkipped(true)}>
+                          <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
                             Skip
                           </Button>
                         </>
@@ -968,7 +986,7 @@ export default function DateCard({
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />
-                        <p className="text-center text-[10px] text-white/30 mt-1.5">Press and hold to confirm</p>
+                        <p className="text-center text-xs text-white/50 mt-1.5">Press and hold to confirm</p>
                       </>
                     )}
                   </>
@@ -1036,7 +1054,7 @@ export default function DateCard({
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />
-                        <p className="text-center text-[10px] text-white/30 mt-1.5">Press and hold to confirm</p>
+                        <p className="text-center text-xs text-white/50 mt-1.5">Press and hold to confirm</p>
                       </>
                     )}
                   </>
@@ -1157,13 +1175,22 @@ export default function DateCard({
         </div>
       </motion.div>
 
-      {showCheckinFlow && !myCheckedIn && checkinSkipped && !completed && (
-        <div className="mt-3">
-          <Button variant="secondary" size="lg" className="w-full" onClick={handleComplete} loading={isCompletePending} disabled={isCompletePending}>
-            Mark as complete
+      {/* Skip check-in confirmation dialog */}
+      <Dialog open={skipDialogOpen} onClose={() => setSkipDialogOpen(false)} className="text-center">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
+          <MapPin className="w-5 h-5 text-rose-400" />
+        </div>
+        <h3 className="text-lg font-bold text-white mb-1">Skip check-in?</h3>
+        <p className="text-sm text-white/55 mb-6">Checking in at the venue proves you made it — skip and you&apos;ll miss out on [placeholder: bonus XP, streak credit, etc.].</p>
+        <div className="flex flex-col gap-2">
+          <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
+            Never mind
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => { setSkipDialogOpen(false); setCheckinSkipped(true); }} className="w-full">
+            Skip anyway
           </Button>
         </div>
-      )}
+      </Dialog>
 
       {/* Bottom sheet — venue date details */}
       <AnimatePresence>
@@ -1222,174 +1249,142 @@ export default function DateCard({
       </AnimatePresence>
 
       {/* Partner invite modal */}
-      {partnerInviteModalOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-            onClick={() => setPartnerInviteModalOpen(false)}
-          />
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-            <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-white/65" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPartnerInviteModalOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
-                  aria-label="Close partner invite dialog"
-                >
-                  <X className="w-4 h-4 text-white/60" />
-                </button>
-              </div>
-
-              <h3 className="text-lg font-bold text-white mb-3">Partner access</h3>
-
-              {partnerInviteState === "accepted" ? (
-                <p className="text-xs leading-relaxed text-emerald-300">
-                  Your partner is connected and can use Date, Progress, and date settings.
-                </p>
-              ) : memberRole === "owner" ? (
-                <div className="flex flex-col gap-3">
-                  <p className="text-xs leading-relaxed text-white/50">
-                    Invite your partner to create an account. Dates unlock once both of you tap reveal.
-                  </p>
-                  {partnerInviteState !== "none" && partnerInvitedEmail && (
-                    <p className="text-xs text-white/45">
-                      Current invite: {partnerInvitedEmail}
-                      {partnerInviteState === "expired" ? " (expired)" : ""}
-                    </p>
-                  )}
-                  <Input
-                    label="Partner email"
-                    type="email"
-                    value={partnerInviteEmail}
-                    onChange={(e) => setPartnerInviteEmail(e.target.value)}
-                    placeholder="partner@example.com"
-                  />
-                  {partnerInviteError && <p className="text-xs text-red-400">{partnerInviteError}</p>}
-                  {partnerInviteMessage && <p className="text-xs text-emerald-300">{partnerInviteMessage}</p>}
-                  <Button
-                    type="button"
-                    loading={partnerInviteSending}
-                    onClick={handlePartnerInvite}
-                    className="w-full"
-                  >
-                    {partnerInviteState === "none" ? "Send invite" : "Send new invite"}
-                  </Button>
-                </div>
-              ) : (
-                <p className="text-xs leading-relaxed text-white/50">
-                  Ask the account owner to send a partner invite.
-                </p>
-              )}
-            </div>
+      <Dialog open={partnerInviteModalOpen} onClose={() => setPartnerInviteModalOpen(false)}>
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/10 flex items-center justify-center">
+            <Mail className="w-5 h-5 text-white/65" />
           </div>
-        </>
-      )}
+          <button
+            type="button"
+            onClick={() => setPartnerInviteModalOpen(false)}
+            className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
+            aria-label="Close partner invite dialog"
+          >
+            <X className="w-4 h-4 text-white/60" />
+          </button>
+        </div>
 
-      {/* â”€â”€ RE-ROLL CONFIRMATION MODAL â”€â”€ */}
-        {rerollModalOpen && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-              onClick={() => setRerollModalOpen(false)}
+        <h3 className="text-lg font-bold text-white mb-3">Partner access</h3>
+
+        {partnerInviteState === "accepted" ? (
+          <p className="text-xs leading-relaxed text-emerald-300">
+            Your partner is connected and can use Date, Progress, and date settings.
+          </p>
+        ) : memberRole === "owner" ? (
+          <div className="flex flex-col gap-3">
+            <p className="text-xs leading-relaxed text-white/50">
+              Invite your partner to create an account. Dates unlock once both of you tap reveal.
+            </p>
+            {partnerInviteState !== "none" && partnerInvitedEmail && (
+              <p className="text-xs text-white/45">
+                Current invite: {partnerInvitedEmail}
+                {partnerInviteState === "expired" ? " (expired)" : ""}
+              </p>
+            )}
+            <Input
+              label="Partner email"
+              type="email"
+              value={partnerInviteEmail}
+              onChange={(e) => setPartnerInviteEmail(e.target.value)}
+              placeholder="partner@example.com"
             />
-            <div
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4"
+            {partnerInviteError && <p className="text-xs text-red-400">{partnerInviteError}</p>}
+            {partnerInviteMessage && <p className="text-xs text-emerald-300">{partnerInviteMessage}</p>}
+            <Button
+              type="button"
+              loading={partnerInviteSending}
+              onClick={handlePartnerInvite}
+              className="w-full"
             >
-              <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
-                    <Shuffle className="w-5 h-5 text-white/65" />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setRerollModalOpen(false)}
-                    className="w-8 h-8 rounded-full bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
-                  >
-                    <X className="w-4 h-4 text-white/60" />
-                  </button>
-                </div>
+              {partnerInviteState === "none" ? "Send invite" : "Send new invite"}
+            </Button>
+          </div>
+        ) : (
+          <p className="text-xs leading-relaxed text-white/50">
+            Ask the account owner to send a partner invite.
+          </p>
+        )}
+      </Dialog>
 
-                <h3 className="text-lg font-bold text-white mb-2">Try a different date?</h3>
+      {/* Re-roll confirmation modal */}
+      <Dialog open={rerollModalOpen} onClose={() => setRerollModalOpen(false)}>
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/10 flex items-center justify-center">
+            <Shuffle className="w-5 h-5 text-white/65" />
+          </div>
+          <button
+            type="button"
+            onClick={() => setRerollModalOpen(false)}
+            className="w-8 h-8 rounded-full bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
+          >
+            <X className="w-4 h-4 text-white/60" />
+          </button>
+        </div>
 
-                {isFree ? (
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
-                    <p className="text-xs text-amber-300 leading-relaxed">
-                      <span className="font-semibold">Starter plan:</span>{" "}
-                      <span className="font-bold">1 re-roll total — use it wisely.</span> Once gone, dates are final.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl px-3 py-2.5 mb-4">
-                    <p className="text-xs text-blue-300 leading-relaxed">
-                      You get <span className="font-bold">1 swap per date</span>. We&apos;ll find you something different.
-                    </p>
-                  </div>
-                )}
+        <h3 className="text-lg font-bold text-white mb-2">Try a different date?</h3>
 
-                <p className="text-xs text-white/55 mb-5">
-                  The current date idea will be saved so you won&apos;t see it again.
-                </p>
-
-                <div className="flex flex-col gap-2">
-                  <Button className="w-full" onClick={handleRerollConfirm}>
-                    {isFree ? "Yes, try another" : "Find another date"}
-                  </Button>
-                  <Button variant="outline" className="w-full" onClick={() => setRerollModalOpen(false)}>
-                    Keep this date
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </>
+        {isFree ? (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
+            <p className="text-xs text-amber-300 leading-relaxed">
+              <span className="font-semibold">Starter plan:</span>{" "}
+              <span className="font-bold">1 re-roll total — use it wisely.</span> Once gone, dates are final.
+            </p>
+          </div>
+        ) : (
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl px-3 py-2.5 mb-4">
+            <p className="text-xs text-blue-300 leading-relaxed">
+              You get <span className="font-bold">1 swap per date</span>. We&apos;ll find you something different.
+            </p>
+          </div>
         )}
 
-      {/* ── ACCEPT CONFIRMATION MODAL ── */}
-      {acceptConfirmOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-            onClick={() => setAcceptConfirmOpen(false)}
-          />
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-            <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 shadow-2xl shadow-black/60">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/16 flex items-center justify-center">
-                  <Check className="w-5 h-5 text-white/65" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setAcceptConfirmOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
-                >
-                  <X className="w-4 h-4 text-white/60" />
-                </button>
-              </div>
+        <p className="text-xs text-white/55 mb-5">
+          The current date idea will be saved so you won&apos;t see it again.
+        </p>
 
-              <h3 className="text-lg font-bold text-white mb-2">Reveal this date?</h3>
+        <div className="flex flex-col gap-2">
+          <Button className="w-full" onClick={handleRerollConfirm}>
+            {isFree ? "Yes, try another" : "Find another date"}
+          </Button>
+          <Button variant="outline" className="w-full" onClick={() => setRerollModalOpen(false)}>
+            Keep this date
+          </Button>
+        </div>
+      </Dialog>
 
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
-                <p className="text-xs text-amber-300 leading-relaxed">
-                  Once revealed, you <span className="font-bold">won&apos;t be able to swap</span> this date.
-                  {isFree && " You still have your 1 lifetime swap — you can use it on this date or save it for a future one."}
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Button className="w-full" onClick={() => { setAcceptConfirmOpen(false); handleAccept(); }}>
-                  Reveal it
-                </Button>
-                <Button variant="outline" className="w-full" onClick={() => setAcceptConfirmOpen(false)}>
-                  Let me think
-                </Button>
-              </div>
-            </div>
+      {/* Accept confirmation modal */}
+      <Dialog open={acceptConfirmOpen} onClose={() => setAcceptConfirmOpen(false)}>
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/10 flex items-center justify-center">
+            <Check className="w-5 h-5 text-white/65" />
           </div>
-        </>
-      )}
+          <button
+            type="button"
+            onClick={() => setAcceptConfirmOpen(false)}
+            className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
+          >
+            <X className="w-4 h-4 text-white/60" />
+          </button>
+        </div>
+
+        <h3 className="text-lg font-bold text-white mb-2">Reveal this date?</h3>
+
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
+          <p className="text-xs text-amber-300 leading-relaxed">
+            Once revealed, you <span className="font-bold">won&apos;t be able to swap</span> this date.
+            {isFree && " You still have your 1 lifetime swap — you can use it on this date or save it for a future one."}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Button className="w-full" onClick={() => { setAcceptConfirmOpen(false); handleAccept(); }}>
+            Reveal it
+          </Button>
+          <Button variant="outline" className="w-full" onClick={() => setAcceptConfirmOpen(false)}>
+            Let me think
+          </Button>
+        </div>
+      </Dialog>
 
       {/* Success modal */}
       {modalData && (

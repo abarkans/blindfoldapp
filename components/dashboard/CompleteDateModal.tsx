@@ -259,7 +259,7 @@ export default function CompleteDateModal({
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative bg-white/[0.035] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+            <div className="relative bg-[#030303] border border-white/14 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
               <button
                 onClick={handleClose}
                 className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"

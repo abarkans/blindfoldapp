@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, CheckCircle2, AlertCircle } from "lucide-react";
+import Button from "@/components/ui/Button";
 import { checkInToDate } from "@/app/actions/check-in";
 import type { CompleteDateResult } from "@/lib/types";
 
@@ -161,15 +162,10 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, onComplet
         </div>
       )}
 
-      <button
-        onClick={handleCheckIn}
-        className="relative w-full h-14 rounded-full overflow-hidden cursor-pointer bg-rose-500 hover:bg-rose-600 transition-colors active:scale-[0.98]"
-      >
-        <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
-          <MapPin className="w-5 h-5 text-white" />
-          <span className="text-lg font-semibold text-white">Check In</span>
-        </div>
-      </button>
+      <Button onClick={handleCheckIn} size="lg" className="w-full gap-2">
+        <MapPin className="w-5 h-5" />
+        Check In
+      </Button>
 
     </div>
   );

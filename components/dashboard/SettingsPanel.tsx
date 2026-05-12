@@ -19,6 +19,7 @@ import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onb
 import type { Profile } from "@/lib/types";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import Dialog from "@/components/ui/Dialog";
 import Slider from "@/components/ui/Slider";
 import CadenceSelect, { type CadenceValue, CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
 import { requestAccountDeletion } from "@/app/actions/delete-account";
@@ -533,41 +534,27 @@ export default function SettingsPanel({
             </button>
 
             {/* Sign-out confirmation modal */}
-              {signOutConfirm && (
-                <>
-                  <div
-                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-                    onClick={() => setSignOutConfirm(false)}
-                  />
-                  <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-                    <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
-                      <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-                        <LogOut className="w-5 h-5 text-red-400" />
-                      </div>
-                      <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
-                      <p className="text-sm text-white/55 mb-6">You can always sign back in to continue your mystery dates.</p>
-                      <div className="flex flex-col gap-2">
-                        <Button
-                          type="button"
-                          variant="danger"
-                          loading={signingOut}
-                          onClick={handleSignOut}
-                          className="w-full h-auto py-3 text-sm font-semibold"
-                        >
-                          Yes, sign out
-                        </Button>
-                        <button
-                          type="button"
-                          onClick={() => setSignOutConfirm(false)}
-                          className="w-full py-3 rounded-full bg-white/[0.035] border border-white/16 text-white/60 font-semibold text-sm hover:border-white/28 hover:text-white/80 transition-colors duration-100 active:scale-[0.98]"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
+              <Dialog open={signOutConfirm} onClose={() => setSignOutConfirm(false)} className="text-center">
+                <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                  <LogOut className="w-5 h-5 text-red-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
+                <p className="text-sm text-white/55 mb-6">You can always sign back in to continue your mystery dates.</p>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant="danger"
+                    loading={signingOut}
+                    onClick={handleSignOut}
+                    className="w-full"
+                  >
+                    Yes, sign out
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setSignOutConfirm(false)} className="w-full">
+                    Cancel
+                  </Button>
+                </div>
+              </Dialog>
           </motion.div>
         ) : (
           <motion.div
@@ -632,72 +619,69 @@ export default function SettingsPanel({
                 </div>
 
                 {/* Delete confirmation modal */}
-                  {deleteConfirm && (
-                    <>
-                      <div
-                        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-                        onClick={() => !deleting && (deleteSent ? (setDeleteConfirm(false), setDeleteSent(false)) : setDeleteConfirm(false))}
-                      />
-                      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-                        <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
-                          {!deleteSent ? (
-                            <>
-                              <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-                                <Trash2 className="w-5 h-5 text-red-400" />
-                              </div>
-                              <h3 className="text-lg font-bold text-white mb-1">Delete account?</h3>
-                              <p className="text-sm text-white/55 mb-2">
-                                This permanently deletes your account and all data. This cannot be undone.
-                              </p>
-                              <p className="text-xs text-white/40 mb-6">
-                                We&apos;ll email a confirmation link to {userEmail || "your address"}. The link expires in 15 minutes.
-                              </p>
-                              <div className="flex flex-col gap-2">
-                                <button
-                                  type="button"
-                                  onClick={handleDeleteAccount}
-                                  disabled={deleting}
-                                  className="w-full py-3 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/25 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
-                                >
-                                  {deleting ? "Sending…" : "Send confirmation email"}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setDeleteConfirm(false)}
-                                  disabled={deleting}
-                                  className="w-full py-3 rounded-full bg-white/[0.035] border border-white/16 text-white/60 font-semibold text-sm hover:border-white/28 hover:text-white/80 transition-colors duration-100 active:scale-[0.98] disabled:opacity-60"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-                                <Trash2 className="w-5 h-5 text-emerald-400" />
-                              </div>
-                              <h3 className="text-lg font-bold text-white mb-1">Check your email</h3>
-                              <p className="text-sm text-white/55 mb-2">
-                                We sent a confirmation link to
-                              </p>
-                              <p className="text-sm text-white font-semibold mb-6 break-all">{userEmail}</p>
-                              <p className="text-xs text-white/40 mb-6">
-                                Click the link to permanently delete your account. The link expires in 15 minutes.
-                                Your account will remain active until you confirm.
-                              </p>
-                              <button
-                                type="button"
-                                onClick={() => { setDeleteConfirm(false); setDeleteSent(false); }}
-                                className="w-full py-3 rounded-full bg-white/[0.035] border border-white/16 text-white/70 font-semibold text-sm hover:border-white/28 transition-colors duration-100 active:scale-[0.98]"
-                              >
-                                Close
-                              </button>
-                            </>
-                          )}
+                  <Dialog
+                    open={deleteConfirm}
+                    onClose={() => !deleting && (deleteSent ? (setDeleteConfirm(false), setDeleteSent(false)) : setDeleteConfirm(false))}
+                    className="text-center"
+                  >
+                    {!deleteSent ? (
+                      <>
+                        <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                          <Trash2 className="w-5 h-5 text-red-400" />
                         </div>
-                      </div>
-                    </>
-                  )}
+                        <h3 className="text-lg font-bold text-white mb-1">Delete account?</h3>
+                        <p className="text-sm text-white/55 mb-2">
+                          This permanently deletes your account and all data. This cannot be undone.
+                        </p>
+                        <p className="text-xs text-white/40 mb-6">
+                          We&apos;ll email a confirmation link to {userEmail || "your address"}. The link expires in 15 minutes.
+                        </p>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            type="button"
+                            variant="danger"
+                            loading={deleting}
+                            onClick={handleDeleteAccount}
+                            className="w-full"
+                          >
+                            Send confirmation email
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setDeleteConfirm(false)}
+                            disabled={deleting}
+                            className="w-full"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+                          <Trash2 className="w-5 h-5 text-emerald-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1">Check your email</h3>
+                        <p className="text-sm text-white/55 mb-2">
+                          We sent a confirmation link to
+                        </p>
+                        <p className="text-sm text-white font-semibold mb-6 break-all">{userEmail}</p>
+                        <p className="text-xs text-white/40 mb-6">
+                          Click the link to permanently delete your account. The link expires in 15 minutes.
+                          Your account will remain active until you confirm.
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => { setDeleteConfirm(false); setDeleteSent(false); }}
+                          className="w-full"
+                        >
+                          Close
+                        </Button>
+                      </>
+                    )}
+                  </Dialog>
               </div>
             )}
 
