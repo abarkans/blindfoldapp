@@ -8,6 +8,7 @@ import { Sparkles, Clock, MapPin, Timer, Wallet, CheckCircle2, CalendarClock, Na
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
+import Drawer from "@/components/ui/Drawer";
 import Input from "@/components/ui/Input";
 import LinkButton from "@/components/ui/LinkButton";
 import { revealDate, startDate } from "@/app/actions/reveal";
@@ -1193,59 +1194,34 @@ export default function DateCard({
       </Dialog>
 
       {/* Bottom sheet — venue date details */}
-      <AnimatePresence>
-        {activeSheet && dateIdea && isVenue(dateIdea) && dateIdea.ai && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
-              onClick={() => setActiveSheet(null)}
-            />
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed inset-x-0 bottom-0 z-[60] bg-[#030303] border border-b-0 border-white/14 rounded-t-3xl max-h-[75vh] overflow-y-auto shadow-2xl shadow-black/60 md:hidden"
-            >
-              <div className="sticky top-0 bg-[#030303] pt-6 px-6 pb-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-base font-bold text-white">
-                    {activeSheet === "description" && "Description"}
-                    {activeSheet === "mission" && "Your mission"}
-                    {activeSheet === "preparation" && "Before you go"}
-                    {activeSheet === "conversation" && "Conversation starter"}
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSheet(null)}
-                    className="w-8 h-8 rounded-xl bg-white/[0.05] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
-                    aria-label="Close"
-                  >
-                    <X className="w-4 h-4 text-white/60" />
-                  </button>
-                </div>
-              </div>
-              <div className="px-6 pt-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)" }}>
-                {activeSheet === "description" && (
-                  <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.description}</p>
-                )}
-                {activeSheet === "mission" && (
-                  <p className="text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
-                )}
-                {activeSheet === "preparation" && (
-                  <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.preparation}</p>
-                )}
-                {activeSheet === "conversation" && (
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-400">Ask:</p>
-                    <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.conversation_starter}</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {dateIdea && isVenue(dateIdea) && dateIdea.ai && (
+        <Drawer
+          open={!!activeSheet}
+          onClose={() => setActiveSheet(null)}
+          title={
+            activeSheet === "description" ? "Description" :
+            activeSheet === "mission" ? "Your mission" :
+            activeSheet === "preparation" ? "Before you go" :
+            "Conversation starter"
+          }
+        >
+          {activeSheet === "description" && (
+            <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.description}</p>
+          )}
+          {activeSheet === "mission" && (
+            <p className="text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
+          )}
+          {activeSheet === "preparation" && (
+            <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.preparation}</p>
+          )}
+          {activeSheet === "conversation" && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-400">Ask:</p>
+              <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.conversation_starter}</p>
+            </div>
+          )}
+        </Drawer>
+      )}
 
       {/* Partner invite modal */}
       <Dialog open={partnerInviteModalOpen} onClose={() => setPartnerInviteModalOpen(false)}>
