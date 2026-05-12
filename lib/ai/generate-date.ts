@@ -63,6 +63,19 @@ const DateIdeaSchema = z.object({
     .string()
     .optional()
     .describe("Plus plan only. One question tailored to their interests AND the venue. Feels specific to this date, not generic. Max 25 words."),
+  // Home date fields — only populated by generateHomeDateIdea()
+  preparation_list: z
+    .array(z.string())
+    .optional()
+    .describe("Home dates only. 3-6 items to gather from around the house or buy. Each item max 12 words."),
+  steps: z
+    .array(z.string())
+    .optional()
+    .describe("Home dates only. 4-7 step-by-step instructions for the evening. Each step max 25 words."),
+  conversation_starters: z
+    .array(z.string())
+    .optional()
+    .describe("Home dates only. Exactly 3 questions tailored to their interests. Max 25 words each."),
 });
 
 export type GeneratedDateIdea = z.infer<typeof DateIdeaSchema>;
@@ -334,4 +347,135 @@ The date should feel tailored to their specific interests, not generic. Be creat
 Also write a mission: a fun challenge the couple does TOGETHER at this type of place. Must start immediately, no prep needed. Slightly competitive or silly. Forbidden: "take a photo together", "share a dessert", anything wellness-adjacent. Tone: a friend daring you.${isSubscribed ? ` Include a small forfeit or reward for the loser. Scale difficulty to the mission tier: BEGINNER = warm and forgiving, REGULAR = medium stakes, VETERAN = harder/more vulnerable/higher stakes. Also provide: a preparation instruction (what to wear or bring, max 15 words) and a conversation starter tailored to their interests (max 25 words).` : ""}`;
 
   return callWithFallback({ prompt: fallbackPrompt, isSubscribed });
+}
+
+const HOME_SYSTEM_PROMPT = `You are a home date experience designer for Blindfold, a couples app. You create intimate, creative date nights that happen entirely at home.
+
+TITLE RULES:
+- Max 5 words, evocative, captures the vibe of the evening
+- Examples: "The Candlelit Trivia Showdown", "A Homemade Tasting Night"
+- Banned words: charming, cozy, vibrant, perfect, hidden gem, delightful, lovely, unique, amazing, wonderful
+
+DESCRIPTION RULES:
+- Exactly 1 sentence, max 20 words
+- Capture the mood and what makes this evening special
+- Tone: warm, specific, slightly unexpected
+
+MISSION RULES:
+- 2-3 sentences: a fun challenge the couple does TOGETHER during the evening
+- Must be achievable at home with no advance preparation
+- Slightly competitive OR silly OR requires vulnerability
+- Forbidden: anything wellness or therapy-adjacent
+- Tone: a friend daring you, not a life coach
+
+PREPARATION LIST RULES:
+- 3-6 items to gather from around the house or easily purchase today
+- Each item should be concrete and specific (not vague like "some snacks")
+- Mix of things they probably have and one or two optional upgrades
+
+STEP-BY-STEP RULES:
+- 4-7 steps that guide the evening from start to finish
+- Each step describes atmosphere, activity, or transition — NOT administrative tasks
+- Steps should feel like a story unfolding, not a checklist
+- Start with mood-setting, build to the main activity, end with something connecting
+
+CONVERSATION STARTER RULES:
+- Exactly 3 questions
+- Each tailored to their specific interests AND this particular date theme
+- Slightly unexpected — invites a real answer neither has rehearsed
+- Max 25 words each
+
+GLOBAL RULES:
+- Budget is the max for any items to buy — lean toward free/household items
+- Tone: a creative friend who planned something special, not a lifestyle blogger`;
+
+const HOME_SYSTEM_PROMPT_PRO = `You are a home date experience designer for Blindfold, a couples app. You create intimate, creative date nights that happen entirely at home. You are writing for premium subscribers — push for originality and specificity.
+
+TITLE RULES:
+- Max 5 words, evocative, captures the vibe of the evening
+- Examples: "The Candlelit Trivia Showdown", "A Homemade Tasting Night"
+- Banned words: charming, cozy, vibrant, perfect, hidden gem, delightful, lovely, unique, amazing, wonderful
+
+DESCRIPTION RULES:
+- Exactly 1 sentence, max 20 words
+- Capture the mood and what makes this evening special
+- Tone: warm, specific, slightly unexpected
+
+MISSION RULES:
+- 2-3 sentences: a fun challenge the couple does TOGETHER during the evening
+- Must be achievable at home with no advance preparation
+- Slightly competitive OR silly OR requires vulnerability
+- Include a clear outcome: name a small forfeit or reward for the winner
+- Forbidden: anything wellness or therapy-adjacent
+- Tone: a friend daring you, not a life coach
+
+MISSION ESCALATION — scale difficulty to the "Mission tier" in the prompt:
+- BEGINNER (0–2 dates): warm and forgiving. Low stakes, easy to start.
+- REGULAR (3–9 dates): more daring, medium stakes.
+- VETERAN (10+ dates): more vulnerable, higher stakes. Assume they can handle it.
+
+PREPARATION LIST RULES:
+- 3-6 items to gather from around the house or easily purchase today
+- Each item should be concrete and specific (not vague like "some snacks")
+- Mix of things they probably have and one or two optional upgrades
+- One item should feel slightly unexpected or playful
+
+STEP-BY-STEP RULES:
+- 4-7 steps that guide the evening from start to finish
+- Each step describes atmosphere, activity, or transition — NOT administrative tasks
+- Steps should feel like a story unfolding, not a checklist
+- Start with mood-setting, build to the main activity, end with something connecting
+
+CONVERSATION STARTER RULES:
+- Exactly 3 questions
+- Each tailored to their specific interests AND this particular date theme
+- Slightly unexpected — invites a real answer neither has rehearsed
+- The third question should be the most vulnerable or revealing
+- Max 25 words each
+
+GLOBAL RULES:
+- Budget is the max for any items to buy — lean toward free/household items
+- Draw on the couple's specific interests to make every element feel personal
+- Tone: a creative friend who planned something special, not a lifestyle blogger`;
+
+export async function generateHomeDateIdea({
+  partnerNames,
+  interests,
+  budgetMax,
+  isSubscribed = false,
+  datesCompleted = 0,
+  previousTitles = [],
+}: {
+  partnerNames: { partner1: string; partner2: string };
+  interests: string[];
+  budgetMax: number;
+  isSubscribed?: boolean;
+  datesCompleted?: number;
+  previousTitles?: string[];
+}): Promise<GeneratedDateIdea> {
+  const safePreviousTitles = previousTitles.map((t) => sanitize(t, 80)).filter(Boolean);
+  const avoidClause =
+    safePreviousTitles.length > 0
+      ? `\nYou MUST NOT generate any of the following past date ideas: ${safePreviousTitles.join(", ")}. The new idea must be meaningfully different.`
+      : "";
+
+  const tier = missionTier(datesCompleted);
+  const prompt = `Generate a home date night for this couple.
+
+<couple_context>
+Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
+Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
+Max budget for any items to buy: €${budgetMax}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
+</couple_context>
+${avoidClause}
+
+The date should feel tailored to their specific interests, not generic. Be creative — think beyond "cook together" or "movie night". Make it feel like a real event they wouldn't have thought of themselves.
+
+Provide: title (max 5 words), description (1 sentence, max 20 words), vibe (2-4 words), mission (2-3 sentences), duration, budget_range within €${budgetMax}, tags (2-4), preparation_list (3-6 items), steps (4-7 steps for the evening), and conversation_starters (exactly 3 questions tailored to their interests).${isSubscribed ? ` Scale mission difficulty to tier: BEGINNER = warm/forgiving, REGULAR = medium stakes, VETERAN = higher stakes/more vulnerable. Include a small forfeit or reward in the mission.` : ""}`;
+
+  return callWithFallback({
+    system: isSubscribed ? HOME_SYSTEM_PROMPT_PRO : HOME_SYSTEM_PROMPT,
+    prompt,
+    isSubscribed,
+  });
 }

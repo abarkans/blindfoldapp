@@ -19,6 +19,8 @@ import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import CheckInButton from "@/components/dashboard/CheckInButton";
+import HomeDateCard from "@/components/dashboard/HomeDateCard";
+import LocationPickerModal from "@/components/dashboard/LocationPickerModal";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
 
 const LOADING_MESSAGES = [
@@ -40,6 +42,16 @@ const REROLL_MESSAGES = [
   "Searching for the perfect swap...",
 ];
 
+const HOME_LOADING_MESSAGES = [
+  "Planning your perfect night in...",
+  "Crafting something cosy and unexpected...",
+  "Setting the scene at home...",
+  "Designing your evening together...",
+  "Mixing mood, mission, and magic...",
+  "Building a night you'll actually remember...",
+  "Putting together your home date guide...",
+];
+
 // AI-generated idea shape
 interface AIDateIdea {
   title: string;
@@ -51,6 +63,11 @@ interface AIDateIdea {
   duration: string;
   budget_range: string;
   tags: string[];
+  // Home date fields
+  location_type?: "outside" | "home";
+  preparation_list?: string[];
+  steps?: string[];
+  conversation_starters?: string[];
 }
 
 // Google Places venue shape
@@ -112,6 +129,8 @@ interface DateCardProps {
   partnerInvitedEmail?: string | null;
   checkinOwnerAt: string | null;
   checkinPartnerAt: string | null;
+  dateOutside: boolean;
+  dateAtHome: boolean;
 }
 
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
@@ -293,6 +312,8 @@ export default function DateCard({
   partnerInvitedEmail,
   checkinOwnerAt,
   checkinPartnerAt,
+  dateOutside,
+  dateAtHome,
 }: DateCardProps) {
   const ph = usePostHog();
   const router = useRouter();
@@ -319,6 +340,8 @@ export default function DateCard({
   const [checkinSkipped, setCheckinSkipped] = useState(false);
   const [skipDialogOpen, setSkipDialogOpen] = useState(false);
   const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
+  const [locationPickerOpen, setLocationPickerOpen] = useState(false);
+  const [pendingLocationType, setPendingLocationType] = useState<"outside" | "home" | "auto" | null>(null);
 
   // Sync local reveal state when the server updates after the other partner is ready.
   useEffect(() => {
@@ -354,15 +377,15 @@ export default function DateCard({
   const partnerCheckedIn = memberRole === "owner" ? !!checkinPartnerAt : !!checkinOwnerAt;
   const hasVenueLocation =
     dateIdea && isVenue(dateIdea) && !!dateIdea.location?.latitude;
-  // Poll any time the check-in flow is active so either partner's
-  // check-in arrives without a manual refresh.
-  const showCheckinFlow = revealed && accepted && !completed && hasVenueLocation;
+  const isHomeDateIdea =
+    dateIdea && !isVenue(dateIdea) && (dateIdea as AIDateIdea).location_type === "home";
+  // Poll any time the check-in flow is active so either partner's check-in arrives without a manual refresh.
+  const showCheckinFlow = revealed && accepted && !completed && (hasVenueLocation || !!isHomeDateIdea);
 
   const canReveal = isRevealAvailable(revealedAt, cadence);
   const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
   const otherPartnerReady = memberRole === "owner" ? !!partnerReadyAt : !!ownerReadyAt;
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
-  const hasActiveDate = !!dateIdea && !completed;
   const showCompletedCooldown = completed;
   const countdown = useCountdown(showCompletedCooldown && nextRevealDate ? nextRevealDate : null);
   const venuePhoneNumber =
@@ -385,13 +408,17 @@ export default function DateCard({
 
   useEffect(() => {
     if (!isLoading) return;
-    setLoadingMsgIndex(Math.floor(Math.random() * LOADING_MESSAGES.length));
-    const messages = isRerollPending ? REROLL_MESSAGES : LOADING_MESSAGES;
+    const messages = isRerollPending
+      ? REROLL_MESSAGES
+      : pendingLocationType === "home"
+      ? HOME_LOADING_MESSAGES
+      : LOADING_MESSAGES;
+    setLoadingMsgIndex(Math.floor(Math.random() * messages.length));
     const interval = setInterval(() => {
       setLoadingMsgIndex((i) => (i + 1) % messages.length);
     }, 2500);
     return () => clearInterval(interval);
-  }, [isLoading, isRerollPending]);
+  }, [isLoading, isRerollPending, pendingLocationType]);
 
   useEffect(() => {
     if (!waitingForPartnerReveal) return;
@@ -430,11 +457,21 @@ export default function DateCard({
   }, [showCheckinFlow, router]);
 
   function handleStartDate() {
+    if (dateOutside && dateAtHome) {
+      setLocationPickerOpen(true);
+      return;
+    }
+    executeStartDate(dateAtHome ? "home" : "outside");
+  }
+
+  function executeStartDate(locationType: "outside" | "home" | "auto") {
+    setLocationPickerOpen(false);
+    setPendingLocationType(locationType);
     setError("");
     setSuccessMessage("");
     startTransition(async () => {
       try {
-        const result = await startDate();
+        const result = await startDate(locationType);
         if (result.status === "error") {
           setError(result.error);
           return;
@@ -446,9 +483,11 @@ export default function DateCard({
             : "Date started. The teaser is ready."
         );
         router.refresh();
-        ph?.capture("date_started", { plan_type: planType });
+        ph?.capture("date_started", { plan_type: planType, location_type: locationType });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
+      } finally {
+        setPendingLocationType(null);
       }
     });
   }
@@ -570,7 +609,7 @@ export default function DateCard({
             { value: countdown.seconds, label: "Secs" },
           ].map(({ value, label }) => (
             <div key={label} className="bg-white rounded-2xl py-3 text-center">
-              <p className="text-2xl font-black text-zinc-900 tabular-nums">{String(value).padStart(2, "0")}</p>
+              <p className="text-4xl font-black text-zinc-900 tabular-nums">{String(value).padStart(2, "0")}</p>
               <p className="text-xs font-medium text-zinc-500 mt-0.5">{label}</p>
             </div>
           ))}
@@ -585,13 +624,13 @@ export default function DateCard({
         className={completed ? "" : "relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"}
       >
         <div className={completed ? "" : "relative p-6"}>
-          {/* Header — hidden when date is active so image can bleed full-width from top */}
+          {/* Header — hidden when date is active and not yet completed */}
           {!(revealed && !completed) && (
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                {!completed && <Sparkles className="w-4 h-4 text-white/65" />}
+
                 <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
-                  {completed ? "Completed Date" : "Mystery Date"}
+                  {(revealed && completed && dateIdea) ? "Completed Date" : (!!dateIdea && !!dateTeaser && !revealed) ? "Mystery Date" : "Getting started"}
                 </span>
               </div>
             </div>
@@ -615,7 +654,7 @@ export default function DateCard({
                         {isVenue(dateIdea) ? dateIdea.display_name : dateIdea.title}
                       </p>
                       <p className="text-xs text-white/55 mt-0.5">
-                        {isVenue(dateIdea) ? dateIdea.formatted_address : dateIdea.vibe}
+                        {isVenue(dateIdea) ? getShortAddress(dateIdea) : dateIdea.vibe}
                       </p>
                     </div>
                     <div className="ml-auto flex items-center gap-1.5 shrink-0">
@@ -980,6 +1019,25 @@ export default function DateCard({
                     )}
                   </>
 
+                ) : isHomeDateIdea ? (
+                  /* ── ACCEPTED HOME DATE ── */
+                  <>
+                    <HomeDateCard
+                      idea={dateIdea as AIDateIdea & { location_type: "home" }}
+                      partnerName={partnerNames.partner2 || "partner"}
+                      myCheckedIn={myCheckedIn}
+                      partnerCheckedIn={partnerCheckedIn}
+                      onCompleted={(result) => {
+                        setCompleted(true);
+                        setModalData(result);
+                        ph?.capture("date_completed", { plan_type: planType, method: "home_sync" });
+                      }}
+                      onHoldComplete={handleComplete}
+                      showComplete={isCompletePending}
+                    />
+                    {error && <p className="text-xs text-red-400 mt-3 text-center">{error}</p>}
+                  </>
+
                 ) : (
                   /* ── ACCEPTED AI ── */
                   <>
@@ -1106,13 +1164,15 @@ export default function DateCard({
                     )}
                   </div>
                 ) : !hasAcceptedPartner ? (
-                  <div className="flex flex-col">
-                    <p className="text-base font-bold text-white mb-1 text-left">
-                      {partnerInviteCopy.title}
-                    </p>
-                    <p className="text-sm text-white/60 leading-relaxed mb-4 text-left">
-                      {partnerInviteCopy.subtitle}
-                    </p>
+                  <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col gap-4">
+                    <div>
+                      <p className="text-base font-bold text-white mb-1">
+                        {partnerInviteCopy.title}
+                      </p>
+                      <p className="text-sm text-white/60 leading-relaxed">
+                        {partnerInviteCopy.subtitle}
+                      </p>
+                    </div>
                     <Button size="lg" className="w-full" onClick={() => setPartnerInviteModalOpen(true)}>
                       {partnerInviteCopy.button}
                     </Button>
@@ -1138,18 +1198,27 @@ export default function DateCard({
                         transition={{ duration: 0.4 }}
                         className="text-sm text-white/50 text-center px-4"
                       >
-                        {LOADING_MESSAGES[loadingMsgIndex]}
+                        {(isRerollPending
+                          ? REROLL_MESSAGES
+                          : pendingLocationType === "home"
+                          ? HOME_LOADING_MESSAGES
+                          : LOADING_MESSAGES)[loadingMsgIndex % (isRerollPending
+                            ? REROLL_MESSAGES.length
+                            : pendingLocationType === "home"
+                            ? HOME_LOADING_MESSAGES.length
+                            : LOADING_MESSAGES.length)]}
                       </motion.p>
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <div className="flex flex-col">
-                    <p className="text-base font-bold text-white mb-1 text-left">Ready for your next date night?</p>
-                    <p className="text-sm text-white/60 leading-relaxed mb-4 text-left">
-                      Initiate a date night to get a private teaser. When both of you are ready, the full plan will reveal.
-                    </p>
+                  <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col gap-4">
+                    <div>
+                      <p className="text-base font-bold text-white mb-1">Ready for your next date night?</p>
+                      <p className="text-sm text-white/60 leading-relaxed">
+                        Initiate a date night to get a private teaser. When both of you are ready, the full plan will reveal.
+                      </p>
+                    </div>
                     <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleStartDate : undefined}>
-                      <Sparkles className="w-4 h-4 mr-2" />
                       {canReveal
                         ? "Initiate date night"
                         : nextRevealDate
@@ -1163,6 +1232,13 @@ export default function DateCard({
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Location picker modal — shown when both outside + home prefs are enabled */}
+      <LocationPickerModal
+        open={locationPickerOpen}
+        onClose={() => setLocationPickerOpen(false)}
+        onSelect={executeStartDate}
+      />
 
       {/* Skip check-in confirmation dialog */}
       <Dialog open={skipDialogOpen} onClose={() => setSkipDialogOpen(false)} className="text-center">

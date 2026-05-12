@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { generateAIDateIdea } from "@/lib/ai/generate-date";
+import { generateAIDateIdea, generateHomeDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRerollRateLimit } from "@/lib/rate-limit";
 import { getCoupleAccess } from "@/lib/partner-invites";
@@ -101,10 +101,35 @@ export async function rerollDate(): Promise<void> {
   const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
   const { constraints } = profile;
 
+  // Preserve the location_type from the current date so home→home, outside→outside.
+  const currentLocationType =
+    (profile.date_idea as { location_type?: "outside" | "home" } | null)?.location_type ?? "outside";
+
   let idea: object;
 
   try {
-    if (profile.last_lat && profile.last_long) {
+    if (currentLocationType === "home") {
+      const { data: pastIdeas } = await admin
+        .from("date_ideas")
+        .select("idea")
+        .eq("user_id", access.profileId)
+        .order("generated_at", { ascending: false })
+        .limit(50);
+
+      const previousTitles = (pastIdeas ?? [])
+        .map((row) => (row.idea as { title?: string })?.title)
+        .filter(Boolean) as string[];
+
+      const homeIdea = await generateHomeDateIdea({
+        partnerNames: profile.partner_names,
+        interests: safeInterests,
+        budgetMax: constraints.budget_max,
+        isSubscribed: !isFree,
+        datesCompleted: profile.dates_completed_count,
+        previousTitles,
+      });
+      idea = { ...homeIdea, location_type: "home" };
+    } else if (profile.last_lat && profile.last_long) {
       const { data: pastIdeas } = await admin
         .from("date_ideas")
         .select("idea")
@@ -141,7 +166,7 @@ export async function rerollDate(): Promise<void> {
         },
       });
 
-      idea = { ...venue, ai: aiEnrichment };
+      idea = { ...venue, ai: aiEnrichment, location_type: "outside" };
     } else {
       const { data: pastIdeas } = await admin
         .from("date_ideas")
@@ -154,7 +179,7 @@ export async function rerollDate(): Promise<void> {
         .map((row) => (row.idea as { title?: string })?.title)
         .filter(Boolean) as string[];
 
-      idea = await generateAIDateIdea({
+      const aiIdea = await generateAIDateIdea({
         partnerNames: profile.partner_names,
         interests: safeInterests,
         budgetMax: constraints.budget_max,
@@ -164,6 +189,7 @@ export async function rerollDate(): Promise<void> {
         datesCompleted: profile.dates_completed_count,
         previousTitles,
       });
+      idea = { ...aiIdea, location_type: "outside" };
     }
   } catch (err) {
     console.error(`[audit] reroll: generation failed uid=${user.id} profile=${access.profileId} msg=${err instanceof Error ? err.message : String(err)}`);
@@ -188,6 +214,7 @@ export async function rerollDate(): Promise<void> {
     idea: idea as unknown as import("@/lib/types").Json,
     status: "pending",
     revealed_at: new Date().toISOString(),
+    location_type: currentLocationType,
   });
 
   // Reroll flags already set atomically above — only update the date idea here

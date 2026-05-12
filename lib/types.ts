@@ -17,10 +17,15 @@ export interface Database {
             tags: string[];
             preparation?: string;
             conversation_starter?: string;
+            location_type?: "outside" | "home";
+            preparation_list?: string[];
+            steps?: string[];
+            conversation_starters?: string[];
           };
           status: string;
           generated_at: string;
           revealed_at: string | null;
+          location_type: "outside" | "home" | null;
         };
         Insert: {
           id?: string;
@@ -29,6 +34,7 @@ export interface Database {
           status?: string;
           generated_at?: string;
           revealed_at?: string | null;
+          location_type?: "outside" | "home" | null;
         };
         Update: {
           id?: string;
@@ -37,6 +43,7 @@ export interface Database {
           status?: string;
           generated_at?: string;
           revealed_at?: string | null;
+          location_type?: "outside" | "home" | null;
         };
         Relationships: [];
       };

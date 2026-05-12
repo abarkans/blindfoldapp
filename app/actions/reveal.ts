@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { generateAIDateIdea } from "@/lib/ai/generate-date";
+import { generateAIDateIdea, generateHomeDateIdea } from "@/lib/ai/generate-date";
 import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRevealRateLimit, checkReadyRateLimit } from "@/lib/rate-limit";
 import { adoptDeletionHold } from "@/lib/deletion-hold";
@@ -53,7 +53,7 @@ type RevealResult =
   | { status: "revealed" }
   | { status: "error"; error: string };
 
-export async function startDate(): Promise<RevealResult> {
+export async function startDate(locationType?: "outside" | "home" | "auto"): Promise<RevealResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { status: "error", error: "Not authenticated" };
@@ -120,10 +120,46 @@ export async function startDate(): Promise<RevealResult> {
   if (!claimed?.length) return { status: "error", error: "Next date not available yet" };
 
   const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
+  const { date_outside, date_at_home } = profile.constraints;
+
+  // Determine effective location type, validating any client-supplied override.
+  let effectiveLocationType: "outside" | "home";
+  if (locationType === "home") {
+    if (!date_at_home) return { status: "error", error: "Home dates not enabled in your preferences." };
+    effectiveLocationType = "home";
+  } else if (locationType === "outside") {
+    if (!date_outside) return { status: "error", error: "Outside dates not enabled in your preferences." };
+    effectiveLocationType = "outside";
+  } else {
+    // 'auto' or undefined: server decides
+    if (date_at_home && !date_outside) effectiveLocationType = "home";
+    else if (date_outside && !date_at_home) effectiveLocationType = "outside";
+    else effectiveLocationType = Math.random() < 0.5 ? "home" : "outside";
+  }
+
   let idea: object;
 
   try {
-    if (profile.last_lat && profile.last_long) {
+    if (effectiveLocationType === "home") {
+      const { data: pastIdeas } = await admin
+        .from("date_ideas")
+        .select("idea")
+        .eq("user_id", access.profileId)
+        .order("generated_at", { ascending: false })
+        .limit(50);
+      const previousTitles = (pastIdeas ?? [])
+        .map((row) => (row.idea as { title?: string })?.title)
+        .filter(Boolean) as string[];
+      const homeIdea = await generateHomeDateIdea({
+        partnerNames: profile.partner_names,
+        interests: safeInterests,
+        budgetMax: profile.constraints.budget_max,
+        isSubscribed: profile.plan_type === "subscription",
+        datesCompleted: profile.dates_completed_count,
+        previousTitles,
+      });
+      idea = { ...homeIdea, location_type: "home" };
+    } else if (profile.last_lat && profile.last_long) {
       const { data: pastIdeas } = await admin
         .from("date_ideas")
         .select("idea")
@@ -156,7 +192,7 @@ export async function startDate(): Promise<RevealResult> {
           meta: venue.meta,
         },
       });
-      idea = { ...venue, ai: aiEnrichment };
+      idea = { ...venue, ai: aiEnrichment, location_type: "outside" };
     } else {
       const { data: pastIdeas } = await admin
         .from("date_ideas")
@@ -167,7 +203,7 @@ export async function startDate(): Promise<RevealResult> {
       const previousTitles = (pastIdeas ?? [])
         .map((row) => (row.idea as { title?: string })?.title)
         .filter(Boolean) as string[];
-      idea = await generateAIDateIdea({
+      const aiIdea = await generateAIDateIdea({
         partnerNames: profile.partner_names,
         interests: safeInterests,
         budgetMax: profile.constraints.budget_max,
@@ -177,6 +213,7 @@ export async function startDate(): Promise<RevealResult> {
         datesCompleted: profile.dates_completed_count,
         previousTitles,
       });
+      idea = { ...aiIdea, location_type: "outside" };
     }
   } catch (error) {
     await admin.from("profiles").update({ revealed_at: profile.revealed_at }).eq("id", access.profileId);
@@ -190,6 +227,7 @@ export async function startDate(): Promise<RevealResult> {
     idea: idea as Json,
     status: "pending",
     revealed_at: nowIso,
+    location_type: effectiveLocationType,
   });
   await admin
     .from("profiles")
