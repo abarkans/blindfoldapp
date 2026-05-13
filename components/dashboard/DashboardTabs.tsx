@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, Zap, CalendarCheck, X, ArrowLeft, Lock, MapPin, Heart, Target } from "lucide-react";
+import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, Lock, MapPin, Target } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -417,23 +417,13 @@ function ProgressTabSkeleton() {
 function StatsGrid({
   datesCompleted,
   totalCheckins,
-  totalXp,
-  createdAt,
 }: {
   datesCompleted: number;
   totalCheckins: number;
-  totalXp: number;
-  createdAt: string;
 }) {
-  const daysOnApp = Math.floor(
-    (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24)
-  );
-
   const stats = [
-    { icon: CalendarCheck, label: "Dates completed", value: datesCompleted },
-    { icon: MapPin, label: "Venue check-ins", value: totalCheckins },
-    { icon: Heart, label: "Days on Blindfold", value: daysOnApp },
-    { icon: Zap, label: "Total XP", value: totalXp },
+    { icon: CalendarCheck, label: "Dates done", value: datesCompleted },
+    { icon: MapPin, label: "Check-ins", value: totalCheckins },
   ];
 
   return (
@@ -506,8 +496,6 @@ function ProgressTabContent({
       <StatsGrid
         datesCompleted={datesCompleted}
         totalCheckins={totalCheckins}
-        totalXp={totalXp}
-        createdAt={profile.created_at}
       />
 
       <XPProgressBar totalXp={totalXp} />
@@ -571,8 +559,6 @@ function ProgressUpsell({
       <StatsGrid
         datesCompleted={datesCompleted}
         totalCheckins={totalCheckins}
-        totalXp={totalXp}
-        createdAt={createdAt}
       />
 
       {/* XP preview — blurred/locked for free users */}
@@ -590,7 +576,7 @@ function ProgressUpsell({
       {/* Badge grid preview — blurred/locked for free users */}
       <div className="relative max-h-44 overflow-hidden">
         <div className="pointer-events-none select-none opacity-60 blur-[1px]">
-          <BadgeGrid earnedBadges={earnedBadges} />
+          <BadgeGrid earnedBadges={earnedBadges} isFree={true} />
         </div>
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-black/80 to-black" />
       </div>
@@ -602,12 +588,12 @@ function ProgressUpsell({
           <p className="text-xs font-semibold text-white uppercase tracking-widest">Plus</p>
         </div>
         <p className="text-base font-bold text-white mb-1">
-          {hasHistory ? "Pick up where you left off" : "Unlock XP & badges"}
+          {hasHistory ? "Your rewards are locked, not lost" : "Make every date night count"}
         </p>
         <p className="text-sm text-white/60 leading-relaxed mb-4">
           {hasHistory
-            ? `You've earned ${totalXp} XP${earnedBadges.length > 0 ? ` and ${earnedBadges.length} badge${earnedBadges.length === 1 ? "" : "s"}` : ""}. Resubscribe to keep earning, level up, and unlock unlimited re-rolls.`
-            : "Earn 100 XP per date, level up, and collect milestone badges. Plus also includes unlimited re-rolls and a wider reveal radius."}
+            ? "Upgrade to Plus to unlock your rewards — nothing resets, nothing disappears."
+            : "Earn 100 XP per date, collect milestone badges, and get a wider reveal radius. Plus is how the story gets richer."}
         </p>
 
         <button

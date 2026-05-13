@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCoupleAccess } from "@/lib/partner-invites";
 
 const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
 
@@ -20,13 +21,18 @@ export default async function UpgradePage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || session.metadata?.user_id !== user.id) redirect("/dashboard");
 
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
+
+  // Partners never own billing — guard here mirrors the checkout route.
+  if (access.role !== "owner") redirect("/dashboard");
+
   const rawCadence = session.metadata?.cadence;
   const cadence = rawCadence && VALID_CADENCES.has(rawCadence) ? rawCadence : undefined;
 
   // plan_type and stripe_customer_id are protected by the lockdown trigger
   // from migration 015. Session ownership has been verified above, so the
   // admin client is the appropriate path for this trusted write.
-  const admin = createAdminClient();
   const { error: upgradeError } = await admin
     .from("profiles")
     .update({
@@ -34,21 +40,21 @@ export default async function UpgradePage({
       stripe_customer_id: session.customer as string,
       ...(cadence ? { cadence } : {}),
     })
-    .eq("id", user.id);
+    .eq("id", access.profileId);
   if (upgradeError) {
-    console.error(`[upgrade] profile update failed uid=${user.id} msg=${upgradeError.message}`);
-    redirect("/onboarding");
+    console.error(`[upgrade] profile update failed uid=${user.id} profileId=${access.profileId} msg=${upgradeError.message}`);
+    redirect("/dashboard");
   }
 
   // Retroactively credit any dates this user completed while on the free
   // plan. Idempotent — recomputes from date_ideas history. Trigger
   // award_milestone_badges fires on the count delta.
-  await admin.rpc("backfill_completed_xp", { p_user_id: user.id, p_xp_per_date: 100 });
+  await admin.rpc("backfill_completed_xp", { p_user_id: access.profileId, p_xp_per_date: 100 });
 
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from("profiles")
     .select("onboarding_complete")
-    .eq("id", user.id)
+    .eq("id", access.profileId)
     .single();
 
   if (profile?.onboarding_complete) redirect("/dashboard");

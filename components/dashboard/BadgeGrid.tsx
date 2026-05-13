@@ -44,6 +44,7 @@ interface EarnedBadge {
 
 interface BadgeGridProps {
   earnedBadges: EarnedBadge[];
+  isFree?: boolean;
 }
 
 interface OpenBadge {
@@ -145,8 +146,8 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
   );
 }
 
-export default function BadgeGrid({ earnedBadges }: BadgeGridProps) {
-  const earnedNames = new Set(earnedBadges.map((b) => b.name));
+export default function BadgeGrid({ earnedBadges, isFree = false }: BadgeGridProps) {
+  const earnedNames = isFree ? new Set<string>() : new Set(earnedBadges.map((b) => b.name));
   const earnedMap = new Map(earnedBadges.map((b) => [b.name, b.earned_at]));
   const [openBadge, setOpenBadge] = useState<OpenBadge | null>(null);
 

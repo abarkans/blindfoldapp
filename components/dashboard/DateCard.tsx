@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, MapPin, Timer, Wallet, CheckCircle2, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, BookOpen, Target, PackageCheck, MessageCircle } from "lucide-react";
+import { Sparkles, MapPin, Timer, Wallet, CheckCircle2, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, Target, PackageCheck, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
@@ -859,28 +859,7 @@ export default function DateCard({
                     {(dateIdea.ai?.description || dateIdea.ai?.mission || (!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter))) && (
                       <div className="mb-4 flex flex-col gap-2">
                         {dateIdea.ai?.description && (
-                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
-                            <button
-                              onClick={() => setActiveSheet(activeSheet === "description" ? null : "description")}
-                              className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
-                            >
-                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                                <BookOpen className="w-4 h-4 text-white/65" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-white">Description</p>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
-                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
-                                {activeSheet === "description" ? "−" : "+"}
-                              </span>
-                            </button>
-                            <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "description" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                              <div className="overflow-hidden">
-                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70 border-t border-white/[0.07] pt-3">{dateIdea.ai.description}</p>
-                              </div>
-                            </div>
-                          </div>
+                          <p className="text-sm leading-relaxed text-white/70 mb-2">{dateIdea.ai.description}</p>
                         )}
                         {dateIdea.ai?.mission && (
                           <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
