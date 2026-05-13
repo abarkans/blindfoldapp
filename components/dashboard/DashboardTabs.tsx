@@ -227,6 +227,7 @@ export default function DashboardTabs({
                   onGoToProgress={() => switchTab("progress")}
                   memberRole={memberRole}
                   partnerInviteStatus={partnerInviteStatus}
+                  unitSystem={unitSystem}
                 />
               )}
               {activeTab === "progress" && (
@@ -299,12 +300,14 @@ function DateTabContent({
   onGoToProgress,
   memberRole,
   partnerInviteStatus,
+  unitSystem = "metric",
 }: {
   profile: Profile;
   isDateCompleted: boolean;
   onGoToProgress: () => void;
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
+  unitSystem?: UnitSystem;
 }) {
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -392,6 +395,7 @@ function DateTabContent({
         checkinPartnerAt={profile.checkin_partner_at ?? null}
         dateOutside={profile.constraints.date_outside}
         dateAtHome={profile.constraints.date_at_home}
+        unitSystem={unitSystem}
       />
     </div>
   );

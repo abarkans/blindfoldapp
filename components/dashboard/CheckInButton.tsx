@@ -6,6 +6,7 @@ import { MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { checkInToDate } from "@/app/actions/check-in";
 import type { CompleteDateResult } from "@/lib/types";
+import { type UnitSystem } from "@/lib/units";
 
 type CheckInState =
   | "idle"
@@ -18,9 +19,10 @@ interface CheckInButtonProps {
   partnerName: string;
   partnerCheckedIn: boolean;
   onCompleted: (result: CompleteDateResult) => void;
+  unitSystem?: UnitSystem;
 }
 
-export default function CheckInButton({ partnerName, partnerCheckedIn, onCompleted }: CheckInButtonProps) {
+export default function CheckInButton({ partnerName, partnerCheckedIn, onCompleted, unitSystem = "metric" }: CheckInButtonProps) {
   const [state, setState] = useState<CheckInState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -60,7 +62,9 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, onComplet
           if (result.status === "too_far") {
             const meters = result.distanceMeters;
             const display =
-              meters >= 1000
+              unitSystem === "imperial"
+                ? `${(meters / 1000 * 0.621371).toFixed(1)} mi`
+                : meters >= 1000
                 ? `${(meters / 1000).toFixed(1)} km`
                 : `${meters} m`;
             setErrorMsg(`Not quite there yet — you're ${display} away. Move closer and try again.`);

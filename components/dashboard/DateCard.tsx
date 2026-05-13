@@ -23,6 +23,7 @@ import CheckInButton from "@/components/dashboard/CheckInButton";
 import HomeDateCard from "@/components/dashboard/HomeDateCard";
 import LocationPickerModal from "@/components/dashboard/LocationPickerModal";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
+import { type UnitSystem } from "@/lib/units";
 
 const LOADING_MESSAGES = [
   "Scanning the city for your perfect spot...",
@@ -132,6 +133,7 @@ interface DateCardProps {
   checkinPartnerAt: string | null;
   dateOutside: boolean;
   dateAtHome: boolean;
+  unitSystem?: UnitSystem;
 }
 
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
@@ -315,6 +317,7 @@ export default function DateCard({
   checkinPartnerAt,
   dateOutside,
   dateAtHome,
+  unitSystem = "metric",
 }: DateCardProps) {
   const ph = usePostHog();
   const router = useRouter();
@@ -984,6 +987,7 @@ export default function DateCard({
                           <CheckInButton
                             partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
                             partnerCheckedIn={partnerCheckedIn}
+                            unitSystem={unitSystem}
                             onCompleted={(result) => {
                               setCompleted(true);
                               setModalData(result);
