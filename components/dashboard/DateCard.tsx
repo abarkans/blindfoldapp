@@ -333,6 +333,7 @@ export default function DateCard({
   const [completed, setCompleted] = useState(isDateCompleted);
   const wasCompletedOnMountRef = useRef(isDateCompleted);
   const completionFetchedRef = useRef(false);
+  const autoCompleteCalledRef = useRef(false);
   const [accepted, setAccepted] = useState(!!dateAcceptedAt);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
   const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
@@ -400,10 +401,28 @@ export default function DateCard({
   const showCheckinFlow = revealed && accepted && !completed && (hasVenueLocation || !!isHomeDateIdea);
 
   const canReveal = isRevealAvailable(revealedAt, cadence);
+  const prevCanRevealRef = useRef(canReveal);
+  useEffect(() => {
+    if (canReveal && !prevCanRevealRef.current) router.refresh();
+    prevCanRevealRef.current = canReveal;
+  }, [canReveal, router]);
+
+  // Auto-complete when both partners checked in but completion hasn't fired yet.
+  // This handles cases where check-ins arrive via polling (no direct CheckInButton action).
+  useEffect(() => {
+    if (!myCheckedIn || !partnerCheckedIn || completed) {
+      autoCompleteCalledRef.current = false;
+      return;
+    }
+    if (!showCheckinFlow || autoCompleteCalledRef.current) return;
+    autoCompleteCalledRef.current = true;
+    handleComplete();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCheckinFlow, myCheckedIn, partnerCheckedIn, completed]);
   const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
   const otherPartnerReady = memberRole === "owner" ? !!partnerReadyAt : !!ownerReadyAt;
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
-  const showCompletedCooldown = completed;
+  const showCompletedCooldown = completed && !canReveal;
   const countdown = useCountdown(showCompletedCooldown && nextRevealDate ? nextRevealDate : null);
   const venuePhoneNumber =
     dateIdea && isVenue(dateIdea)
@@ -655,7 +674,7 @@ export default function DateCard({
 
           <AnimatePresence mode="wait">
             {/* ── REVEALED STATE ── */}
-            {revealed && dateIdea ? (
+            {revealed && dateIdea && !(completed && canReveal) ? (
               <motion.div
                 key="revealed"
                 initial={{ opacity: 0 }}

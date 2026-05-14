@@ -99,13 +99,14 @@ export async function proxy(request: NextRequest) {
   const cspReportOnly =
     process.env.NODE_ENV === "production" ? buildCsp(nonce, false) : null;
 
-  // First-visit unit-system detection from Vercel geo header.
+  // Unit-system detection from Vercel geo header on every request.
   // Push into request.cookies immediately so this-request RSCs see it,
   // then write to whatever response we end up returning.
+  const country = request.headers.get("x-vercel-ip-country");
+  const system = unitSystemForCountry(country);
+  const existingSystem = request.cookies.get(UNIT_SYSTEM_COOKIE)?.value;
   let pendingUnitCookie: string | null = null;
-  if (!request.cookies.get(UNIT_SYSTEM_COOKIE)) {
-    const country = request.headers.get("x-vercel-ip-country");
-    const system = unitSystemForCountry(country);
+  if (existingSystem !== system) {
     request.cookies.set(UNIT_SYSTEM_COOKIE, system);
     pendingUnitCookie = system;
   }

@@ -5,6 +5,7 @@ import { getCoupleAccess, getPartnerInviteStatus } from "@/lib/partner-invites";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import { getUnitSystem } from "@/lib/get-unit-system";
 import { signPlacePhotoUrl } from "@/lib/place-photo-token";
+import DevPanel from "@/components/dev/DevPanel";
 
 export default async function DashboardPage() {
   const { supabase, user } = await getClientAndUser();
@@ -64,13 +65,16 @@ export default async function DashboardPage() {
   const unitSystem = await getUnitSystem();
 
   return (
-    <DashboardTabs
-      profile={profile}
-      earnedBadgesPromise={earnedBadgesPromise}
-      isDateCompleted={latestDateIdea?.status === "completed" || (!profile.date_idea && !latestDateIdea)}
-      unitSystem={unitSystem}
-      memberRole={access.role}
-      partnerInviteStatus={partnerInviteStatus}
-    />
+    <>
+      <DashboardTabs
+        profile={profile}
+        earnedBadgesPromise={earnedBadgesPromise}
+        isDateCompleted={latestDateIdea?.status === "completed" || (!profile.date_idea && !latestDateIdea)}
+        unitSystem={unitSystem}
+        memberRole={access.role}
+        partnerInviteStatus={partnerInviteStatus}
+      />
+      <DevPanel />
+    </>
   );
 }
