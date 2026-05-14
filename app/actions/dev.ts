@@ -211,7 +211,7 @@ export async function devMockBothCheckinAndComplete(): Promise<DevCompleteResult
   const nowIso = new Date().toISOString();
   const { data: profile } = await admin
     .from("profiles")
-    .select("date_idea, date_accepted_at")
+    .select("date_idea, date_accepted_at, total_checkins")
     .eq("id", access.profileId)
     .single();
   const idea = profile?.date_idea ?? STUB_DATE;
@@ -255,6 +255,10 @@ export async function devMockBothCheckinAndComplete(): Promise<DevCompleteResult
     .update({ checkin_owner_at: nowIso, checkin_partner_at: nowIso })
     .eq("id", access.profileId);
   const completionData = await completeDate();
+  await admin
+    .from("profiles")
+    .update({ total_checkins: (profile?.total_checkins ?? 0) + 1 })
+    .eq("id", access.profileId);
   return { ok: true, message: "Both checked in + date completed", completionData };
 }
 
