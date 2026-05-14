@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LandingV2Client from "@/components/landing-v2/LandingV2Client";
+import { getUnitSystem } from "@/lib/get-unit-system";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
-  return <LandingV2Client />;
+export default async function HomePage() {
+  const unitSystem = await getUnitSystem();
+  return <LandingV2Client unitSystem={unitSystem} />;
 }

@@ -433,7 +433,7 @@ export default function SettingsPanel({
     : "None selected";
 
   const logisticsSummary = [
-    `€${budgetMax}`,
+    `${getCurrencySymbol(unitSystem)}${budgetMax}`,
     dateOutside && "Outside home",
     dateAtHome && "At home",
   ].filter(Boolean).join(" · ");
@@ -1019,13 +1019,13 @@ export default function SettingsPanel({
                         <div className="ml-auto text-right">
                           {billingInterval === "yearly" ? (
                             <>
-                              <p className="text-base font-black text-white">€39.99<span className="text-xs font-normal text-white/60"> / year</span></p>
-                              <p className="text-[10px] text-emerald-400">~€3.33/mo · save 44%</p>
+                              <p className="text-base font-black text-white">{getCurrencySymbol(unitSystem)}39.99<span className="text-xs font-normal text-white/60"> / year</span></p>
+                              <p className="text-[10px] text-emerald-400">~{getCurrencySymbol(unitSystem)}3.33/mo · save 44%</p>
                             </>
                           ) : (
                             <>
-                              <p className="text-base font-black text-white">€1.49<span className="text-xs font-normal text-white/60"> first month</span></p>
-                              <p className="text-[10px] text-white/40">then €5.99/mo</p>
+                              <p className="text-base font-black text-white">{getCurrencySymbol(unitSystem)}1.49<span className="text-xs font-normal text-white/60"> first month</span></p>
+                              <p className="text-[10px] text-white/40">then {getCurrencySymbol(unitSystem)}5.99/mo</p>
                             </>
                           )}
                         </div>
@@ -1075,7 +1075,7 @@ export default function SettingsPanel({
                         onClick={handleUpgradePlan}
                         className="w-full h-auto py-3 text-sm font-bold gap-2"
                       >
-                        {billingInterval === "yearly" ? "Subscribe · €39.99/year" : "Subscribe · €1.49 first month"}
+                        {billingInterval === "yearly" ? `Subscribe · ${getCurrencySymbol(unitSystem)}39.99/year` : `Subscribe · ${getCurrencySymbol(unitSystem)}1.49 first month`}
                       </Button>
                     </div>
                   )}

@@ -309,6 +309,7 @@ export default function OnboardingFlow({
                     onContinueLabelChange={setContinueLabel}
                     onSubstepChange={setPlanSubStep}
                     planType={data.plan_type ?? initialSelectedPlan}
+                    unitSystem={unitSystem}
                   />
                 )}
                 {step === 3 && (

@@ -19,6 +19,7 @@ import {
 
 } from "lucide-react";
 import { PLANS } from "@/lib/plans";
+import { getCurrencySymbol, formatBudgetRange, type UnitSystem } from "@/lib/units";
 
 const STEPS = [
   {
@@ -100,7 +101,7 @@ const HERO_VIDEOS = [
   },
 ];
 
-export default function LandingV2Client() {
+export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?: UnitSystem }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [heroVideo, setHeroVideo] = useState<(typeof HERO_VIDEOS)[number] | null>(null);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
@@ -546,7 +547,7 @@ export default function LandingV2Client() {
               className="absolute left-1/2 top-0 z-20 w-full transition-transform duration-200"
               style={{ transform: "translateX(-50%)" }}
             >
-              <DateExampleCard date={SAMPLE_DATES[activeSampleDate]} />
+              <DateExampleCard date={SAMPLE_DATES[activeSampleDate]} unitSystem={unitSystem} />
             </div>
             <div className="absolute bottom-1 left-0 right-0 z-30 flex justify-center gap-1.5">
               {SAMPLE_DATES.map((date, i) => (
@@ -566,7 +567,7 @@ export default function LandingV2Client() {
           <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {SAMPLE_DATES.map((date, i) => (
               <div key={date.title} className={i === 2 ? "hidden lg:block" : undefined}>
-                <DateExampleCard date={date} />
+                <DateExampleCard date={date} unitSystem={unitSystem} />
               </div>
             ))}
           </div>
@@ -678,15 +679,15 @@ export default function LandingV2Client() {
                   {plan.highlighted ? (
                     billingInterval === "yearly" ? (
                       <>
-                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.yearlyPrice}</p>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.yearlyPrice}</p>
                         <p className="text-sm text-white/55">per year</p>
-                        <p className="text-xs text-emerald-400/80 mb-3">~€{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo · cancel anytime</p>
+                        <p className="text-xs text-emerald-400/80 mb-3">~{getCurrencySymbol(unitSystem)}{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo · cancel anytime</p>
                       </>
                     ) : (
                       <>
-                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">€{plan.introPrice}</p>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.introPrice}</p>
                         <p className="text-sm text-white/55">first month</p>
-                        <p className="text-xs text-pink-300/70 mb-3">then €{plan.price}/mo · cancel anytime</p>
+                        <p className="text-xs text-pink-300/70 mb-3">then {getCurrencySymbol(unitSystem)}{plan.price}/mo · cancel anytime</p>
                       </>
                     )
                   ) : (
@@ -803,7 +804,7 @@ export default function LandingV2Client() {
   );
 }
 
-function DateExampleCard({ date }: { date: (typeof SAMPLE_DATES)[number] }) {
+function DateExampleCard({ date, unitSystem = "metric" }: { date: (typeof SAMPLE_DATES)[number]; unitSystem?: UnitSystem }) {
   return (
     <div className="group flex h-[410px] flex-col rounded-3xl border border-white/14 bg-[#030303] overflow-hidden text-left transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)] md:block md:h-auto">
       <div className="relative h-40 shrink-0 overflow-hidden bg-black md:h-56">
@@ -839,7 +840,7 @@ function DateExampleCard({ date }: { date: (typeof SAMPLE_DATES)[number] }) {
         <div className="grid grid-cols-2 gap-2 mb-3 md:gap-2.5 md:mb-5">
           {[
             { icon: Timer, value: date.duration, label: "Duration" },
-            { icon: Wallet, value: date.budget, label: "Budget" },
+            { icon: Wallet, value: formatBudgetRange(date.budget, unitSystem), label: "Budget" },
           ].map(({ icon: Icon, value, label }) => (
             <div key={label} className="flex items-center gap-2 bg-white/[0.035] border border-white/16 rounded-xl px-2.5 py-1.5 md:gap-2.5 md:px-3 md:py-2">
               <Icon className="w-3.5 h-3.5 text-white/60 shrink-0" />

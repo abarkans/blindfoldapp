@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Lock, Sparkles } from "lucide-react";
 import { PLANS, type PlanId } from "@/lib/plans";
 import { CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
+import { getCurrencySymbol, type UnitSystem } from "@/lib/units";
 
 interface StepPlanProps {
   onNext: (data: { plan_type: PlanId; cadence: string }) => void;
@@ -15,6 +16,7 @@ interface StepPlanProps {
   onContinueLabelChange: (label: string) => void;
   onSubstepChange: (substep: "plan" | "frequency") => void;
   planType?: PlanId;
+  unitSystem?: UnitSystem;
 }
 
 type SubStep = "plan" | "frequency";
@@ -33,6 +35,7 @@ export default function StepPlan({
   onContinueLabelChange,
   onSubstepChange,
   planType,
+  unitSystem = "metric",
 }: StepPlanProps) {
   const [subStep, setSubStep] = useState<SubStep>("plan");
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(planType ?? null);
@@ -141,15 +144,15 @@ export default function StepPlan({
                           {plan.highlighted ? (
                             billingInterval === "yearly" ? (
                               <>
-                                <p className="font-black text-lg text-white">€{plan.yearlyPrice}</p>
+                                <p className="font-black text-lg text-white">{getCurrencySymbol(unitSystem)}{plan.yearlyPrice}</p>
                                 <p className="text-[10px] text-white/55 mt-0.5">per year</p>
-                                <p className="text-[10px] text-emerald-400/80">~€{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo</p>
+                                <p className="text-[10px] text-emerald-400/80">~{getCurrencySymbol(unitSystem)}{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo</p>
                               </>
                             ) : (
                               <>
-                                <p className="font-black text-lg text-white">€{plan.introPrice}</p>
+                                <p className="font-black text-lg text-white">{getCurrencySymbol(unitSystem)}{plan.introPrice}</p>
                                 <p className="text-[10px] text-white/55 mt-0.5">first month</p>
-                                <p className="text-[10px] text-rose-300/70">then €{plan.price}/mo</p>
+                                <p className="text-[10px] text-rose-300/70">then {getCurrencySymbol(unitSystem)}{plan.price}/mo</p>
                               </>
                             )
                           ) : (
