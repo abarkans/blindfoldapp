@@ -4,6 +4,15 @@ const KM_TO_MI = 0.621371;
 
 const IMPERIAL_COUNTRIES = new Set(["US", "LR", "MM"]);
 
+export function getCurrencySymbol(system: UnitSystem): string {
+  return system === "imperial" ? "$" : "€";
+}
+
+export function formatBudgetRange(value: string, system: UnitSystem): string {
+  if (system === "imperial") return value.replace(/€/g, "$");
+  return value;
+}
+
 export function unitSystemForCountry(country: string | null | undefined): UnitSystem {
   if (!country) return "metric";
   return IMPERIAL_COUNTRIES.has(country.toUpperCase()) ? "imperial" : "metric";

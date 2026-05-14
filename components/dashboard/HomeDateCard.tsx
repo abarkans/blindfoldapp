@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Timer, Wallet, CheckCircle2, AlertCircle, PackageCheck, Target, Check } from "lucide-react";
 import { homeCheckIn } from "@/app/actions/home-checkin";
 import type { CompleteDateResult } from "@/lib/types";
+import { type UnitSystem, formatBudgetRange } from "@/lib/units";
 
 interface HomeDateIdea {
   title: string;
@@ -161,6 +162,7 @@ interface HomeDateCardProps {
   partnerName: string;
   myCheckedIn: boolean;
   partnerCheckedIn: boolean;
+  unitSystem?: UnitSystem;
   onCompleted: (result: CompleteDateResult) => void;
   onHoldComplete: () => void;
   showComplete: boolean;
@@ -171,6 +173,7 @@ export default function HomeDateCard({
   partnerName,
   myCheckedIn,
   partnerCheckedIn,
+  unitSystem = "metric",
   onCompleted,
   onHoldComplete,
   showComplete,
@@ -209,7 +212,7 @@ export default function HomeDateCard({
           {idea.budget_range && (
             <span className="inline-flex items-center gap-1.5">
               <Wallet className="h-3.5 w-3.5 text-white/55" />
-              {idea.budget_range}
+              {formatBudgetRange(idea.budget_range, unitSystem)}
             </span>
           )}
         </div>

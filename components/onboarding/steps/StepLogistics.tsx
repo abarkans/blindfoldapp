@@ -6,15 +6,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { House, MapPin } from "lucide-react";
 import { logisticsSchema, type LogisticsFormData } from "@/lib/schemas/onboarding";
 import Slider from "@/components/ui/Slider";
+import { getCurrencySymbol, type UnitSystem } from "@/lib/units";
 
 interface StepLogisticsProps {
   defaultValues?: Partial<LogisticsFormData>;
   onNext: (data: LogisticsFormData) => void;
   continueTrigger: number;
   onCanContinueChange: (can: boolean) => void;
+  unitSystem?: UnitSystem;
 }
 
-export default function StepLogistics({ defaultValues, onNext, continueTrigger, onCanContinueChange }: StepLogisticsProps) {
+export default function StepLogistics({ defaultValues, onNext, continueTrigger, onCanContinueChange, unitSystem = "metric" }: StepLogisticsProps) {
   const {
     handleSubmit,
     control,
@@ -62,7 +64,7 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
               min={10}
               max={200}
               step={5}
-              formatValue={(v) => `€${v}`}
+              formatValue={(v) => `${getCurrencySymbol(unitSystem)}${v}`}
               tone="neutral"
             />
           )}

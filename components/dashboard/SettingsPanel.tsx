@@ -11,7 +11,7 @@ import {
   Sparkles, Lock, Check, Crown, UserCog, Trash2, Mail, House,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
-import { formatRadius, type UnitSystem } from "@/lib/units";
+import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
@@ -801,7 +801,7 @@ export default function SettingsPanel({
                         min={10}
                         max={200}
                         step={5}
-                        formatValue={(v) => `€${v}`}
+                        formatValue={(v) => `${getCurrencySymbol(unitSystem)}${v}`}
                         tone="neutral"
                       />
                     )}

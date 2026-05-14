@@ -337,6 +337,7 @@ export default function OnboardingFlow({
                     }
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
+                    unitSystem={unitSystem}
                   />
                 )}
                 {step === 5 && (

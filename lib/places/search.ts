@@ -64,17 +64,20 @@ const INTEREST_TO_PLACE_TYPES: Record<string, string[]> = {
   romance: ["spa", "restaurant", "wine_bar", "botanical_garden"],
 };
 
-const PRICE_LEVEL_LABELS: Record<string, string> = {
-  PRICE_LEVEL_FREE: "Free",
-  PRICE_LEVEL_INEXPENSIVE: "€",
-  PRICE_LEVEL_MODERATE: "€€",
-  PRICE_LEVEL_EXPENSIVE: "€€€",
-  PRICE_LEVEL_VERY_EXPENSIVE: "€€€€",
-  PRICE_LEVEL_UNSPECIFIED: "",
+const PRICE_LEVEL_COUNT: Record<string, number> = {
+  PRICE_LEVEL_FREE: 0,
+  PRICE_LEVEL_INEXPENSIVE: 1,
+  PRICE_LEVEL_MODERATE: 2,
+  PRICE_LEVEL_EXPENSIVE: 3,
+  PRICE_LEVEL_VERY_EXPENSIVE: 4,
+  PRICE_LEVEL_UNSPECIFIED: -1,
 };
 
-export function getPriceLevelLabel(priceLevel: string): string {
-  return PRICE_LEVEL_LABELS[priceLevel] ?? "";
+export function getPriceLevelLabel(priceLevel: string, currencySymbol = "€"): string {
+  const count = PRICE_LEVEL_COUNT[priceLevel];
+  if (count === undefined || count < 0) return "";
+  if (count === 0) return "Free";
+  return currencySymbol.repeat(count);
 }
 
 interface PlaceAddressComponent {

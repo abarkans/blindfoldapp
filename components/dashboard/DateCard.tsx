@@ -23,7 +23,7 @@ import CheckInButton from "@/components/dashboard/CheckInButton";
 import HomeDateCard from "@/components/dashboard/HomeDateCard";
 import LocationPickerModal from "@/components/dashboard/LocationPickerModal";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
-import { type UnitSystem } from "@/lib/units";
+import { type UnitSystem, getCurrencySymbol, formatBudgetRange } from "@/lib/units";
 
 const LOADING_MESSAGES = [
   "Scanning the city for your perfect spot...",
@@ -869,7 +869,7 @@ export default function DateCard({
                       )}
                       <span className="inline-flex items-center gap-1.5">
                         <Wallet className="h-3.5 w-3.5 text-white/55" />
-                        {dateIdea.ai?.budget_range || getPriceLevelLabel(dateIdea.price_level)}
+                        {formatBudgetRange(dateIdea.ai?.budget_range || getPriceLevelLabel(dateIdea.price_level, getCurrencySymbol(unitSystem)), unitSystem)}
                       </span>
                       <span className="inline-flex min-w-0 items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 shrink-0 text-white/55" />
@@ -1044,6 +1044,7 @@ export default function DateCard({
                       partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
                       myCheckedIn={myCheckedIn}
                       partnerCheckedIn={partnerCheckedIn}
+                      unitSystem={unitSystem}
                       onCompleted={(result) => {
                         setCompleted(true);
                         setModalData(result);
@@ -1090,7 +1091,7 @@ export default function DateCard({
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {[
                         { icon: Timer, value: dateIdea.duration },
-                        { icon: Wallet, value: dateIdea.budget_range },
+                        { icon: Wallet, value: formatBudgetRange(dateIdea.budget_range, unitSystem) },
                         { icon: MapPin, value: dateIdea.tags[0] ?? "Anywhere" },
                       ].map(({ icon: Icon, value }) => (
                         <div key={value} className="flex flex-col items-center gap-1 bg-white/[0.035] rounded-2xl p-3 border border-white/16">
@@ -1142,7 +1143,7 @@ export default function DateCard({
                         {[
                           { icon: Sparkles, label: "Vibe", value: dateTeaser.vibe },
                           { icon: Timer, label: "Activity level", value: dateTeaser.activity_level },
-                          { icon: Wallet, label: "Price", value: dateTeaser.price },
+                          { icon: Wallet, label: "Price", value: formatBudgetRange(dateTeaser.price, unitSystem) },
                           { icon: MapPin, label: "The hook", value: dateTeaser.hook },
                         ].map(({ icon: Icon, label, value }) => (
                           <div key={label} className="flex items-center gap-3 py-1.5">
