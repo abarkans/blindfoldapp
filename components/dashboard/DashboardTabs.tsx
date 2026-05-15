@@ -9,6 +9,7 @@ import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
 import SettingsPanel from "@/components/dashboard/SettingsPanel";
+import SubscriberBadgeModal from "@/components/dashboard/SubscriberBadgeModal";
 import type { Profile } from "@/lib/types";
 import type { UnitSystem } from "@/lib/units";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
@@ -69,6 +70,7 @@ export default function DashboardTabs({
   const [activeTab, setActiveTab] = useState<Tab>("date");
   const [showCancelBanner, setShowCancelBanner] = useState(false);
   const [settingsInitialView, setSettingsInitialView] = useState<SettingsInitialView | undefined>();
+  const [showSubscriberBadge, setShowSubscriberBadge] = useState(false);
 
   const mainRef = useRef<HTMLElement>(null);
   const focusRefreshAtRef = useRef(0);
@@ -76,6 +78,17 @@ export default function DashboardTabs({
   const router = useRouter();
 
   useEffect(() => {
+    if (searchParams.get("subscriberBadge") === "1") {
+      setShowSubscriberBadge(true);
+      const tab = searchParams.get("tab");
+      if (tab === "date" || tab === "progress" || tab === "settings") {
+        setActiveTab(tab);
+      } else {
+        setActiveTab("progress");
+      }
+      window.history.replaceState({}, "", `/dashboard?tab=${tab ?? "progress"}`);
+      return;
+    }
     if (searchParams.get("checkout") === "cancelled") {
       setShowCancelBanner(true);
       const tab = searchParams.get("tab");
@@ -252,6 +265,11 @@ export default function DashboardTabs({
           </AnimatePresence>
         </div>
       </main>
+
+      <SubscriberBadgeModal
+        isOpen={showSubscriberBadge}
+        onClose={() => setShowSubscriberBadge(false)}
+      />
 
       {/* Bottom nav — mobile only */}
       <nav
@@ -483,11 +501,13 @@ function ProgressTabContent({
   const totalXp = profile.total_xp ?? 0;
   const datesCompleted = profile.dates_completed_count ?? 0;
   const totalCheckins = profile.total_checkins ?? 0;
-  const displayBadges = badgesFromCompletedCount(
+  const dateBadges = badgesFromCompletedCount(
     earnedBadges,
     datesCompleted,
     profile.updated_at ?? profile.created_at
   );
+  const subscriberBadge = earnedBadges.find((b) => b.name === "Subscriber");
+  const displayBadges = subscriberBadge ? [subscriberBadge, ...dateBadges] : dateBadges;
   const nextMilestone = BADGE_MILESTONES.find((m) => m.threshold > datesCompleted);
 
   return (

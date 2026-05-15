@@ -1,18 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, useMotionValue, useSpring, PanInfo } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Lock, X } from "lucide-react";
 
 // Static list mirrors the milestones seeded in migration 004
 const ALL_MILESTONES = [
+  {
+    name: "Subscriber",
+    description: "Joined Blindfold Plus",
+    icon_emoji: "⭐",
+    image: "/badges/Subscriber.png",
+    required_dates: null,
+    lockText: "Subscribe to Plus to unlock",
+  },
   {
     name: "First Spark",
     description: "Complete your first mystery date",
     icon_emoji: "✨",
     image: "/badges/First_Spark.png",
     required_dates: 1,
+    lockText: null,
   },
   {
     name: "Triple Threat",
@@ -20,6 +29,7 @@ const ALL_MILESTONES = [
     icon_emoji: "🔥",
     image: "/badges/Triple_Threat.png",
     required_dates: 3,
+    lockText: null,
   },
   {
     name: "High Five",
@@ -27,6 +37,7 @@ const ALL_MILESTONES = [
     icon_emoji: "🖐️",
     image: "/badges/High_Five.png",
     required_dates: 5,
+    lockText: null,
   },
   {
     name: "Perfect 10",
@@ -34,6 +45,7 @@ const ALL_MILESTONES = [
     icon_emoji: "💎",
     image: "/badges/Perfect_Ten.png",
     required_dates: 10,
+    lockText: null,
   },
 ];
 
@@ -55,29 +67,30 @@ interface OpenBadge {
 }
 
 function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void }) {
-  const rotateY = useMotionValue(0);
-  const springRotateY = useSpring(rotateY, { stiffness: 80, damping: 12 });
+  const [rotation, setRotation] = useState(0);
+  const pointerStartX = useRef(0);
 
-  // Lock background scroll for the duration this modal is mounted
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
-
-  function handleDragEnd(_: unknown, info: PanInfo) {
-    const velocity = info.velocity.x;
-    if (Math.abs(velocity) > 80) {
-      // Flip in swipe direction — add multiple full rotations for coin-toss feel
-      const flips = Math.sign(velocity) * (360 * Math.ceil(Math.abs(velocity) / 400));
-      rotateY.set(rotateY.get() + flips);
-    }
-  }
 
   const earnedDate = new Date(badge.earned_at).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
+
+  function handlePointerDown(e: React.PointerEvent) {
+    pointerStartX.current = e.clientX;
+  }
+
+  function handlePointerUp(e: React.PointerEvent) {
+    const dx = e.clientX - pointerStartX.current;
+    const dir = dx >= 0 ? 1 : -1;
+    const spins = Math.abs(dx) < 30 ? 1 : Math.max(1, Math.round(Math.abs(dx) / 80));
+    setRotation((r) => r + dir * spins * 360);
+  }
 
   return (
     <>
@@ -107,16 +120,17 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
           <X className="w-5 h-5 text-white/70" />
         </button>
 
-        {/* Badge — draggable for Y-axis flip */}
+        {/* Badge — swipe/click to flip, CSS transition on compositor thread */}
         <div style={{ perspective: 800 }} className="pointer-events-auto">
-          <motion.div
+          <div
             className="cursor-grab active:cursor-grabbing select-none"
-            style={{ rotateY: springRotateY }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.05}
-            onDragEnd={handleDragEnd}
-            whileTap={{ scale: 0.97 }}
+            style={{
+              transform: `rotateY(${rotation}deg)`,
+              transition: "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+              willChange: "transform",
+            }}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
           >
             <Image
               src={badge.image}
@@ -124,10 +138,10 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
               width={240}
               height={240}
               unoptimized
-              className="w-56 h-56 md:w-64 md:h-64 object-contain drop-shadow-2xl"
+              className="w-56 h-56 md:w-64 md:h-64 object-contain"
               draggable={false}
             />
-          </motion.div>
+          </div>
         </div>
 
         {/* Title + date */}
@@ -139,7 +153,7 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
         >
           <p className="text-xl font-bold text-white mb-1">{badge.name}</p>
           <p className="text-sm text-white/55">Unlocked on {earnedDate}</p>
-          <p className="text-xs text-white/50 mt-4">Swipe to flip ✦</p>
+          <p className="text-xs text-white/50 mt-4">Tap or swipe to flip ✦</p>
         </motion.div>
       </motion.div>
     </>
@@ -180,9 +194,8 @@ export default function BadgeGrid({ earnedBadges, isFree = false }: BadgeGridPro
                 {/* Badge image */}
                 <motion.div
                   className="relative w-32 h-32 mx-auto mb-2"
-                  animate={earned ? { scale: [1, 1.12, 1] } : {}}
-                  transition={{ duration: 0.5, delay: i * 0.07 + 0.1 }}
                   whileHover={earned ? { scale: 1.06 } : {}}
+                  transition={{ duration: 0.2 }}
                 >
                   <Image
                     src={milestone.image}
@@ -212,7 +225,7 @@ export default function BadgeGrid({ earnedBadges, isFree = false }: BadgeGridPro
                 <p className={`text-[10px] leading-tight ${earned ? "text-white/50" : "text-white/50"}`}>
                   {earned
                     ? milestone.description
-                    : `Complete ${milestone.required_dates} date${milestone.required_dates > 1 ? "s" : ""} to unlock`}
+                    : milestone.lockText ?? `Complete ${milestone.required_dates} date${(milestone.required_dates ?? 0) > 1 ? "s" : ""} to unlock`}
                 </p>
               </motion.div>
             );

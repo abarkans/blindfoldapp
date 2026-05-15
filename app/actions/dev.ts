@@ -321,11 +321,11 @@ export async function devResetGamification(): Promise<DevResult> {
   const { admin, access } = await getContext();
   await admin
     .from("profiles")
-    .update({ dates_completed_count: 0, total_xp: 0 })
+    .update({ dates_completed_count: 0, total_xp: 0, total_checkins: 0 })
     .eq("id", access.profileId);
   await admin.from("user_badges").delete().eq("user_id", access.profileId);
   revalidatePath("/dashboard");
-  return { ok: true, message: "XP, count, and badges reset" };
+  return { ok: true, message: "XP, count, checkins, and badges reset" };
 }
 
 // ── Plan & Limits ─────────────────────────────────────────────────────────────

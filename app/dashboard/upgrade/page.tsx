@@ -57,7 +57,7 @@ export default async function UpgradePage({
     .eq("id", access.profileId)
     .single();
 
-  if (profile?.onboarding_complete) redirect("/dashboard");
+  if (profile?.onboarding_complete) redirect("/dashboard?subscriberBadge=1&tab=progress");
 
   const params = new URLSearchParams({
     checkout: "completed",

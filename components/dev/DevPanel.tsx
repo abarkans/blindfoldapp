@@ -134,7 +134,7 @@ const SCENARIOS: Scenario[] = [
   {
     id: "reset_gamification",
     label: "Reset XP + badges",
-    description: "Zero XP, count, and delete all earned badges",
+    description: "Zero XP, count, check-ins, and delete all earned badges",
     category: "Gamification",
     dangerous: true,
     fn: devResetGamification,

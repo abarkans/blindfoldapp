@@ -118,6 +118,7 @@ function FeedbackSection({
 }
 
 const BADGE_IMAGES: Record<string, string> = {
+  "Subscriber": "/badges/Subscriber.png",
   "First Spark": "/badges/First_Spark.png",
   "Triple Threat": "/badges/Triple_Threat.png",
   "High Five": "/badges/High_Five.png",
