@@ -3,18 +3,20 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, Lock, MapPin, Target } from "lucide-react";
+import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, Lock, MapPin, Target, Camera } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
 import BadgeGrid from "@/components/dashboard/BadgeGrid";
 import SettingsPanel from "@/components/dashboard/SettingsPanel";
 import SubscriberBadgeModal from "@/components/dashboard/SubscriberBadgeModal";
+import HistoryTab from "@/components/dashboard/HistoryTab";
 import type { Profile } from "@/lib/types";
 import type { UnitSystem } from "@/lib/units";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
+import type { CompletedDateWithPhotos } from "@/app/actions/photo";
 
-type Tab = "date" | "progress" | "settings";
+type Tab = "date" | "progress" | "history" | "settings";
 type SettingsInitialView = "plan";
 
 interface EarnedBadge {
@@ -47,7 +49,11 @@ function badgesFromCompletedCount(
 interface DashboardTabsProps {
   profile: Profile;
   earnedBadgesPromise: Promise<EarnedBadge[]>;
+  historyPromise: Promise<CompletedDateWithPhotos[]>;
   isDateCompleted: boolean;
+  dateIdeaId: string | null;
+  myUserId: string;
+  profileId: string;
   unitSystem?: UnitSystem;
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
@@ -56,13 +62,18 @@ interface DashboardTabsProps {
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "date", label: "Date", icon: Sparkles },
   { id: "progress", label: "Progress", icon: Medal },
+  { id: "history", label: "Memories", icon: Camera },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function DashboardTabs({
   profile,
   earnedBadgesPromise,
+  historyPromise,
   isDateCompleted,
+  dateIdeaId,
+  myUserId,
+  profileId,
   unitSystem = "metric",
   memberRole,
   partnerInviteStatus,
@@ -78,21 +89,20 @@ export default function DashboardTabs({
   const router = useRouter();
 
   useEffect(() => {
+    function isValidTab(t: string | null): t is Tab {
+      return t === "date" || t === "progress" || t === "history" || t === "settings";
+    }
     if (searchParams.get("subscriberBadge") === "1") {
       setShowSubscriberBadge(true);
       const tab = searchParams.get("tab");
-      if (tab === "date" || tab === "progress" || tab === "settings") {
-        setActiveTab(tab);
-      } else {
-        setActiveTab("progress");
-      }
+      setActiveTab(isValidTab(tab) ? tab : "progress");
       window.history.replaceState({}, "", `/dashboard?tab=${tab ?? "progress"}`);
       return;
     }
     if (searchParams.get("checkout") === "cancelled") {
       setShowCancelBanner(true);
       const tab = searchParams.get("tab");
-      if (tab === "date" || tab === "progress" || tab === "settings") {
+      if (isValidTab(tab)) {
         setActiveTab(tab);
         window.history.replaceState({}, "", `/dashboard?tab=${tab}`);
       } else {
@@ -109,7 +119,7 @@ export default function DashboardTabs({
       return;
     }
     const tabParam = searchParams.get("tab");
-    if (tabParam === "date" || tabParam === "progress" || tabParam === "settings") {
+    if (isValidTab(tabParam)) {
       setActiveTab(tabParam);
     }
   }, []);
@@ -237,6 +247,9 @@ export default function DashboardTabs({
                 <DateTabContent
                   profile={profile}
                   isDateCompleted={isDateCompleted}
+                  dateIdeaId={dateIdeaId}
+                  myUserId={myUserId}
+                  profileId={profileId}
                   onGoToProgress={() => switchTab("progress")}
                   memberRole={memberRole}
                   partnerInviteStatus={partnerInviteStatus}
@@ -248,6 +261,15 @@ export default function DashboardTabs({
                   <ProgressTabContent
                     profile={profile}
                     earnedBadgesPromise={earnedBadgesPromise}
+                    onOpenPlanSettings={openPlanSettings}
+                  />
+                </Suspense>
+              )}
+              {activeTab === "history" && (
+                <Suspense fallback={<HistoryTabSkeleton />}>
+                  <HistoryTab
+                    historyPromise={historyPromise}
+                    planType={profile.plan_type ?? "free"}
                     onOpenPlanSettings={openPlanSettings}
                   />
                 </Suspense>
@@ -315,6 +337,9 @@ export default function DashboardTabs({
 function DateTabContent({
   profile,
   isDateCompleted,
+  dateIdeaId,
+  myUserId,
+  profileId,
   onGoToProgress,
   memberRole,
   partnerInviteStatus,
@@ -322,6 +347,9 @@ function DateTabContent({
 }: {
   profile: Profile;
   isDateCompleted: boolean;
+  dateIdeaId: string | null;
+  myUserId: string;
+  profileId: string;
   onGoToProgress: () => void;
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
@@ -398,6 +426,9 @@ function DateTabContent({
         dateIdea={profile.date_idea as Parameters<typeof DateCard>[0]["dateIdea"]}
         dateTeaser={profile.date_teaser as Parameters<typeof DateCard>[0]["dateTeaser"]}
         isDateCompleted={isDateCompleted}
+        dateIdeaId={dateIdeaId}
+        myUserId={myUserId}
+        profileId={profileId}
         onGoToProgress={onGoToProgress}
         planType={profile.plan_type ?? "free"}
         totalRerollsUsed={profile.total_rerolls_used ?? 0}
@@ -432,6 +463,18 @@ function ProgressTabSkeleton() {
           <div key={i} className="h-24 bg-white/[0.075] rounded-2xl" />
         ))}
       </div>
+    </div>
+  );
+}
+
+function HistoryTabSkeleton() {
+  return (
+    <div className="animate-pulse space-y-3">
+      <div className="h-8 w-40 bg-white/[0.075] rounded-full mb-2" />
+      <div className="h-4 w-48 bg-white/[0.075] rounded-full mb-5" />
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="h-48 bg-white/[0.075] rounded-3xl" />
+      ))}
     </div>
   );
 }

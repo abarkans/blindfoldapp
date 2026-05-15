@@ -50,6 +50,8 @@ function buildCsp(nonce: string, enforce: boolean): string {
     "https://internal-j.posthog.com",
     // Sentry EU ingestion (de datacenter)
     "https://o4511336614068224.ingest.de.sentry.io",
+    // Cloudflare R2 presigned PUT uploads (direct browser → R2)
+    "https://*.r2.cloudflarestorage.com",
     ...(isPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
   ].join(" ");
 

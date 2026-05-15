@@ -4,29 +4,23 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { useRouter } from "next/navigation";
 import { checkInToDate } from "@/app/actions/check-in";
-import type { CompleteDateResult } from "@/lib/types";
 import { type UnitSystem } from "@/lib/units";
 
-type CheckInState =
-  | "idle"
-  | "locating"
-  | "checking"
-  | "waiting"
-  | "error";
+type CheckInState = "idle" | "locating" | "checking" | "waiting" | "error";
 
 interface CheckInButtonProps {
   partnerName: string;
   partnerCheckedIn: boolean;
-  onCompleted: (result: CompleteDateResult) => void;
   unitSystem?: UnitSystem;
 }
 
-export default function CheckInButton({ partnerName, partnerCheckedIn, onCompleted, unitSystem = "metric" }: CheckInButtonProps) {
+export default function CheckInButton({ partnerName, partnerCheckedIn, unitSystem = "metric" }: CheckInButtonProps) {
+  const router = useRouter();
   const [state, setState] = useState<CheckInState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // If partner already checked in, surface a hint when idle
   const isWaiting = state === "waiting";
 
   async function handleCheckIn() {
@@ -51,11 +45,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, onComplet
 
           if (result.status === "waiting") {
             setState("waiting");
-            return;
-          }
-
-          if (result.status === "completed") {
-            onCompleted(result.result);
+            router.refresh();
             return;
           }
 
@@ -170,7 +160,6 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, onComplet
         <MapPin className="w-5 h-5" />
         Check In
       </Button>
-
     </div>
   );
 }

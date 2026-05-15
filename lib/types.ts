@@ -47,6 +47,33 @@ export interface Database {
         };
         Relationships: [];
       };
+      date_photos: {
+        Row: {
+          id: string;
+          date_idea_id: string;
+          profile_id: string;
+          uploader_user_id: string;
+          r2_key: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          date_idea_id: string;
+          profile_id: string;
+          uploader_user_id: string;
+          r2_key: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          date_idea_id?: string;
+          profile_id?: string;
+          uploader_user_id?: string;
+          r2_key?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       couple_members: {
         Row: {
           profile_id: string;

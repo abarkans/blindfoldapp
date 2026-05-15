@@ -17,11 +17,13 @@ import { getCompletionResult } from "@/app/actions/get-completion-result";
 import { acceptDate } from "@/app/actions/accept-date";
 import { rerollDate } from "@/app/actions/reroll";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
+import { skipCheckIn } from "@/app/actions/check-in";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import CheckInButton from "@/components/dashboard/CheckInButton";
 import HomeDateCard from "@/components/dashboard/HomeDateCard";
 import LocationPickerModal from "@/components/dashboard/LocationPickerModal";
+import PhotoChallenge from "@/components/dashboard/PhotoChallenge";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
 import { type UnitSystem, getCurrencySymbol, formatBudgetRange } from "@/lib/units";
 
@@ -118,6 +120,9 @@ interface DateCardProps {
   dateIdea: DateIdea | null;
   dateTeaser: DateTeaser | null;
   isDateCompleted: boolean;
+  dateIdeaId: string | null;
+  myUserId: string;
+  profileId: string;
   onGoToProgress: () => void;
   planType: string;
   totalRerollsUsed: number;
@@ -302,6 +307,9 @@ export default function DateCard({
   dateIdea,
   dateTeaser,
   isDateCompleted,
+  dateIdeaId,
+  myUserId,
+  profileId,
   onGoToProgress,
   planType,
   totalRerollsUsed,
@@ -324,6 +332,7 @@ export default function DateCard({
   const [isPending, startTransition] = useTransition();
   const [isCompletePending, startCompleteTransition] = useTransition();
   const [isRerollPending, startRerollTransition] = useTransition();
+  const [isSkipPending, startSkipTransition] = useTransition();
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
@@ -333,7 +342,6 @@ export default function DateCard({
   const [completed, setCompleted] = useState(isDateCompleted);
   const wasCompletedOnMountRef = useRef(isDateCompleted);
   const completionFetchedRef = useRef(false);
-  const autoCompleteCalledRef = useRef(false);
   const [accepted, setAccepted] = useState(!!dateAcceptedAt);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
   const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
@@ -344,7 +352,6 @@ export default function DateCard({
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
   const [localRevealReady, setLocalRevealReady] = useState(false);
-  const [checkinSkipped, setCheckinSkipped] = useState(false);
   const [skipDialogOpen, setSkipDialogOpen] = useState(false);
   const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
   const [locationPickerOpen, setLocationPickerOpen] = useState(false);
@@ -407,18 +414,6 @@ export default function DateCard({
     prevCanRevealRef.current = canReveal;
   }, [canReveal, router]);
 
-  // Auto-complete when both partners checked in but completion hasn't fired yet.
-  // This handles cases where check-ins arrive via polling (no direct CheckInButton action).
-  useEffect(() => {
-    if (!myCheckedIn || !partnerCheckedIn || completed) {
-      autoCompleteCalledRef.current = false;
-      return;
-    }
-    if (!showCheckinFlow || autoCompleteCalledRef.current) return;
-    autoCompleteCalledRef.current = true;
-    handleComplete();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showCheckinFlow, myCheckedIn, partnerCheckedIn, completed]);
   const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
   const otherPartnerReady = memberRole === "owner" ? !!partnerReadyAt : !!ownerReadyAt;
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
@@ -614,6 +609,14 @@ export default function DateCard({
       } catch (e) {
         setError(e instanceof Error ? e.message : "Something went wrong");
       }
+    });
+  }
+
+  function handleSkipCheckIn() {
+    setSkipDialogOpen(false);
+    startSkipTransition(async () => {
+      await skipCheckIn();
+      router.refresh();
     });
   }
 
@@ -964,16 +967,26 @@ export default function DateCard({
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {showCheckinFlow ? (
                       myCheckedIn && partnerCheckedIn ? (
-                        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30">
-                          <motion.div
-                            className="w-3.5 h-3.5 rounded-full border-2 border-emerald-400/40 border-t-emerald-400"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                        isCompletePending ? (
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
+                            <motion.div
+                              className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                            />
+                            <span className="text-sm font-semibold text-green-300">Saving...</span>
+                          </div>
+                        ) : dateIdeaId ? (
+                          <PhotoChallenge
+                            dateIdeaId={dateIdeaId}
+                            profileId={profileId}
+                            myUserId={myUserId}
+                            dateName={dateIdea.display_name}
+                            planType={planType}
+                            onComplete={handleComplete}
+                            onSkip={handleComplete}
                           />
-                          <span className="text-sm font-semibold text-emerald-300">
-                            Both checked in — completing…
-                          </span>
-                        </div>
+                        ) : null
                       ) : myCheckedIn && !partnerCheckedIn ? (
                         <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
                           <motion.div
@@ -985,34 +998,21 @@ export default function DateCard({
                             Waiting for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}…
                           </span>
                         </div>
-                      ) : checkinSkipped ? (
-                        isCompletePending ? (
-                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
-                            <motion.div
-                              className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
-                            />
-                            <span className="text-sm font-semibold text-green-300">Saving...</span>
-                          </div>
-                        ) : (
-                          <>
-                            <HoldToCompleteButton onComplete={handleComplete} />
-                            <p className="text-center text-xs text-white/50 mt-1.5">Press and hold to confirm</p>
-                          </>
-                        )
+                      ) : isSkipPending ? (
+                        <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                          <motion.div
+                            className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span className="text-sm font-semibold text-white/60">Recording…</span>
+                        </div>
                       ) : (
                         <>
                           <CheckInButton
                             partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
                             partnerCheckedIn={partnerCheckedIn}
                             unitSystem={unitSystem}
-                            onCompleted={(result) => {
-                              setCompleted(true);
-                              setModalData(result);
-                              router.refresh();
-                              ph?.capture("date_completed", { plan_type: planType, method: "checkin" });
-                            }}
                           />
                           <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
                             Skip
@@ -1028,6 +1028,16 @@ export default function DateCard({
                         />
                         <span className="text-sm font-semibold text-green-300">Saving...</span>
                       </div>
+                    ) : dateIdeaId ? (
+                      <PhotoChallenge
+                        dateIdeaId={dateIdeaId}
+                        profileId={profileId}
+                        myUserId={myUserId}
+                        dateName={dateIdea.display_name}
+                        planType={planType}
+                        onComplete={handleComplete}
+                        onSkip={handleComplete}
+                      />
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />
@@ -1039,21 +1049,36 @@ export default function DateCard({
                 ) : isHomeDateIdea ? (
                   /* ── ACCEPTED HOME DATE ── */
                   <>
-                    <HomeDateCard
-                      idea={dateIdea as AIDateIdea & { location_type: "home" }}
-                      partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
-                      myCheckedIn={myCheckedIn}
-                      partnerCheckedIn={partnerCheckedIn}
-                      unitSystem={unitSystem}
-                      onCompleted={(result) => {
-                        setCompleted(true);
-                        setModalData(result);
-                        router.refresh();
-                        ph?.capture("date_completed", { plan_type: planType, method: "home_sync" });
-                      }}
-                      onHoldComplete={handleComplete}
-                      showComplete={isCompletePending}
-                    />
+                    {myCheckedIn && partnerCheckedIn ? (
+                      isCompletePending ? (
+                        <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
+                          <motion.div
+                            className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span className="text-sm font-semibold text-green-300">Saving...</span>
+                        </div>
+                      ) : dateIdeaId ? (
+                        <PhotoChallenge
+                          dateIdeaId={dateIdeaId}
+                          profileId={profileId}
+                          myUserId={myUserId}
+                          dateName={(dateIdea as AIDateIdea).title}
+                          planType={planType}
+                          onComplete={handleComplete}
+                          onSkip={handleComplete}
+                        />
+                      ) : null
+                    ) : (
+                      <HomeDateCard
+                        idea={dateIdea as AIDateIdea & { location_type: "home" }}
+                        partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
+                        myCheckedIn={myCheckedIn}
+                        partnerCheckedIn={partnerCheckedIn}
+                        unitSystem={unitSystem}
+                      />
+                    )}
                     {error && <p className="text-xs text-red-400 mt-3 text-center">{error}</p>}
                   </>
 
@@ -1117,6 +1142,16 @@ export default function DateCard({
                         />
                         <span className="text-sm font-semibold text-green-300">Saving...</span>
                       </div>
+                    ) : dateIdeaId ? (
+                      <PhotoChallenge
+                        dateIdeaId={dateIdeaId}
+                        profileId={profileId}
+                        myUserId={myUserId}
+                        dateName={(dateIdea as AIDateIdea).title}
+                        planType={planType}
+                        onComplete={handleComplete}
+                        onSkip={handleComplete}
+                      />
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />
@@ -1269,7 +1304,7 @@ export default function DateCard({
           <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
             Never mind
           </Button>
-          <Button type="button" variant="ghost" onClick={() => { setSkipDialogOpen(false); setCheckinSkipped(true); }} className="w-full">
+          <Button type="button" variant="ghost" onClick={handleSkipCheckIn} className="w-full">
             Skip anyway
           </Button>
         </div>

@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Timer, Wallet, CheckCircle2, AlertCircle, PackageCheck, Target, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { homeCheckIn } from "@/app/actions/home-checkin";
-import type { CompleteDateResult } from "@/lib/types";
 import { type UnitSystem, formatBudgetRange } from "@/lib/units";
 
 interface HomeDateIdea {
@@ -27,12 +27,12 @@ interface HomeSyncButtonProps {
   partnerName: string;
   partnerCheckedIn: boolean;
   myCheckedIn: boolean;
-  onCompleted: (result: CompleteDateResult) => void;
 }
 
 const HOLD_DURATION = 1300;
 
-function HomeSyncButton({ partnerName, partnerCheckedIn, myCheckedIn, onCompleted }: HomeSyncButtonProps) {
+function HomeSyncButton({ partnerName, partnerCheckedIn, myCheckedIn }: HomeSyncButtonProps) {
+  const router = useRouter();
   const [state, setState] = useState<HomeCheckinState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [progress, setProgress] = useState(0);
@@ -78,9 +78,16 @@ function HomeSyncButton({ partnerName, partnerCheckedIn, myCheckedIn, onComplete
     setState("checking");
     try {
       const result = await homeCheckIn();
-      if (result.status === "waiting") { setState("waiting"); return; }
-      if (result.status === "completed") { onCompleted(result.result); return; }
-      if (result.status === "error") { setErrorMsg(result.error); setState("error"); return; }
+      if (result.status === "waiting") {
+        setState("waiting");
+        router.refresh();
+        return;
+      }
+      if (result.status === "error") {
+        setErrorMsg(result.error);
+        setState("error");
+        return;
+      }
     } catch {
       setErrorMsg("Something went wrong. Please try again.");
       setState("error");
@@ -98,7 +105,7 @@ function HomeSyncButton({ partnerName, partnerCheckedIn, myCheckedIn, onComplete
           />
           <span className="text-sm font-semibold text-amber-300">Waiting for {partnerName}…</span>
         </div>
-        <p className="text-center text-[10px] text-white/30">Both partners must hold to mark as done</p>
+        <p className="text-center text-[10px] text-white/30">Both partners must hold to check in</p>
       </div>
     );
   }
@@ -116,14 +123,14 @@ function HomeSyncButton({ partnerName, partnerCheckedIn, myCheckedIn, onComplete
     );
   }
 
-  const holdLabel = isPressing ? (progress > 0.75 ? "Almost there…" : "Keep holding…") : "Hold to mark as done";
+  const holdLabel = isPressing ? (progress > 0.75 ? "Almost there…" : "Keep holding…") : "Hold to check in";
 
   return (
     <div className="flex flex-col gap-2">
       {partnerCheckedIn && state !== "error" && (
         <div className="flex items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2.5">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <p className="text-xs text-emerald-300 font-medium">{partnerName} is done — your turn!</p>
+          <p className="text-xs text-emerald-300 font-medium">{partnerName} is ready — your turn!</p>
         </div>
       )}
       {state === "error" && errorMsg && (
@@ -152,7 +159,7 @@ function HomeSyncButton({ partnerName, partnerCheckedIn, myCheckedIn, onComplete
           <span className={`text-sm font-semibold transition-colors duration-150 ${progress > 0.5 ? "text-white" : "text-green-300"}`}>{holdLabel}</span>
         </div>
       </button>
-      <p className="text-center text-xs text-white/50">Press and hold to confirm</p>
+      <p className="text-center text-xs text-white/50">Press and hold to check in</p>
     </div>
   );
 }
@@ -163,9 +170,6 @@ interface HomeDateCardProps {
   myCheckedIn: boolean;
   partnerCheckedIn: boolean;
   unitSystem?: UnitSystem;
-  onCompleted: (result: CompleteDateResult) => void;
-  onHoldComplete: () => void;
-  showComplete: boolean;
 }
 
 export default function HomeDateCard({
@@ -174,9 +178,6 @@ export default function HomeDateCard({
   myCheckedIn,
   partnerCheckedIn,
   unitSystem = "metric",
-  onCompleted,
-  onHoldComplete,
-  showComplete,
 }: HomeDateCardProps) {
   const [expandedSection, setExpandedSection] = useState<"steps" | "preparation" | null>(null);
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
@@ -272,7 +273,7 @@ export default function HomeDateCard({
         </div>
       )}
 
-      {/* The Plan — collapsible */}
+      {/* The Plan */}
       {idea.steps && idea.steps.length > 0 && (
         <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden">
           <button
@@ -310,19 +311,12 @@ export default function HomeDateCard({
         </div>
       )}
 
-      {/* Sync check-in or complete */}
-      {showComplete ? (
-        <div className="text-center text-xs text-white/40 py-2">
-          Use the hold button below to mark your date complete.
-        </div>
-      ) : (
-        <HomeSyncButton
-          partnerName={partnerName}
-          partnerCheckedIn={partnerCheckedIn}
-          myCheckedIn={myCheckedIn}
-          onCompleted={onCompleted}
-        />
-      )}
+      {/* Check-in sync */}
+      <HomeSyncButton
+        partnerName={partnerName}
+        partnerCheckedIn={partnerCheckedIn}
+        myCheckedIn={myCheckedIn}
+      />
     </div>
   );
 }

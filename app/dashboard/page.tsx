@@ -6,6 +6,7 @@ import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import { getUnitSystem } from "@/lib/get-unit-system";
 import { signPlacePhotoUrl } from "@/lib/place-photo-token";
 import DevPanel from "@/components/dev/DevPanel";
+import { getDateHistory } from "@/app/actions/photo";
 
 export default async function DashboardPage() {
   const { supabase, user } = await getClientAndUser();
@@ -28,6 +29,8 @@ export default async function DashboardPage() {
       .limit(1)
       .maybeSingle(),
   ]);
+
+  const historyPromise = getDateHistory();
 
   const earnedBadgesPromise = (async () => {
     try {
@@ -69,7 +72,11 @@ export default async function DashboardPage() {
       <DashboardTabs
         profile={profile}
         earnedBadgesPromise={earnedBadgesPromise}
+        historyPromise={historyPromise}
         isDateCompleted={latestDateIdea?.status === "completed" || (!profile.date_idea && !latestDateIdea)}
+        dateIdeaId={latestDateIdea?.id ?? null}
+        myUserId={user.id}
+        profileId={access.profileId}
         unitSystem={unitSystem}
         memberRole={access.role}
         partnerInviteStatus={partnerInviteStatus}
