@@ -69,30 +69,56 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
         session.mode === "subscription" &&
         session.metadata?.user_id === user.id
       ) {
-        const customerId = typeof session.customer === "string" ? session.customer : null;
-        const rawCadence = session.metadata?.cadence;
-        const checkoutCadence =
-          rawCadence === "weekly" || rawCadence === "biweekly" || rawCadence === "monthly"
-            ? rawCadence
-            : undefined;
+        // Verify the subscription is still active — session.status === "complete" only
+        // means the checkout was completed, not that the subscription is current. Without
+        // this check a cancelled subscriber could replay their old session_id to re-upgrade
+        // for free.
+        const subId = typeof session.subscription === "string"
+          ? session.subscription
+          : (session.subscription as { id?: string } | null)?.id ?? null;
 
-        const { data: updatedProfile, error: checkoutProfileError } = await admin
-          .from("profiles")
-          .update({
-            plan_type: "subscription",
-            ...(customerId ? { stripe_customer_id: customerId } : {}),
-            ...(checkoutCadence ? { cadence: checkoutCadence } : {}),
-          })
-          .eq("id", user.id)
-          .select("plan_type, partner_names, cadence, stripe_customer_id")
-          .single();
+        let subActive = false;
+        if (subId) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(subId);
+            subActive = sub.status === "active" || sub.status === "trialing";
+          } catch (subErr) {
+            console.error(
+              `[audit] finish-onboarding: subscription retrieve failed uid=${user.id} sub=${subId} msg=${subErr instanceof Error ? subErr.message : String(subErr)}`
+            );
+          }
+        }
 
-        if (checkoutProfileError) {
-          console.error(
-            `[audit] finish-onboarding: checkout profile update failed uid=${user.id} msg=${checkoutProfileError.message}`
-          );
+        if (subActive) {
+          const customerId = typeof session.customer === "string" ? session.customer : null;
+          const rawCadence = session.metadata?.cadence;
+          const checkoutCadence =
+            rawCadence === "weekly" || rawCadence === "biweekly" || rawCadence === "monthly"
+              ? rawCadence
+              : undefined;
+
+          const { data: updatedProfile, error: checkoutProfileError } = await admin
+            .from("profiles")
+            .update({
+              plan_type: "subscription",
+              ...(customerId ? { stripe_customer_id: customerId } : {}),
+              ...(checkoutCadence ? { cadence: checkoutCadence } : {}),
+            })
+            .eq("id", user.id)
+            .select("plan_type, partner_names, cadence, stripe_customer_id")
+            .single();
+
+          if (checkoutProfileError) {
+            console.error(
+              `[audit] finish-onboarding: checkout profile update failed uid=${user.id} msg=${checkoutProfileError.message}`
+            );
+          } else {
+            profile = updatedProfile;
+          }
         } else {
-          profile = updatedProfile;
+          console.warn(
+            `[audit] finish-onboarding: session replay rejected — subscription not active uid=${user.id} sub=${subId}`
+          );
         }
       }
     } catch (error) {

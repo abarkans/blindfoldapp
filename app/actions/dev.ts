@@ -11,10 +11,7 @@ export type DevResult = { ok: boolean; message?: string };
 export type DevCompleteResult = DevResult & { completionData?: CompleteDateResult };
 
 function devGate() {
-  if (
-    process.env.NODE_ENV === "production" &&
-    process.env.DEV_PANEL_ENABLED !== "true"
-  ) {
+  if (process.env.NODE_ENV === "production") {
     throw new Error("Dev actions unavailable in production");
   }
 }
