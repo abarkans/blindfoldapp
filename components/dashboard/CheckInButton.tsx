@@ -102,11 +102,11 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, unitSyste
             transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
           />
           <span className="text-sm font-semibold text-amber-300">
-            Waiting for {partnerName}
+            Waiting for {partnerName}…
           </span>
         </div>
         <p className="text-center text-[10px] text-white/30">
-          They&apos;ll get a nudge to check in too
+          Waiting for {partnerName} to arrive
         </p>
       </div>
     );
@@ -120,7 +120,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, unitSyste
           animate={{ rotate: 360 }}
           transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
         />
-        <span className="text-sm font-semibold text-rose-300">Verifying location…</span>
+        <span className="text-sm font-semibold text-rose-300">Checking…</span>
       </div>
     );
   }
@@ -133,7 +133,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, unitSyste
           animate={{ rotate: 360 }}
           transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
         />
-        <span className="text-sm font-semibold text-white/60">Getting location…</span>
+        <span className="text-sm font-semibold text-white/60">Finding you…</span>
       </div>
     );
   }
@@ -144,7 +144,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, unitSyste
         <div className="flex items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2.5">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
           <p className="text-xs text-emerald-300 font-medium">
-            {partnerName} is already there — your turn!
+            {partnerName}&apos;s here — your turn
           </p>
         </div>
       )}
@@ -158,7 +158,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, unitSyste
 
       <Button onClick={handleCheckIn} size="lg" className="w-full gap-2">
         <MapPin className="w-5 h-5" />
-        Check In
+        I&apos;m here
       </Button>
     </div>
   );

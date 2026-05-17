@@ -614,7 +614,7 @@ function ProgressUpsell({
     <div>
       <div className="mb-10">
         <h2 className="text-2xl font-bold text-white">
-          {hasHistory ? "Your progress is paused" : "Track every date. Earn badges."}
+          {hasHistory ? "Your progress is paused" : "Every date counts."}
         </h2>
         <p className="text-white/55 text-sm mt-1">
           {hasHistory

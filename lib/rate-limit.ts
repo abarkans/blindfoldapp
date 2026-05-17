@@ -145,3 +145,12 @@ export async function checkReadyRateLimit(userId: string): Promise<void> {
 export async function checkCheckInRateLimit(userId: string): Promise<void> {
   await check(`checkin:${userId}`, 10, 60, false);
 }
+
+/**
+ * Enforce per-user rate limits on R2 presign requests.
+ * Limit: 10 per 60 seconds. Fails closed: each presign enables a direct R2 upload,
+ * so unmetered requests are a storage/bandwidth cost vector.
+ */
+export async function checkPresignRateLimit(userId: string): Promise<void> {
+  await check(`presign:${userId}`, 10, 60, true);
+}

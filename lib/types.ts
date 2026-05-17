@@ -53,7 +53,8 @@ export interface Database {
           date_idea_id: string;
           profile_id: string;
           uploader_user_id: string;
-          r2_key: string;
+          r2_key: string | null;
+          skipped: boolean;
           created_at: string;
         };
         Insert: {
@@ -61,7 +62,8 @@ export interface Database {
           date_idea_id: string;
           profile_id: string;
           uploader_user_id: string;
-          r2_key: string;
+          r2_key?: string | null;
+          skipped?: boolean;
           created_at?: string;
         };
         Update: {
@@ -69,7 +71,8 @@ export interface Database {
           date_idea_id?: string;
           profile_id?: string;
           uploader_user_id?: string;
-          r2_key?: string;
+          r2_key?: string | null;
+          skipped?: boolean;
           created_at?: string;
         };
         Relationships: [];

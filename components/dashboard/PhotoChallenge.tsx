@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Download, Upload, CheckCircle2, Users, X } from "lucide-react";
+import { Camera, CheckCircle2, Users, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { savePhoto, getPhotosForDate, type DatePhoto } from "@/app/actions/photo";
+import { savePhoto, skipPhoto, getPhotosForDate, type DatePhoto } from "@/app/actions/photo";
 
 interface PhotoChallengeProps {
   dateIdeaId: string;
@@ -15,38 +17,38 @@ interface PhotoChallengeProps {
   dateName: string;
   planType: string;
   onComplete?: () => void;
-  onSkip?: () => void;
 }
 
 // Canvas: draw photo + branded overlay, return JPEG blob (EXIF stripped via re-encode)
 async function buildMemoryCard(file: File, dateName: string): Promise<Blob> {
-  const SIZE = 1080;
+  const W = 1080;
+  const H = 1440; // 3:4 portrait
   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
 
   const canvas = document.createElement("canvas");
-  canvas.width = SIZE;
-  canvas.height = SIZE;
+  canvas.width = W;
+  canvas.height = H;
   const ctx = canvas.getContext("2d")!;
 
-  // Crop to square, center
-  const scale = Math.max(SIZE / bitmap.width, SIZE / bitmap.height);
+  // Cover-crop to 2:3, center
+  const scale = Math.max(W / bitmap.width, H / bitmap.height);
   const w = bitmap.width * scale;
   const h = bitmap.height * scale;
-  ctx.drawImage(bitmap, (SIZE - w) / 2, (SIZE - h) / 2, w, h);
+  ctx.drawImage(bitmap, (W - w) / 2, (H - h) / 2, w, h);
   bitmap.close();
 
   // Bottom gradient bar
-  const grad = ctx.createLinearGradient(0, SIZE - 180, 0, SIZE);
+  const grad = ctx.createLinearGradient(0, H - 180, 0, H);
   grad.addColorStop(0, "rgba(0,0,0,0)");
   grad.addColorStop(1, "rgba(0,0,0,0.82)");
   ctx.fillStyle = grad;
-  ctx.fillRect(0, SIZE - 180, SIZE, 180);
+  ctx.fillRect(0, H - 180, W, 180);
 
   // Logo
   await new Promise<void>((resolve) => {
     const logo = new window.Image();
     logo.onload = () => {
-      ctx.drawImage(logo, 32, SIZE - 110, 72, 72);
+      ctx.drawImage(logo, 32, H - 110, 72, 72);
       resolve();
     };
     logo.onerror = () => resolve();
@@ -56,23 +58,29 @@ async function buildMemoryCard(file: File, dateName: string): Promise<Blob> {
   // Date name
   ctx.fillStyle = "rgba(255,255,255,0.90)";
   ctx.font = "bold 42px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText(dateName.slice(0, 28), 120, SIZE - 62);
+  ctx.fillText(dateName.slice(0, 28), 120, H - 62);
 
   // blindfolddate.com watermark
   ctx.fillStyle = "rgba(255,255,255,0.38)";
   ctx.font = "22px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("blindfolddate.com", 120, SIZE - 30);
+  ctx.fillText("blindfolddate.com", 120, H - 30);
 
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("Canvas toBlob failed"))),
-      "image/jpeg",
-      0.88
+  const tryEncode = (quality: number) =>
+    new Promise<Blob>((resolve, reject) =>
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("Canvas toBlob failed"))),
+        "image/jpeg",
+        quality
+      )
     );
-  });
+
+  let blob = await tryEncode(0.88);
+  if (blob.size > 3 * 1024 * 1024) blob = await tryEncode(0.72);
+  if (blob.size > 3 * 1024 * 1024) blob = await tryEncode(0.55);
+  return blob;
 }
 
-type UploadState = "idle" | "processing" | "uploading" | "done" | "error";
+type UploadState = "idle" | "processing" | "uploading" | "skipping" | "done" | "error";
 
 export default function PhotoChallenge({
   dateIdeaId,
@@ -81,8 +89,8 @@ export default function PhotoChallenge({
   dateName,
   planType,
   onComplete,
-  onSkip,
 }: PhotoChallengeProps) {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [uploadError, setUploadError] = useState("");
@@ -104,7 +112,7 @@ export default function PhotoChallenge({
     fetchPhotos();
   }, [fetchPhotos]);
 
-  // Realtime: listen for partner photo uploads
+  // Realtime: listen for partner photo uploads and trigger refresh when date completes
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -117,12 +125,15 @@ export default function PhotoChallenge({
           table: "date_photos",
           filter: `profile_id=eq.${profileId}`,
         },
-        () => fetchPhotos()
+        () => {
+          fetchPhotos();
+          router.refresh();
+        }
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [dateIdeaId, profileId, fetchPhotos]);
+  }, [dateIdeaId, profileId, fetchPhotos, router]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -146,6 +157,13 @@ export default function PhotoChallenge({
 
   async function handleUpload() {
     if (!pendingBlob) return;
+
+    if (pendingBlob.size > 8 * 1024 * 1024) {
+      setUploadError("Image too large to upload. Try a different photo.");
+      setUploadState("error");
+      return;
+    }
+
     setUploadState("uploading");
     setUploadError("");
 
@@ -177,15 +195,33 @@ export default function PhotoChallenge({
         setPreview(null);
       }
       setPendingBlob(null);
-
-      if (onComplete) {
-        onComplete();
-      } else {
-        setUploadState("done");
-        await fetchPhotos();
-      }
+      setUploadState("done");
+      await fetchPhotos();
+      onComplete?.();
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
+      setUploadState("error");
+    }
+  }
+
+  async function handleSkip() {
+    setSkipDialogOpen(false);
+    setUploadState("skipping");
+    setUploadError("");
+
+    try {
+      const result = await skipPhoto(dateIdeaId);
+      if (result.error) {
+        setUploadError(result.error);
+        setUploadState("error");
+        return;
+      }
+
+      setUploadState("done");
+      await fetchPhotos();
+      onComplete?.();
+    } catch {
+      setUploadError("Something went wrong.");
       setUploadState("error");
     }
   }
@@ -198,18 +234,13 @@ export default function PhotoChallenge({
     setUploadError("");
   }
 
-  function handleDownload() {
-    if (!preview && !pendingBlob) return;
-    const src = preview ?? URL.createObjectURL(pendingBlob!);
-    const a = document.createElement("a");
-    a.href = src;
-    a.download = `blindfolddate-${dateName.replace(/\s+/g, "-")}.jpg`;
-    a.click();
-    if (!preview) URL.revokeObjectURL(src);
+  function handleRetake() {
+    handleDiscard();
+    fileInputRef.current?.click();
   }
 
   const isPaid = planType === "subscription";
-  const isInline = !!onComplete || !!onSkip;
+  const isInline = !!onComplete;
 
   return (
     <div className={isInline ? "mt-4" : "mt-4 rounded-3xl border border-white/16 bg-white/[0.035] p-5"}>
@@ -242,62 +273,61 @@ export default function PhotoChallenge({
         </div>
       )}
 
-      <AnimatePresence mode="wait">
-        {preview ? (
-          /* Preview + confirm/discard */
+      {preview && createPortal(
           <motion.div
-            key="preview"
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-start pt-10"
           >
-            <div className="relative rounded-2xl overflow-hidden mb-3 aspect-square">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={preview} alt="Memory card preview" className="w-full h-full object-cover" />
-            </div>
-            {uploadError && (
-              <p className="text-xs text-red-400 mb-2 text-center">{uploadError}</p>
-            )}
-            <div className="flex gap-2">
-              <button
-                onClick={handleDownload}
-                className="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-full border border-white/16 bg-white/[0.04] text-xs font-semibold text-white/70 hover:bg-white/[0.08] transition-all"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Save
-              </button>
-              <button
-                onClick={handleUpload}
-                disabled={uploadState === "uploading"}
-                className="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-full bg-rose-500 text-xs font-semibold text-white hover:bg-rose-400 transition-all disabled:opacity-60 active:scale-[0.98]"
-              >
-                {uploadState === "uploading" ? (
-                  <>
-                    <motion.div
-                      className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
-                    />
-                    Uploading…
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-3.5 h-3.5" />
-                    {isInline ? "Done — finish date" : "Share with partner"}
-                  </>
+            <div className="w-full max-w-sm px-3">
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={handleDiscard}
+                  disabled={uploadState === "uploading"}
+                  className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors disabled:opacity-40"
+                  aria-label="Discard photo"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </div>
+              {/* Photo — strict 3:4 */}
+              <div className="rounded-3xl overflow-hidden aspect-[3/4]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={preview} alt="Memory card preview" className="w-full h-full object-cover" />
+              </div>
+
+              {/* CTAs immediately below photo */}
+              <div className="pt-4 pb-2 flex flex-col gap-2">
+                {uploadError && (
+                  <p className="text-xs text-red-400 mb-1 text-center">{uploadError}</p>
                 )}
-              </button>
-              <button
-                onClick={handleDiscard}
-                className="w-10 h-10 rounded-full border border-white/16 bg-white/[0.04] flex items-center justify-center hover:bg-white/[0.08] transition-all"
-                aria-label="Discard"
-              >
-                <X className="w-4 h-4 text-white/50" />
-              </button>
+                <Button
+                  size="lg"
+                  className="w-full"
+                  onClick={handleUpload}
+                  loading={uploadState === "uploading"}
+                  disabled={uploadState === "uploading"}
+                >
+                  Looks good
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="w-full"
+                  onClick={handleRetake}
+                  disabled={uploadState === "uploading"}
+                >
+                  Retake photo
+                </Button>
+              </div>
             </div>
-          </motion.div>
-        ) : uploadState === "processing" ? (
+          </motion.div>,
+          document.body
+        )}
+
+      <AnimatePresence mode="wait">
+        {uploadState === "processing" ? (
           <motion.div key="processing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="flex items-center justify-center gap-2 h-12"
           >
@@ -308,12 +338,34 @@ export default function PhotoChallenge({
             />
             <span className="text-sm text-white/55">Building memory card…</span>
           </motion.div>
+        ) : uploadState === "skipping" ? (
+          <motion.div key="skipping" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex items-center justify-center gap-2 h-12"
+          >
+            <motion.div
+              className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white/60"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+            />
+            <span className="text-sm text-white/55">Saving…</span>
+          </motion.div>
         ) : alreadyUploaded && !isInline ? (
           <motion.div key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20"
           >
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span className="text-sm text-white/70">Your memory is saved</span>
+          </motion.div>
+        ) : alreadyUploaded && isInline ? (
+          <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/25"
+          >
+            <motion.div
+              className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+            />
+            <span className="text-sm text-amber-300">Waiting for partner…</span>
           </motion.div>
         ) : (
           <motion.div key="capture" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -335,11 +387,9 @@ export default function PhotoChallenge({
                   <Camera className="w-5 h-5" />
                   Capture the memory
                 </Button>
-                {onSkip && (
-                  <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
-                    Skip
-                  </Button>
-                )}
+                <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
+                  Skip
+                </Button>
               </>
             ) : (
               <button
@@ -363,23 +413,21 @@ export default function PhotoChallenge({
         onChange={handleFileChange}
       />
 
-      {onSkip && (
-        <Dialog open={skipDialogOpen} onClose={() => setSkipDialogOpen(false)} className="text-center">
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
-            <Camera className="w-5 h-5 text-rose-400" />
-          </div>
-          <h3 className="text-lg font-bold text-white mb-1">Skip photo?</h3>
-          <p className="text-sm text-white/55 mb-6">A photo turns tonight into a memory you can look back on — skip and the moment stays just in your heads.</p>
-          <div className="flex flex-col gap-2">
-            <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
-              Never mind
-            </Button>
-            <Button type="button" variant="ghost" onClick={onSkip} className="w-full">
-              Skip anyway
-            </Button>
-          </div>
-        </Dialog>
-      )}
+      <Dialog open={skipDialogOpen} onClose={() => setSkipDialogOpen(false)} className="text-center">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
+          <Camera className="w-5 h-5 text-rose-400" />
+        </div>
+        <h3 className="text-lg font-bold text-white mb-1">Skip photo?</h3>
+        <p className="text-sm text-white/55 mb-6">A photo turns tonight into a memory you can look back on — skip and the moment stays just in your heads.</p>
+        <div className="flex flex-col gap-2">
+          <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
+            Never mind
+          </Button>
+          <Button type="button" variant="ghost" onClick={handleSkip} className="w-full">
+            Skip anyway
+          </Button>
+        </div>
+      </Dialog>
     </div>
   );
 }

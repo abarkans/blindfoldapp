@@ -10,12 +10,16 @@ import {
   devSetCountdown1Min,
   devMockMyCheckin,
   devMockPartnerCheckin,
+  devMockBothCheckin,
   devMockBothCheckinAndComplete,
   devInstantComplete,
   devSetCompletionCount,
   devResetGamification,
   devTogglePlan,
   devResetRerolls,
+  devMockPhotoForHistory,
+  devClearPhotos,
+  devFullReset,
 } from "@/app/actions/dev";
 
 // ── Scenario Registry ──────────────────────────────────────────────────────────
@@ -24,7 +28,7 @@ import {
 //   2. Import it above
 //   3. Add one entry to SCENARIOS below
 
-type Category = "Date State" | "Check-in" | "Gamification" | "Plan & Limits";
+type Category = "Date State" | "Check-in" | "Photos" | "Gamification" | "Plan & Limits" | "Reset";
 
 type Scenario = {
   id: string;
@@ -89,11 +93,34 @@ const SCENARIOS: Scenario[] = [
     fn: devMockPartnerCheckin,
   },
   {
+    id: "mock_both_checkin",
+    label: "Both check-in → photo step",
+    description: "Set both timestamps → UI shows photo challenge (no completion)",
+    category: "Check-in",
+    fn: devMockBothCheckin,
+  },
+  {
     id: "mock_both_complete",
     label: "Both check-in + complete",
-    description: "Set both timestamps + trigger XP/badge modal",
+    description: "Set both timestamps + complete (bypasses photo step → XP/badge modal)",
     category: "Check-in",
     fn: devMockBothCheckinAndComplete,
+  },
+  // ── Photos ─────────────────────────────────────────────────────────────────
+  {
+    id: "mock_photo_history",
+    label: "Mock photo for history",
+    description: "Insert fake photo on completed date → visible in Scrapbook tab",
+    category: "Photos",
+    fn: devMockPhotoForHistory,
+  },
+  {
+    id: "clear_photos",
+    label: "Clear all photos",
+    description: "Delete all date_photos rows for this profile",
+    category: "Photos",
+    dangerous: true,
+    fn: devClearPhotos,
   },
   // ── Gamification ───────────────────────────────────────────────────────────
   {
@@ -154,13 +181,24 @@ const SCENARIOS: Scenario[] = [
     category: "Plan & Limits",
     fn: devResetRerolls,
   },
+  // ── Reset ──────────────────────────────────────────────────────────────────
+  {
+    id: "full_reset",
+    label: "Full profile reset",
+    description: "Clear dates, XP, badges, photos — keep preferences/settings",
+    category: "Reset",
+    dangerous: true,
+    fn: devFullReset,
+  },
 ];
 
 const CATEGORIES: Category[] = [
   "Date State",
   "Check-in",
+  "Photos",
   "Gamification",
   "Plan & Limits",
+  "Reset",
 ];
 
 type ScenarioState = "idle" | "loading" | "ok" | "error";

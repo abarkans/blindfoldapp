@@ -967,24 +967,14 @@ export default function DateCard({
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {showCheckinFlow ? (
                       myCheckedIn && partnerCheckedIn ? (
-                        isCompletePending ? (
-                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
-                            <motion.div
-                              className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
-                            />
-                            <span className="text-sm font-semibold text-green-300">Saving...</span>
-                          </div>
-                        ) : dateIdeaId ? (
+                        dateIdeaId ? (
                           <PhotoChallenge
                             dateIdeaId={dateIdeaId}
                             profileId={profileId}
                             myUserId={myUserId}
                             dateName={dateIdea.display_name}
                             planType={planType}
-                            onComplete={handleComplete}
-                            onSkip={handleComplete}
+                            onComplete={() => router.refresh()}
                           />
                         ) : null
                       ) : myCheckedIn && !partnerCheckedIn ? (
@@ -1019,6 +1009,15 @@ export default function DateCard({
                           </Button>
                         </>
                       )
+                    ) : dateIdeaId ? (
+                      <PhotoChallenge
+                        dateIdeaId={dateIdeaId}
+                        profileId={profileId}
+                        myUserId={myUserId}
+                        dateName={dateIdea.display_name}
+                        planType={planType}
+                        onComplete={() => router.refresh()}
+                      />
                     ) : isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
                         <motion.div
@@ -1028,16 +1027,6 @@ export default function DateCard({
                         />
                         <span className="text-sm font-semibold text-green-300">Saving...</span>
                       </div>
-                    ) : dateIdeaId ? (
-                      <PhotoChallenge
-                        dateIdeaId={dateIdeaId}
-                        profileId={profileId}
-                        myUserId={myUserId}
-                        dateName={dateIdea.display_name}
-                        planType={planType}
-                        onComplete={handleComplete}
-                        onSkip={handleComplete}
-                      />
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />
@@ -1050,24 +1039,14 @@ export default function DateCard({
                   /* ── ACCEPTED HOME DATE ── */
                   <>
                     {myCheckedIn && partnerCheckedIn ? (
-                      isCompletePending ? (
-                        <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
-                          <motion.div
-                            className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
-                          />
-                          <span className="text-sm font-semibold text-green-300">Saving...</span>
-                        </div>
-                      ) : dateIdeaId ? (
+                      dateIdeaId ? (
                         <PhotoChallenge
                           dateIdeaId={dateIdeaId}
                           profileId={profileId}
                           myUserId={myUserId}
                           dateName={(dateIdea as AIDateIdea).title}
                           planType={planType}
-                          onComplete={handleComplete}
-                          onSkip={handleComplete}
+                          onComplete={() => router.refresh()}
                         />
                       ) : null
                     ) : (
@@ -1133,7 +1112,16 @@ export default function DateCard({
                     </div>
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
-                    {isCompletePending ? (
+                    {dateIdeaId ? (
+                      <PhotoChallenge
+                        dateIdeaId={dateIdeaId}
+                        profileId={profileId}
+                        myUserId={myUserId}
+                        dateName={(dateIdea as AIDateIdea).title}
+                        planType={planType}
+                        onComplete={() => router.refresh()}
+                      />
+                    ) : isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
                         <motion.div
                           className="w-3.5 h-3.5 rounded-full border-2 border-green-400/40 border-t-green-400"
@@ -1142,16 +1130,6 @@ export default function DateCard({
                         />
                         <span className="text-sm font-semibold text-green-300">Saving...</span>
                       </div>
-                    ) : dateIdeaId ? (
-                      <PhotoChallenge
-                        dateIdeaId={dateIdeaId}
-                        profileId={profileId}
-                        myUserId={myUserId}
-                        dateName={(dateIdea as AIDateIdea).title}
-                        planType={planType}
-                        onComplete={handleComplete}
-                        onSkip={handleComplete}
-                      />
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />

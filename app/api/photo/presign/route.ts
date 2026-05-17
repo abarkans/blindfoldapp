@@ -5,10 +5,17 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getClientAndUser } from "@/lib/supabase/get-client-and-user";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { r2, R2_BUCKET } from "@/lib/r2";
+import { checkPresignRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   const { user } = await getClientAndUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    await checkPresignRateLimit(user.id);
+  } catch {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
 
   const body = await req.json().catch(() => null);
   const dateIdeaId: unknown = body?.dateIdeaId;

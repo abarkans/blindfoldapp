@@ -328,6 +328,149 @@ export async function devResetGamification(): Promise<DevResult> {
   return { ok: true, message: "XP, count, checkins, and badges reset" };
 }
 
+// ── Photos ────────────────────────────────────────────────────────────────────
+
+export async function devMockBothCheckin(): Promise<DevResult> {
+  devGate();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Not authenticated" };
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
+  const nowIso = new Date().toISOString();
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("date_idea, date_accepted_at")
+    .eq("id", access.profileId)
+    .single();
+
+  const idea = profile?.date_idea ?? STUB_DATE;
+
+  if (!profile?.date_accepted_at) {
+    await admin.from("date_ideas").delete()
+      .eq("user_id", access.profileId)
+      .in("status", ["pending", "revealed"]);
+    await admin.from("date_ideas").insert({
+      user_id: access.profileId,
+      idea,
+      status: "revealed",
+      revealed_at: nowIso,
+      location_type: "outside",
+    });
+    await admin.from("profiles").update({
+      date_idea: idea,
+      date_teaser: STUB_TEASER,
+      revealed_at: nowIso,
+      date_accepted_at: nowIso,
+    }).eq("id", access.profileId);
+  } else {
+    const { data: existingRevealed } = await admin
+      .from("date_ideas")
+      .select("id")
+      .eq("user_id", access.profileId)
+      .eq("status", "revealed")
+      .limit(1)
+      .maybeSingle();
+    if (!existingRevealed) {
+      await admin.from("date_ideas").insert({
+        user_id: access.profileId,
+        idea,
+        status: "revealed",
+        revealed_at: nowIso,
+        location_type: "outside",
+      });
+    }
+  }
+
+  await admin.from("profiles").update({
+    checkin_owner_at: nowIso,
+    checkin_partner_at: nowIso,
+  }).eq("id", access.profileId);
+
+  revalidatePath("/dashboard");
+  return { ok: true, message: "Both checked in → photo challenge visible" };
+}
+
+export async function devMockPhotoForHistory(): Promise<DevResult> {
+  devGate();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Not authenticated" };
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
+  const nowIso = new Date().toISOString();
+
+  let { data: completedDate } = await admin
+    .from("date_ideas")
+    .select("id")
+    .eq("user_id", access.profileId)
+    .eq("status", "completed")
+    .limit(1)
+    .maybeSingle();
+
+  if (!completedDate) {
+    const { data: inserted } = await admin.from("date_ideas").insert({
+      user_id: access.profileId,
+      idea: STUB_DATE,
+      status: "completed",
+      revealed_at: nowIso,
+      location_type: "outside",
+    }).select("id").single();
+    completedDate = inserted;
+  }
+
+  if (!completedDate) return { ok: false, message: "Could not find or create completed date" };
+
+  const { error } = await admin.from("date_photos").upsert({
+    date_idea_id: completedDate.id,
+    profile_id: access.profileId,
+    uploader_user_id: user.id,
+    r2_key: "photos/dev/placeholder.jpg",
+  }, { onConflict: "date_idea_id,uploader_user_id" });
+
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/dashboard");
+  return { ok: true, message: "Fake photo added to history tab" };
+}
+
+export async function devClearPhotos(): Promise<DevResult> {
+  devGate();
+  const { admin, access } = await getContext();
+  await admin.from("date_photos").delete().eq("profile_id", access.profileId);
+  revalidatePath("/dashboard");
+  return { ok: true, message: "All photos cleared" };
+}
+
+export async function devFullReset(): Promise<DevResult> {
+  devGate();
+  const { admin, access } = await getContext();
+
+  await admin.from("profiles").update({
+    date_idea: null,
+    date_teaser: null,
+    revealed_at: null,
+    date_accepted_at: null,
+    reveal_owner_ready_at: null,
+    reveal_partner_ready_at: null,
+    checkin_owner_at: null,
+    checkin_partner_at: null,
+    current_date_rerolled: false,
+    dates_completed_count: 0,
+    total_xp: 0,
+    total_checkins: 0,
+    total_rerolls_used: 0,
+  }).eq("id", access.profileId);
+
+  await admin.from("date_ideas").delete().eq("user_id", access.profileId);
+  await admin.from("date_photos").delete().eq("profile_id", access.profileId);
+  await admin.from("user_badges").delete().eq("user_id", access.profileId);
+
+  revalidatePath("/dashboard");
+  return { ok: true, message: "Profile fully reset (preferences kept)" };
+}
+
 // ── Plan & Limits ─────────────────────────────────────────────────────────────
 
 export async function devTogglePlan(): Promise<DevResult> {
