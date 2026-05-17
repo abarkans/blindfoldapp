@@ -33,6 +33,17 @@ export async function homeCheckIn(): Promise<CheckInResult> {
   if (profileError || !profile) return { status: "error", error: "Profile not found" };
   if (!profile.date_accepted_at) return { status: "error", error: "Date not revealed yet" };
 
+  const { data: activeIdea } = await admin
+    .from("date_ideas")
+    .select("id, location_type")
+    .eq("user_id", access.profileId)
+    .eq("status", "revealed")
+    .maybeSingle();
+
+  if (!activeIdea || activeIdea.location_type !== "home") {
+    return { status: "error", error: "No active home date found" };
+  }
+
   const alreadyCheckedIn =
     access.role === "owner" ? !!profile.checkin_owner_at : !!profile.checkin_partner_at;
 

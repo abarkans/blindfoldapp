@@ -21,6 +21,27 @@ export default async function UpgradePage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || session.metadata?.user_id !== user.id) redirect("/dashboard");
 
+  // Verify the underlying subscription is still active — session.status === "complete"
+  // stays "complete" permanently, so a cancelled subscriber could replay this URL to
+  // re-upgrade for free. This is the same check used in finish-onboarding.ts.
+  const subId = typeof session.subscription === "string"
+    ? session.subscription
+    : (session.subscription as { id?: string } | null)?.id ?? null;
+
+  let subActive = false;
+  if (subId) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(subId);
+      subActive = sub.status === "active" || sub.status === "trialing";
+    } catch (subErr) {
+      console.error(
+        `[audit] upgrade: subscription retrieve failed uid=${user.id} sub=${subId} msg=${subErr instanceof Error ? subErr.message : String(subErr)}`
+      );
+    }
+  }
+
+  if (!subActive) redirect("/dashboard");
+
   const admin = createAdminClient();
   const access = await getCoupleAccess(admin, user.id);
 

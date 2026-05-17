@@ -12,7 +12,7 @@ function PageViewTracker({ ph }: { ph: PostHog }) {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    ph.capture("$pageview", { $current_url: window.location.href });
+    ph.capture("$pageview", { $current_url: window.location.pathname });
   }, [pathname, searchParams, ph]);
 
   return null;
