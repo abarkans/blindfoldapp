@@ -170,7 +170,7 @@ export default function PhotoChallenge({
   async function handleUpload() {
     if (!pendingBlob) return;
 
-    if (pendingBlob.size > 8 * 1024 * 1024) {
+    if (pendingBlob.size > 5 * 1024 * 1024) {
       setUploadError("Image too large to upload. Try a different photo.");
       setUploadState("error");
       return;

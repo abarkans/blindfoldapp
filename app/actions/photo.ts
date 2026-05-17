@@ -5,6 +5,10 @@ import { getClientAndUser } from "@/lib/supabase/get-client-and-user";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { revalidatePath } from "next/cache";
 import { completeDate } from "@/app/actions/complete-date";
+import { HeadObjectCommand } from "@aws-sdk/client-s3";
+import { r2, R2_BUCKET } from "@/lib/r2";
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5 MB
 
 export interface DatePhoto {
   id: string;
@@ -134,6 +138,16 @@ export async function savePhoto(
     `^photos/${access.profileId}/${dateIdeaId}/${user.id}_\\d+\\.jpg$`
   );
   if (!keyPattern.test(r2Key)) return { error: "Invalid photo key" };
+
+  // Verify the object actually exists in R2 and is within the size cap.
+  // Rejects keys submitted without a real upload and enforces the 5 MB limit.
+  try {
+    const head = await r2.send(new HeadObjectCommand({ Bucket: R2_BUCKET, Key: r2Key }));
+    if (!head.ContentLength || head.ContentLength === 0) return { error: "Photo upload appears empty" };
+    if (head.ContentLength > MAX_PHOTO_BYTES) return { error: "Photo exceeds 5 MB limit" };
+  } catch {
+    return { error: "Photo not found — upload may have failed" };
+  }
 
   const { error } = await admin.from("date_photos").insert({
     date_idea_id: dateIdeaId,

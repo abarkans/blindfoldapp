@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   // Badges are only needed for the Progress tab — fire the query without awaiting so
   // the page shell can stream while badges resolve in the background.
   const [{ data: profile }, { data: latestDateIdea }] = await Promise.all([
-    admin.from("profiles").select("id, partner_names, interests, constraints, plan_type, cadence, date_idea, date_teaser, last_lat, last_long, preferred_radius, onboarding_complete, revealed_at, total_rerolls_used, current_date_rerolled, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at, total_xp, dates_completed_count, subscription_ends_at, notification_sent_at, stripe_customer_id, checkin_owner_at, checkin_partner_at, checkin_owner_skipped, checkin_partner_skipped, total_checkins, created_at, updated_at").eq("id", access.profileId).single(),
+    admin.from("profiles").select("id, partner_names, interests, constraints, plan_type, cadence, date_idea, date_teaser, last_lat, last_long, preferred_radius, onboarding_complete, revealed_at, total_rerolls_used, current_date_rerolled, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at, total_xp, dates_completed_count, subscription_ends_at, notification_sent_at, checkin_owner_at, checkin_partner_at, checkin_owner_skipped, checkin_partner_skipped, total_checkins, created_at, updated_at").eq("id", access.profileId).single(),
     admin
       .from("date_ideas")
       .select("id, status")
