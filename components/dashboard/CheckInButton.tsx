@@ -167,7 +167,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
 
       <Button onClick={handleCheckIn} size="lg" className="w-full gap-2">
         <MapPin className="w-5 h-5" />
-        I&apos;m here
+        We&apos;re here
       </Button>
     </div>
   );

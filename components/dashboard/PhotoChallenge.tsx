@@ -17,6 +17,7 @@ interface PhotoChallengeProps {
   dateName: string;
   planType: string;
   onComplete?: () => void;
+  autoOpen?: boolean;
 }
 
 // Canvas: draw photo + branded overlay, return JPEG blob (EXIF stripped via re-encode)
@@ -89,9 +90,11 @@ export default function PhotoChallenge({
   dateName,
   planType,
   onComplete,
+  autoOpen,
 }: PhotoChallengeProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoOpenFiredRef = useRef(false);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [uploadError, setUploadError] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
@@ -111,6 +114,15 @@ export default function PhotoChallenge({
   useEffect(() => {
     fetchPhotos();
   }, [fetchPhotos]);
+
+  // When parent signals autoOpen, click the file input on first real mount.
+  // autoOpenFiredRef guards against React StrictMode's double-invoke firing twice.
+  useEffect(() => {
+    if (autoOpen && !alreadyUploaded && !autoOpenFiredRef.current) {
+      autoOpenFiredRef.current = true;
+      fileInputRef.current?.click();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime: listen for partner photo uploads and trigger refresh when date completes
   useEffect(() => {
@@ -197,7 +209,7 @@ export default function PhotoChallenge({
       setPendingBlob(null);
       setUploadState("done");
       await fetchPhotos();
-      onComplete?.();
+      if (result.completed) onComplete?.();
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
       setUploadState("error");
@@ -219,7 +231,7 @@ export default function PhotoChallenge({
 
       setUploadState("done");
       await fetchPhotos();
-      onComplete?.();
+      if (result.completed) onComplete?.();
     } catch {
       setUploadError("Something went wrong.");
       setUploadState("error");

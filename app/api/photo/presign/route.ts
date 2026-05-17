@@ -26,30 +26,33 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient();
   const access = await getCoupleAccess(admin, user.id);
 
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("checkin_owner_at, checkin_partner_at, checkin_owner_skipped, checkin_partner_skipped")
-    .eq("id", access.profileId)
-    .single();
-
-  if (!profile?.checkin_owner_at || !profile?.checkin_partner_at) {
-    return NextResponse.json({ error: "Dual check-in required" }, { status: 403 });
-  }
-
-  const mySkipped =
-    access.role === "owner" ? profile.checkin_owner_skipped : profile.checkin_partner_skipped;
-  if (mySkipped) {
-    return NextResponse.json({ error: "Check-in required to upload photo" }, { status: 403 });
-  }
-
   const { data: idea } = await admin
     .from("date_ideas")
-    .select("id")
+    .select("id, location_type")
     .eq("id", dateIdeaId)
     .eq("user_id", access.profileId)
     .single();
 
   if (!idea) return NextResponse.json({ error: "Date not found" }, { status: 404 });
+
+  // Home dates have no GPS check-in step — photo upload is the completion signal.
+  if (idea.location_type !== "home") {
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("checkin_owner_at, checkin_partner_at, checkin_owner_skipped, checkin_partner_skipped")
+      .eq("id", access.profileId)
+      .single();
+
+    if (!profile?.checkin_owner_at || !profile?.checkin_partner_at) {
+      return NextResponse.json({ error: "Dual check-in required" }, { status: 403 });
+    }
+
+    const mySkipped =
+      access.role === "owner" ? profile.checkin_owner_skipped : profile.checkin_partner_skipped;
+    if (mySkipped) {
+      return NextResponse.json({ error: "Check-in required to upload photo" }, { status: 403 });
+    }
+  }
 
   const { data: existing } = await admin
     .from("date_photos")

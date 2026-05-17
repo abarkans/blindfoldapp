@@ -71,7 +71,7 @@ const DateIdeaSchema = z.object({
   steps: z
     .array(z.string())
     .optional()
-    .describe("Home dates only. 4-7 step-by-step instructions for the evening. Each step max 25 words."),
+    .describe("Home dates only. Exactly 3 steps: set the mood, main activity, final step starts with 'Capture the moment' + specific phrase. Each step max 25 words."),
 
 });
 
@@ -371,10 +371,10 @@ PREPARATION LIST RULES:
 - Mix of things they probably have and one or two optional upgrades
 
 STEP-BY-STEP RULES:
-- 4-7 steps that guide the evening from start to finish
+- Exactly 3 steps — no more, no fewer
 - Each step describes atmosphere, activity, or transition — NOT administrative tasks
-- Steps should feel like a story unfolding, not a checklist
-- Start with mood-setting, build to the main activity, end with something connecting
+- Steps should feel like a story unfolding: set the mood → main activity → capture
+- The THIRD and FINAL step MUST always start with "Capture the moment" followed by a short phrase specific to this date's activity (e.g. "Capture the moment — snap a photo before you clear the table" or "Capture the moment — your creations tonight deserve to be remembered"). Never generic; always tied to this specific date.
 
 CONVERSATION STARTER RULES:
 - Exactly 3 questions
@@ -418,10 +418,10 @@ PREPARATION LIST RULES:
 - One item should feel slightly unexpected or playful
 
 STEP-BY-STEP RULES:
-- 4-7 steps that guide the evening from start to finish
+- Exactly 3 steps — no more, no fewer
 - Each step describes atmosphere, activity, or transition — NOT administrative tasks
-- Steps should feel like a story unfolding, not a checklist
-- Start with mood-setting, build to the main activity, end with something connecting
+- Steps should feel like a story unfolding: set the mood → main activity → capture
+- The THIRD and FINAL step MUST always start with "Capture the moment" followed by a short phrase specific to this date's activity (e.g. "Capture the moment — snap a photo before you clear the table" or "Capture the moment — your creations tonight deserve to be remembered"). Never generic; always tied to this specific date.
 
 CONVERSATION STARTER RULES:
 - Exactly 3 questions
@@ -468,7 +468,7 @@ ${avoidClause}
 
 The date should feel tailored to their specific interests, not generic. Be creative — think beyond "cook together" or "movie night". Make it feel like a real event they wouldn't have thought of themselves.
 
-Provide: title (max 5 words), description (1 sentence, max 20 words), vibe (2-4 words), mission (2-3 sentences), duration, budget_range within €${budgetMax}, tags (2-4), preparation_list (3-6 items), steps (4-7 steps for the evening).${isSubscribed ? ` Scale mission difficulty to tier: BEGINNER = warm/forgiving, REGULAR = medium stakes, VETERAN = higher stakes/more vulnerable. Include a small forfeit or reward in the mission.` : ""}`;
+Provide: title (max 5 words), description (1 sentence, max 20 words), vibe (2-4 words), mission (2-3 sentences), duration, budget_range within €${budgetMax}, tags (2-4), preparation_list (3-6 items), steps (exactly 3 steps — set the mood, main activity, then the FINAL step MUST start with "Capture the moment" followed by a short phrase specific to this date).${isSubscribed ? ` Scale mission difficulty to tier: BEGINNER = warm/forgiving, REGULAR = medium stakes, VETERAN = higher stakes/more vulnerable. Include a small forfeit or reward in the mission.` : ""}`;
 
   return callWithFallback({
     system: isSubscribed ? HOME_SYSTEM_PROMPT_PRO : HOME_SYSTEM_PROMPT,

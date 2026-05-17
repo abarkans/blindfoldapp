@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Timer, Wallet, CheckCircle2, AlertCircle, PackageCheck, Target, Check } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { homeCheckIn } from "@/app/actions/home-checkin";
+import { Timer, Wallet, PackageCheck, Target, Check } from "lucide-react";
 import { type UnitSystem, formatBudgetRange } from "@/lib/units";
 
 interface HomeDateIdea {
@@ -21,163 +19,16 @@ interface HomeDateIdea {
   location_type: "home";
 }
 
-type HomeCheckinState = "idle" | "checking" | "waiting" | "error";
-
-interface HomeSyncButtonProps {
-  partnerName: string;
-  partnerCheckedIn: boolean;
-  myCheckedIn: boolean;
-}
-
-const HOLD_DURATION = 1300;
-
-function HomeSyncButton({ partnerName, partnerCheckedIn, myCheckedIn }: HomeSyncButtonProps) {
-  const router = useRouter();
-  const [state, setState] = useState<HomeCheckinState>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [progress, setProgress] = useState(0);
-  const [isPressing, setIsPressing] = useState(false);
-  const startTimeRef = useRef<number | null>(null);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, []);
-
-  function startHold(e: React.MouseEvent | React.TouchEvent) {
-    e.preventDefault();
-    if (state === "checking" || state === "waiting" || myCheckedIn) return;
-    setIsPressing(true);
-    startTimeRef.current = Date.now();
-    const tick = () => {
-      if (!startTimeRef.current) return;
-      const p = Math.min((Date.now() - startTimeRef.current) / HOLD_DURATION, 1);
-      setProgress(p);
-      if (p < 1) {
-        rafRef.current = requestAnimationFrame(tick);
-      } else {
-        rafRef.current = null;
-        startTimeRef.current = null;
-        setIsPressing(false);
-        setProgress(0);
-        triggerSync();
-      }
-    };
-    rafRef.current = requestAnimationFrame(tick);
-  }
-
-  function cancelHold() {
-    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
-    startTimeRef.current = null;
-    setIsPressing(false);
-    setProgress(0);
-  }
-
-  async function triggerSync() {
-    setErrorMsg("");
-    setState("checking");
-    try {
-      const result = await homeCheckIn();
-      if (result.status === "waiting") {
-        setState("waiting");
-        router.refresh();
-        return;
-      }
-      if (result.status === "error") {
-        setErrorMsg(result.error);
-        setState("error");
-        return;
-      }
-    } catch {
-      setErrorMsg("Something went wrong. Please try again.");
-      setState("error");
-    }
-  }
-
-  if (state === "waiting" || myCheckedIn) {
-    return (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/15 border border-amber-500/30">
-          <motion.div
-            className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
-          />
-          <span className="text-sm font-semibold text-amber-300">Waiting for {partnerName}…</span>
-        </div>
-        <p className="text-center text-[10px] text-white/30">Both partners must hold to check in</p>
-      </div>
-    );
-  }
-
-  if (state === "checking") {
-    return (
-      <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
-        <motion.div
-          className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
-        />
-        <span className="text-sm font-semibold text-white/60">Syncing…</span>
-      </div>
-    );
-  }
-
-  const holdLabel = isPressing ? (progress > 0.75 ? "Almost there…" : "Keep holding…") : "Hold to check in";
-
-  return (
-    <div className="flex flex-col gap-2">
-      {partnerCheckedIn && state !== "error" && (
-        <div className="flex items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2.5">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <p className="text-xs text-emerald-300 font-medium">{partnerName} is ready — your turn!</p>
-        </div>
-      )}
-      {state === "error" && errorMsg && (
-        <div className="flex items-start gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 px-3 py-2.5">
-          <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-red-300">{errorMsg}</p>
-        </div>
-      )}
-      <button
-        className="relative w-full h-14 rounded-full overflow-hidden select-none cursor-pointer"
-        style={{ WebkitUserSelect: "none", touchAction: "none" }}
-        onMouseDown={startHold}
-        onMouseUp={cancelHold}
-        onMouseLeave={cancelHold}
-        onTouchStart={startHold}
-        onTouchEnd={cancelHold}
-        onContextMenu={(e) => e.preventDefault()}
-      >
-        <div className="absolute inset-0 rounded-full bg-green-500/15 border border-green-500/30" />
-        <div
-          className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 shadow-md shadow-green-500/30"
-          style={{ clipPath: `inset(0 ${(1 - progress) * 100}% 0 0 round 9999px)` }}
-        />
-        <div className="relative z-10 flex items-center justify-center gap-2 h-full px-4">
-          <CheckCircle2 className={`w-4 h-4 transition-colors duration-150 ${progress > 0.5 ? "text-white" : "text-green-400"}`} />
-          <span className={`text-sm font-semibold transition-colors duration-150 ${progress > 0.5 ? "text-white" : "text-green-300"}`}>{holdLabel}</span>
-        </div>
-      </button>
-      <p className="text-center text-xs text-white/50">Press and hold to check in</p>
-    </div>
-  );
-}
-
 interface HomeDateCardProps {
   idea: HomeDateIdea;
-  partnerName: string;
-  myCheckedIn: boolean;
-  partnerCheckedIn: boolean;
   unitSystem?: UnitSystem;
+  bothSkipped?: boolean;
 }
 
 export default function HomeDateCard({
   idea,
-  partnerName,
-  myCheckedIn,
-  partnerCheckedIn,
   unitSystem = "metric",
+  bothSkipped = false,
 }: HomeDateCardProps) {
   const [expandedSection, setExpandedSection] = useState<"steps" | "preparation" | null>(null);
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
@@ -220,7 +71,7 @@ export default function HomeDateCard({
       </div>
 
       {/* Mission */}
-      {idea.mission && (
+      {!bothSkipped && idea.mission && (
         <div className="rounded-2xl bg-white/[0.045] border border-white/12 px-4 py-4">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40 mb-2">Your mission</p>
           <p className="text-sm leading-relaxed text-white/80">{idea.mission}</p>
@@ -228,7 +79,7 @@ export default function HomeDateCard({
       )}
 
       {/* What You'll Need */}
-      {idea.preparation_list && idea.preparation_list.length > 0 && (
+      {!bothSkipped && idea.preparation_list && idea.preparation_list.length > 0 && (
         <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden">
           <button
             type="button"
@@ -274,7 +125,7 @@ export default function HomeDateCard({
       )}
 
       {/* The Plan */}
-      {idea.steps && idea.steps.length > 0 && (
+      {!bothSkipped && idea.steps && idea.steps.length > 0 && (
         <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden">
           <button
             type="button"
@@ -310,13 +161,6 @@ export default function HomeDateCard({
           </motion.div>
         </div>
       )}
-
-      {/* Check-in sync */}
-      <HomeSyncButton
-        partnerName={partnerName}
-        partnerCheckedIn={partnerCheckedIn}
-        myCheckedIn={myCheckedIn}
-      />
     </div>
   );
 }

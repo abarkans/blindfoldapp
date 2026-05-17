@@ -86,6 +86,23 @@ export async function resetCheckinSkip(): Promise<{ error?: string }> {
     return { error: "Failed to reset check-in. Please try again." };
   }
 
+  // For home dates, also delete skipped photo rows so both partners can re-decide.
+  const { data: revealedIdea } = await admin
+    .from("date_ideas")
+    .select("id, location_type")
+    .eq("user_id", access.profileId)
+    .eq("status", "revealed")
+    .maybeSingle();
+
+  if (revealedIdea?.location_type === "home") {
+    await admin
+      .from("date_photos")
+      .delete()
+      .eq("date_idea_id", revealedIdea.id)
+      .eq("profile_id", access.profileId)
+      .eq("skipped", true);
+  }
+
   revalidatePath("/dashboard");
   return {};
 }

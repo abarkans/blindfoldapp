@@ -21,7 +21,41 @@ async function tryCompleteIfBothDone(
   profileId: string,
   dateIdeaId: string
 ): Promise<boolean> {
-  // Fetch members and skip flags in parallel
+  const { data: idea } = await admin
+    .from("date_ideas")
+    .select("location_type")
+    .eq("id", dateIdeaId)
+    .single();
+
+  const isHomeDate = idea?.location_type === "home";
+
+  if (isHomeDate) {
+    // Home dates: all members must decide (upload or skip) before completing.
+    // At least one real (non-skipped) photo is required to count the date.
+    const [{ data: members }, { count: totalPhotoCount }, { count: realPhotoCount }] = await Promise.all([
+      admin.from("couple_members").select("user_id").eq("profile_id", profileId),
+      admin.from("date_photos").select("*", { count: "exact", head: true })
+        .eq("date_idea_id", dateIdeaId).eq("profile_id", profileId),
+      admin.from("date_photos").select("*", { count: "exact", head: true })
+        .eq("date_idea_id", dateIdeaId).eq("profile_id", profileId).eq("skipped", false),
+    ]);
+
+    const memberCount = members?.length ?? 0;
+    if (memberCount === 0) return false;
+    if ((totalPhotoCount ?? 0) < memberCount) return false; // not all decided yet
+    if ((realPhotoCount ?? 0) === 0) return false; // both skipped — BothSkippedScreen handles this
+
+    try {
+      await completeDate();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("No active revealed date found")) return true;
+      throw err;
+    }
+    return true;
+  }
+
+  // Outside dates: all members who physically checked in must have a photo.
   const [{ data: members }, { data: profile }] = await Promise.all([
     admin.from("couple_members").select("user_id, role").eq("profile_id", profileId),
     admin
@@ -33,7 +67,6 @@ async function tryCompleteIfBothDone(
 
   if (!members?.length) return false;
 
-  // Only members who physically checked in (not skipped) need a photo
   const requiredUserIds = members
     .filter((m) => {
       if (m.role === "owner") return !profile?.checkin_owner_skipped;
@@ -57,7 +90,6 @@ async function tryCompleteIfBothDone(
     await completeDate();
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
-    // Other partner already completed — treat as done
     if (msg.includes("No active revealed date found")) return true;
     throw err;
   }
@@ -130,7 +162,7 @@ export async function skipPhoto(
   // Validate dateIdeaId is this couple's currently-revealed date (not historical).
   const { data: activeIdea } = await admin
     .from("date_ideas")
-    .select("id")
+    .select("id, location_type")
     .eq("id", dateIdeaId)
     .eq("user_id", access.profileId)
     .eq("status", "revealed")
@@ -162,6 +194,17 @@ export async function skipPhoto(
   );
 
   if (error) return { error: error.message };
+
+  // For home dates, mirror the photo-skip as a check-in skip so the
+  // BothSkippedScreen can detect when both partners opted out.
+  if (activeIdea.location_type === "home") {
+    const nowIso = new Date().toISOString();
+    const skipFlag =
+      access.role === "owner"
+        ? { checkin_owner_at: nowIso, checkin_owner_skipped: true }
+        : { checkin_partner_at: nowIso, checkin_partner_skipped: true };
+    await admin.from("profiles").update(skipFlag).eq("id", access.profileId);
+  }
 
   const completed = await tryCompleteIfBothDone(admin, access.profileId, dateIdeaId);
   revalidatePath("/dashboard");

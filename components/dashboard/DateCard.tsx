@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, MapPin, MapPinOff, Timer, Wallet, CheckCircle2, AlertCircle, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, Target, PackageCheck, MessageCircle } from "lucide-react";
+import { Sparkles, MapPin, MapPinOff, Camera, Timer, Wallet, CheckCircle2, AlertCircle, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, Target, PackageCheck, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
@@ -276,27 +276,33 @@ function useCountdown(target: Date | null) {
 function BothSkippedScreen({
   onReset,
   onDismiss,
+  isHome = false,
 }: {
   onReset: () => void;
   onDismiss: () => void;
+  isHome?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="rounded-2xl bg-white/[0.05] border border-white/12 px-4 py-4 text-center">
         <div className="w-12 h-12 rounded-2xl bg-white/[0.07] flex items-center justify-center mx-auto mb-3">
-          <MapPinOff className="w-6 h-6 text-white/55" />
+          {isHome ? <Camera className="w-6 h-6 text-white/55" /> : <MapPinOff className="w-6 h-6 text-white/55" />}
         </div>
-        <p className="text-sm font-semibold text-white mb-1">Looks like you both skipped check-in</p>
+        <p className="text-sm font-semibold text-white mb-1">
+          {isHome ? "Looks like you both skipped the photo" : "Looks like you both skipped check-in"}
+        </p>
         <p className="text-xs text-white/55 leading-relaxed">
-          No worries — date nights don&apos;t always go to plan. You can head to the venue now and check in, or close this one out and look forward to the next.
+          {isHome
+            ? "No worries — memories aren't made on command. You can still capture the moment, or call it a night."
+            : "No worries — date nights don't always go to plan. You can head to the venue now and check in, or close this one out and look forward to the next."}
         </p>
       </div>
       <Button variant="primary" size="lg" className="w-full gap-2" onClick={onReset}>
-        <MapPin className="w-4 h-4" />
-        Take us to check-in
+        {isHome ? <Camera className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+        {isHome ? "We will take photo" : "Take us to check-in"}
       </Button>
       <Button variant="secondary" size="lg" className="w-full" onClick={onDismiss}>
-        We&apos;re done for tonight
+        {isHome ? "Skip, we’re done" : "We’re done for tonight"}
       </Button>
     </div>
   );
@@ -655,6 +661,9 @@ export default function DateCard({
   }
 
   async function handlePhotoComplete() {
+    // Prevent the isDateCompleted useEffect from fetching again when RSC re-renders
+    // after router.refresh() — without this the effect fires a second modal.
+    completionFetchedRef.current = true;
     const result = await getCompletionResult();
     if (result) setModalData((prev) => prev ?? result);
     router.refresh();
@@ -1136,27 +1145,67 @@ export default function DateCard({
                 ) : isHomeDateIdea ? (
                   /* ── ACCEPTED HOME DATE ── */
                   <>
-                    {myCheckedIn && partnerDecided ? (
-                      dateIdeaId ? (
-                        <PhotoChallenge
-                          dateIdeaId={dateIdeaId}
-                          profileId={profileId}
-                          myUserId={myUserId}
-                          dateName={(dateIdea as AIDateIdea).title}
-                          planType={planType}
-                          onComplete={handlePhotoComplete}
-                        />
-                      ) : null
-                    ) : (
-                      <HomeDateCard
-                        idea={dateIdea as AIDateIdea & { location_type: "home" }}
-                        partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
-                        myCheckedIn={myCheckedIn}
-                        partnerCheckedIn={partnerCheckedIn}
-                        unitSystem={unitSystem}
-                      />
-                    )}
+                    <HomeDateCard
+                      idea={dateIdea as AIDateIdea & { location_type: "home" }}
+                      unitSystem={unitSystem}
+                      bothSkipped={mySkippedCheckIn && partnerSkippedCheckIn}
+                    />
                     {error && <p className="text-xs text-red-400 mt-3 text-center">{error}</p>}
+                    <div className="mt-4">
+                      {mySkippedCheckIn && partnerSkippedCheckIn ? (
+                        isDismissPending || isResetCheckinPending ? (
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                            <motion.div
+                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                            />
+                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                          </div>
+                        ) : (
+                          <BothSkippedScreen
+                            isHome
+                            onReset={() => startResetCheckinTransition(async () => {
+                              const result = await resetCheckinSkip();
+                              if (result.error) setError(result.error);
+                              else router.refresh();
+                            })}
+                            onDismiss={() => startDismissTransition(async () => {
+                              wasDismissedRef.current = true;
+                              const result = await dismissDate();
+                              if (result.error) {
+                                wasDismissedRef.current = false;
+                                setError(result.error);
+                              } else {
+                                router.refresh();
+                              }
+                            })}
+                          />
+                        )
+                      ) : mySkippedCheckIn ? (
+                        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
+                          <motion.div
+                            className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span className="text-sm font-semibold text-amber-300">
+                            Waiting for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"} to capture the moment…
+                          </span>
+                        </div>
+                      ) : (
+                        dateIdeaId ? (
+                          <PhotoChallenge
+                            dateIdeaId={dateIdeaId}
+                            profileId={profileId}
+                            myUserId={myUserId}
+                            dateName={(dateIdea as AIDateIdea).title}
+                            planType={planType}
+                            onComplete={handlePhotoComplete}
+                          />
+                        ) : null
+                      )}
+                    </div>
                   </>
 
                 ) : (
@@ -1369,13 +1418,15 @@ export default function DateCard({
         onSelect={executeStartDate}
       />
 
-      {/* Skip check-in confirmation dialog */}
+      {/* Skip confirmation dialog — outside dates (GPS check-in) only */}
       <Dialog open={skipDialogOpen} onClose={() => setSkipDialogOpen(false)} className="text-center">
         <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
           <MapPin className="w-5 h-5 text-rose-400" />
         </div>
         <h3 className="text-lg font-bold text-white mb-1">Skip check-in?</h3>
-        <p className="text-sm text-white/55 mb-6">Checking in at the venue proves you made it — skip and you&apos;ll miss out on [placeholder: bonus XP, streak credit, etc.].</p>
+        <p className="text-sm text-white/55 mb-6">
+          Checking in at the venue proves you made it — skip and you&apos;ll miss out on bonus XP and streak credit.
+        </p>
         <div className="flex flex-col gap-2">
           <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
             Never mind
