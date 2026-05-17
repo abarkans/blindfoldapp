@@ -442,6 +442,8 @@ function DateTabContent({
         partnerInvitedEmail={partnerInviteStatus.invitedEmail}
         checkinOwnerAt={profile.checkin_owner_at ?? null}
         checkinPartnerAt={profile.checkin_partner_at ?? null}
+        checkinOwnerSkipped={profile.checkin_owner_skipped ?? false}
+        checkinPartnerSkipped={profile.checkin_partner_skipped ?? false}
         dateOutside={profile.constraints.date_outside}
         dateAtHome={profile.constraints.date_at_home}
         unitSystem={unitSystem}

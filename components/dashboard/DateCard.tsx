@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, MapPin, Timer, Wallet, CheckCircle2, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, Target, PackageCheck, MessageCircle } from "lucide-react";
+import { Sparkles, MapPin, MapPinOff, Timer, Wallet, CheckCircle2, AlertCircle, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, Target, PackageCheck, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
@@ -18,6 +18,7 @@ import { acceptDate } from "@/app/actions/accept-date";
 import { rerollDate } from "@/app/actions/reroll";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import { skipCheckIn } from "@/app/actions/check-in";
+import { dismissDate, resetCheckinSkip } from "@/app/actions/dismiss-date";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import CheckInButton from "@/components/dashboard/CheckInButton";
@@ -136,6 +137,8 @@ interface DateCardProps {
   partnerInvitedEmail?: string | null;
   checkinOwnerAt: string | null;
   checkinPartnerAt: string | null;
+  checkinOwnerSkipped: boolean;
+  checkinPartnerSkipped: boolean;
   dateOutside: boolean;
   dateAtHome: boolean;
   unitSystem?: UnitSystem;
@@ -270,6 +273,35 @@ function useCountdown(target: Date | null) {
   return timeLeft;
 }
 
+function BothSkippedScreen({
+  onReset,
+  onDismiss,
+}: {
+  onReset: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="rounded-2xl bg-white/[0.05] border border-white/12 px-4 py-4 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-white/[0.07] flex items-center justify-center mx-auto mb-3">
+          <MapPinOff className="w-6 h-6 text-white/55" />
+        </div>
+        <p className="text-sm font-semibold text-white mb-1">Looks like you both skipped check-in</p>
+        <p className="text-xs text-white/55 leading-relaxed">
+          No worries — date nights don&apos;t always go to plan. You can head to the venue now and check in, or close this one out and look forward to the next.
+        </p>
+      </div>
+      <Button variant="primary" size="lg" className="w-full gap-2" onClick={onReset}>
+        <MapPin className="w-4 h-4" />
+        Take us to check-in
+      </Button>
+      <Button variant="secondary" size="lg" className="w-full" onClick={onDismiss}>
+        We&apos;re done for tonight
+      </Button>
+    </div>
+  );
+}
+
 function getPartnerInviteCopy(
   state: DateCardProps["partnerInviteState"],
   partnerName: string
@@ -323,6 +355,8 @@ export default function DateCard({
   partnerInvitedEmail,
   checkinOwnerAt,
   checkinPartnerAt,
+  checkinOwnerSkipped,
+  checkinPartnerSkipped,
   dateOutside,
   dateAtHome,
   unitSystem = "metric",
@@ -333,6 +367,8 @@ export default function DateCard({
   const [isCompletePending, startCompleteTransition] = useTransition();
   const [isRerollPending, startRerollTransition] = useTransition();
   const [isSkipPending, startSkipTransition] = useTransition();
+  const [isDismissPending, startDismissTransition] = useTransition();
+  const [isResetCheckinPending, startResetCheckinTransition] = useTransition();
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
@@ -342,6 +378,7 @@ export default function DateCard({
   const [completed, setCompleted] = useState(isDateCompleted);
   const wasCompletedOnMountRef = useRef(isDateCompleted);
   const completionFetchedRef = useRef(false);
+  const wasDismissedRef = useRef(false);
   const [accepted, setAccepted] = useState(!!dateAcceptedAt);
   const [rerollModalOpen, setRerollModalOpen] = useState(false);
   const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
@@ -371,6 +408,7 @@ export default function DateCard({
     if (!isDateCompleted) return;
     if (wasCompletedOnMountRef.current) return;
     if (completionFetchedRef.current) return;
+    if (wasDismissedRef.current) return;
     completionFetchedRef.current = true;
     // Direct completer already set modalData before this effect fires via RSC revalidation.
     // Waiting partner sees isDateCompleted go true without modalData — fetch it for them.
@@ -398,8 +436,12 @@ export default function DateCard({
   const isFree = planType !== "subscription";
   const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
 
-  const myCheckedIn = memberRole === "owner" ? !!checkinOwnerAt : !!checkinPartnerAt;
-  const partnerCheckedIn = memberRole === "owner" ? !!checkinPartnerAt : !!checkinOwnerAt;
+  const myDecided = memberRole === "owner" ? !!checkinOwnerAt : !!checkinPartnerAt;
+  const mySkippedCheckIn = memberRole === "owner" ? checkinOwnerSkipped : checkinPartnerSkipped;
+  const myCheckedIn = myDecided && !mySkippedCheckIn;
+  const partnerDecided = memberRole === "owner" ? !!checkinPartnerAt : !!checkinOwnerAt;
+  const partnerSkippedCheckIn = memberRole === "owner" ? checkinPartnerSkipped : checkinOwnerSkipped;
+  const partnerCheckedIn = partnerDecided && !partnerSkippedCheckIn;
   const hasVenueLocation =
     dateIdea && isVenue(dateIdea) && !!dateIdea.location?.latitude;
   const isHomeDateIdea =
@@ -612,6 +654,12 @@ export default function DateCard({
     });
   }
 
+  async function handlePhotoComplete() {
+    const result = await getCompletionResult();
+    if (result) setModalData((prev) => prev ?? result);
+    router.refresh();
+  }
+
   function handleSkipCheckIn() {
     setSkipDialogOpen(false);
     startSkipTransition(async () => {
@@ -669,7 +717,7 @@ export default function DateCard({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
-                  {(revealed && completed && dateIdea) ? "Completed Date" : "Getting started"}
+                  {(revealed && completed && dateIdea) ? "Previous date" : "Getting started"}
                 </span>
               </div>
             </div>
@@ -697,8 +745,17 @@ export default function DateCard({
                       </p>
                     </div>
                     <div className="ml-auto flex items-center gap-1.5 shrink-0">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span className="text-xs font-semibold text-emerald-400">Done</span>
+                      {checkinOwnerSkipped && checkinPartnerSkipped ? (
+                        <>
+                          <AlertCircle className="w-4 h-4 text-white/40" />
+                          <span className="text-xs font-semibold text-white/40">Incomplete</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span className="text-xs font-semibold text-emerald-400">Done</span>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -881,7 +938,7 @@ export default function DateCard({
                     </div>
 
                     {/* Detail rows — bottom sheet on mobile, accordion on desktop */}
-                    {(dateIdea.ai?.description || dateIdea.ai?.mission || (!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter))) && (
+                    {!(mySkippedCheckIn && partnerSkippedCheckIn) && (dateIdea.ai?.description || dateIdea.ai?.mission || (!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter))) && (
                       <div className="mb-4 flex flex-col gap-2">
                         {dateIdea.ai?.description && (
                           <p className="text-sm leading-relaxed text-white/70 mb-2">{dateIdea.ai.description}</p>
@@ -966,7 +1023,36 @@ export default function DateCard({
 
                     {error && <p className="text-xs text-red-400 mb-3 text-center">{error}</p>}
                     {showCheckinFlow ? (
-                      myCheckedIn && partnerCheckedIn ? (
+                      mySkippedCheckIn && partnerSkippedCheckIn ? (
+                        isDismissPending || isResetCheckinPending ? (
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                            <motion.div
+                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                            />
+                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                          </div>
+                        ) : (
+                          <BothSkippedScreen
+                            onReset={() => startResetCheckinTransition(async () => {
+                              const result = await resetCheckinSkip();
+                              if (result.error) setError(result.error);
+                              else router.refresh();
+                            })}
+                            onDismiss={() => startDismissTransition(async () => {
+                              wasDismissedRef.current = true;
+                              const result = await dismissDate();
+                              if (result.error) {
+                                wasDismissedRef.current = false;
+                                setError(result.error);
+                              } else {
+                                router.refresh();
+                              }
+                            })}
+                          />
+                        )
+                      ) : myCheckedIn && partnerDecided ? (
                         dateIdeaId ? (
                           <PhotoChallenge
                             dateIdeaId={dateIdeaId}
@@ -974,10 +1060,21 @@ export default function DateCard({
                             myUserId={myUserId}
                             dateName={dateIdea.display_name}
                             planType={planType}
-                            onComplete={() => router.refresh()}
+                            onComplete={handlePhotoComplete}
                           />
                         ) : null
-                      ) : myCheckedIn && !partnerCheckedIn ? (
+                      ) : mySkippedCheckIn && partnerDecided ? (
+                        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
+                          <motion.div
+                            className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span className="text-sm font-semibold text-amber-300">
+                            Waiting for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"} to capture the moment…
+                          </span>
+                        </div>
+                      ) : myDecided && !partnerDecided ? (
                         <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
                           <motion.div
                             className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
@@ -1002,6 +1099,7 @@ export default function DateCard({
                           <CheckInButton
                             partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
                             partnerCheckedIn={partnerCheckedIn}
+                            partnerSkipped={partnerDecided && partnerSkippedCheckIn}
                             unitSystem={unitSystem}
                           />
                           <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
@@ -1038,7 +1136,7 @@ export default function DateCard({
                 ) : isHomeDateIdea ? (
                   /* ── ACCEPTED HOME DATE ── */
                   <>
-                    {myCheckedIn && partnerCheckedIn ? (
+                    {myCheckedIn && partnerDecided ? (
                       dateIdeaId ? (
                         <PhotoChallenge
                           dateIdeaId={dateIdeaId}
@@ -1046,7 +1144,7 @@ export default function DateCard({
                           myUserId={myUserId}
                           dateName={(dateIdea as AIDateIdea).title}
                           planType={planType}
-                          onComplete={() => router.refresh()}
+                          onComplete={handlePhotoComplete}
                         />
                       ) : null
                     ) : (

@@ -21,6 +21,13 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
 }
 
 export async function checkInToDate({ lat, lng }: { lat: number; lng: number }): Promise<CheckInResult> {
+  if (
+    typeof lat !== "number" || !Number.isFinite(lat) || lat < -90 || lat > 90 ||
+    typeof lng !== "number" || !Number.isFinite(lng) || lng < -180 || lng > 180
+  ) {
+    return { status: "error", error: "Invalid coordinates" };
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { status: "error", error: "Not authenticated" };
@@ -101,7 +108,7 @@ export async function skipCheckIn(): Promise<{ error?: string }> {
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("date_accepted_at, checkin_owner_at, checkin_partner_at")
+    .select("date_accepted_at, checkin_owner_at, checkin_partner_at, checkin_owner_skipped, checkin_partner_skipped")
     .eq("id", access.profileId)
     .single();
 
@@ -115,8 +122,8 @@ export async function skipCheckIn(): Promise<{ error?: string }> {
     const nowIso = new Date().toISOString();
     const update =
       access.role === "owner"
-        ? { checkin_owner_at: nowIso }
-        : { checkin_partner_at: nowIso };
+        ? { checkin_owner_at: nowIso, checkin_owner_skipped: true }
+        : { checkin_partner_at: nowIso, checkin_partner_skipped: true };
 
     const { error: writeError } = await admin
       .from("profiles")

@@ -13,10 +13,11 @@ type CheckInState = "idle" | "locating" | "checking" | "waiting" | "error";
 interface CheckInButtonProps {
   partnerName: string;
   partnerCheckedIn: boolean;
+  partnerSkipped?: boolean;
   unitSystem?: UnitSystem;
 }
 
-export default function CheckInButton({ partnerName, partnerCheckedIn, unitSystem = "metric" }: CheckInButtonProps) {
+export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSkipped, unitSystem = "metric" }: CheckInButtonProps) {
   const router = useRouter();
   const [state, setState] = useState<CheckInState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -145,6 +146,14 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, unitSyste
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
           <p className="text-xs text-emerald-300 font-medium">
             {partnerName}&apos;s here — your turn
+          </p>
+        </div>
+      )}
+      {partnerSkipped && !partnerCheckedIn && state !== "error" && (
+        <div className="flex items-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 px-3 py-2.5">
+          <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <p className="text-xs text-amber-300 font-medium">
+            {partnerName} skipped — your turn
           </p>
         </div>
       )}

@@ -28,11 +28,14 @@ export async function getCompletionResult(): Promise<CompleteDateResult | null> 
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("total_xp, dates_completed_count, plan_type")
+    .select("total_xp, dates_completed_count, plan_type, checkin_owner_skipped, checkin_partner_skipped")
     .eq("id", access.profileId)
     .single();
 
   if (!profile) return null;
+
+  // Both partners skipped check-in and dismissed the date — no reward modal.
+  if (profile.checkin_owner_skipped && profile.checkin_partner_skipped) return null;
 
   const gated = profile.plan_type !== "subscription";
   const planType: PlanType = gated ? "free" : "subscription";

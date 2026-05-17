@@ -309,6 +309,8 @@ export interface Database {
           reveal_partner_ready_at: string | null;
           checkin_owner_at: string | null;
           checkin_partner_at: string | null;
+          checkin_owner_skipped: boolean;
+          checkin_partner_skipped: boolean;
           total_checkins: number;
           created_at: string;
           updated_at: string;
@@ -345,6 +347,8 @@ export interface Database {
           reveal_partner_ready_at?: string | null;
           checkin_owner_at?: string | null;
           checkin_partner_at?: string | null;
+          checkin_owner_skipped?: boolean;
+          checkin_partner_skipped?: boolean;
           total_checkins?: number;
           created_at?: string;
           updated_at?: string;
@@ -381,6 +385,8 @@ export interface Database {
           reveal_partner_ready_at?: string | null;
           checkin_owner_at?: string | null;
           checkin_partner_at?: string | null;
+          checkin_owner_skipped?: boolean;
+          checkin_partner_skipped?: boolean;
           total_checkins?: number;
           created_at?: string;
           updated_at?: string;

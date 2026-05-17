@@ -241,6 +241,8 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
       reveal_partner_ready_at: null,
       checkin_owner_at: null,
       checkin_partner_at: null,
+      checkin_owner_skipped: false,
+      checkin_partner_skipped: false,
     })
     .eq("id", access.profileId);
 
