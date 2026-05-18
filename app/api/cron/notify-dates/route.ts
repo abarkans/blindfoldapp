@@ -124,5 +124,21 @@ export async function GET(request: Request) {
     console.info(`[cron/notify-dates] account_deletion_tokens cleanup deleted=${deletedTokens ?? 0}`);
   }
 
+  // Prune old processed Stripe events (replay window is ~72h; keep 400 days).
+  const { data: deletedEvents, error: eventsCleanupErr } = await supabase.rpc("cleanup_processed_stripe_events");
+  if (eventsCleanupErr) {
+    console.warn(`[cron/notify-dates] processed_stripe_events cleanup failed: ${eventsCleanupErr.message}`);
+  } else {
+    console.info(`[cron/notify-dates] processed_stripe_events cleanup deleted=${deletedEvents ?? 0}`);
+  }
+
+  // Prune expired/revoked partner invites (accepted invites are kept).
+  const { data: deletedInvites, error: invitesCleanupErr } = await supabase.rpc("cleanup_partner_invites");
+  if (invitesCleanupErr) {
+    console.warn(`[cron/notify-dates] partner_invites cleanup failed: ${invitesCleanupErr.message}`);
+  } else {
+    console.info(`[cron/notify-dates] partner_invites cleanup deleted=${deletedInvites ?? 0}`);
+  }
+
   return NextResponse.json({ sent, errors });
 }

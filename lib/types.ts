@@ -420,6 +420,14 @@ export interface Database {
         Args: Record<string, never>;
         Returns: number;
       };
+      cleanup_processed_stripe_events: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      cleanup_partner_invites: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
     };
     Enums: Record<string, never>;
   };
