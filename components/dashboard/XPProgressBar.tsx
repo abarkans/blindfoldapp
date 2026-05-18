@@ -19,7 +19,7 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
       </h3>
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-white/80 to-white/45 flex items-center justify-center shadow-md shadow-white/10">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center shadow-md shadow-violet-500/30">
             <Zap className="w-3.5 h-3.5 text-white fill-white" />
           </div>
           <span className="text-sm font-bold text-white">Level {level}</span>
@@ -30,9 +30,9 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
       </div>
       <div className="h-2 rounded-full bg-white/[0.075] overflow-hidden">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-white/80 to-white/45 shadow-sm shadow-white/10"
+          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500 shadow-sm shadow-violet-500/30"
           initial={{ width: 0 }}
-          animate={{ width: `${Math.max(percentage, 6)}%` }}
+          animate={{ width: `${Math.max(percentage, 2)}%` }}
           transition={{ duration: 1.1, ease: "easeOut", delay: 0.15 }}
         />
       </div>

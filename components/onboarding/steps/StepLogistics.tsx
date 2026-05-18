@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { House, MapPin } from "lucide-react";
+import { House, MapPin, Check } from "lucide-react";
 import { logisticsSchema, type LogisticsFormData } from "@/lib/schemas/onboarding";
 import Slider from "@/components/ui/Slider";
 import { getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -88,10 +88,11 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
             ].join(" ")}
           >
             <MapPin className={`w-5 h-5 ${dateOutside ? "text-rose-300" : "text-white/45"}`} />
-            <div className="text-left">
+            <div className="text-left flex-1">
               <p className="text-sm font-semibold">Date night outside home</p>
               <p className="text-xs opacity-60">Use nearby places</p>
             </div>
+            {dateOutside && <Check className="w-4 h-4 text-rose-300 shrink-0" />}
           </button>
 
           <button
@@ -105,10 +106,11 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
             ].join(" ")}
           >
             <House className={`w-5 h-5 ${dateAtHome ? "text-rose-300" : "text-white/45"}`} />
-            <div className="text-left">
+            <div className="text-left flex-1">
               <p className="text-sm font-semibold">Date night at home</p>
               <p className="text-xs opacity-60">Cook, play, make something</p>
             </div>
+            {dateAtHome && <Check className="w-4 h-4 text-rose-300 shrink-0" />}
           </button>
         </div>
         {errors.date_outside && (

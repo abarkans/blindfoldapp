@@ -122,11 +122,12 @@ export async function checkContactRateLimit(ip: string): Promise<void> {
 
 /**
  * Enforce per-user rate limits on partner invite sends.
- * Limit: 5 per hour. Fails open: no external cost — transactional email
- * volume is low enough that blocking on a DB hiccup hurts UX for nothing.
+ * Burst: 1 per 60s. Daily cap: 5 per 24h.
+ * Fails closed: Resend transactional email is a paid resource.
  */
 export async function checkPartnerInviteRateLimit(userId: string): Promise<void> {
-  await check(`partner-invite:${userId}`, 5, 3600, false);
+  await check(`partner-invite-burst:${userId}`, 1, 60, true);
+  await check(`partner-invite-daily:${userId}`, 5, 86400, true);
 }
 
 /**

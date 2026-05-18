@@ -32,7 +32,7 @@ const STEPS = [
     number: "02",
     icon: Sparkles,
     title: "We do the planning",
-    body: "AI scours real nearby venues, picks the highest-rated hidden gem, and writes a date story just for you two.",
+    body: "AI finds a top-rated venue near you — or plans a curated night in. Either way, it writes the full date story just for you two.",
   },
   {
     number: "03",
@@ -454,11 +454,10 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">
-                    Real places. No Googling.
+                    Out or in — we plan both.
                   </h3>
                   <p className="text-white/55 text-sm leading-[1.65] max-w-sm">
-                    Every suggestion is a real, top-rated venue near you — picked, vetted,
-                    and ready to go.
+                    Get a top-rated venue near you, or a curated night in at home. Real places, vetted and ready — no Googling needed.
                   </p>
                 </div>
               </div>
@@ -494,8 +493,8 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-4.jpg" alt="One tap" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">One tap to get there</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">Photo, vibe, directions — waiting the moment you reveal.</p>
+                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Check in. Earn XP.</h3>
+                  <p className="text-white/55 text-sm leading-[1.65]">Tap check-in when you arrive. Both partners earn XP — Plus earns double.</p>
                 </div>
               </div>
 
@@ -506,9 +505,9 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <Image fill sizes="66vw" className="object-cover grayscale opacity-70" src="/features/feat-5.jpg" alt="Grow together" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Grow together</h3>
+                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Every date, remembered.</h3>
                   <p className="text-white/55 text-sm leading-[1.65] max-w-sm">
-                    Earn XP and unlock milestone badges for every date you complete.
+                    Earn XP and badges every date. Plus members keep photo memories of every place you&rsquo;ve been together.
                   </p>
                 </div>
               </div>
@@ -701,15 +700,12 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 </div>
 
                 <ul className="flex flex-col gap-3.5 flex-1">
-                  {plan.features.map((feat) => {
-                    const isKey = feat.includes("Full customization") || feat.includes("Weekly");
-                    return (
-                      <li key={feat} className="flex items-start gap-3">
-                        <Check className={`w-4 h-4 shrink-0 mt-0.5 ${isKey && plan.highlighted ? "text-pink-400" : "text-emerald-400/70"}`} />
-                        <span className={`text-sm ${isKey && plan.highlighted ? "text-white font-semibold" : "text-white/55"}`}>{feat}</span>
-                      </li>
-                    );
-                  })}
+                  {plan.features.map((feat) => (
+                    <li key={feat} className="flex items-start gap-3">
+                      <Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400/70" />
+                      <span className="text-sm text-white/55">{feat}</span>
+                    </li>
+                  ))}
                 </ul>
 
                 <Link

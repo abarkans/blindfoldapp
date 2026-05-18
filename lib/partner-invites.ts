@@ -15,6 +15,7 @@ export interface CoupleAccess {
 export interface PartnerInviteStatus {
   state: "none" | "pending" | "expired" | "accepted";
   invitedEmail: string | null;
+  ownerEmail: string | null;
   expiresAt: string | null;
   acceptedAt: string | null;
 }
@@ -81,12 +82,17 @@ export async function getPartnerInviteStatus(
   admin: SupabaseClient<Database>,
   profileId: string
 ): Promise<PartnerInviteStatus> {
-  const { data: member } = await admin
-    .from("couple_members")
-    .select("created_at")
-    .eq("profile_id", profileId)
-    .eq("role", "partner")
-    .maybeSingle();
+  const [{ data: member }, ownerAuthResult] = await Promise.all([
+    admin
+      .from("couple_members")
+      .select("created_at")
+      .eq("profile_id", profileId)
+      .eq("role", "partner")
+      .maybeSingle(),
+    admin.auth.admin.getUserById(profileId),
+  ]);
+
+  const ownerEmail = ownerAuthResult.data?.user?.email ?? null;
 
   if (member) {
     const { data: acceptedInvite } = await admin
@@ -101,6 +107,7 @@ export async function getPartnerInviteStatus(
     return {
       state: "accepted",
       invitedEmail: acceptedInvite?.invited_email ?? null,
+      ownerEmail,
       expiresAt: acceptedInvite?.expires_at ?? null,
       acceptedAt: acceptedInvite?.accepted_at ?? member.created_at,
     };
@@ -117,13 +124,14 @@ export async function getPartnerInviteStatus(
     .maybeSingle();
 
   if (!invite) {
-    return { state: "none", invitedEmail: null, expiresAt: null, acceptedAt: null };
+    return { state: "none", invitedEmail: null, ownerEmail, expiresAt: null, acceptedAt: null };
   }
 
   const expired = new Date(invite.expires_at).getTime() <= Date.now();
   return {
     state: expired ? "expired" : "pending",
     invitedEmail: invite.invited_email,
+    ownerEmail,
     expiresAt: invite.expires_at,
     acceptedAt: null,
   };

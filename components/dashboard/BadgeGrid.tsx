@@ -216,10 +216,10 @@ export default function BadgeGrid({ earnedBadges, isFree = false }: BadgeGridPro
                   )}
                 </motion.div>
 
-                <p className={`text-xs font-semibold mb-0.5 ${earned ? "text-white" : "text-white/50"}`}>
+                <p className={`text-sm font-semibold mb-0.5 ${earned ? "text-white" : "text-white/50"}`}>
                   {milestone.name}
                 </p>
-                <p className={`text-[10px] leading-tight ${earned ? "text-white/50" : "text-white/50"}`}>
+                <p className={`text-xs leading-snug ${earned ? "text-white/50" : "text-white/50"}`}>
                   {earned
                     ? milestone.description
                     : milestone.lockText ?? `Complete ${milestone.required_dates} date${(milestone.required_dates ?? 0) > 1 ? "s" : ""} to unlock`}

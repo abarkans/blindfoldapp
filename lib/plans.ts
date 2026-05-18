@@ -18,7 +18,7 @@ export const PLANS = [
     features: [
       "1 mystery date per month",
       "3 date categories",
-      "Casual date story",
+      "Dates out or dates in — your call",
       "Nearby venues only",
       "1 free swap",
       "XP & milestone badges",
@@ -44,7 +44,8 @@ export const PLANS = [
       "Personalized to your exact taste",
       "Near & far venue search",
       "1 swap per date",
-      "2× XP & milestone badges",
+      "Double XP on every date",
+      "Date memories & photo history",
       "Richer, more creative date experiences",
     ],
     cta: "Take over my planning",

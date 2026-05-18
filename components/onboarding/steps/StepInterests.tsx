@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart,
-  Sparkles, ArrowRight,
+  ArrowRight,
 } from "lucide-react";
 import { FREE_INTERESTS, MIN_INTEREST_CATEGORIES, type PlanId } from "@/lib/plans";
 
@@ -73,7 +73,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
         <h2 className="text-2xl font-bold text-white">What do you love?</h2>
         <p className="text-white/50 text-sm">
           {isFree
-            ? `Your Starter plan includes these 3 categories. Pick at least ${MIN_INTEREST_CATEGORIES}.`
+            ? `Pick at least ${MIN_INTEREST_CATEGORIES} — Starter includes these 3 categories.`
             : `Pick at least ${MIN_INTEREST_CATEGORIES} categories so we can keep your dates varied.`}
         </p>
       </div>
@@ -102,28 +102,20 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
 
       {/* Upgrade card — free plan only */}
       {isFree && (
-        <motion.div
+        <motion.button
+          type="button"
+          onClick={onBack}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="bg-[#050202] border border-rose-400/40 rounded-2xl p-4 flex flex-col gap-3 shadow-[0_18px_60px_rgba(0,0,0,0.24)]"
+          className="group border border-white/10 hover:border-white/20 hover:bg-white/[0.03] rounded-2xl p-4 flex items-center justify-between gap-3 w-full transition-colors active:scale-[0.99]"
         >
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-rose-500/15 border border-rose-400/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-rose-300" />
-            </div>
-            <p className="text-sm font-bold text-white">Unlock every date category</p>
-          </div>
-
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-full bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-500/20 hover:bg-rose-400 transition-all active:scale-[0.98]"
-          >
+          <p className="text-xs text-white/50">Plus unlocks all date categories</p>
+          <span className="flex items-center gap-1 text-xs font-semibold text-white/60 group-hover:text-white transition-colors shrink-0">
             Switch to Plus
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </motion.div>
+            <ArrowRight className="w-3 h-3" />
+          </span>
+        </motion.button>
       )}
 
       {error && <p className="text-xs text-red-400">{error}</p>}

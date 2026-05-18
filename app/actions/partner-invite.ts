@@ -214,6 +214,14 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
     return { error: "Could not connect your account. Please try again." };
   }
 
+  // Remove the orphaned owner row auto-created when the invited user first visited the dashboard.
+  await admin
+    .from("couple_members")
+    .delete()
+    .eq("profile_id", user.id)
+    .eq("user_id", user.id)
+    .eq("role", "owner");
+
   await admin
     .from("partner_invites")
     .update({ accepted_at: now, accepted_user_id: user.id })

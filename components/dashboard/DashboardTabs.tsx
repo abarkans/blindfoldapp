@@ -552,17 +552,17 @@ function ProgressTabContent({
       <XPProgressBar totalXp={totalXp} />
 
       {nextMilestone && (
-        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 mb-2 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
-            <Target className="w-4 h-4 text-white/65" />
+        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4 mb-2 flex items-center gap-3.5">
+          <div className="w-9 h-9 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
+            <Target className="w-5 h-5 text-white/65" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-white">
+            <p className="text-sm font-semibold text-white">
               {nextMilestone.threshold - datesCompleted} date
               {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
-              <span className="text-white/65">{nextMilestone.name}</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-pink-400">{nextMilestone.name}</span>
             </p>
-            <p className="text-[10px] text-white/55 mt-0.5">
+            <p className="text-xs text-white/55 mt-0.5">
               Complete {nextMilestone.threshold - datesCompleted} more date{nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} to earn this badge
             </p>
           </div>
