@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateReadyEmail } from "@/lib/email/templates/date-ready";
+import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 
 // Constant-time comparison so the secret can't be recovered byte-by-byte
 // via response-time side channels. Different lengths short-circuit to false
@@ -37,7 +38,8 @@ export async function GET(request: Request) {
     .from("profiles")
     .select("id, partner_names, cadence, revealed_at, notification_sent_at")
     .not("revealed_at", "is", null)
-    .is("notification_sent_at", null);
+    .is("notification_sent_at", null)
+    .eq("email_notifications", true);
 
   if (error) {
     console.error("[cron/notify-dates] query error:", error.message);
@@ -73,7 +75,10 @@ export async function GET(request: Request) {
     const partner1 = names?.partner1 ?? "there";
     const partner2 = names?.partner2 ?? "your partner";
 
-    const { subject, html } = dateReadyEmail({ partner1, partner2 });
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfoldapp.vercel.app";
+    const unsubscribeToken = generateUnsubscribeToken(profile.id as string);
+    const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(profile.id as string)}&token=${unsubscribeToken}`;
+    const { subject, html } = dateReadyEmail({ partner1, partner2, unsubscribeUrl });
 
     const { error: sendError } = await resend.emails.send({
       from: FROM_ADDRESS,

@@ -1,6 +1,7 @@
 interface DateReadyEmailProps {
   partner1: string;
   partner2: string;
+  unsubscribeUrl: string;
 }
 
 // Escape user-controlled strings before interpolating them into the email
@@ -16,7 +17,7 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-export function dateReadyEmail({ partner1, partner2 }: DateReadyEmailProps): {
+export function dateReadyEmail({ partner1, partner2, unsubscribeUrl }: DateReadyEmailProps): {
   subject: string;
   html: string;
 } {
@@ -82,7 +83,8 @@ export function dateReadyEmail({ partner1, partner2 }: DateReadyEmailProps): {
             <td align="center" style="padding-top:24px;">
               <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.3);">
                 You're receiving this because you have a BlindfoldDate account.<br />
-                © ${new Date().getFullYear()} BlindfoldDate
+                © ${new Date().getFullYear()} BlindfoldDate &nbsp;·&nbsp;
+                <a href="${unsubscribeUrl}" style="color:rgba(255,255,255,0.3);text-decoration:underline;">Unsubscribe</a>
               </p>
             </td>
           </tr>

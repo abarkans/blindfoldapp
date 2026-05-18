@@ -312,6 +312,7 @@ export interface Database {
           checkin_owner_skipped: boolean;
           checkin_partner_skipped: boolean;
           total_checkins: number;
+          email_notifications: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -350,6 +351,7 @@ export interface Database {
           checkin_owner_skipped?: boolean;
           checkin_partner_skipped?: boolean;
           total_checkins?: number;
+          email_notifications?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -388,6 +390,7 @@ export interface Database {
           checkin_owner_skipped?: boolean;
           checkin_partner_skipped?: boolean;
           total_checkins?: number;
+          email_notifications?: boolean;
           created_at?: string;
           updated_at?: string;
         };

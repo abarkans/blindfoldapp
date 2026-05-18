@@ -8,7 +8,7 @@ import {
   User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, Crown, UserCog, Trash2, Mail, House,
+  Sparkles, Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -25,6 +25,7 @@ import CadenceSelect, { type CadenceValue, CADENCE_OPTIONS } from "@/components/
 import { requestAccountDeletion } from "@/app/actions/delete-account";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import { clearSettingsLocation, updateSettings } from "@/app/actions/update-settings";
+import { updateEmailNotifications } from "@/app/actions/update-email-notifications";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 
 const INTERESTS = [
@@ -154,12 +155,16 @@ export default function SettingsPanel({
   const [partnerInviteEmail, setPartnerInviteEmail] = useState(partnerInviteStatus.invitedEmail ?? "");
   const [partnerInviteSending, setPartnerInviteSending] = useState(false);
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
+  const [partnerInviteCooldown, setPartnerInviteCooldown] = useState(0);
+  const inviteCooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Manage account state
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteSent, setDeleteSent] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [emailNotifications, setEmailNotifications] = useState(profile.email_notifications ?? true);
+  const [togglingEmailNotifications, setTogglingEmailNotifications] = useState(false);
 
   useEffect(() => {
     createClient().auth.getUser().then(({ data }) => {
@@ -383,6 +388,14 @@ export default function SettingsPanel({
     }
   }
 
+  async function handleToggleEmailNotifications() {
+    setTogglingEmailNotifications(true);
+    const next = !emailNotifications;
+    const result = await updateEmailNotifications(next);
+    if (!result.error) setEmailNotifications(next);
+    setTogglingEmailNotifications(false);
+  }
+
   async function handleUpgradePlan() {
     setUpgradingPlan(true);
     setError("");
@@ -424,6 +437,14 @@ export default function SettingsPanel({
       return;
     }
     setPartnerInviteMessage("Invite sent. It expires in 24 hours.");
+    setPartnerInviteCooldown(60);
+    if (inviteCooldownRef.current) clearInterval(inviteCooldownRef.current);
+    inviteCooldownRef.current = setInterval(() => {
+      setPartnerInviteCooldown((s) => {
+        if (s <= 1) { clearInterval(inviteCooldownRef.current!); return 0; }
+        return s - 1;
+      });
+    }, 1000);
     router.refresh();
   }
 
@@ -599,6 +620,37 @@ export default function SettingsPanel({
                   </div>
                 </div>
 
+                {/* Email notifications */}
+                <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+                      <Mail className="w-4 h-4 text-white/65" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-white">Email notifications</p>
+                      <p className="text-xs text-white/45 mt-0.5">Date-ready reminders</p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={togglingEmailNotifications}
+                      onClick={handleToggleEmailNotifications}
+                      className={[
+                        "relative w-11 h-6 rounded-full transition-colors shrink-0",
+                        emailNotifications ? "bg-rose-500" : "bg-white/15",
+                        togglingEmailNotifications ? "opacity-50 cursor-not-allowed" : "",
+                      ].join(" ")}
+                      aria-label={emailNotifications ? "Disable email notifications" : "Enable email notifications"}
+                    >
+                      <span
+                        className={[
+                          "absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
+                          emailNotifications ? "translate-x-5" : "translate-x-0.5",
+                        ].join(" ")}
+                      />
+                    </button>
+                  </div>
+                </div>
+
                 {/* Delete account */}
                 <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4">
                   <div className="flex items-center gap-3 mb-3">
@@ -699,24 +751,25 @@ export default function SettingsPanel({
                 <div className="flex flex-col gap-3">
                   <Input label="My name" error={errors.partner1?.message} {...register("partner1")} />
                   <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
+                  {partnerInviteStatus.state === "accepted" && (memberRole === "partner" ? partnerInviteStatus.ownerEmail : partnerInviteStatus.invitedEmail) && (
+                    <div className="flex items-center gap-1.5 px-1">
+                      <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                      <p className="text-xs text-emerald-400">
+                        {memberRole === "partner" ? partnerInviteStatus.ownerEmail : partnerInviteStatus.invitedEmail}
+                      </p>
+                    </div>
+                  )}
+                  {partnerInviteStatus.state !== "accepted" && (
                   <div className="mt-2 rounded-2xl border border-white/16 bg-white/[0.04] p-4">
                     <div className="mb-3 flex items-center gap-2">
                       <Mail className="h-4 w-4 text-white/65" />
                       <p className="text-sm font-semibold text-white">Partner access</p>
                     </div>
-                    {partnerInviteStatus.state === "accepted" ? (
-                      <p className="text-xs leading-relaxed text-emerald-300">
-                        Your partner is connected and can use Date, Progress, and date settings.
-                      </p>
-                    ) : memberRole === "owner" ? (
+                    {memberRole === "owner" ? (
                       <div className="flex flex-col gap-3">
-                        <p className="text-xs leading-relaxed text-white/50">
-                          Invite your partner to create an account. Dates unlock once both of you tap reveal.
-                        </p>
-                        {partnerInviteStatus.state !== "none" && partnerInviteStatus.invitedEmail && (
-                          <p className="text-xs text-white/45">
-                            Current invite: {partnerInviteStatus.invitedEmail}
-                            {partnerInviteStatus.state === "expired" ? " (expired)" : ""}
+                        {partnerInviteStatus.state === "none" && (
+                          <p className="text-xs leading-relaxed text-white/50">
+                            Invite your partner to create an account. Dates unlock once both of you tap reveal.
                           </p>
                         )}
                         <Input
@@ -726,15 +779,18 @@ export default function SettingsPanel({
                           onChange={(e) => setPartnerInviteEmail(e.target.value)}
                           placeholder="partner@example.com"
                         />
-                        {partnerInviteMessage && <p className="text-xs text-emerald-300">{partnerInviteMessage}</p>}
+                        {partnerInviteMessage && <p className="text-xs text-emerald-300 text-center">{partnerInviteMessage}</p>}
                         <Button
                           type="button"
                           variant="secondary"
                           loading={partnerInviteSending}
+                          disabled={partnerInviteCooldown > 0}
                           onClick={handlePartnerInvite}
                           className="h-auto w-full py-3 text-sm"
                         >
-                          {partnerInviteStatus.state === "none" ? "Send invite" : "Send new invite"}
+                          {partnerInviteCooldown > 0
+                            ? `Wait ${partnerInviteCooldown}s`
+                            : partnerInviteStatus.state === "none" ? "Send invite" : "Send new invite"}
                         </Button>
                       </div>
                     ) : (
@@ -743,6 +799,7 @@ export default function SettingsPanel({
                       </p>
                     )}
                   </div>
+                  )}
                 </div>
               )}
 
@@ -816,14 +873,14 @@ export default function SettingsPanel({
                         type="button"
                         onClick={() => setValue(key, !val, { shouldValidate: true, shouldDirty: true })}
                         className={[
-                          "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border text-sm font-medium transition-all",
+                          "flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                           val
                             ? "bg-white/[0.075] border-rose-400/70 text-white"
-                            : "bg-white/[0.035] border-white/16 text-white/55 hover:border-white/30",
+                            : "bg-white/[0.035] border-white/16 text-white/48 hover:border-white/30 hover:text-white/75",
                         ].join(" ")}
                       >
-                        <Icon className={`h-4 w-4 ${val ? "text-rose-300" : "text-white/45"}`} />
-                        {label}
+                        <Icon className={`w-5 h-5 ${val ? "text-rose-300" : "text-white/45"}`} />
+                        <span className="text-xs font-medium leading-tight">{label}</span>
                       </button>
                     ))}
                   </div>
