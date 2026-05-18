@@ -193,11 +193,17 @@ export async function rerollDate(): Promise<void> {
     }
   } catch (err) {
     console.error(`[audit] reroll: generation failed uid=${user.id} profile=${access.profileId} msg=${err instanceof Error ? err.message : String(err)}`);
-    // Generation failed — roll back the atomic claim so the user can retry
-    if (isFree) {
-      await admin.from("profiles").update({ total_rerolls_used: 0, current_date_rerolled: false }).eq("id", access.profileId);
-    } else {
-      await admin.from("profiles").update({ current_date_rerolled: false }).eq("id", access.profileId);
+    // Generation failed — roll back the atomic claim so the user can retry.
+    // Wrap in try/catch: a rollback failure leaves current_date_rerolled=true,
+    // which would permanently lock the user out. Log at error severity for manual recovery.
+    try {
+      if (isFree) {
+        await admin.from("profiles").update({ total_rerolls_used: 0, current_date_rerolled: false }).eq("id", access.profileId);
+      } else {
+        await admin.from("profiles").update({ current_date_rerolled: false }).eq("id", access.profileId);
+      }
+    } catch (rollbackErr) {
+      console.error(`[audit] reroll: CRITICAL rollback failed uid=${user.id} profile=${access.profileId} msg=${rollbackErr instanceof Error ? rollbackErr.message : String(rollbackErr)}`);
     }
     throw err;
   }

@@ -105,7 +105,7 @@ export async function sendPartnerInvite(email: string): Promise<ActionResult> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  if (user.email?.toLowerCase() === parsed.data) {
+  if (normalizeEmailForComparison(user.email ?? "") === normalizeEmailForComparison(parsed.data)) {
     return { error: "Use your partner's email, not your own." };
   }
 
@@ -139,7 +139,7 @@ export async function sendPartnerInviteForOnboarding(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  if (user.email?.toLowerCase() === parsed.data) {
+  if (normalizeEmailForComparison(user.email ?? "") === normalizeEmailForComparison(parsed.data)) {
     return { error: "Use your partner's email, not your own." };
   }
 

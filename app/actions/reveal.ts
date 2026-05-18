@@ -106,6 +106,23 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
     return { status: "error", error: "Next date not available yet" };
   }
 
+  // Validate location type override BEFORE the atomic claim so an invalid
+  // override cannot burn the user's cooldown.
+  const { date_outside, date_at_home } = profile.constraints;
+  let effectiveLocationType: "outside" | "home";
+  if (locationType === "home") {
+    if (!date_at_home) return { status: "error", error: "Home dates not enabled in your preferences." };
+    effectiveLocationType = "home";
+  } else if (locationType === "outside") {
+    if (!date_outside) return { status: "error", error: "Outside dates not enabled in your preferences." };
+    effectiveLocationType = "outside";
+  } else {
+    // 'auto' or undefined: server decides
+    if (date_at_home && !date_outside) effectiveLocationType = "home";
+    else if (date_outside && !date_at_home) effectiveLocationType = "outside";
+    else effectiveLocationType = Math.random() < 0.5 ? "home" : "outside";
+  }
+
   const nowIso = new Date().toISOString();
   const days = CADENCE_DAYS[profile.cadence];
   const cooldownCutoff = new Date(Date.now() - days * 86_400_000).toISOString();
@@ -120,22 +137,6 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
   if (!claimed?.length) return { status: "error", error: "Next date not available yet" };
 
   const safeInterests = profile.interests.filter((i) => VALID_INTERESTS.has(i));
-  const { date_outside, date_at_home } = profile.constraints;
-
-  // Determine effective location type, validating any client-supplied override.
-  let effectiveLocationType: "outside" | "home";
-  if (locationType === "home") {
-    if (!date_at_home) return { status: "error", error: "Home dates not enabled in your preferences." };
-    effectiveLocationType = "home";
-  } else if (locationType === "outside") {
-    if (!date_outside) return { status: "error", error: "Outside dates not enabled in your preferences." };
-    effectiveLocationType = "outside";
-  } else {
-    // 'auto' or undefined: server decides
-    if (date_at_home && !date_outside) effectiveLocationType = "home";
-    else if (date_outside && !date_at_home) effectiveLocationType = "outside";
-    else effectiveLocationType = Math.random() < 0.5 ? "home" : "outside";
-  }
 
   let idea: object;
 
@@ -294,13 +295,21 @@ export async function revealDate(): Promise<RevealResult> {
   if (readyError) return { status: "error", error: "Could not mark you ready. Please try again." };
 
   // Re-read after write so both-ready decision reflects DB state, not local snapshot.
-  // Prevents race where both partners write simultaneously and both see the other's
-  // flag as null in the pre-write snapshot.
-  const { data: fresh, error: freshError } = await admin
-    .from("profiles")
-    .select("reveal_owner_ready_at, reveal_partner_ready_at")
-    .eq("id", access.profileId)
-    .single();
+  // Retry once after 300 ms to tolerate the narrow replication window where both
+  // partners write simultaneously and both first-reads land before either write propagates.
+  let fresh = null;
+  let freshError = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = await admin
+      .from("profiles")
+      .select("reveal_owner_ready_at, reveal_partner_ready_at")
+      .eq("id", access.profileId)
+      .single();
+    fresh = result.data;
+    freshError = result.error;
+    if (!freshError && fresh?.reveal_owner_ready_at && fresh?.reveal_partner_ready_at) break;
+    if (attempt === 0) await new Promise((res) => setTimeout(res, 300));
+  }
 
   if (freshError || !fresh?.reveal_owner_ready_at || !fresh?.reveal_partner_ready_at) {
     revalidatePath("/dashboard");

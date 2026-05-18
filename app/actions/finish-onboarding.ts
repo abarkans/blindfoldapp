@@ -212,8 +212,14 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     return { error: "Failed to save onboarding" };
   }
 
-  const inviteResult = await sendPartnerInviteForOnboarding(v.partner_email?.toLowerCase());
-  if (inviteResult.error) return { error: inviteResult.error };
+  // Invite is best-effort: profile is already saved as complete. A transient
+  // email failure must not block onboarding — the user can resend from Settings.
+  if (v.partner_email) {
+    const inviteResult = await sendPartnerInviteForOnboarding(v.partner_email.toLowerCase());
+    if (inviteResult.error) {
+      console.warn(`[audit] finish-onboarding: invite non-fatal uid=${user.id} reason=${inviteResult.error}`);
+    }
+  }
 
   const cookieStore = await cookies();
   cookieStore.set("onboarding_complete", "1", {
