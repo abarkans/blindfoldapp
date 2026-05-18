@@ -21,6 +21,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     {
+      url: "https://blindfolddate.com/contact",
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
       url: "https://blindfolddate.com/legal/privacy",
       lastModified: new Date(),
       changeFrequency: "yearly",
@@ -31,6 +37,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.2,
+    },
+    {
+      url: "https://blindfolddate.com/legal/accessibility",
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.1,
     },
   ];
 }

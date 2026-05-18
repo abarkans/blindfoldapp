@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Accessibility - BlindfoldDate",
   description: "BlindfoldDate accessibility statement.",
+  robots: { index: true, follow: true },
 };
 
 export default function AccessibilityPage() {

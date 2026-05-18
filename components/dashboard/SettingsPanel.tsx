@@ -22,6 +22,7 @@ import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
 import Slider from "@/components/ui/Slider";
 import CadenceSelect, { type CadenceValue, CADENCE_OPTIONS } from "@/components/ui/CadenceSelect";
+import Toggle from "@/components/ui/Toggle";
 import { requestAccountDeletion } from "@/app/actions/delete-account";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import { clearSettingsLocation, updateSettings } from "@/app/actions/update-settings";
@@ -630,24 +631,12 @@ export default function SettingsPanel({
                       <p className="text-sm font-semibold text-white">Email notifications</p>
                       <p className="text-xs text-white/45 mt-0.5">Date-ready reminders</p>
                     </div>
-                    <button
-                      type="button"
+                    <Toggle
+                      checked={emailNotifications}
+                      onChange={handleToggleEmailNotifications}
                       disabled={togglingEmailNotifications}
-                      onClick={handleToggleEmailNotifications}
-                      className={[
-                        "relative w-11 h-6 rounded-full transition-colors shrink-0",
-                        emailNotifications ? "bg-rose-500" : "bg-white/15",
-                        togglingEmailNotifications ? "opacity-50 cursor-not-allowed" : "",
-                      ].join(" ")}
                       aria-label={emailNotifications ? "Disable email notifications" : "Enable email notifications"}
-                    >
-                      <span
-                        className={[
-                          "absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
-                          emailNotifications ? "translate-x-5" : "translate-x-0.5",
-                        ].join(" ")}
-                      />
-                    </button>
+                    />
                   </div>
                 </div>
 
