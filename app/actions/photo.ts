@@ -170,7 +170,11 @@ export async function savePhoto(
       .from("profiles")
       .update({ total_xp: (checkinProfile.total_xp ?? 0) + XP_PHOTO })
       .eq("id", access.profileId);
-    if (!xpError) xpGained = XP_PHOTO;
+    if (xpError) {
+      console.error(`[audit] save-photo: xp update failed uid=${user.id} msg=${xpError.message}`);
+    } else {
+      xpGained = XP_PHOTO;
+    }
   }
 
   const completed = await tryCompleteIfBothDone(admin, access.profileId, dateIdeaId);

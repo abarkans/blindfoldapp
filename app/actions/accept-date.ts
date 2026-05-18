@@ -14,10 +14,15 @@ export async function acceptDate(): Promise<void> {
   // so the admin client is required after the explicit auth check above.
   const admin = createAdminClient();
   const access = await getCoupleAccess(admin, user.id);
-  await admin
+  const { error } = await admin
     .from("profiles")
     .update({ date_accepted_at: new Date().toISOString() })
     .eq("id", access.profileId);
+
+  if (error) {
+    console.error(`[audit] accept-date: write failed uid=${user.id} msg=${error.message}`);
+    throw new Error("Failed to accept date. Please try again.");
+  }
 
   revalidatePath("/dashboard");
 }

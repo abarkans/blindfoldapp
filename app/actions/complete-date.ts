@@ -88,13 +88,16 @@ export async function completeDate(): Promise<CompleteDateResult> {
     .lte("required_dates", newCount);
 
   if (eligibleMilestones?.length) {
-    await admin.from("user_badges").upsert(
+    const { error: badgeError } = await admin.from("user_badges").upsert(
       eligibleMilestones.map((milestone) => ({
         user_id: access.profileId,
         milestone_id: milestone.id,
       })),
       { onConflict: "user_id,milestone_id" }
     );
+    if (badgeError) {
+      console.error(`[audit] complete: badge upsert failed uid=${user.id} msg=${badgeError.message}`);
+    }
   }
 
   const { data: newBadgeRows } = await admin
