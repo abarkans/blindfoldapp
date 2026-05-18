@@ -41,7 +41,7 @@ export function partnerInviteEmail({
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:420px;">
           <tr>
             <td align="center" style="padding-bottom:28px;">
-              <img src="${process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com"}/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
+              <img src="https://blindfolddate.com/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
             </td>
           </tr>
           <tr>

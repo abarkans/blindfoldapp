@@ -44,7 +44,7 @@ export function dateReadyEmail({ partner1, partner2, unsubscribeUrl }: DateReady
           <!-- Logo -->
           <tr>
             <td align="center" style="padding-bottom:32px;">
-              <img src="${process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com"}/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
+              <img src="https://blindfolddate.com/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
             </td>
           </tr>
 

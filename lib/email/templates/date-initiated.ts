@@ -35,7 +35,7 @@ export function dateInitiatedEmail({
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:420px;">
         <tr><td align="center" style="padding-bottom:32px;">
-          <img src="${appUrl}/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
+          <img src="https://blindfolddate.com/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
         </td></tr>
         <tr><td style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.16);border-radius:24px;box-shadow:0 28px 80px rgba(0,0,0,0.45);padding:32px 28px;text-align:center;">
           <p style="margin:0 0 16px;font-size:42px;">&#10024;</p>
