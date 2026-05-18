@@ -108,7 +108,7 @@ export default function SubscriberBadgeModal({ isOpen, onClose }: SubscriberBadg
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-[#030303]/90 z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -139,7 +139,7 @@ export default function SubscriberBadgeModal({ isOpen, onClose }: SubscriberBadg
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08 }}
             >
-              🏆 Badge Unlocked!
+              Badge Unlocked!
             </motion.p>
 
             <BadgeCard />

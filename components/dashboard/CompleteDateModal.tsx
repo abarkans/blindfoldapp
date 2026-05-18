@@ -281,7 +281,7 @@ export default function CompleteDateModal({
                   transition={{ delay: 0.32 }}
                 >
                   <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3">
-                    🏆 Badge{newBadges.length > 1 ? "s" : ""} Unlocked!
+                    Badge{newBadges.length > 1 ? "s" : ""} Unlocked!
                   </p>
                   <div className="flex flex-col gap-2">
                     {newBadges.map((badge, i) => (
