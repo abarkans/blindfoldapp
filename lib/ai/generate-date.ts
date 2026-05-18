@@ -197,6 +197,7 @@ async function callModel(
         output: Output.object({ schema: DateIdeaSchema }),
         system,
         prompt,
+        maxTokens: 768,
       });
       return output;
     } catch (err) {
@@ -227,8 +228,13 @@ async function callWithFallback({
       logAiEvent("[ai-haiku-failed]", { tier: "free", ...describeErr(err) });
       throw err;
     }
-    // Plus-tier path. Sonnet failed; try Haiku silently from the user's
-    // perspective but emit a structured log so we can monitor degradation.
+    // Plus-tier path. Only fall back to Haiku on overload (529) — not on
+    // schema errors, auth failures, or other non-transient errors which
+    // would just repeat on Haiku and double the API cost for no gain.
+    if (!isOverloadError(err)) {
+      logAiEvent("[ai-sonnet-non-overload-fail]", { tier: "plus", ...describeErr(err) });
+      throw err;
+    }
     logAiEvent("[ai-fallback]", {
       from: "sonnet",
       to: "haiku",

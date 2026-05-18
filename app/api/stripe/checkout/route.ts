@@ -46,11 +46,19 @@ export async function POST(req: Request) {
     : "monthly";
   const returnPath = isSafeReturnPath(rawReturnPath) ? rawReturnPath : "/dashboard";
 
-  const { data: profile } = await supabase
+  const { data: profile } = await createAdminClient()
     .from("profiles")
-    .select("stripe_customer_id")
+    .select("stripe_customer_id, plan_type")
     .eq("id", user.id)
     .single();
+
+  if (profile?.plan_type === "subscription") {
+    return NextResponse.json(
+      { error: "Already subscribed. Manage your plan in the billing portal." },
+      { status: 400 }
+    );
+  }
+
   const isFirstTimeSubscriber = !profile?.stripe_customer_id;
 
   const priceId = billingInterval === "yearly"

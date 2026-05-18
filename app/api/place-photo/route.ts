@@ -88,7 +88,9 @@ export async function GET(request: NextRequest) {
   return new Response(buffer, {
     headers: {
       "Content-Type": contentType,
-      "Cache-Control": "public, max-age=86400",
+      "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600",
+      "CDN-Cache-Control": "public, max-age=86400",
+      "Vercel-CDN-Cache-Control": "public, max-age=86400",
       "X-Content-Type-Options": "nosniff",
     },
   });

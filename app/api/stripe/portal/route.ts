@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
   await checkStripeRateLimit(user.id);
 
-  const { data: profile } = await supabase
+  const { data: profile } = await createAdminClient()
     .from("profiles")
     .select("stripe_customer_id")
     .eq("id", user.id)
