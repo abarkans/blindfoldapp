@@ -71,16 +71,16 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
   const alreadyCheckedIn =
     access.role === "owner" ? !!profile.checkin_owner_at : !!profile.checkin_partner_at;
 
-  const isSubscription = profile.plan_type === "subscription";
-  const XP_CHECKIN = 50;
+  // Free: 50 XP per check-in. Plus: 100 XP (2×).
+  const XP_CHECKIN = profile.plan_type === "subscription" ? 100 : 50;
   let xpGained = 0;
 
   if (!alreadyCheckedIn) {
-    const xpIncrease = isSubscription ? XP_CHECKIN : 0;
+    const xpIncrease = XP_CHECKIN;
     const checkinUpdate =
       access.role === "owner"
-        ? { checkin_owner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, ...(xpIncrease && { total_xp: (profile.total_xp ?? 0) + xpIncrease }) }
-        : { checkin_partner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, ...(xpIncrease && { total_xp: (profile.total_xp ?? 0) + xpIncrease }) };
+        ? { checkin_owner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, total_xp: (profile.total_xp ?? 0) + xpIncrease }
+        : { checkin_partner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, total_xp: (profile.total_xp ?? 0) + xpIncrease };
 
     const { error: writeError } = await admin
       .from("profiles")

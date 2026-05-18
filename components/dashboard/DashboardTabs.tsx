@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, Lock, MapPin, Target, Camera } from "lucide-react";
+import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Target, Camera } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -261,7 +261,6 @@ export default function DashboardTabs({
                   <ProgressTabContent
                     profile={profile}
                     earnedBadgesPromise={earnedBadgesPromise}
-                    onOpenPlanSettings={openPlanSettings}
                   />
                 </Suspense>
               )}
@@ -521,28 +520,11 @@ function StatsGrid({
 function ProgressTabContent({
   profile,
   earnedBadgesPromise,
-  onOpenPlanSettings,
 }: {
   profile: Profile;
   earnedBadgesPromise: Promise<EarnedBadge[]>;
-  onOpenPlanSettings: () => void;
 }) {
   const earnedBadges = use(earnedBadgesPromise);
-  const isFree = (profile.plan_type ?? "free") !== "subscription";
-
-  if (isFree) {
-    return (
-      <ProgressUpsell
-        totalXp={profile.total_xp ?? 0}
-        datesCompleted={profile.dates_completed_count ?? 0}
-        totalCheckins={profile.total_checkins ?? 0}
-        createdAt={profile.created_at}
-        earnedBadges={earnedBadges}
-        onOpenPlanSettings={onOpenPlanSettings}
-      />
-    );
-  }
-
   const totalXp = profile.total_xp ?? 0;
   const datesCompleted = profile.dates_completed_count ?? 0;
   const totalCheckins = profile.total_checkins ?? 0;
@@ -569,7 +551,6 @@ function ProgressTabContent({
 
       <XPProgressBar totalXp={totalXp} />
 
-      {/* Next milestone nudge */}
       {nextMilestone && (
         <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 mb-2 flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
@@ -589,90 +570,6 @@ function ProgressTabContent({
       )}
 
       <BadgeGrid earnedBadges={displayBadges} />
-    </div>
-  );
-}
-
-// ─── Progress Tab — Free Plan Upsell ─────────────────────────────────────────
-
-function ProgressUpsell({
-  totalXp,
-  datesCompleted,
-  totalCheckins,
-  createdAt,
-  earnedBadges,
-  onOpenPlanSettings,
-}: {
-  totalXp: number;
-  datesCompleted: number;
-  totalCheckins: number;
-  createdAt: string;
-  earnedBadges: EarnedBadge[];
-  onOpenPlanSettings: () => void;
-}) {
-  const hasHistory = totalXp > 0 || earnedBadges.length > 0 || datesCompleted > 0;
-
-  return (
-    <div>
-      <div className="mb-10">
-        <h2 className="text-2xl font-bold text-white">
-          {hasHistory ? "Your progress is paused" : "Every date counts."}
-        </h2>
-        <p className="text-white/55 text-sm mt-1">
-          {hasHistory
-            ? "Resume earning XP and unlocking badges with Plus."
-            : "XP, levels, and badges are part of Plus."}
-        </p>
-      </div>
-
-      <StatsGrid
-        datesCompleted={datesCompleted}
-        totalCheckins={totalCheckins}
-      />
-
-      {/* XP preview — blurred/locked for free users */}
-      <div className="relative mb-4">
-        <div className="pointer-events-none select-none opacity-60 blur-[1px]">
-          <XPProgressBar totalXp={totalXp} />
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/16 flex items-center justify-center">
-            <Lock className="w-4 h-4 text-white/80" />
-          </div>
-        </div>
-      </div>
-
-      {/* Badge grid preview — blurred/locked for free users */}
-      <div className="relative max-h-44 overflow-hidden">
-        <div className="pointer-events-none select-none opacity-60 blur-[1px]">
-          <BadgeGrid earnedBadges={earnedBadges} isFree={true} />
-        </div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-black/80 to-black" />
-      </div>
-
-      {/* Upgrade CTA — pulled up to overlap badges */}
-      <div className="-mt-6 relative z-10 bg-white/[0.035] border border-white/18 rounded-3xl p-5 shadow-2xl shadow-black/40 backdrop-blur-sm">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-4 h-4 text-white/65" />
-          <p className="text-xs font-semibold text-white uppercase tracking-widest">Plus</p>
-        </div>
-        <p className="text-base font-bold text-white mb-1">
-          {hasHistory ? "Your rewards are locked, not lost" : "Make every date night count"}
-        </p>
-        <p className="text-sm text-white/60 leading-relaxed mb-4">
-          {hasHistory
-            ? "Upgrade to Plus to unlock your rewards — nothing resets, nothing disappears."
-            : "Earn 100 XP per date, collect milestone badges, and get a wider reveal radius. Plus is how the story gets richer."}
-        </p>
-
-        <button
-          type="button"
-          onClick={onOpenPlanSettings}
-          className="w-full py-3 rounded-full bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98] disabled:opacity-60"
-        >
-          Upgrade to Plus
-        </button>
-      </div>
     </div>
   );
 }

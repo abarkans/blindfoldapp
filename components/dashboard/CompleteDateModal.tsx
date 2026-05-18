@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Lock, Star } from "lucide-react";
+import { X, Zap, Star } from "lucide-react";
 import confetti, { type CreateTypes } from "canvas-confetti";
 import Button from "@/components/ui/Button";
 import { submitDateFeedback } from "@/app/actions/submit-feedback";
@@ -137,7 +137,6 @@ interface CompleteDateModalProps {
   newTotalXp: number;
   newLevel: number;
   newBadges: NewBadge[];
-  gated: boolean;
   dateIdeaId: string;
   onClose: () => void;
   onGoToProgress: () => void;
@@ -149,13 +148,10 @@ export default function CompleteDateModal({
   newTotalXp,
   newLevel,
   newBadges,
-  gated,
   dateIdeaId,
   onClose,
   onGoToProgress,
 }: CompleteDateModalProps) {
-  const [upgrading, setUpgrading] = useState(false);
-  const [upgradeError, setUpgradeError] = useState("");
   const [rating, setRating] = useState<number | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const [comment, setComment] = useState("");
@@ -219,28 +215,6 @@ export default function CompleteDateModal({
     return () => clearTimeout(t);
   }, [isOpen]);
 
-  async function handleUpgrade() {
-    setUpgradeError("");
-    setUpgrading(true);
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cadence: "monthly", returnPath: "/dashboard?tab=progress" }),
-      });
-      const { url, error } = await res.json();
-      if (error || !url) {
-        setUpgradeError("Couldn't start checkout. Try again.");
-        setUpgrading(false);
-        return;
-      }
-      window.location.href = url;
-    } catch {
-      setUpgradeError("Couldn't start checkout. Try again.");
-      setUpgrading(false);
-    }
-  }
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -282,149 +256,90 @@ export default function CompleteDateModal({
               <h2 className="text-xl font-bold text-white mb-1">Date Complete!</h2>
               <p className="text-white/55 text-sm mb-5">Another one in the books.</p>
 
-              {gated ? (
-                <>
-                  <FeedbackSection
-                    rating={rating}
-                    hovered={hovered}
-                    comment={comment}
-                    onRate={setRating}
-                    onHover={setHovered}
-                    onComment={setComment}
-                    onSubmit={handleFeedbackSubmit}
-                    submitted={feedbackSaved}
-                    submitting={feedbackSubmitting}
-                  />
+              {/* XP gained */}
+              <motion.div
+                className="bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/25 rounded-2xl p-4 mb-4"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18 }}
+              >
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  <span className="text-2xl font-black text-white">+{xpGained} XP</span>
+                </div>
+                <p className="text-xs text-white/55">
+                  Level {newLevel} · {newTotalXp} XP total
+                </p>
+              </motion.div>
 
-                  {/* Upsell card */}
-                  <motion.div
-                    className="bg-gradient-to-br from-white/[0.06] to-white/[0.035] border border-white/16 rounded-2xl p-4 mb-4 text-left"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.18 }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/18 flex items-center justify-center flex-shrink-0">
-                        <Lock className="w-4 h-4 text-white/65" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-white mb-1">
-                          Unlock XP & badges
-                        </p>
-                        <p className="text-xs text-white/60 leading-relaxed">
-                          Plus members earn XP, level up, and collect badges for every date.
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {upgradeError && (
-                    <p className="text-xs text-white/65 mb-3">{upgradeError}</p>
-                  )}
-
-                  <Button
-                    size="sm"
-                    className="w-full"
-                    onClick={handleUpgrade}
-                    disabled={upgrading}
-                  >
-                    {upgrading ? "Loading…" : "Upgrade to Plus"}
-                  </Button>
-                  <button
-                    onClick={handleClose}
-                    className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
-                  >
-                    Maybe later
-                  </button>
-                </>
-              ) : (
-                <>
-                  {/* XP gained */}
-                  <motion.div
-                    className="bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/25 rounded-2xl p-4 mb-4"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.18 }}
-                  >
-                    <div className="flex items-center justify-center gap-2 mb-1">
-                      <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
-                      <span className="text-2xl font-black text-white">+{xpGained} XP</span>
-                    </div>
-                    <p className="text-xs text-white/55">
-                      Level {newLevel} · {newTotalXp} XP total
-                    </p>
-                  </motion.div>
-
-                  {/* Newly unlocked badges */}
-                  {newBadges.length > 0 && (
-                    <motion.div
-                      className="mb-5"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.32 }}
-                    >
-                      <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3">
-                        🏆 Badge{newBadges.length > 1 ? "s" : ""} Unlocked!
-                      </p>
-                      <div className="flex flex-col gap-2">
-                        {newBadges.map((badge, i) => (
-                          <motion.div
-                            key={badge.name}
-                            className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-left"
-                            initial={{ scale: 0.85, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 260,
-                              delay: 0.38 + i * 0.1,
-                            }}
-                          >
-                            {BADGE_IMAGES[badge.name] ? (
-                              <Image
-                                src={BADGE_IMAGES[badge.name]}
-                                alt={badge.name}
-                                width={48}
-                                height={48}
-                                unoptimized
-                                className="w-12 h-12 object-contain flex-shrink-0"
-                              />
-                            ) : (
-                              <span className="text-2xl flex-shrink-0">{badge.icon_emoji}</span>
-                            )}
-                            <div>
-                              <p className="text-sm font-bold text-white">{badge.name}</p>
-                              <p className="text-xs text-white/55">{badge.description}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  <FeedbackSection
-                    rating={rating}
-                    hovered={hovered}
-                    comment={comment}
-                    onRate={setRating}
-                    onHover={setHovered}
-                    onComment={setComment}
-                    onSubmit={handleFeedbackSubmit}
-                    submitted={feedbackSaved}
-                    submitting={feedbackSubmitting}
-                    divider="top"
-                  />
-
-                  <Button size="lg" className="w-full" onClick={handleClose}>
-                    Awesome!
-                  </Button>
-                  <button
-                    onClick={onGoToProgress}
-                    className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
-                  >
-                    View my progress →
-                  </button>
-                </>
+              {/* Newly unlocked badges */}
+              {newBadges.length > 0 && (
+                <motion.div
+                  className="mb-5"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.32 }}
+                >
+                  <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3">
+                    🏆 Badge{newBadges.length > 1 ? "s" : ""} Unlocked!
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {newBadges.map((badge, i) => (
+                      <motion.div
+                        key={badge.name}
+                        className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-left"
+                        initial={{ scale: 0.85, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 260,
+                          delay: 0.38 + i * 0.1,
+                        }}
+                      >
+                        {BADGE_IMAGES[badge.name] ? (
+                          <Image
+                            src={BADGE_IMAGES[badge.name]}
+                            alt={badge.name}
+                            width={48}
+                            height={48}
+                            unoptimized
+                            className="w-12 h-12 object-contain flex-shrink-0"
+                          />
+                        ) : (
+                          <span className="text-2xl flex-shrink-0">{badge.icon_emoji}</span>
+                        )}
+                        <div>
+                          <p className="text-sm font-bold text-white">{badge.name}</p>
+                          <p className="text-xs text-white/55">{badge.description}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
               )}
+
+              <FeedbackSection
+                rating={rating}
+                hovered={hovered}
+                comment={comment}
+                onRate={setRating}
+                onHover={setHovered}
+                onComment={setComment}
+                onSubmit={handleFeedbackSubmit}
+                submitted={feedbackSaved}
+                submitting={feedbackSubmitting}
+                divider="top"
+              />
+
+              <Button size="lg" className="w-full" onClick={handleClose}>
+                Awesome!
+              </Button>
+              <button
+                onClick={onGoToProgress}
+                className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
+              >
+                View my progress →
+              </button>
             </div>
           </motion.div>
           </div>

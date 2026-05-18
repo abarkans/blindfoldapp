@@ -398,7 +398,7 @@ export interface Database {
     Functions: {
       complete_date_atomic: {
         Args: { p_user_id: string; p_xp_gain: number };
-        Returns: { total_xp: number; dates_completed_count: number; gated: boolean };
+        Returns: { total_xp: number; dates_completed_count: number; xp_awarded: number; completed_idea_id: string };
       };
       backfill_completed_xp: {
         Args: { p_user_id: string; p_xp_per_date?: number };
@@ -448,7 +448,5 @@ export interface CompleteDateResult {
   newTotalXp: number;
   newLevel: number;
   newBadges: { name: string; description: string; icon_emoji: string }[];
-  planType: PlanType;
-  gated: boolean;
   dateIdeaId: string;
 }

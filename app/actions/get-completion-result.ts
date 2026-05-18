@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { calcLevel } from "@/lib/utils";
-import type { CompleteDateResult, PlanType } from "@/lib/types";
+import type { CompleteDateResult } from "@/lib/types";
 
 const XP_PER_DATE = 100;
 
@@ -37,10 +37,10 @@ export async function getCompletionResult(): Promise<CompleteDateResult | null> 
   // Both partners skipped check-in and dismissed the date — no reward modal.
   if (profile.checkin_owner_skipped && profile.checkin_partner_skipped) return null;
 
-  const gated = profile.plan_type !== "subscription";
-  const planType: PlanType = gated ? "free" : "subscription";
   const newCount = profile.dates_completed_count;
   const newXp = profile.total_xp;
+  // Plus earns 2× XP; this result is displayed after photo-completion path.
+  const xpGained = profile.plan_type === "subscription" ? XP_PER_DATE * 2 : XP_PER_DATE;
 
   const { data: dateIdea } = await admin
     .from("date_ideas")
@@ -52,19 +52,6 @@ export async function getCompletionResult(): Promise<CompleteDateResult | null> 
     .single();
 
   const dateIdeaId = dateIdea?.id ?? "";
-
-  if (gated) {
-    return {
-      xpGained: 0,
-      newTotalXp: newXp,
-      newLevel: calcLevel(newXp),
-      newBadges: [],
-      planType,
-      gated: true,
-      dateIdeaId,
-    };
-  }
-
   const previousCount = Math.max(0, newCount - 1);
 
   const { data: newBadgeRows } = await admin
@@ -75,7 +62,7 @@ export async function getCompletionResult(): Promise<CompleteDateResult | null> 
     .lte("milestones.required_dates", newCount) as { data: BadgeRow[] | null };
 
   return {
-    xpGained: XP_PER_DATE,
+    xpGained,
     newTotalXp: newXp,
     newLevel: calcLevel(newXp),
     newBadges: (newBadgeRows ?? []).map((b) => ({
@@ -83,8 +70,6 @@ export async function getCompletionResult(): Promise<CompleteDateResult | null> 
       description: b.milestones?.description ?? "",
       icon_emoji: b.milestones?.icon_emoji ?? "🏆",
     })),
-    planType,
-    gated: false,
     dateIdeaId,
   };
 }
