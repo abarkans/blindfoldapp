@@ -70,7 +70,12 @@ export default async function PartnerInvitePage({
     <InviteShell
       icon={<CheckCircle2 className="h-8 w-8 text-emerald-400" />}
       title="Accept partner invite"
-      body={`You're signed in as ${user.email}. We'll connect this account if it matches the invited email.`}
+      body={
+        <>
+          You&apos;re signed in as{" "}
+          <span className="font-semibold text-white">{user.email}</span>. We&apos;ll connect this account if it matches the invited email.
+        </>
+      }
     >
       <PartnerInviteAcceptButton token={token} />
     </InviteShell>
@@ -85,7 +90,7 @@ function InviteShell({
 }: {
   icon: React.ReactNode;
   title: string;
-  body: string;
+  body: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (

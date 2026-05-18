@@ -1,27 +1,4 @@
-interface DateInitiatedEmailProps {
-  partnerName: string;
-  unsubscribeUrl: string;
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-export function dateInitiatedEmail({
-  partnerName,
-  unsubscribeUrl,
-}: DateInitiatedEmailProps): { subject: string; html: string } {
-  const safePartner = escapeHtml(partnerName || "Your partner");
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
-  return {
-    subject: `${safePartner} initiated a date night`,
-    html: `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -35,27 +12,25 @@ export function dateInitiatedEmail({
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:420px;">
         <tr><td align="center" style="padding-bottom:32px;">
-          <img src="${appUrl}/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
+          <img src="https://blindfolddate.com/logo.png" alt="blindfold" width="140" height="28" style="display:block;border:0;outline:none;text-decoration:none;" />
         </td></tr>
         <tr><td style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.16);border-radius:24px;box-shadow:0 28px 80px rgba(0,0,0,0.45);padding:32px 28px;text-align:center;">
           <p style="margin:0 0 16px;font-size:42px;">&#10024;</p>
-          <h1 style="margin:0 0 12px;font-size:22px;line-height:1.25;color:#ffffff;">${safePartner} initiated a date night.</h1>
+          <h1 style="margin:0 0 12px;font-size:22px;line-height:1.25;color:#ffffff;">Alex initiated a date night.</h1>
           <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.62);">
             The teaser is ready. Check the vibe, then tap I'm ready when you want the full reveal.
           </p>
-          <a href="${appUrl}/dashboard?tab=date" style="display:inline-block;padding:14px 28px;background:#f43f5e;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:999px;">View teaser</a>
+          <a href="#" style="display:inline-block;padding:14px 28px;background:#f43f5e;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:999px;">View teaser</a>
         </td></tr>
         <tr><td align="center" style="padding-top:24px;">
           <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.3);">
             You're receiving this because you have a BlindfoldDate account.<br />
-            &copy; ${new Date().getFullYear()} BlindfoldDate &nbsp;&middot;&nbsp;
-            <a href="${unsubscribeUrl}" style="color:rgba(255,255,255,0.3);text-decoration:underline;">Unsubscribe</a>
+            &copy; 2026 BlindfoldDate &nbsp;&middot;&nbsp;
+            <a href="#" style="color:rgba(255,255,255,0.3);text-decoration:underline;">Unsubscribe</a>
           </p>
         </td></tr>
       </table>
     </td></tr>
   </table>
 </body>
-</html>`,
-  };
-}
+</html>

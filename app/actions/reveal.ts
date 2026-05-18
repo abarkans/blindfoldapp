@@ -12,6 +12,7 @@ import { getCoupleAccess } from "@/lib/partner-invites";
 import { createDateTeaser } from "@/lib/date-teaser";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateInitiatedEmail } from "@/lib/email/templates/date-initiated";
+import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import type { Database, Json } from "@/lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -392,8 +393,12 @@ async function notifyOtherPartner(
 
   const initiator = members?.find((member) => member.user_id === initiatingUserId);
   const initiatorIsOwner = initiator?.role === "owner";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const unsubscribeToken = generateUnsubscribeToken(other.user_id);
+  const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(other.user_id)}&token=${unsubscribeToken}`;
   const { subject, html } = dateInitiatedEmail({
     partnerName: initiatorIsOwner ? names.partner1 : names.partner2,
+    unsubscribeUrl,
   });
 
   try {
