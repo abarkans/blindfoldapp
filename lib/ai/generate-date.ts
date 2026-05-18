@@ -177,6 +177,38 @@ function describeErr(err: unknown) {
   return { error: String(err), errorName: "Unknown" };
 }
 
+function isOverloadError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const anyErr = err as unknown as { status?: number; statusCode?: number };
+  if (anyErr.status === 529 || anyErr.statusCode === 529) return true;
+  return err.message.includes("529") || err.message.toLowerCase().includes("overload");
+}
+
+async function callModel(
+  model: string,
+  system: string | undefined,
+  prompt: string,
+  maxAttempts = 3
+): Promise<GeneratedDateIdea> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const { output } = await generateText({
+        model: anthropic(model),
+        output: Output.object({ schema: DateIdeaSchema }),
+        system,
+        prompt,
+      });
+      return output;
+    } catch (err) {
+      const overloaded = isOverloadError(err);
+      if (!overloaded || attempt === maxAttempts) throw err;
+      // Exponential backoff: 1s, 2s, 4s before next attempt
+      await new Promise((res) => setTimeout(res, 1000 * 2 ** (attempt - 1)));
+    }
+  }
+  throw new Error("unreachable");
+}
+
 async function callWithFallback({
   system,
   prompt,
@@ -188,13 +220,7 @@ async function callWithFallback({
 }): Promise<GeneratedDateIdea> {
   const primaryModel = isSubscribed ? SONNET : HAIKU;
   try {
-    const { output } = await generateText({
-      model: anthropic(primaryModel),
-      output: Output.object({ schema: DateIdeaSchema }),
-      system,
-      prompt,
-    });
-    return output;
+    return await callModel(primaryModel, system, prompt);
   } catch (err) {
     if (primaryModel === HAIKU) {
       // Free-tier path. No fallback model available — surface the failure.
@@ -210,13 +236,7 @@ async function callWithFallback({
       ...describeErr(err),
     });
     try {
-      const { output } = await generateText({
-        model: anthropic(HAIKU),
-        output: Output.object({ schema: DateIdeaSchema }),
-        system,
-        prompt,
-      });
-      return output;
+      return await callModel(HAIKU, system, prompt);
     } catch (fbErr) {
       logAiEvent("[ai-fallback-failed]", { tier: "plus", ...describeErr(fbErr) });
       throw fbErr;

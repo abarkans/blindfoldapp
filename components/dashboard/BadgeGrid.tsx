@@ -96,7 +96,7 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
     <>
       {/* Backdrop */}
       <motion.div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-black/70 z-50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -105,56 +105,53 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
 
       {/* Modal */}
       <motion.div
-        className="fixed inset-0 z-[60] flex flex-col items-center justify-center px-6 pointer-events-none"
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4 pointer-events-none"
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.88 }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="pointer-events-auto absolute top-8 right-6 w-10 h-10 rounded-full bg-white/[0.075] border border-white/15 flex items-center justify-center hover:bg-white/20 transition-colors"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5 text-white/70" />
-        </button>
-
-        {/* Badge — swipe/click to flip, CSS transition on compositor thread */}
-        <div style={{ perspective: 800 }} className="pointer-events-auto">
-          <div
-            className="cursor-grab active:cursor-grabbing select-none"
-            style={{
-              transform: `rotateY(${rotation}deg)`,
-              transition: "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
-              willChange: "transform",
-            }}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
+        <div className="pointer-events-auto bg-[#030303] border border-white/14 rounded-3xl p-6 shadow-2xl shadow-black/60 flex flex-col items-center">
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="self-end w-8 h-8 rounded-full bg-white/[0.075] border border-white/15 flex items-center justify-center hover:bg-white/20 transition-colors mb-4"
+            aria-label="Close"
           >
-            <Image
-              src={badge.image}
-              alt={badge.name}
-              width={240}
-              height={240}
-              unoptimized
-              className="w-56 h-56 md:w-64 md:h-64 object-contain"
-              draggable={false}
-            />
+            <X className="w-4 h-4 text-white/70" />
+          </button>
+
+          {/* Badge — swipe/click to flip, CSS transition on compositor thread */}
+          <div style={{ perspective: 800 }}>
+            <div
+              className="cursor-grab active:cursor-grabbing select-none"
+              style={{
+                transform: `rotateY(${rotation}deg)`,
+                transition: "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+                willChange: "transform",
+              }}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+            >
+              <Image
+                src={badge.image}
+                alt={badge.name}
+                width={200}
+                height={200}
+                unoptimized
+                className="w-44 h-44 md:w-48 md:h-48 object-contain"
+                draggable={false}
+              />
+            </div>
+          </div>
+
+          {/* Title + date */}
+          <div className="text-center mt-5">
+            <p className="text-xl font-bold text-white mb-1">{badge.name}</p>
+            <p className="text-sm text-white/55">Unlocked on {earnedDate}</p>
+            <p className="text-xs text-white/50 mt-3">Tap or swipe to flip ✦</p>
           </div>
         </div>
-
-        {/* Title + date */}
-        <motion.div
-          className="pointer-events-auto text-center mt-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12 }}
-        >
-          <p className="text-xl font-bold text-white mb-1">{badge.name}</p>
-          <p className="text-sm text-white/55">Unlocked on {earnedDate}</p>
-          <p className="text-xs text-white/50 mt-4">Tap or swipe to flip ✦</p>
-        </motion.div>
       </motion.div>
     </>
   );
@@ -212,7 +209,7 @@ export default function BadgeGrid({ earnedBadges, isFree = false }: BadgeGridPro
                   />
                   {!earned && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                      <div className="w-9 h-9 rounded-full bg-black/60 flex items-center justify-center">
                         <Lock className="w-4 h-4 text-white/70" />
                       </div>
                     </div>

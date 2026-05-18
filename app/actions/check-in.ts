@@ -46,7 +46,7 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("date_idea, date_accepted_at, checkin_owner_at, checkin_partner_at, total_checkins")
+    .select("date_idea, date_accepted_at, checkin_owner_at, checkin_partner_at, total_checkins, total_xp, plan_type")
     .eq("id", access.profileId)
     .single();
 
@@ -71,11 +71,16 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
   const alreadyCheckedIn =
     access.role === "owner" ? !!profile.checkin_owner_at : !!profile.checkin_partner_at;
 
+  const isSubscription = profile.plan_type === "subscription";
+  const XP_CHECKIN = 50;
+  let xpGained = 0;
+
   if (!alreadyCheckedIn) {
+    const xpIncrease = isSubscription ? XP_CHECKIN : 0;
     const checkinUpdate =
       access.role === "owner"
-        ? { checkin_owner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1 }
-        : { checkin_partner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1 };
+        ? { checkin_owner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, ...(xpIncrease && { total_xp: (profile.total_xp ?? 0) + xpIncrease }) }
+        : { checkin_partner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, ...(xpIncrease && { total_xp: (profile.total_xp ?? 0) + xpIncrease }) };
 
     const { error: writeError } = await admin
       .from("profiles")
@@ -86,10 +91,12 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
       console.error(`[audit] checkin: write failed uid=${user.id} msg=${writeError.message}`);
       return { status: "error", error: "Failed to record check-in. Please try again." };
     }
+
+    xpGained = xpIncrease;
   }
 
   revalidatePath("/dashboard");
-  return { status: "waiting" };
+  return { status: "waiting", xpGained };
 }
 
 export async function skipCheckIn(): Promise<{ error?: string }> {

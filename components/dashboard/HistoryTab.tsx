@@ -36,7 +36,7 @@ function PhotoSlot({ r2Key, isPaid }: { r2Key: string | null; isPaid: boolean })
   if (!isPaid || error) {
     return (
       <div className="w-full h-full rounded-2xl overflow-hidden bg-white/[0.035] border border-white/10 relative flex items-center justify-center">
-        <div className="absolute inset-0 backdrop-blur-xl bg-white/[0.03]" />
+        <div className="absolute inset-0 bg-black/50" />
         <Lock className="w-5 h-5 text-white/40 relative z-10" />
       </div>
     );
@@ -93,7 +93,7 @@ function HistoryCard({
               >
                 <PhotoSlot r2Key={photos[0]?.r2_key ?? null} isPaid={isPaid} />
               </button>
-              <div className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 bg-black/60 backdrop-blur-sm rounded-full px-1.5 py-0.5 pointer-events-none">
+              <div className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 rounded-full px-1.5 py-0.5 pointer-events-none">
                 <Camera className="w-2.5 h-2.5 text-white/80" />
                 <span className="text-[10px] font-semibold text-white/90 leading-none">{photos.length}</span>
               </div>
@@ -120,7 +120,7 @@ function HistoryCard({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 p-4"
             onClick={() => setLightboxIdx(null)}
           >
             <button

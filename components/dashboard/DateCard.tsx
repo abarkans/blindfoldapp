@@ -1316,16 +1316,14 @@ export default function DateCard({
                         ))}
                       </div>
                     </div>
-                    {successMessage && <p className="text-xs text-emerald-300 text-center">{successMessage}</p>}
                     {error && <p className="text-xs text-red-400 text-center">{error}</p>}
                     <Button size="lg" className="w-full" disabled={currentUserReady} onClick={!currentUserReady ? handleReveal : undefined}>
-                      <Sparkles className="w-4 h-4 mr-2" />
                       {currentUserReady ? "Waiting for partner" : "I'm ready"}
                     </Button>
                     {!currentUserReady && (
                       <Button
-                        size="md"
-                        variant="outline"
+                        size="lg"
+                        variant="secondary"
                         disabled={!canReroll}
                         onClick={() => {
                           if (!canReroll) return;

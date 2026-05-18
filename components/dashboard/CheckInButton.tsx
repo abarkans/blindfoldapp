@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -9,6 +9,8 @@ import { checkInToDate } from "@/app/actions/check-in";
 import { type UnitSystem } from "@/lib/units";
 
 type CheckInState = "idle" | "locating" | "checking" | "waiting" | "error";
+
+const XP_FADE_MS = 3000;
 
 interface CheckInButtonProps {
   partnerName: string;
@@ -21,8 +23,12 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
   const router = useRouter();
   const [state, setState] = useState<CheckInState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [xpToast, setXpToast] = useState(0);
+  const xpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isWaiting = state === "waiting";
+
+  useEffect(() => () => { if (xpTimerRef.current) clearTimeout(xpTimerRef.current); }, []);
 
   async function handleCheckIn() {
     if (state === "checking" || state === "locating" || state === "waiting") return;
@@ -46,6 +52,11 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
 
           if (result.status === "waiting") {
             setState("waiting");
+            if (result.xpGained > 0) {
+              setXpToast(result.xpGained);
+              if (xpTimerRef.current) clearTimeout(xpTimerRef.current);
+              xpTimerRef.current = setTimeout(() => setXpToast(0), XP_FADE_MS);
+            }
             router.refresh();
             return;
           }
@@ -96,6 +107,11 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
   if (isWaiting) {
     return (
       <div className="flex flex-col gap-2">
+        {xpToast > 0 && (
+          <div className="flex items-center justify-center gap-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+            <span className="text-sm font-bold text-emerald-300">+{xpToast} XP</span>
+          </div>
+        )}
         <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/15 border border-amber-500/30">
           <motion.div
             className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
@@ -141,22 +157,6 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
 
   return (
     <div className="flex flex-col gap-2">
-      {partnerCheckedIn && state !== "error" && (
-        <div className="flex items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2.5">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <p className="text-xs text-emerald-300 font-medium">
-            {partnerName}&apos;s here — your turn
-          </p>
-        </div>
-      )}
-      {partnerSkipped && !partnerCheckedIn && state !== "error" && (
-        <div className="flex items-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 px-3 py-2.5">
-          <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <p className="text-xs text-amber-300 font-medium">
-            {partnerName} skipped — your turn
-          </p>
-        </div>
-      )}
 
       {state === "error" && errorMsg && (
         <div className="flex items-start gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 px-3 py-2.5">

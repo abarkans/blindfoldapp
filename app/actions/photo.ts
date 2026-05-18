@@ -59,7 +59,8 @@ async function tryCompleteIfBothDone(
     return true;
   }
 
-  // Outside dates: all members who physically checked in must have a photo.
+  // Outside dates: every member who physically checked in (not skipped) must
+  // have a photo row (upload OR skip) before completion.
   const [{ data: members }, { data: profile }] = await Promise.all([
     admin.from("couple_members").select("user_id, role").eq("profile_id", profileId),
     admin
@@ -78,7 +79,6 @@ async function tryCompleteIfBothDone(
     })
     .map((m) => m.user_id);
 
-  // Both skipped: handled by skipCheckIn() auto-complete path, not here
   if (requiredUserIds.length === 0) return false;
 
   const { count: photoCount } = await admin
@@ -95,15 +95,20 @@ async function tryCompleteIfBothDone(
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
     if (msg.includes("No active revealed date found")) return true;
+    // RPC guard fired due to a race between our check and the DB write.
+    // Treat as "not yet complete" rather than a 500.
+    if (msg.includes("All members must submit") || msg.includes("Waiting for all partners")) return false;
     throw err;
   }
   return true;
 }
 
+const XP_PHOTO = 25;
+
 export async function savePhoto(
   dateIdeaId: string,
   r2Key: string
-): Promise<{ error?: string; completed?: boolean }> {
+): Promise<{ error?: string; completed?: boolean; xpGained?: number }> {
   const { user } = await getClientAndUser();
   if (!user) return { error: "Unauthorized" };
 
@@ -123,7 +128,7 @@ export async function savePhoto(
   // Block users who skipped check-in (defense-in-depth vs stale presign URLs)
   const { data: checkinProfile } = await admin
     .from("profiles")
-    .select("checkin_owner_skipped, checkin_partner_skipped")
+    .select("checkin_owner_skipped, checkin_partner_skipped, total_xp, plan_type")
     .eq("id", access.profileId)
     .single();
   const mySkipped =
@@ -159,9 +164,18 @@ export async function savePhoto(
 
   if (error) return { error: error.message };
 
+  let xpGained = 0;
+  if (checkinProfile?.plan_type === "subscription") {
+    const { error: xpError } = await admin
+      .from("profiles")
+      .update({ total_xp: (checkinProfile.total_xp ?? 0) + XP_PHOTO })
+      .eq("id", access.profileId);
+    if (!xpError) xpGained = XP_PHOTO;
+  }
+
   const completed = await tryCompleteIfBothDone(admin, access.profileId, dateIdeaId);
   revalidatePath("/dashboard");
-  return { completed };
+  return { completed, xpGained };
 }
 
 export async function skipPhoto(

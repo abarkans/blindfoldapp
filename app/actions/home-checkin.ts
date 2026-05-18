@@ -66,5 +66,5 @@ export async function homeCheckIn(): Promise<CheckInResult> {
   }
 
   revalidatePath("/dashboard");
-  return { status: "waiting" };
+  return { status: "waiting", xpGained: 0 };
 }

@@ -437,7 +437,7 @@ export interface UserPlan {
 }
 
 export type CheckInResult =
-  | { status: "waiting" }
+  | { status: "waiting"; xpGained: number }
   | { status: "completed"; result: CompleteDateResult }
   | { status: "too_far"; distanceMeters: number }
   | { status: "no_venue" }

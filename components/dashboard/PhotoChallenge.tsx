@@ -101,6 +101,8 @@ export default function PhotoChallenge({
   const [pendingBlob, setPendingBlob] = useState<Blob | null>(null);
   const [photos, setPhotos] = useState<DatePhoto[]>([]);
   const [skipDialogOpen, setSkipDialogOpen] = useState(false);
+  const [xpToast, setXpToast] = useState(0);
+  const xpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const myPhoto = photos.find((p) => p.uploader_user_id === myUserId);
   const partnerPhoto = photos.find((p) => p.uploader_user_id !== myUserId);
@@ -123,6 +125,8 @@ export default function PhotoChallenge({
       fileInputRef.current?.click();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => () => { if (xpTimerRef.current) clearTimeout(xpTimerRef.current); }, []);
 
   // Realtime: listen for partner photo uploads and trigger refresh when date completes
   useEffect(() => {
@@ -208,6 +212,11 @@ export default function PhotoChallenge({
       }
       setPendingBlob(null);
       setUploadState("done");
+      if ((result.xpGained ?? 0) > 0) {
+        setXpToast(result.xpGained!);
+        if (xpTimerRef.current) clearTimeout(xpTimerRef.current);
+        xpTimerRef.current = setTimeout(() => setXpToast(0), 3000);
+      }
       await fetchPhotos();
       if (result.completed) onComplete?.();
     } catch (err) {
@@ -337,6 +346,12 @@ export default function PhotoChallenge({
           </motion.div>,
           document.body
         )}
+
+      {xpToast > 0 && (
+        <div className="flex items-center justify-center gap-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 mb-2">
+          <span className="text-sm font-bold text-emerald-300">+{xpToast} XP</span>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {uploadState === "processing" ? (
