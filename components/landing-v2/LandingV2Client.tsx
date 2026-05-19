@@ -709,6 +709,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
                 <Link
                   href={`/register?plan=${plan.id}`}
+                  rel="nofollow"
                   className={[
                     "w-full text-center py-4 md:py-5 rounded-full text-sm font-bold transition-all",
                     plan.highlighted
