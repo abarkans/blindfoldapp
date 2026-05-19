@@ -393,7 +393,7 @@ async function notifyOtherPartner(
 
   const initiator = members?.find((member) => member.user_id === initiatingUserId);
   const initiatorIsOwner = initiator?.role === "owner";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
   const unsubscribeToken = generateUnsubscribeToken(other.user_id);
   const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(other.user_id)}&token=${unsubscribeToken}`;
   const { subject, html } = dateInitiatedEmail({

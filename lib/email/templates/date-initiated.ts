@@ -17,7 +17,7 @@ export function dateInitiatedEmail({
   unsubscribeUrl,
 }: DateInitiatedEmailProps): { subject: string; html: string } {
   const safePartner = escapeHtml(partnerName || "Your partner");
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
 
   return {
     subject: `${safePartner} initiated a date night`,
