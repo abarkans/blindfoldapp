@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  icons: {
+    apple: "/apple_icon.png",
+  },
   openGraph: {
     title: "BlindfoldDate — Date nights, planned for you",
     description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",

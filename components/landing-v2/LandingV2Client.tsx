@@ -316,7 +316,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
         >
           <Image
             src={activeHeroVideo.poster}
-            alt=""
+            alt="Couple enjoying a surprise date night"
             fill
             priority
             sizes="100vw"
@@ -537,6 +537,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
           <div
             className="relative h-[450px] md:hidden"
+            aria-hidden="true"
             onTouchStart={handleSampleTouchStart}
             onTouchEnd={handleSampleTouchEnd}
           >

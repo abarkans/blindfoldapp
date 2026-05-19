@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllPosts, getPost, formatDate } from "@/lib/blog";
 import PublicPageShell from "@/components/ui/PublicPageShell";
+import ShareButtons from "@/components/blog/ShareButtons";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -129,12 +130,15 @@ export default async function BlogPostPage({
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">{post.title}</h1>
               <p className="text-xl text-white/50 leading-relaxed mb-5">{post.description}</p>
-              <div className="flex items-center gap-3 text-sm text-white/30 border-b border-white/10 pb-6">
-                <span>{post.author}</span>
-                <span>·</span>
-                <span>{formatDate(post.date)}</span>
-                <span>·</span>
-                <span>{post.readingTime} min read</span>
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6 flex-wrap">
+                <div className="flex items-center gap-3 text-sm text-white/30">
+                  <span>{post.author}</span>
+                  <span>·</span>
+                  <span>{formatDate(post.date)}</span>
+                  <span>·</span>
+                  <span>{post.readingTime} min read</span>
+                </div>
+                <ShareButtons url={`${SITE_URL}/blog/${slug}`} title={post.title} />
               </div>
             </header>
 
