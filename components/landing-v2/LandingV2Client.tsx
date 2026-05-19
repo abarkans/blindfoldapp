@@ -86,6 +86,7 @@ const NAV_LINKS = [
   { label: "How it works", href: "#how-it-works", scroll: false },
   { label: "Features", href: "#features", scroll: false },
   { label: "Pricing", href: "#plans", scroll: false },
+  { label: "Blog", href: "/blog", scroll: false },
 ];
 
 const HERO_VIDEOS = [
@@ -188,7 +189,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="absolute inset-0 bg-black/72 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/[0.12] shadow-[0_1px_0_rgba(255,255,255,0.04),0_18px_60px_rgba(0,0,0,0.45)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/[0.055] to-transparent pointer-events-none" />
-        <nav className="relative flex items-center justify-between px-6 md:px-14 h-[68px] max-w-[1440px] mx-auto">
+        <nav className="relative flex items-center justify-between px-6 min-[992px]:px-14 h-[68px] max-w-[1440px] mx-auto">
           <button
             onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
             className="flex items-center gap-2.5 group"
@@ -197,7 +198,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
             <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} priority className="object-contain group-hover:opacity-75 transition-opacity" />
           </button>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden min-[992px]:flex items-center gap-8">
             {NAV_LINKS.map(({ label, href, scroll }) =>
               scroll ? (
                 <button
@@ -219,7 +220,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
             )}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden min-[992px]:flex items-center gap-4">
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
@@ -245,7 +246,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
           </div>
 
           <button
-            className="md:hidden w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-all"
+            className="min-[992px]:hidden w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-all"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
@@ -262,7 +263,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
         {/* Mobile menu — CSS transition, always in DOM */}
         <div
-          className={`md:hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex flex-col px-6 pb-8 transition-[opacity,transform] duration-200 ease-out ${
+          className={`min-[992px]:hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex flex-col px-6 pb-8 transition-[opacity,transform] duration-200 ease-out ${
             menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-3 pointer-events-none"
           }`}
         >
@@ -346,10 +347,10 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.42)_44%,rgba(0,0,0,0.14)_78%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/38 via-transparent to-black/76" />
 
-          <div className="relative mx-auto flex min-h-[76dvh] max-w-[1280px] flex-col items-start justify-end px-6 pb-14 pt-[120px] text-left md:px-10 md:pb-[72px] md:pt-[96px] lg:pb-24">
+          <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-end px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
             <div className="w-full max-w-[720px]">
             {/* Hero headline — Bumble-bold scale */}
-            <h1 className="text-[52px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
+            <h1 className="text-[48px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
               <span className="block">
                 We plan the date.
               </span>
@@ -386,12 +387,9 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     Plan our next date
                   </Link>
-                  <Link
-                    href="/login"
-                    className="inline-flex items-center justify-center font-semibold text-base text-white px-8 h-14 md:h-16 rounded-full border border-white/15 hover:border-white/30 hover:bg-white/5 backdrop-blur-sm transition-all"
-                  >
+                  <LinkButton href="/login" variant="secondary" size="lg">
                     Sign in
-                  </Link>
+                  </LinkButton>
                 </>
               )}
             </div>
@@ -781,6 +779,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
               {[{ label: "How it works", href: "#how-it-works" }, { label: "Features", href: "#features" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
                 <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
               ))}
+              <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Account</p>
