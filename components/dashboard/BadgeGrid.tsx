@@ -193,7 +193,7 @@ export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone,
           </div>
         )}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {ALL_MILESTONES.map((milestone, i) => {
+          {ALL_MILESTONES.filter((m) => m.name !== "Subscriber" || earnedNames.has("Subscriber")).map((milestone, i) => {
             const earned = earnedNames.has(milestone.name);
             return (
               <motion.div
