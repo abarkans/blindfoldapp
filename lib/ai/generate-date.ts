@@ -197,7 +197,6 @@ async function callModel(
         output: Output.object({ schema: DateIdeaSchema }),
         system,
         prompt,
-        maxTokens: 768,
       });
       return output;
     } catch (err) {
