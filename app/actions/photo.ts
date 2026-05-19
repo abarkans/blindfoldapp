@@ -118,7 +118,7 @@ export async function savePhoto(
   // Validate dateIdeaId is this couple's currently-revealed date (not historical).
   const { data: activeIdea } = await admin
     .from("date_ideas")
-    .select("id")
+    .select("id, location_type")
     .eq("id", dateIdeaId)
     .eq("user_id", access.profileId)
     .eq("status", "revealed")
@@ -163,6 +163,17 @@ export async function savePhoto(
   });
 
   if (error) return { error: error.message };
+
+  // For home dates, photo upload IS the check-in signal — mirror what skipPhoto
+  // does so complete_date's dual-check-in guard doesn't block completion.
+  if (activeIdea.location_type === "home") {
+    const nowIso = new Date().toISOString();
+    const checkinFlag =
+      access.role === "owner"
+        ? { checkin_owner_at: nowIso }
+        : { checkin_partner_at: nowIso };
+    await admin.from("profiles").update(checkinFlag).eq("id", access.profileId);
+  }
 
   let xpGained = 0;
   if (checkinProfile?.plan_type === "subscription") {

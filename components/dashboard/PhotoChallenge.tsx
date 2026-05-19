@@ -190,6 +190,13 @@ export default function PhotoChallenge({
         body: JSON.stringify({ dateIdeaId }),
       });
 
+      if (res.status === 409) {
+        // Photo already in DB (previous upload succeeded but threw on complete step).
+        await fetchPhotos();
+        setUploadState("done");
+        return;
+      }
+
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? "Failed to get upload URL");

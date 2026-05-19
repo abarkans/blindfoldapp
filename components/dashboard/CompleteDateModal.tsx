@@ -186,33 +186,28 @@ export default function CompleteDateModal({
   useEffect(() => {
     if (!isOpen) return;
     const fire = getFire();
-    fire({
-      particleCount: 90,
-      spread: 80,
-      origin: { y: 0.55 },
-      ticks: 120,
-      scalar: 0.9,
-      colors: ["#f97316", "#f59e0b", "#ec4899", "#a855f7", "#ffffff"],
-    });
-    const t = setTimeout(() => {
+    const colors = ["#f97316", "#f59e0b", "#ec4899", "#a855f7", "#ffffff", "#34d399"];
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    const interval = setInterval(() => {
+      if (Date.now() > end) {
+        clearInterval(interval);
+        return;
+      }
       fire({
-        particleCount: 40,
-        spread: 50,
-        origin: { x: 0.2, y: 0.6 },
-        ticks: 120,
-        scalar: 0.9,
-        colors: ["#f97316", "#f59e0b", "#ffffff"],
+        particleCount: 6,
+        spread: 55,
+        origin: { x: Math.random(), y: 0 },
+        startVelocity: 18 + Math.random() * 10,
+        gravity: 0.75,
+        ticks: 220,
+        scalar: 0.85,
+        colors,
       });
-      fire({
-        particleCount: 40,
-        spread: 50,
-        origin: { x: 0.8, y: 0.6 },
-        ticks: 120,
-        scalar: 0.9,
-        colors: ["#ec4899", "#a855f7", "#ffffff"],
-      });
-    }, 350);
-    return () => clearTimeout(t);
+    }, 40);
+
+    return () => clearInterval(interval);
   }, [isOpen]);
 
   return (

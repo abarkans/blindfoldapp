@@ -3,7 +3,7 @@
 import { use, useState } from "react";
 import Button from "@/components/ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Lock, Sparkles, CalendarDays, X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
+import { Camera, Lock, Sparkles, CalendarDays, MapPin, X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
 
 interface HistoryTabProps {
@@ -18,8 +18,16 @@ function formatDate(iso: string | null) {
 }
 
 function getDateName(idea: Record<string, unknown>): string {
-  if (idea.type === "venue") return (idea.display_name as string) ?? "Venue date";
+  if (idea.type === "venue") {
+    const ai = idea.ai as Record<string, unknown> | undefined;
+    return (ai?.title as string) ?? (idea.title as string) ?? "Venue date";
+  }
   return (idea.title as string) ?? "Date night";
+}
+
+function getDateLocation(idea: Record<string, unknown>): string | null {
+  if (idea.type === "venue") return (idea.display_name as string) ?? null;
+  return null;
 }
 
 function PhotoSlot({ r2Key, isPaid }: { r2Key: string | null; isPaid: boolean }) {
@@ -63,6 +71,7 @@ function HistoryCard({
   isPaid: boolean;
 }) {
   const name = getDateName(date.idea);
+  const location = getDateLocation(date.idea);
   const photos = date.photos;
   const hasPhotos = photos.length > 0;
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -104,7 +113,17 @@ function HistoryCard({
         {/* Info */}
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-white truncate">{name}</p>
-          <p className="text-xs text-white/45 mt-0.5">{formatDate(date.revealed_at)}</p>
+          <div className="flex items-center gap-1 mt-1 min-w-0">
+            <CalendarDays className="w-3 h-3 text-white/35 shrink-0" />
+            <p className="text-xs text-white/45 shrink-0">{formatDate(date.revealed_at)}</p>
+            {location && (
+              <>
+                <span className="text-white/25 text-xs shrink-0">·</span>
+                <MapPin className="w-3 h-3 text-white/35 shrink-0" />
+                <p className="text-xs text-white/45 truncate">{location}</p>
+              </>
+            )}
+          </div>
           {!hasPhotos && (
             <p className="text-[11px] text-white/25 mt-1">No photo captured</p>
           )}
