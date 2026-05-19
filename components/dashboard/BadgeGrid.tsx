@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, X } from "lucide-react";
+import { Lock, X, Target } from "lucide-react";
 
 // Static list mirrors the milestones seeded in migration 004
 const ALL_MILESTONES = [
@@ -54,9 +54,16 @@ interface EarnedBadge {
   earned_at: string;
 }
 
+interface NextMilestone {
+  threshold: number;
+  name: string;
+}
+
 interface BadgeGridProps {
   earnedBadges: EarnedBadge[];
   isFree?: boolean;
+  nextMilestone?: NextMilestone;
+  datesCompleted?: number;
 }
 
 interface OpenBadge {
@@ -157,17 +164,34 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
   );
 }
 
-export default function BadgeGrid({ earnedBadges, isFree = false }: BadgeGridProps) {
+export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone, datesCompleted = 0 }: BadgeGridProps) {
   const earnedNames = isFree ? new Set<string>() : new Set(earnedBadges.map((b) => b.name));
   const earnedMap = new Map(earnedBadges.map((b) => [b.name, b.earned_at]));
   const [openBadge, setOpenBadge] = useState<OpenBadge | null>(null);
 
   return (
     <>
-      <div className="mt-6">
+      <div>
         <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
           Trophy Room
         </h3>
+        {nextMilestone && (
+          <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4 mb-4 flex items-center gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
+              <Target className="w-5 h-5 text-white/65" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">
+                {nextMilestone.threshold - datesCompleted} date
+                {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-pink-400">{nextMilestone.name}</span>
+              </p>
+              <p className="text-xs text-white/55 mt-0.5">
+                Complete {nextMilestone.threshold - datesCompleted} more date{nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} to earn this badge
+              </p>
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {ALL_MILESTONES.map((milestone, i) => {
             const earned = earnedNames.has(milestone.name);

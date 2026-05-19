@@ -13,7 +13,7 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
   const xpToNext = required - current;
 
   return (
-    <div className="mb-4">
+    <div className="mb-10">
       <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
         Level
       </h3>

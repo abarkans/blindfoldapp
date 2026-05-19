@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Target, Camera } from "lucide-react";
+import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Camera } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -493,7 +493,7 @@ function StatsGrid({
   ];
 
   return (
-    <div className="mt-6 mb-8">
+    <div className="mt-6 mb-10">
       <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
         Statistics
       </h3>
@@ -551,25 +551,7 @@ function ProgressTabContent({
 
       <XPProgressBar totalXp={totalXp} />
 
-      {nextMilestone && (
-        <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4 mb-2 flex items-center gap-3.5">
-          <div className="w-9 h-9 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
-            <Target className="w-5 h-5 text-white/65" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">
-              {nextMilestone.threshold - datesCompleted} date
-              {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-pink-400">{nextMilestone.name}</span>
-            </p>
-            <p className="text-xs text-white/55 mt-0.5">
-              Complete {nextMilestone.threshold - datesCompleted} more date{nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} to earn this badge
-            </p>
-          </div>
-        </div>
-      )}
-
-      <BadgeGrid earnedBadges={displayBadges} />
+      <BadgeGrid earnedBadges={displayBadges} nextMilestone={nextMilestone} datesCompleted={datesCompleted} />
     </div>
   );
 }
