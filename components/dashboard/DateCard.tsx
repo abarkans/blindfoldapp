@@ -787,7 +787,7 @@ export default function DateCard({
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
                         className="text-sm text-white/50 text-center px-4"
                       >
                         {REROLL_MESSAGES[loadingMsgIndex % REROLL_MESSAGES.length]}
@@ -801,7 +801,7 @@ export default function DateCard({
                     key="choice"
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
                     className="flex flex-col gap-4"
                   >
                     {/* Peek preview */}
@@ -1371,7 +1371,7 @@ export default function DateCard({
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
                         className="text-sm text-white/50 text-center px-4"
                       >
                         {(isRerollPending

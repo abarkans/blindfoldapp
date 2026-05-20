@@ -224,7 +224,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-all"
+                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-[background-color] duration-150"
               >
                 Dashboard
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -236,7 +236,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-all"
+                  className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-[background-color] duration-150"
                 >
                   Get started free
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -246,7 +246,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
           </div>
 
           <button
-            className="min-[992px]:hidden w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-all"
+            className="min-[992px]:hidden w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-[color,background-color] duration-150"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
@@ -271,7 +271,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
             <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }} className="flex items-center gap-2.5">
               <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
             </button>
-            <button onClick={() => setMenuOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-all" aria-label="Close menu">
+            <button onClick={() => setMenuOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-[color,background-color] duration-150" aria-label="Close menu">
               <X className="w-6 h-6" />
             </button>
           </div>
@@ -372,7 +372,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
               {isLoggedIn ? (
                 <Link
                   href="/dashboard"
-                  className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                  className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                 >
                   <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   Go to Dashboard
@@ -381,7 +381,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <>
                   <Link
                     href="/register"
-                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-all overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     Plan our next date
@@ -442,7 +442,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
             <div className="bento-grid-v3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
               {/* Real places — large */}
               <div
-                className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover grayscale opacity-70" src="/features/feat-1.jpg" alt="Mystery date planning" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -458,7 +458,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
               {/* Written for you */}
               <div
-                className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-2.jpg" alt="Written for you" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -470,7 +470,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
               {/* Budget-aware */}
               <div
-                className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-3.jpg" alt="Budget aware" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -482,7 +482,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
               {/* One tap */}
               <div
-                className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-4.jpg" alt="One tap" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -494,7 +494,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
               {/* Grow together — large */}
               <div
-                className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill sizes="66vw" className="object-cover grayscale opacity-70" src="/features/feat-5.jpg" alt="Grow together" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -508,7 +508,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
               {/* Partner invite */}
               <div
-                className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
+                className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]"
               >
                 <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-4.jpg" alt="Invite partner" />
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
@@ -550,7 +550,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                   type="button"
                   onClick={() => setActiveSampleDate(i)}
                   aria-label={`View ${date.title}`}
-                  className={`h-1.5 rounded-full transition-all ${
+                  className={`h-1.5 rounded-full transition-[width,background-color] duration-150 ${
                     i === activeSampleDate ? "w-5 bg-white" : "w-1.5 bg-[#3f3f3f]"
                   }`}
                 />
@@ -588,7 +588,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
               <button
                 type="button"
                 onClick={() => setBillingInterval("monthly")}
-                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
                   billingInterval === "monthly"
                     ? "bg-white/15 text-white shadow"
                     : "text-white/45 hover:text-white/70"
@@ -599,7 +599,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
               <button
                 type="button"
                 onClick={() => setBillingInterval("yearly")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
                   billingInterval === "yearly"
                     ? "bg-white/15 text-white shadow"
                     : "text-white/45 hover:text-white/70"
@@ -622,7 +622,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                       <button
                         type="button"
                         onClick={() => setBillingInterval("monthly")}
-                        className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                        className={`px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
                           billingInterval === "monthly"
                             ? "bg-white/15 text-white shadow"
                             : "text-white/45 hover:text-white/70"
@@ -633,7 +633,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                       <button
                         type="button"
                         onClick={() => setBillingInterval("yearly")}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
                           billingInterval === "yearly"
                             ? "bg-white/15 text-white shadow"
                             : "text-white/45 hover:text-white/70"
@@ -649,7 +649,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 )}
               <div
                 className={[
-                  "relative flex flex-col gap-8 rounded-3xl border p-8 md:p-10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]",
+                  "relative flex flex-col gap-8 rounded-3xl border p-8 md:p-10 transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-1.5 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]",
                   plan.highlighted
                     ? "bg-[#050202] border-rose-400/45 hover:border-rose-300/70"
                     : "bg-[#030303] border-white/14 hover:border-white/26",
@@ -707,7 +707,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                   href={`/register?plan=${plan.id}`}
                   rel="nofollow"
                   className={[
-                    "w-full text-center py-4 md:py-5 rounded-full text-sm font-bold transition-all",
+                    "w-full text-center py-4 md:py-5 rounded-full text-sm font-bold transition-[background-color,color,border-color] duration-150",
                     plan.highlighted
                       ? "bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
                       : "bg-white/8 text-white/60 border border-white/10 hover:bg-white/12 hover:text-white",
@@ -745,7 +745,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
             <Link
               href="/register"
-              className="group relative inline-flex items-center gap-3 font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-all overflow-hidden bg-rose-500 text-white hover:bg-rose-400 shadow-2xl shadow-rose-500/30 focus-visible:outline-none"
+              className="group relative inline-flex items-center gap-3 font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-[background-color] duration-150 overflow-hidden bg-rose-500 text-white hover:bg-rose-400 shadow-2xl shadow-rose-500/30 focus-visible:outline-none"
             >
               Book my first mystery date
               <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
@@ -807,7 +807,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
 function DateExampleCard({ date, unitSystem = "metric" }: { date: (typeof SAMPLE_DATES)[number]; unitSystem?: UnitSystem }) {
   return (
-    <div className="group flex h-[410px] flex-col rounded-3xl border border-white/14 bg-[#030303] overflow-hidden text-left transition-all duration-300 hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)] md:block md:h-auto">
+    <div className="group flex h-[410px] flex-col rounded-3xl border border-white/14 bg-[#030303] overflow-hidden text-left transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)] md:block md:h-auto">
       <div className="relative h-40 shrink-0 overflow-hidden bg-black md:h-56">
         <Image
           src={date.image}

@@ -113,9 +113,9 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
       {/* Modal */}
       <motion.div
         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4 pointer-events-none"
-        initial={{ opacity: 0, scale: 0.85 }}
+        initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.88 }}
+        exit={{ opacity: 0, scale: 0.95 }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
       >
         <div className="pointer-events-auto bg-[#030303] border border-white/14 rounded-3xl p-6 shadow-2xl shadow-black/60 flex flex-col items-center">
@@ -200,7 +200,7 @@ export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone,
                 key={milestone.name}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07, duration: 0.4 }}
+                transition={{ delay: i * 0.07, duration: 0.25, ease: "easeOut" }}
                 className={`relative p-4 text-center ${earned ? "cursor-pointer" : ""}`}
                 onClick={() => {
                   if (!earned) return;
@@ -213,10 +213,8 @@ export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone,
                 }}
               >
                 {/* Badge image */}
-                <motion.div
-                  className="relative w-32 h-32 mx-auto mb-2"
-                  whileHover={earned ? { scale: 1.06 } : {}}
-                  transition={{ duration: 0.2 }}
+                <div
+                  className={`relative w-32 h-32 mx-auto mb-2 transition-transform duration-200 ease-out ${earned ? "[@media(hover:hover)_and_(pointer:fine)]:hover:scale-[1.06]" : ""}`}
                 >
                   <Image
                     src={milestone.image}
@@ -238,7 +236,7 @@ export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone,
                       </div>
                     </div>
                   )}
-                </motion.div>
+                </div>
 
                 <p className={`text-sm font-semibold mb-0.5 ${earned ? "text-white" : "text-white/50"}`}>
                   {milestone.name}

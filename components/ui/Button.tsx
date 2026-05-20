@@ -7,7 +7,7 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "outl
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center font-semibold rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95";
+  "inline-flex items-center justify-center font-semibold rounded-full transition-[color,background-color,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]";
 
 const variantMap: Record<ButtonVariant, string> = {
   primary: "bg-rose-500 text-white hover:bg-rose-400",

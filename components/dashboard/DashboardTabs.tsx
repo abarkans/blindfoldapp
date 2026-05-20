@@ -211,7 +211,7 @@ export default function DashboardTabs({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="mx-4 mt-3"
           >
             <div className="max-w-sm md:max-w-2xl mx-auto flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3.5">
@@ -380,7 +380,7 @@ function DateTabContent({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="mb-4 bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-white/16 rounded-3xl p-5"
           >
             <div className="flex items-start justify-between mb-3">
