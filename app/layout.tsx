@@ -58,6 +58,16 @@ const jsonLd = {
   operatingSystem: "Web",
 };
 
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "BlindfoldDate",
+  url: SITE_URL,
+  logo: `${SITE_URL}/apple_icon.png`,
+  description: "AI-powered mystery date planning app for couples.",
+  sameAs: [],
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -82,6 +92,12 @@ export default async function RootLayout({
           nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          nonce={nonce}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
         <CapacitorAuthHandler />
         <PostHogProvider>{children}</PostHogProvider>

@@ -1,0 +1,37 @@
+# BlindfoldDate
+
+> AI-powered mystery date planning for couples. Tell us your interests once — we find real nearby venues and craft a surprise date experience tailored to you both.
+
+## What is BlindfoldDate?
+
+BlindfoldDate is a web app that plans surprise date nights for couples. Users answer a few questions about their preferences (interests, budget, mobility, location) and receive a curated mystery date idea — either a real nearby venue discovered via Google Places or a fully AI-generated experience.
+
+## How it works
+
+1. Couples onboard together: share names, interests, constraints, and location
+2. BlindfoldDate generates a surprise date idea (venue + AI-crafted narrative)
+3. The date is revealed progressively — blurred teaser first, full reveal when ready
+4. After completing the date, couples earn XP and badges
+
+## Plans
+
+- **Starter (free)**: One surprise date idea, limited interests (food, nature, romance), 1 lifetime reroll
+- **Plus (€5.99/mo)**: All interests, weekly/biweekly/monthly cadence, 1 reroll per date
+
+## Key pages
+
+- `/` — Landing page
+- `/login` — Authentication
+- `/onboarding` — 5-step couple setup
+- `/dashboard` — Date card, progress, badges
+
+## Technology
+
+- Next.js App Router + Supabase (PostgreSQL + Auth)
+- Google Places API for venue discovery
+- Claude (Anthropic) for date narrative generation
+- Stripe for subscriptions
+
+## Contact
+
+- Website: https://blindfolddate.com

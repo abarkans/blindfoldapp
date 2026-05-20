@@ -364,8 +364,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
             {/* Subtext */}
             <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-              Answer a few questions once — together or solo. We find real venues
-              near you, craft your date story, and handle every detail. You just show up.
+              Answer a few questions once — budget, interests, distance. We find real venues near you and craft your mystery date story. You just show up.
             </p>
 
             {/* CTAs */}
@@ -387,7 +386,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     Plan our next date
                   </Link>
-                  <LinkButton href="/login" variant="secondary" size="lg">
+                  <LinkButton href="/login" variant="secondary" size="lg" className="md:h-16">
                     Sign in
                   </LinkButton>
                 </>
@@ -435,6 +434,9 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <br />
                 <span className="text-white/35">We&rsquo;ll do the rest.</span>
               </h2>
+              <p className="mt-4 text-white/55 text-base md:text-lg leading-relaxed max-w-xl">
+                From free mystery dates to budget-friendly outings, every plan is crafted for couples who&rsquo;d rather enjoy than organize.
+              </p>
             </div>
 
             <style>{`
