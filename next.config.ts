@@ -56,10 +56,11 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: securityHeaders,
       },
-      {
-        source: "/_next/static/(.*)",
-        headers: immutableCache,
-      },
+      // Skip in dev — Next.js warns that overriding Cache-Control on _next/static
+      // breaks HMR. Header is only meaningful on the CDN anyway.
+      ...(process.env.NODE_ENV !== "development"
+        ? [{ source: "/_next/static/(.*)", headers: immutableCache }]
+        : []),
       {
         source: "/(.*\\.(?:jpg|jpeg|webp|avif|png|gif|ico|svg|woff2?|mp4|webm))",
         headers: immutableCache,
