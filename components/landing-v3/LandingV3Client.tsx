@@ -345,7 +345,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
           <div className="absolute inset-0 bg-gradient-to-b from-black/38 via-transparent to-black/76" />
 
           <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-end px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
-            <div className="w-full max-w-[720px]">
+            <div className="w-full max-w-[960px]">
               <h1 className="text-[48px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
                   Stop debating.
