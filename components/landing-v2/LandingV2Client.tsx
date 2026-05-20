@@ -439,12 +439,6 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
               </p>
             </div>
 
-            <style>{`
-              @media (min-width: 768px) {
-                .bento-grid-v3 { grid-template-rows: repeat(4, 164px); }
-              }
-            `}</style>
-
             <div className="bento-grid-v3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
               {/* Real places — large */}
               <div

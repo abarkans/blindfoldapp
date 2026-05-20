@@ -121,3 +121,7 @@ input[type="range"]::-webkit-slider-thumb {
 .lucide.fill-white\/72 {
   fill: #b8b8b8;
 }
+
+@media (min-width: 768px) {
+  .bento-grid-v3 { grid-template-rows: repeat(4, 164px); }
+}
