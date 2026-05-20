@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { getAllPosts } from "@/lib/blog";
 import PostCard from "@/components/blog/PostCard";
 import PublicPageShell from "@/components/ui/PublicPageShell";
+import PublicNav from "@/components/ui/PublicNav";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -37,15 +37,9 @@ export default function BlogPage() {
 
   return (
     <PublicPageShell>
-      <header className="border-b border-white/10 h-[68px] flex items-center">
-        <div className="w-full max-w-[1440px] mx-auto px-6 md:px-14">
-          <Link href="/" className="inline-flex items-center">
-            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
-          </Link>
-        </div>
-      </header>
+      <PublicNav />
 
-      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 pb-10">
         <div className="max-w-[720px] mx-auto">
           <nav aria-label="Breadcrumb" className="mb-8">
             <ol className="flex items-center gap-1.5 text-sm">

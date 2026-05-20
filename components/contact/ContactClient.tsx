@@ -7,10 +7,10 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { Mail, User, MessageSquare, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PublicPageShell from "@/components/ui/PublicPageShell";
+import PublicNav from "@/components/ui/PublicNav";
 import { submitContact } from "@/app/actions/contact";
 import { cn } from "@/lib/utils";
 
@@ -50,16 +50,14 @@ export default function ContactClient() {
 
   return (
     <PublicPageShell>
-    <div className="min-h-dvh flex items-center justify-center p-4">
+      <PublicNav showCta={false} />
+    <div className="min-h-dvh flex items-center justify-center pb-4 px-4">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="w-full max-w-sm"
       >
-        <Link href="/" className="flex flex-col items-center gap-3 mb-8">
-          <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
-        </Link>
 
         <div className="bg-[#030303]/88 border border-white/16 rounded-3xl p-6 backdrop-blur-xl shadow-[0_28px_80px_rgba(0,0,0,0.45)]">
           {sent ? (

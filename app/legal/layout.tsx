@@ -1,25 +1,21 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import PublicPageShell from "@/components/ui/PublicPageShell";
+import PublicNav from "@/components/ui/PublicNav";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
     <PublicPageShell>
-    <div className="min-h-dvh px-6 py-8 max-w-2xl mx-auto">
+      <PublicNav showCta={false} />
+    <div className="min-h-dvh px-6 pb-8 max-w-2xl mx-auto">
       <div className="mb-8">
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Link>
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="BlindfoldDate" width={96} height={28} className="object-contain" />
-          </Link>
-        </div>
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Link>
       </div>
 
       <article>
