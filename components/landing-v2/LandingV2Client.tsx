@@ -91,12 +91,12 @@ const NAV_LINKS = [
 
 const HERO_VIDEOS = [
   {
-    poster: "/hero-video-poster.jpg",
+    poster: "/hero-video-poster.webp",
     webm: "/hero-video.webm",
     mp4: "/hero-video-small.mp4",
   },
   {
-    poster: "/hero-video2-poster.jpg",
+    poster: "/hero-video2-poster.webp",
     webm: "/hero-video2.webm",
     mp4: "/hero-video2-small.mp4",
   },

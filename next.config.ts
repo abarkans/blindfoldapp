@@ -48,10 +48,21 @@ const nextConfig: NextConfig = {
     // that briefly appear in URLs on these routes. The site-wide
     // metadata.robots noindex tag is HTML-only; this is HTTP-level.
     const noIndex = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
+    // Immutable cache for versioned Next.js static chunks (_next/static/).
+    // Public media (images, video, audio) gets 1-year CDN cache.
+    const immutableCache = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
     return [
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        source: "/_next/static/(.*)",
+        headers: immutableCache,
+      },
+      {
+        source: "/(.*\\.(?:jpg|jpeg|webp|avif|png|gif|ico|svg|woff2?|mp4|webm))",
+        headers: immutableCache,
       },
       { source: "/login/:path*", headers: noIndex },
       { source: "/register/:path*", headers: noIndex },
