@@ -44,10 +44,11 @@ function buildCsp(nonce: string, enforce: boolean): string {
     "https://*.supabase.co",
     "wss://*.supabase.co",
     "https://nominatim.openstreetmap.org",
-    // PostHog EU ingestion + assets
+    // PostHog EU ingestion + assets (us.posthog.com needed for toolbar source maps)
     "https://eu.i.posthog.com",
     "https://eu-assets.i.posthog.com",
     "https://internal-j.posthog.com",
+    "https://us.posthog.com",
     // Sentry EU ingestion (de datacenter)
     "https://o4511336614068224.ingest.de.sentry.io",
     // Cloudflare R2 presigned PUT uploads (direct browser → R2)
