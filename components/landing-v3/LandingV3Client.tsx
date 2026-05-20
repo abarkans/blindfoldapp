@@ -26,13 +26,13 @@ const STEPS = [
     number: "01",
     icon: Wallet,
     title: "Pick two things together",
-    body: "Your budget cap and whether you want to go out or stay in. That's the whole decision. Those two constraints end every back-and-forth before it starts.",
+    body: "Your budget cap and whether you want to go out or stay in — two constraints that end the debating before it starts. That's the whole decision. Everything else we handle.",
   },
   {
     number: "02",
     icon: Sparkles,
     title: "We make the call",
-    body: "One venue, near you, rated 4.0 or above, inside your budget. Or a full night-in plan. Not a list to debate — one plan, written for you two like a friend who's been there.",
+    body: "One venue near you, rated 4.0+, inside your budget — or a full night-in plan. Not a list to debate. One plan, written for you two like a friend who's been there.",
   },
   {
     number: "03",
@@ -359,7 +359,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               </h1>
 
               <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                You don&rsquo;t need more ideas — you need one plan you&rsquo;ll both say yes to. Tell us your budget and whether you want to go out or stay in. We find the venue, write the story, open navigation. Done.
+                Tell us your budget and whether you want to go out or stay in. One plan, one real venue — no debating.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
@@ -425,7 +425,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                 <span className="text-white/35">We handle every date after that.</span>
               </h2>
               <p className="mt-4 text-white/55 text-base md:text-lg leading-relaxed max-w-xl">
-                Budget cap, distance, in or out — set them once and every plan we generate respects them all. No negotiation needed. No Googling either.
+                Budget, distance, in or out — set them once and every plan we generate respects all three. No negotiation needed. No Googling either.
               </p>
             </div>
 
@@ -519,7 +519,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               className="absolute left-1/2 top-0 z-20 w-full transition-transform duration-200"
               style={{ transform: "translateX(-50%)" }}
             >
-              <DateExampleCard date={SAMPLE_DATES[activeSampleDate]} unitSystem={unitSystem} />
+              <DateExampleCard date={SAMPLE_DATES[activeSampleDate]} unitSystem={unitSystem} compact />
             </div>
             <div className="absolute bottom-1 left-0 right-0 z-30 flex justify-center gap-1.5">
               {SAMPLE_DATES.map((date, i) => (
@@ -764,7 +764,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
   );
 }
 
-function DateExampleCard({ date, unitSystem = "metric" }: { date: (typeof SAMPLE_DATES)[number]; unitSystem?: UnitSystem }) {
+function DateExampleCard({ date, unitSystem = "metric", compact = false }: { date: (typeof SAMPLE_DATES)[number]; unitSystem?: UnitSystem; compact?: boolean }) {
   return (
     <div className="group flex h-[410px] flex-col rounded-3xl border border-white/14 bg-[#030303] overflow-hidden text-left transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)] md:block md:h-auto">
       <div className="relative h-40 shrink-0 overflow-hidden bg-black md:h-56">
@@ -794,7 +794,7 @@ function DateExampleCard({ date, unitSystem = "metric" }: { date: (typeof SAMPLE
             </span>
           ))}
         </div>
-        <p className="text-white/55 text-xs leading-[1.55] mb-3 line-clamp-2 md:mb-6 md:text-sm md:leading-[1.65]">{date.description}</p>
+        {!compact && <p className="text-white/55 text-xs leading-[1.55] mb-3 line-clamp-2 md:mb-6 md:text-sm md:leading-[1.65]">{date.description}</p>}
         <div className="grid grid-cols-2 gap-2 mb-3 md:gap-2.5 md:mb-5">
           {[
             { icon: Timer, value: date.duration, label: "Duration" },
