@@ -37,7 +37,8 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
         autocapture: false,
         capture_pageview: false,
         capture_pageleave: false,
-        disable_toolbar: true,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...({ disable_toolbar: true } as any),
       });
 
       setReady({ Provider: PHProvider, ph: posthog });
