@@ -718,9 +718,49 @@ export default function DateCard({
       )}
 
       <div
-        className={completed ? "" : "relative overflow-hidden rounded-3xl border border-white/16 bg-white/[0.035] backdrop-blur-sm"}
+        className={
+          completed
+            ? ""
+            : `relative overflow-hidden rounded-3xl border bg-white/[0.035] backdrop-blur-sm ${
+                !!dateIdea && !!dateTeaser && !revealed
+                  ? "border-white/20 shadow-lg shadow-rose-500/10"
+                  : "border-white/16"
+              }`
+        }
       >
-        <div className={completed ? "" : "relative p-6"}>
+        {/* ── MYSTERY TEASER GLOW — only visible in teaser state ── */}
+        {!completed && !!dateIdea && !!dateTeaser && !revealed && (
+          <>
+            {/* Primary gradient — rose top-left, pink bottom-right */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none rounded-3xl"
+              style={{
+                background:
+                  "radial-gradient(ellipse 75% 55% at 10% 15%, rgba(244,63,94,0.45) 0%, transparent 65%)," +
+                  "radial-gradient(ellipse 65% 65% at 88% 85%, rgba(236,72,153,0.35) 0%, transparent 65%)",
+                zIndex: 1,
+              }}
+              animate={{ opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            {/* Drifting accent blob */}
+            <motion.div
+              className="absolute pointer-events-none rounded-full"
+              style={{
+                width: 160,
+                height: 160,
+                top: "30%",
+                left: "40%",
+                background: "radial-gradient(circle, rgba(251,113,133,0.25) 0%, transparent 70%)",
+                zIndex: 1,
+              }}
+              animate={{ x: [0, 20, -10, 0], y: [0, -15, 10, 0] }}
+              transition={{ duration: 12, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+            />
+          </>
+        )}
+
+        <div className={completed ? "" : "relative z-10 p-6"}>
           {/* Header — hidden when date is active and not yet completed */}
           {!(revealed && !completed) && !(!!dateIdea && !!dateTeaser && !revealed) && (
             <div className="flex items-center justify-between mb-3">
