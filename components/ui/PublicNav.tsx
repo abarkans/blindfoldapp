@@ -22,7 +22,7 @@ export default function PublicNav({ showCta = true }: { showCta?: boolean }) {
         {showCta && (
           <Link
             href="/register"
-            className="relative inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-9 rounded-full transition-[background-color] duration-150"
+            className="relative inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-[background-color] duration-150"
           >
             Get started free
             <ArrowRight className="w-3.5 h-3.5" />
