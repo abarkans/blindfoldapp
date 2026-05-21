@@ -155,3 +155,12 @@ export async function checkCheckInRateLimit(userId: string): Promise<void> {
 export async function checkPresignRateLimit(userId: string): Promise<void> {
   await check(`presign:${userId}`, 10, 60, true);
 }
+
+/**
+ * Enforce per-user rate limits on partner ping emails.
+ * Limit: 3 per 60 seconds. Fails closed: Resend is a paid resource.
+ * 24-hour business cooldown is enforced separately in the action itself.
+ */
+export async function checkPartnerPingRateLimit(userId: string): Promise<void> {
+  await check(`partner-ping:${userId}`, 3, 60, true);
+}

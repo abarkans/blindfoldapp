@@ -307,6 +307,7 @@ export interface Database {
           date_accepted_at: string | null;
           reveal_owner_ready_at: string | null;
           reveal_partner_ready_at: string | null;
+          partner_ping_sent_at: string | null;
           checkin_owner_at: string | null;
           checkin_partner_at: string | null;
           checkin_owner_skipped: boolean;
@@ -346,6 +347,7 @@ export interface Database {
           date_accepted_at?: string | null;
           reveal_owner_ready_at?: string | null;
           reveal_partner_ready_at?: string | null;
+          partner_ping_sent_at?: string | null;
           checkin_owner_at?: string | null;
           checkin_partner_at?: string | null;
           checkin_owner_skipped?: boolean;
@@ -385,6 +387,7 @@ export interface Database {
           date_accepted_at?: string | null;
           reveal_owner_ready_at?: string | null;
           reveal_partner_ready_at?: string | null;
+          partner_ping_sent_at?: string | null;
           checkin_owner_at?: string | null;
           checkin_partner_at?: string | null;
           checkin_owner_skipped?: boolean;

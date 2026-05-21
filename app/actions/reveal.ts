@@ -241,6 +241,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
       date_accepted_at: null,
       reveal_owner_ready_at: null,
       reveal_partner_ready_at: null,
+      partner_ping_sent_at: null,
       checkin_owner_at: null,
       checkin_partner_at: null,
       checkin_owner_skipped: false,

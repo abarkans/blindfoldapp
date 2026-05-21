@@ -19,6 +19,7 @@ import { rerollDate } from "@/app/actions/reroll";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import { skipCheckIn } from "@/app/actions/check-in";
 import { dismissDate, resetCheckinSkip } from "@/app/actions/dismiss-date";
+import { pingPartner } from "@/app/actions/ping-partner";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import CheckInButton from "@/components/dashboard/CheckInButton";
@@ -132,6 +133,7 @@ interface DateCardProps {
   memberRole: "owner" | "partner";
   ownerReadyAt: string | null;
   partnerReadyAt: string | null;
+  partnerPingAt: string | null;
   hasAcceptedPartner: boolean;
   partnerInviteState: "none" | "pending" | "expired" | "accepted";
   partnerInvitedEmail?: string | null;
@@ -356,6 +358,7 @@ export default function DateCard({
   memberRole,
   ownerReadyAt,
   partnerReadyAt,
+  partnerPingAt,
   hasAcceptedPartner,
   partnerInviteState,
   partnerInvitedEmail,
@@ -395,6 +398,10 @@ export default function DateCard({
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
   const [modalData, setModalData] = useState<CompleteDateResult | null>(null);
   const [localRevealReady, setLocalRevealReady] = useState(false);
+  const [isPingPending, setIsPingPending] = useState(false);
+  const [pingMessage, setPingMessage] = useState("");
+  const [pingError, setPingError] = useState("");
+  const [localPingAt, setLocalPingAt] = useState<string | null>(partnerPingAt);
   const [skipDialogOpen, setSkipDialogOpen] = useState(false);
   const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
   const [locationPickerOpen, setLocationPickerOpen] = useState(false);
@@ -483,6 +490,17 @@ export default function DateCard({
   const waitingForPartnerReveal =
     !!dateIdea && !!dateTeaser && !revealed && currentUserReady && !accepted;
 
+  const PING_ELIGIBILITY_MS = 7 * 24 * 60 * 60 * 1000;
+  const PING_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+  const myReadyAt = memberRole === "owner" ? ownerReadyAt : partnerReadyAt;
+  const msSinceReady = myReadyAt ? Date.now() - new Date(myReadyAt).getTime() : 0;
+  const canPing = waitingForPartnerReveal && msSinceReady >= PING_ELIGIBILITY_MS;
+  const msSincePing = localPingAt ? Date.now() - new Date(localPingAt).getTime() : Infinity;
+  const pingCooledDown = msSincePing >= PING_COOLDOWN_MS;
+  const pingHoursLeft = localPingAt && !pingCooledDown
+    ? Math.ceil((PING_COOLDOWN_MS - msSincePing) / (60 * 60 * 1000))
+    : 0;
+
   const isLoading = isPending || isRerollPending;
 
   useEffect(() => {
@@ -569,6 +587,25 @@ export default function DateCard({
         setPendingLocationType(null);
       }
     });
+  }
+
+  async function handlePing() {
+    setIsPingPending(true);
+    setPingError("");
+    setPingMessage("");
+    try {
+      const result = await pingPartner();
+      if (result.error) {
+        setPingError(result.error);
+      } else {
+        setLocalPingAt(new Date().toISOString());
+        setPingMessage("Reminder sent!");
+      }
+    } catch {
+      setPingError("Something went wrong");
+    } finally {
+      setIsPingPending(false);
+    }
   }
 
   function handleReveal() {
@@ -1360,6 +1397,30 @@ export default function DateCard({
                     <Button size="lg" className="w-full" disabled={currentUserReady} onClick={!currentUserReady ? handleReveal : undefined}>
                       {currentUserReady ? "Waiting for partner" : "I'm ready"}
                     </Button>
+                    {canPing && (
+                      <div className="flex flex-col items-center gap-1.5">
+                        {pingError && (
+                          <p className="text-xs text-red-400 text-center">{pingError}</p>
+                        )}
+                        {pingCooledDown && !pingMessage ? (
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="lg"
+                            disabled={isPingPending}
+                            loading={isPingPending}
+                            onClick={handlePing}
+                            className="w-full"
+                          >
+                            Send reminder
+                          </Button>
+                        ) : pingMessage ? (
+                          <p className="text-xs text-emerald-400 text-center">{pingMessage}</p>
+                        ) : (
+                          <p className="text-xs text-white/30">Reminder sent</p>
+                        )}
+                      </div>
+                    )}
                     {!currentUserReady && (
                       <Button
                         size="lg"

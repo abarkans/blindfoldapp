@@ -188,7 +188,7 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     }
   }
 
-  const { error } = await admin
+  const { data: updated, error } = await admin
     .from("profiles")
     .update({
       partner_names: { partner1: v.partner1, partner2: v.partner2 },
@@ -205,11 +205,21 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
       ...(carryoverRevealedAt ? { revealed_at: carryoverRevealedAt } : {}),
       onboarding_complete: true,
     })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select("onboarding_complete")
+    .single();
 
   if (error) {
     console.error(`[audit] finish-onboarding: uid=${user.id} msg=${error.message}`);
     return { error: "Failed to save onboarding" };
+  }
+
+  // Verify the trigger didn't silently revert onboarding_complete.
+  // This catches misconfigured admin client (wrong/missing service role key)
+  // where the lockdown_protected_columns trigger blocks the write without error.
+  if (!updated?.onboarding_complete) {
+    console.error(`[audit] finish-onboarding: onboarding_complete reverted uid=${user.id} — check SUPABASE_SERVICE_ROLE_KEY`);
+    return { error: "Setup couldn't be saved. Please check your connection and try again." };
   }
 
   // Invite is best-effort: profile is already saved as complete. A transient

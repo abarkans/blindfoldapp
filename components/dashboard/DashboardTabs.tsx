@@ -436,6 +436,7 @@ function DateTabContent({
         memberRole={memberRole}
         ownerReadyAt={profile.reveal_owner_ready_at ?? null}
         partnerReadyAt={profile.reveal_partner_ready_at ?? null}
+        partnerPingAt={profile.partner_ping_sent_at ?? null}
         hasAcceptedPartner={partnerInviteStatus.state === "accepted"}
         partnerInviteState={partnerInviteStatus.state}
         partnerInvitedEmail={partnerInviteStatus.invitedEmail}
