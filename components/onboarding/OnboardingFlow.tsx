@@ -361,18 +361,16 @@ export default function OnboardingFlow({
 
           {/* Desktop-only buttons — below content */}
           <div className="hidden md:flex gap-3 mt-8">
-            {step > 1 && (
-              <Button
-                type="button"
-                variant="secondary"
-                size="lg"
-                className="w-14 shrink-0 px-0"
-                onClick={handleBack}
-                aria-label="Back"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-14 shrink-0 px-0"
+              onClick={step === 1 ? handleExitToHome : handleBack}
+              aria-label={step === 1 ? "Sign out" : "Back"}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
             <Button
               type="button"
               size="lg"
@@ -394,18 +392,16 @@ export default function OnboardingFlow({
         style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="max-w-sm mx-auto flex gap-3">
-          {step > 1 && (
-            <Button
-              type="button"
-              variant="secondary"
-              size="lg"
-              className="w-14 shrink-0 px-0"
-              onClick={handleBack}
-              aria-label="Back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            className="w-14 shrink-0 px-0"
+            onClick={step === 1 ? handleExitToHome : handleBack}
+            aria-label={step === 1 ? "Sign out" : "Back"}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
           <Button
             type="button"
             size="lg"

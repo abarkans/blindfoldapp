@@ -54,14 +54,14 @@ function PolaroidCard({
         whileHover={{ scale: 1.03, y: -3 }}
         transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.3), ease: "easeOut" }}
         onClick={() => { if (canView) setLightboxIdx(0); }}
-        className={`bg-white rounded-sm ${canView ? "cursor-pointer" : "cursor-default"}`}
+        className={`bg-white rounded-2xl overflow-hidden ${canView ? "cursor-pointer" : "cursor-default"}`}
         style={{
           padding: "8px 8px 24px 8px",
           boxShadow: "0 4px 20px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.2)",
         }}
       >
         {/* ── Photo ── */}
-        <div className="aspect-[3/4] overflow-hidden relative bg-[#e8e4e0]">
+        <div className="aspect-[3/4] overflow-hidden relative bg-[#e8e4e0] rounded-xl">
           {hasPhoto ? (
             isPaid ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -252,7 +252,7 @@ function HistoryContent({
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-7">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
         {history.map((date, index) => (
           <PolaroidCard key={date.id} date={date} isPaid={isPaid} index={index} />
         ))}
