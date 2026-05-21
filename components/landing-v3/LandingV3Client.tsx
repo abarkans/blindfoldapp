@@ -358,7 +358,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               </h1>
 
               <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                Budget + in or out. One real venue, full plan written for you two. Zero back-and-forth.
+                Tell us your budget and whether you want to go out or stay in. One plan, one real venue — no debating.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
