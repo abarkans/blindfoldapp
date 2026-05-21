@@ -760,7 +760,7 @@ export default function DateCard({
             ? ""
             : `relative overflow-hidden rounded-3xl border bg-white/[0.035] backdrop-blur-sm ${
                 !!dateIdea && !!dateTeaser && !revealed
-                  ? "border-white/20 shadow-lg shadow-rose-500/10"
+                  ? "border-fuchsia-500/20 shadow-lg shadow-indigo-500/10"
                   : "border-white/16"
               }`
         }
@@ -768,13 +768,13 @@ export default function DateCard({
         {/* ── MYSTERY TEASER GLOW — only visible in teaser state ── */}
         {!completed && !!dateIdea && !!dateTeaser && !revealed && (
           <>
-            {/* Primary gradient — rose top-left, pink bottom-right */}
+            {/* Primary gradient — indigo top-left, fuchsia bottom-right */}
             <motion.div
               className="absolute inset-0 pointer-events-none rounded-3xl"
               style={{
                 background:
-                  "radial-gradient(ellipse 75% 55% at 10% 15%, rgba(244,63,94,0.45) 0%, transparent 65%)," +
-                  "radial-gradient(ellipse 65% 65% at 88% 85%, rgba(236,72,153,0.35) 0%, transparent 65%)",
+                  "radial-gradient(ellipse 75% 55% at 10% 15%, rgba(79,70,229,0.45) 0%, transparent 65%)," +
+                  "radial-gradient(ellipse 65% 65% at 88% 85%, rgba(192,38,211,0.35) 0%, transparent 65%)",
                 zIndex: 1,
               }}
               animate={{ opacity: [0.7, 1, 0.7] }}
@@ -788,7 +788,7 @@ export default function DateCard({
                 height: 160,
                 top: "30%",
                 left: "40%",
-                background: "radial-gradient(circle, rgba(251,113,133,0.25) 0%, transparent 70%)",
+                background: "radial-gradient(circle, rgba(167,139,250,0.12) 0%, transparent 70%)",
                 zIndex: 1,
               }}
               animate={{ x: [0, 20, -10, 0], y: [0, -15, 10, 0] }}

@@ -11,7 +11,7 @@ const base =
 
 const variantMap: Record<ButtonVariant, string> = {
   primary: "bg-rose-500 text-white hover:bg-rose-400",
-  secondary: "bg-transparent text-white border border-rose-500 hover:border-rose-400 hover:bg-rose-500/10 backdrop-blur-sm",
+  secondary: "bg-black/90 text-white border border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm",
   ghost: "text-white/70 hover:text-white hover:bg-white/10",
   danger: "bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30",
   outline: "bg-white/5 border border-white/10 text-white/60 hover:border-white/20 hover:text-white/80",

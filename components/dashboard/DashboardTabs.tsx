@@ -397,10 +397,9 @@ function DateTabContent({
             </div>
             <div className="space-y-2.5 mb-4">
               {[
-                { emoji: "🔓", text: "Reveal your mystery date" },
-                { emoji: "💑", text: "Go on the date together" },
-                { emoji: "✅", text: "Hold to mark it done" },
-                { emoji: "⏳", text: "Your next date unlocks on schedule" },
+                { emoji: "🎭", text: "Reveal your mystery date" },
+                { emoji: "📸", text: "Check in and save a memory photo" },
+                { emoji: "⏳", text: "Your next date arrives on schedule" },
               ].map(({ emoji, text }) => (
                 <div key={text} className="flex items-center gap-3">
                   <span className="text-base w-6 text-center leading-none">{emoji}</span>
