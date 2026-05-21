@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, AnimatePresence, type MotionValue } from "framer-motion";
 import Link from "next/link";
 import LinkButton from "@/components/ui/LinkButton";
 import Image from "next/image";
@@ -20,8 +21,8 @@ import {
 import { PLANS } from "@/lib/plans";
 import { getCurrencySymbol, formatBudgetRange, type UnitSystem } from "@/lib/units";
 
-// Reddit insight: lead with the two actual constraints that end every argument
-const STEPS = [
+// "How it works" — 3 icon steps
+const HOW_IT_WORKS = [
   {
     number: "01",
     icon: Wallet,
@@ -39,6 +40,33 @@ const STEPS = [
     icon: Home,
     title: "Say yes. Show up.",
     body: "Reveal when you're ready. Navigation opens automatically. The only thing left to decide is when you're leaving — and that one you can handle.",
+  },
+];
+
+// Features section — 4 numbered steps replacing bento
+const STEPS = [
+  {
+    number: "01",
+    title: "Set the rules once",
+    body: "Your budget, your interests, how far you'll go. Done in a minute.",
+    image: "/how/settings.svg",
+  },
+  {
+    number: "02",
+    title: "Nudge your partner",
+    body: "Let them know you're in the mood for a date. One tap.",
+    image: "/how/message.svg",
+  },
+  {
+    number: "03",
+    title: "Unlock together",
+    body: "You both say yes — the mystery lifts and the plan appears.",
+    image: "/how/reveal.svg",
+  },
+  {
+    number: "04",
+    title: "Go enjoy it",
+    body: "We did the thinking. You get the night.",
   },
 ];
 
@@ -102,6 +130,152 @@ const HERO_VIDEOS = [
   },
 ];
 
+const REVEAL_LINES = [
+  "Deciding where to go",
+  "is not a date.",
+  "Debating the restaurant,",
+  "checking reviews,",
+  "giving up and staying home —",
+  "that's not romance. That's work.",
+  "We make the call. You show up.",
+];
+
+function ScrollRevealStatement() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 0.85", "center 0.5"],
+  });
+
+  const total = REVEAL_LINES.length;
+
+  return (
+    <section ref={ref} aria-label="The problem we solve" className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
+      <h2 className="sr-only">Why couples stop going on dates</h2>
+      <p className="text-[28px] md:text-[42px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
+        {REVEAL_LINES.map((line, i) => {
+          const start = (i / total) * 0.9;
+          const end = ((i + 1) / total) * 0.9;
+          const isLast = i === total - 1;
+          const breakAfter = i === 1 || i === 5;
+          return (
+            <RevealLine
+              key={i}
+              line={line}
+              scrollYProgress={scrollYProgress}
+              start={start}
+              end={end}
+              isLast={isLast}
+              breakAfter={breakAfter}
+            />
+          );
+        })}
+      </p>
+    </section>
+  );
+}
+
+const YOU_SUFFIXES = ["show up.", "enjoy the date.", "say yes.", "do it again."];
+const TYPE_SPEED = 55;
+const DELETE_SPEED = 35;
+const PAUSE_AFTER_TYPE = 2000;
+
+function CyclingLastLine({
+  opacity,
+  underlineScaleX,
+}: {
+  opacity: MotionValue<number>;
+  underlineScaleX: MotionValue<number>;
+}) {
+  const [suffixIndex, setSuffixIndex] = useState(0);
+  const [displayed, setDisplayed] = useState(YOU_SUFFIXES[0]);
+  const [phase, setPhase] = useState<"typing" | "deleting" | "pausing">("pausing");
+
+  useEffect(() => {
+    const target = YOU_SUFFIXES[suffixIndex];
+
+    if (phase === "pausing") {
+      const id = setTimeout(() => setPhase("deleting"), PAUSE_AFTER_TYPE);
+      return () => clearTimeout(id);
+    }
+
+    if (phase === "deleting") {
+      if (displayed.length === 0) {
+        const next = (suffixIndex + 1) % YOU_SUFFIXES.length;
+        setSuffixIndex(next);
+        setPhase("typing");
+        return;
+      }
+      const id = setTimeout(() => setDisplayed((d) => d.slice(0, -1)), DELETE_SPEED);
+      return () => clearTimeout(id);
+    }
+
+    if (phase === "typing") {
+      if (displayed.length === target.length) {
+        setPhase("pausing");
+        return;
+      }
+      const id = setTimeout(() => setDisplayed(target.slice(0, displayed.length + 1)), TYPE_SPEED);
+      return () => clearTimeout(id);
+    }
+  }, [phase, displayed, suffixIndex]);
+
+  const gradientStyle = { backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" };
+
+  return (
+    <>
+      <motion.span style={{ opacity }} className="block text-white">
+        We make the call.
+      </motion.span>
+      <motion.span style={{ opacity }} className="block">
+        <span className="relative inline-block bg-clip-text text-transparent" style={gradientStyle}>
+          You just {displayed}
+          <span className="animate-pulse">|</span>
+        </span>
+      </motion.span>
+      <br />
+    </>
+  );
+}
+
+function RevealLine({
+  line,
+  scrollYProgress,
+  start,
+  end,
+  isLast,
+  breakAfter,
+}: {
+  line: string;
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  start: number;
+  end: number;
+  isLast: boolean;
+  breakAfter: boolean;
+}) {
+  const opacity = useTransform(scrollYProgress, [start, end], [0.15, 1]);
+  const color = useTransform(
+    scrollYProgress,
+    [start, end],
+    isLast ? ["rgba(244,63,94,0.2)", "rgba(244,63,94,1)"] : ["rgba(255,255,255,0.15)", "rgba(255,255,255,1)"]
+  );
+  const underlineScaleX = useTransform(scrollYProgress, [start, end], [0, 1]);
+
+  if (isLast) {
+    return <CyclingLastLine opacity={opacity} underlineScaleX={underlineScaleX} />;
+  }
+
+  return (
+    <>
+      <motion.span style={{ color, opacity }} className="inline">
+        {line}
+      </motion.span>
+      <br />
+      {breakAfter && <br />}
+    </>
+  );
+}
+
 export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?: UnitSystem }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [heroVideo, setHeroVideo] = useState<(typeof HERO_VIDEOS)[number] | null>(null);
@@ -133,7 +307,14 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
   useEffect(() => {
     (async () => {
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        // Stale/invalid refresh token (common after incognito sessions or
+        // server-side token invalidation). Sign out silently to clear cookies
+        // so subsequent visits don't keep throwing AuthApiError.
+        await supabase.auth.signOut();
+        return;
+      }
       if (!session) return;
 
       if (document.cookie.includes("onboarding_complete=1")) {
@@ -389,111 +570,57 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
           </div>
         </section>
 
-        {/* ── How it works ── */}
-        <section id="how-it-works" className="px-6 md:px-10 pt-14 pb-28 md:pt-20 md:pb-44 max-w-[1280px] mx-auto">
-          <div className="text-left md:text-center mb-10 md:mb-16">
-            <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
-              Two constraints.
-              <br />
-              <span className="text-white/35">One plan. No debate.</span>
-            </h2>
-          </div>
+        {/* ── Problem statement scroll reveal ── */}
+        <ScrollRevealStatement />
 
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-6">
-            {STEPS.map((step) => (
-              <div key={step.number} className="group">
-                <div className="mb-4 flex w-fit items-center justify-center md:mb-5">
-                  <step.icon className="w-6 h-6 md:w-7 md:h-7 text-white/68" />
-                </div>
-                <h3 className="font-bold text-white text-lg md:text-xl mb-4 leading-snug">
-                  {step.title}
-                </h3>
-                <p className="text-white/55 text-sm md:text-base leading-[1.7]">{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Features ── */}
+        {/* ── Features / How it works steps ── */}
         <section id="features" className="relative border-y border-white/[0.07] bg-black">
           <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-            <div className="text-left mb-10 md:mb-16">
+            <div className="text-left md:text-center mb-12 md:mb-20">
               <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
-                Set it once.
-                <br />
-                <span className="text-white/35">We handle every date after that.</span>
+                How it works
               </h2>
-              <p className="mt-4 text-white/55 text-base md:text-lg leading-relaxed max-w-xl">
-                Budget, distance, in or out — set them once and every plan we generate respects all three. No negotiation needed. No Googling either.
+              <p className="text-white/35 text-[36px] md:text-[56px] font-black leading-[1.08]">
+                One plan. Zero debate.
               </p>
             </div>
 
-            <div className="bento-grid-v3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-              {/* Real places — large */}
-              <div className="md:col-start-1 md:col-span-2 md:row-start-1 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]">
-                <Image fill priority sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw" className="object-cover grayscale opacity-70" src="/features/feat-1.jpg" alt="Mystery date planning" />
-                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
-                <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">
-                    Out or in — we plan both.
-                  </h3>
-                  <p className="text-white/55 text-sm leading-[1.65] max-w-sm">
-                    One top-rated venue near you, or a full curated night in. Real places, real ratings — not a list of suggestions you have to Google afterwards.
-                  </p>
-                </div>
-              </div>
+            <div>
+              {STEPS.map((step, i) => {
+                const isLast = i === STEPS.length - 1;
+                return (
+                  <div key={step.number} className="flex gap-3 md:gap-5">
+                    {/* LEFT: number + full-height line */}
+                    <div className="shrink-0 w-16 md:w-20 flex flex-col items-center">
+                      <span className="text-4xl md:text-[42px] font-black text-white/25 tabular-nums leading-none">
+                        {step.number}
+                      </span>
+                      {/* Line fills remaining height of the row; 12px gap below number */}
+                      {!isLast && (
+                        <div className="w-0.5 flex-1 bg-rose-500 mt-6 mb-8" />
+                      )}
+                    </div>
 
-              {/* Written for you */}
-              <div className="md:col-start-3 md:row-start-1 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]">
-                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-2.jpg" alt="Written for you" />
-                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
-                <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Written for you two</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">Not a generic blurb. A full date story — what to expect, how to get there, why it works for you.</p>
-                </div>
-              </div>
-
-              {/* Budget-aware */}
-              <div className="md:col-start-3 md:row-start-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]">
-                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-3.jpg" alt="Budget aware" />
-                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
-                <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Respects your wallet</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">Set a max spend. Every plan lands inside it. No awkward bill surprises.</p>
-                </div>
-              </div>
-
-              {/* XP */}
-              <div className="md:col-start-1 md:row-start-3 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]">
-                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-4.jpg" alt="Check in" />
-                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
-                <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Check in. Earn XP.</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">Tap check-in when you arrive. Both partners earn XP — Plus earns double.</p>
-                </div>
-              </div>
-
-              {/* Routine — large */}
-              <div className="md:col-start-2 md:col-span-2 md:row-start-3 md:row-span-2 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-7 md:p-10 flex flex-col justify-between overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]">
-                <Image fill sizes="66vw" className="object-cover grayscale opacity-70" src="/features/feat-5.jpg" alt="Routine" />
-                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
-                <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">A ritual, not a one-off.</h3>
-                  <p className="text-white/55 text-sm leading-[1.65] max-w-sm">
-                    Couples who actually go on dates have a routine. Plus drops a new plan on your schedule — weekly, biweekly, or monthly — automatically. You just show up.
-                  </p>
-                </div>
-              </div>
-
-              {/* Partner invite */}
-              <div className="md:col-start-1 md:row-start-4 min-h-[150px] md:min-h-0 rounded-3xl border border-white/14 bg-[#030303] p-6 md:p-7 flex flex-col overflow-hidden relative group transition-[transform,box-shadow,border-color] duration-200 ease-out hover:border-white/26 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]">
-                <Image fill sizes="33vw" className="object-cover grayscale opacity-70" src="/features/feat-4.jpg" alt="Invite partner" />
-                <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
-                <div className="relative z-10">
-                  <h3 className="font-bold text-white text-base md:text-lg mb-2">Built for two</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">Invite your partner with one link. Share the mystery, reveal together.</p>
-                </div>
-              </div>
+                    {/* RIGHT: title + desc + image box */}
+                    <div className={`flex-1 flex items-start gap-6 md:gap-10 ${!isLast ? "pb-52 md:pb-64" : ""}`}>
+                      <div className="w-full md:max-w-[380px]">
+                        <h3 className="text-4xl md:text-[42px] font-black text-white leading-none mb-3">
+                          {step.title}
+                        </h3>
+                        <p className="text-white/50 text-base md:text-xl leading-[1.7]">
+                          {step.body}
+                        </p>
+                      </div>
+                      {/* Step viz */}
+                      {step.image && (
+                        <div className="hidden md:block relative shrink-0 ml-auto w-[420px] h-[280px] rounded-2xl overflow-hidden">
+                          <Image src={step.image} alt={step.title} fill className="object-contain" sizes="420px" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

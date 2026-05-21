@@ -19,10 +19,6 @@ const SITE_URL = "https://blindfolddate.com";
 export const metadata: Metadata = {
   title: "BlindfoldDate — Date nights, planned for you",
   description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",
-  robots: {
-    index: false,
-    follow: false,
-  },
   alternates: {
     canonical: SITE_URL,
   },
