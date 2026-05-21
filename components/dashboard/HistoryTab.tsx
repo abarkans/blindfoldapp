@@ -30,107 +30,91 @@ function getDateLocation(idea: Record<string, unknown>): string | null {
   return null;
 }
 
-function PhotoSlot({ r2Key, isPaid }: { r2Key: string | null; isPaid: boolean }) {
-  const [error, setError] = useState(false);
-
-  if (!r2Key) {
-    return (
-      <div className="w-full h-full rounded-2xl bg-white/[0.035] border border-white/10 flex items-center justify-center">
-        <Camera className="w-5 h-5 text-white/20" />
-      </div>
-    );
-  }
-
-  if (!isPaid || error) {
-    return (
-      <div className="w-full h-full rounded-2xl overflow-hidden bg-white/[0.035] border border-white/10 relative flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/50" />
-        <Lock className="w-5 h-5 text-white/40 relative z-10" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full h-full rounded-2xl overflow-hidden bg-white/[0.035] border border-white/10">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={`/api/photo/view?key=${encodeURIComponent(r2Key)}`}
-        alt="Memory photo"
-        className="w-full h-full object-cover"
-        onError={() => setError(true)}
-      />
-    </div>
-  );
-}
-
-function HistoryCard({
+function PolaroidCard({
   date,
   isPaid,
+  index,
 }: {
   date: CompletedDateWithPhotos;
   isPaid: boolean;
+  index: number;
 }) {
   const name = getDateName(date.idea);
   const location = getDateLocation(date.idea);
   const photos = date.photos;
-  const hasPhotos = photos.length > 0;
+  const hasPhoto = photos.length > 0 && !!photos[0]?.r2_key;
+  const canView = isPaid && hasPhoto;
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-
-  const openLightbox = (idx: number) => {
-    if (isPaid && photos[idx]?.r2_key) setLightboxIdx(idx);
-  };
 
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 6 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className="bg-white/[0.035] border border-white/16 rounded-3xl p-3 flex items-center gap-3"
+        whileHover={{ scale: 1.03, y: -3 }}
+        transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.3), ease: "easeOut" }}
+        onClick={() => { if (canView) setLightboxIdx(0); }}
+        className={`bg-white rounded-sm ${canView ? "cursor-pointer" : "cursor-default"}`}
+        style={{
+          padding: "8px 8px 24px 8px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.2)",
+        }}
       >
-        {/* Thumbnail — always single, badge shows total count */}
-        <div className="shrink-0 w-20 h-20 relative">
-          {!hasPhotos ? (
-            <PhotoSlot r2Key={null} isPaid={isPaid} />
-          ) : (
-            <>
-              <button
-                type="button"
-                disabled={!(isPaid && !!photos[0]?.r2_key)}
-                onClick={() => openLightbox(0)}
-                className={`w-full h-full rounded-2xl overflow-hidden ${isPaid && photos[0]?.r2_key ? "cursor-pointer active:scale-95 transition-transform" : "cursor-default"}`}
-              >
-                <PhotoSlot r2Key={photos[0]?.r2_key ?? null} isPaid={isPaid} />
-              </button>
-              <div className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 bg-black/70 rounded-full px-1.5 py-0.5 pointer-events-none">
-                <Camera className="w-2.5 h-2.5 text-white/80" />
-                <span className="text-[10px] font-semibold text-white/90 leading-none">{photos.length}</span>
+        {/* ── Photo ── */}
+        <div className="aspect-[3/4] overflow-hidden relative bg-[#e8e4e0]">
+          {hasPhoto ? (
+            isPaid ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/api/photo/view?key=${encodeURIComponent(photos[0].r2_key!)}`}
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full relative overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/api/photo/view?key=${encodeURIComponent(photos[0].r2_key!)}`}
+                  alt={name}
+                  className="w-full h-full object-cover blur-md scale-110"
+                />
+                <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-white/80" />
+                </div>
               </div>
-            </>
+            )
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Camera className="w-7 h-7 text-[#b0a9a3]" />
+            </div>
+          )}
+
+          {/* Photo count badge */}
+          {photos.length > 1 && (
+            <div className="absolute bottom-2 right-2 bg-black/55 rounded-full px-1.5 py-0.5 flex items-center gap-0.5 pointer-events-none">
+              <Camera className="w-2.5 h-2.5 text-white/80" />
+              <span className="text-[9px] font-semibold text-white/90 leading-none">{photos.length}</span>
+            </div>
           )}
         </div>
 
-        {/* Info */}
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white truncate">{name}</p>
-          <div className="flex items-center gap-1 mt-1 min-w-0">
-            <CalendarDays className="w-3 h-3 text-white/35 shrink-0" />
-            <p className="text-xs text-white/45 shrink-0">{formatDate(date.revealed_at)}</p>
-            {location && (
-              <>
-                <span className="text-white/25 text-xs shrink-0">·</span>
-                <MapPin className="w-3 h-3 text-white/35 shrink-0" />
-                <p className="text-xs text-white/45 truncate">{location}</p>
-              </>
-            )}
+        {/* ── Polaroid label strip ── */}
+        <div className="pt-2.5 px-0.5">
+          <p className="text-[#1a1215] text-[13px] font-bold leading-tight truncate">{name}</p>
+          <div className="flex items-center gap-1 mt-0.5">
+            <CalendarDays className="w-3 h-3 text-[#9e8e98] shrink-0" />
+            <p className="text-[11px] text-[#9e8e98] truncate">{formatDate(date.revealed_at)}</p>
           </div>
-          {!hasPhotos && (
-            <p className="text-[11px] text-white/25 mt-1">No photo captured</p>
+          {location && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <MapPin className="w-3 h-3 text-[#9e8e98] shrink-0" />
+              <p className="text-[11px] text-[#9e8e98] truncate">{location}</p>
+            </div>
           )}
         </div>
       </motion.div>
 
-      {/* Lightbox with prev/next navigation */}
+      {/* ── Lightbox ── */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -173,7 +157,6 @@ function HistoryCard({
               </button>
             )}
 
-            {/* Shared container — width set by image, buttons inherit it */}
             <div className="flex flex-col items-stretch w-fit max-w-full md:py-16" onClick={(e) => e.stopPropagation()}>
               <motion.img
                 key={lightboxIdx}
@@ -196,7 +179,6 @@ function HistoryCard({
                 style={{ maxHeight: "calc(100vh - 160px)" }}
               />
 
-              {/* Dot indicator */}
               {photos.length > 1 && (
                 <div className="flex justify-center gap-1.5 mt-3">
                   {photos.map((_, i) => (
@@ -208,7 +190,6 @@ function HistoryCard({
                 </div>
               )}
 
-              {/* Action buttons */}
               <div className="flex flex-col md:flex-row gap-3 mt-4">
                 <Button disabled size="md" className="w-full md:flex-1 gap-2">
                   <Share2 className="w-4 h-4" />
@@ -253,7 +234,7 @@ function HistoryContent({
   return (
     <div>
       {!isPaid && hasAnyPhotos && (
-        <div className="mb-4 bg-white/[0.035] border border-white/18 rounded-3xl p-4">
+        <div className="mb-6 bg-white/[0.035] border border-white/18 rounded-3xl p-4">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-4 h-4 text-white/65" />
             <p className="text-xs font-semibold text-white uppercase tracking-widest">Plus</p>
@@ -271,9 +252,9 @@ function HistoryContent({
         </div>
       )}
 
-      <div className="space-y-3">
-        {history.map((date) => (
-          <HistoryCard key={date.id} date={date} isPaid={isPaid} />
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-7">
+        {history.map((date, index) => (
+          <PolaroidCard key={date.id} date={date} isPaid={isPaid} index={index} />
         ))}
       </div>
     </div>
