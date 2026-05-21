@@ -5,18 +5,18 @@ import { getUnitSystem } from "@/lib/get-unit-system";
 const SITE_URL = "https://blindfolddate.com";
 
 export const metadata: Metadata = {
-  title: "BlindfoldDate — Stop Debating. We'll Plan Your Date Night.",
+  title: "BlindfoldDate — Date Night, Decided. Just Show Up.",
   description:
-    "Stop arguing about where to go. Set your budget, choose in or out — we pick one real nearby venue and craft your complete date plan. No lists. No debate. Just show up.",
+    "Budget + in or out. We pick one real nearby venue and write your complete date plan. Zero back-and-forth. Zero Googling. Just show up.",
   alternates: { canonical: SITE_URL },
   robots: { index: true, follow: true },
   authors: [{ name: "BlindfoldDate", url: SITE_URL }],
   creator: "BlindfoldDate",
   publisher: "BlindfoldDate",
   openGraph: {
-    title: "BlindfoldDate — Stop Debating. We'll Plan Your Date Night.",
+    title: "BlindfoldDate — Date Night, Decided. Just Show Up.",
     description:
-      "Stop arguing about where to go. Set your budget, choose in or out — we pick one real nearby venue and craft your complete date plan. No lists. No debate. Just show up.",
+      "Budget + in or out. We pick one real nearby venue and write your complete date plan. Zero back-and-forth. Zero Googling. Just show up.",
     url: SITE_URL,
     siteName: "BlindfoldDate",
     images: [
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "BlindfoldDate — One date plan. No debate.",
+        alt: "BlindfoldDate — Date night, decided. Just show up.",
       },
     ],
     type: "website",
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BlindfoldDate — Stop Debating. We'll Plan Your Date Night.",
+    title: "BlindfoldDate — Date Night, Decided. Just Show Up.",
     description:
-      "Budget + in or out = one real venue near you, full date plan written for you two. No lists. No debate. Just show up.",
+      "Budget + in or out. One real venue near you, full plan written for you two. Zero back-and-forth. Just show up.",
     images: [`${SITE_URL}/og-image.png`],
   },
 };
