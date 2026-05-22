@@ -33,12 +33,13 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
       ]);
 
       posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
+        api_host: "/ingest",
         ui_host: "https://eu.posthog.com",
         persistence: "memory",
         autocapture: false,
         capture_pageview: false,
-        capture_pageleave: false,
+        capture_pageleave: true,
+        capture_performance: true,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({ disable_toolbar: true } as any),
       });
