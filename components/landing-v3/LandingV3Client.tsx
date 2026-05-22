@@ -81,11 +81,11 @@ const FAQ_ITEMS = [
   },
   {
     q: "Does my partner need an account?",
-    a: "No. Only one of you needs to sign up and complete the setup. You add your partner's name during onboarding — they receive nudges by notification or link, and can confirm they're in without needing their own login. Designed to be as frictionless as possible for the person who didn't install the app.",
+    a: "Your partner joins via an invite link — no full setup required. They connect their email, accept the invite, and they're in. Once linked, they can also manage shared settings like preferences and travel distance.",
   },
   {
     q: "How often do we get new date ideas?",
-    a: "You choose the cadence that works for you: weekly, fortnightly, or monthly. Plus subscribers can also trigger a new date manually whenever they're ready, regardless of the schedule. Free plan users receive one date idea to get started.",
+    a: "Free users get one date per month. Plus subscribers choose their own cadence — weekly, bi-weekly, or monthly — so the app works around your actual schedule.",
   },
   {
     q: "Is my location data safe?",
@@ -93,7 +93,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "What's the difference between free and Plus?",
-    a: "The free plan gives you one date idea to try the experience. Plus unlocks unlimited date ideas on your chosen schedule, a wider range of interest categories, one reroll per date, and the partner nudge feature so you can both signal when you're in the mood for a night out.",
+    a: "Free gives you one date per month, limited interest preferences, and a capped travel distance. Plus unlocks your full preference set, a wider travel radius, weekly or bi-weekly scheduling, and access to Saved Memories — your date history over time.",
   },
 ];
 
