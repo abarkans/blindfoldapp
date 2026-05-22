@@ -70,6 +70,42 @@ const STEPS = [
   },
 ];
 
+const SPARKLE_CONFIGS = [
+  { top: "-12%", left: "10%",   size: 10, delay: 0,    dur: 2.2, rd: 1.2 },
+  { top: "20%",  left: "-8%",   size:  8, delay: 0.5,  dur: 1.9, rd: 0.8 },
+  { top: "-8%",  left: "65%",   size: 12, delay: 0.3,  dur: 2.4, rd: 1.5 },
+  { top: "45%",  left: "105%",  size:  9, delay: 0.8,  dur: 2.0, rd: 1.0 },
+  { top: "80%",  left: "15%",   size: 11, delay: 1.2,  dur: 2.1, rd: 0.9 },
+  { top: "105%", left: "55%",   size:  7, delay: 0.2,  dur: 1.8, rd: 1.3 },
+  { top: "38%",  left: "-6%",   size: 13, delay: 1.0,  dur: 2.3, rd: 0.7 },
+  { top: "-5%",  left: "40%",   size:  8, delay: 0.6,  dur: 2.0, rd: 1.1 },
+];
+
+function StepSparkle({ top, left, size, delay, dur, rd }: typeof SPARKLE_CONFIGS[0]) {
+  return (
+    <motion.div
+      className="absolute pointer-events-none z-20"
+      style={{ top, left, width: size, height: size, transform: "translate(-50%, -50%)" }}
+      animate={{ scale: [0, 1, 0.6, 1, 0], opacity: [0, 1, 0.6, 1, 0], rotate: [0, 180] }}
+      transition={{ duration: dur, delay, repeat: Infinity, repeatDelay: rd, ease: "easeInOut" }}
+    >
+      <svg width={size} height={size} viewBox="0 0 10 10" fill="none">
+        <path
+          d="M5,0 L6.5,3.5 L10,5 L6.5,6.5 L5,10 L3.5,6.5 L0,5 L3.5,3.5 Z"
+          fill="rgb(251 113 133 / 0.85)"
+          filter="url(#sparkle-glow)"
+        />
+        <defs>
+          <filter id="sparkle-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+      </svg>
+    </motion.div>
+  );
+}
+
 const SAMPLE_DATES = [
   {
     emoji: "📸",
@@ -602,19 +638,31 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                     </div>
 
                     {/* RIGHT: title + desc + image box */}
-                    <div className={`flex-1 flex items-start gap-6 md:gap-10 ${!isLast ? "pb-52 md:pb-64" : ""}`}>
-                      <div className="w-full md:max-w-[380px]">
-                        <h3 className="text-4xl md:text-[42px] font-black text-white leading-none mb-3">
+                    <div className={`flex-1 flex flex-col md:flex-row md:items-start gap-6 md:gap-10 ${!isLast ? "pb-20 md:pb-64" : ""}`}>
+                      <div className="w-full md:max-w-[520px]">
+                        <h3 className="text-4xl md:text-[48px] font-black text-white leading-none mb-3">
                           {step.title}
                         </h3>
-                        <p className="text-white/50 text-base md:text-xl leading-[1.7]">
+                        <p className="text-white/50 text-base md:text-2xl leading-[1.7]">
                           {step.body}
                         </p>
                       </div>
-                      {/* Step viz */}
+                      {/* Step viz — mobile */}
                       {step.image && (
-                        <div className="hidden md:block relative shrink-0 ml-auto w-[420px] h-[280px] rounded-2xl overflow-hidden">
-                          <Image src={step.image} alt={step.title} fill className="object-contain" sizes="420px" />
+                        <div className="relative w-[220px] h-[200px] md:hidden shrink-0">
+                          {SPARKLE_CONFIGS.map((cfg, j) => <StepSparkle key={j} {...cfg} />)}
+                          <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                            <Image src={step.image} alt={step.title} fill className="object-contain" sizes="220px" />
+                          </div>
+                        </div>
+                      )}
+                      {/* Step viz — desktop */}
+                      {step.image && (
+                        <div className="hidden md:block relative shrink-0 ml-auto w-[280px] h-[200px]">
+                          {SPARKLE_CONFIGS.map((cfg, j) => <StepSparkle key={j} {...cfg} />)}
+                          <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                            <Image src={step.image} alt={step.title} fill className="object-contain" sizes="280px" />
+                          </div>
                         </div>
                       )}
                     </div>
