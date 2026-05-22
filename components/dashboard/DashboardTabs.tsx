@@ -79,12 +79,19 @@ export default function DashboardTabs({
   partnerInviteStatus,
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("date");
+  const [logoBeating, setLogoBeating] = useState(false);
   const [showCancelBanner, setShowCancelBanner] = useState(false);
   const [settingsInitialView, setSettingsInitialView] = useState<SettingsInitialView | undefined>();
   const [showSubscriberBadge, setShowSubscriberBadge] = useState(false);
 
   const mainRef = useRef<HTMLElement>(null);
   const focusRefreshAtRef = useRef(0);
+
+  useEffect(() => {
+    setLogoBeating(true);
+    const t = setTimeout(() => setLogoBeating(false), 900);
+    return () => clearTimeout(t);
+  }, []);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -172,7 +179,12 @@ export default function DashboardTabs({
         <div className="max-w-4xl mx-auto flex items-stretch justify-between gap-4 md:h-full">
           {/* Brand */}
           <div className="flex items-center gap-2.5 shrink-0 self-center">
-            <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} loading="eager" priority className="object-contain" />
+            <motion.div
+              animate={logoBeating ? { scale: [1, 1.08, 1, 1.05, 1] } : { scale: 1 }}
+              transition={{ duration: 0.75, ease: "easeInOut" }}
+            >
+              <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} loading="eager" priority className="object-contain" />
+            </motion.div>
             <div>
               <p className="text-sm font-bold text-white leading-tight">
                 {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}
