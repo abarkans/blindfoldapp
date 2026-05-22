@@ -24,6 +24,8 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
   const [ready, setReady] = useState<{ Provider: PHProviderComponent; ph: PostHog } | null>(null);
 
   useEffect(() => {
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") return;
+
     const init = async () => {
       const [{ default: posthog }, { PostHogProvider: PHProvider }] = await Promise.all([
         import("posthog-js"),
