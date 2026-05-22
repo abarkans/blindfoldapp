@@ -97,6 +97,11 @@ export default function OnboardingFlow({
   const [planSubStep, setPlanSubStep] = useState<"plan" | "frequency" | null>(null);
   const [planBackTrigger, setPlanBackTrigger] = useState(0);
 
+  // Track onboarding entry once
+  useEffect(() => {
+    ph?.capture("onboarding_started", { start_step: startStep });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Reset nav state whenever the step changes.
   // canContinue is NOT reset here — each step's mount effect always fires
   // onCanContinueChange with the correct initial value, and resetting here

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -56,6 +57,7 @@ function ConsentText() {
 export default function RegisterClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const ph = usePostHog();
   const planParam = searchParams.get("plan");
   const inviteParam = searchParams.get("invite");
   const invitedEmailParam = searchParams.get("email");
@@ -68,6 +70,10 @@ export default function RegisterClient() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaActive, setCaptchaActive] = useState(false);
   const turnstileRef = useRef<TurnstileInstance | null>(null);
+
+  useEffect(() => {
+    ph?.capture("signup_page_viewed", { plan: planParam ?? "none" });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!emailStep) setError("");
@@ -97,6 +103,7 @@ export default function RegisterClient() {
     }
     setLoading(true);
     setError("");
+    ph?.capture("signup_submitted", { plan: planParam ?? "none" });
 
     if (isDisposableEmail(values.email)) {
       setError("Disposable email addresses are not allowed. Please use a real email.");
@@ -146,6 +153,7 @@ export default function RegisterClient() {
     // Don't redirect yet — Supabase requires email confirmation before the
     // session is active. Show a holding screen; the auth callback handles
     // the final redirect once the user clicks the confirmation link.
+    ph?.capture("signup_email_sent", { plan: planParam ?? "none" });
     resetCaptcha();
     setEmailSent(values.email);
     setLoading(false);
