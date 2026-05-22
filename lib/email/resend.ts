@@ -1,6 +1,27 @@
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy singleton — avoids throwing at module load time when RESEND_API_KEY
+// is absent (e.g. preview branch builds without the env var configured).
+// The key is validated at call-time instead, where a clear runtime error
+// surfaces in logs rather than crashing the build.
+let _resend: Resend | null = null;
+export function getResend(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("Missing RESEND_API_KEY environment variable");
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
+
+// Keep a named export for callsites that destructure { resend }
+export const resend = {
+  emails: {
+    send: (...args: Parameters<Resend["emails"]["send"]>) =>
+      getResend().emails.send(...args),
+  },
+};
 
 // Prod must set RESEND_FROM_ADDRESS to a verified-domain sender.
 // The resend.dev fallback is sandbox-only — Resend rejects it for any

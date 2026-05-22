@@ -175,7 +175,6 @@ const SAMPLE_DATES = [
 const NAV_LINKS = [
   { label: "Home", href: "#", scroll: true },
   { label: "How it works", href: "#how-it-works", scroll: false },
-  { label: "Features", href: "#features", scroll: false },
   { label: "Pricing", href: "#plans", scroll: false },
   { label: "Blog", href: "/blog", scroll: false },
 ];
@@ -638,7 +637,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
         <ScrollRevealStatement />
 
         {/* ── Features / How it works steps ── */}
-        <section id="features" className="relative border-y border-white/[0.07] bg-black">
+        <section id="how-it-works" className="relative border-y border-white/[0.07] bg-black">
           <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-12 md:mb-20">
               <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
@@ -986,7 +985,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Product</p>
-              {[{ label: "How it works", href: "#how-it-works" }, { label: "Features", href: "#features" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
+              {[{ label: "How it works", href: "#how-it-works" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
                 <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
               ))}
               <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
