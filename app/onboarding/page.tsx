@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getClientAndUser } from "@/lib/supabase/get-client-and-user";
+import { createAdminClient } from "@/lib/supabase/admin";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import type { PlanId } from "@/lib/plans";
 import { getUnitSystem } from "@/lib/get-unit-system";
@@ -13,11 +14,22 @@ export default async function OnboardingPage({
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
+  const { data: profileFromRLS, error: profileError } = await supabase
     .from("profiles")
     .select("onboarding_complete, plan_type, partner_names, cadence")
     .eq("id", user.id)
     .single();
+
+  // RLS policies on this table can return 500 for some users (policy evaluation
+  // error). Fall back to admin client which bypasses RLS — safe here since
+  // user.id is verified via auth and we only query their own row.
+  const profile = profileError
+    ? (await createAdminClient()
+        .from("profiles")
+        .select("onboarding_complete, plan_type, partner_names, cadence")
+        .eq("id", user.id)
+        .single()).data
+    : profileFromRLS;
 
   if (profile?.onboarding_complete) redirect("/dashboard");
 

@@ -86,6 +86,10 @@ export default function OnboardingFlow({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Server-confirmed subscription can never be downgraded by client-state drift
+  // (e.g. user navigates back to step 2 via stale history and selects Free).
+  const effectivePlanType = initialPlanType === "subscription" ? "subscription" : data.plan_type;
+
   // Nav bar state — lifted out of steps so buttons render outside the motion wrapper
   const [canContinue, setCanContinue] = useState(false);
   const [continueTrigger, setContinueTrigger] = useState(0);
@@ -187,6 +191,15 @@ export default function OnboardingFlow({
         return;
       }
 
+      // Guard: user may have navigated back to step 2 via stale browser history
+      // after already paying. Client state is authoritative — set from DB on
+      // server render, no extra network call needed.
+      if (data.plan_type === "subscription") {
+        setLoading(false);
+        goNext({ plan_type: "subscription", cadence });
+        return;
+      }
+
       const draftResult = await saveOnboardingCheckoutDraft({
         partner1: data.partner1 ?? "",
         partner2: data.partner2 ?? "",
@@ -204,6 +217,12 @@ export default function OnboardingFlow({
         body: JSON.stringify({ cadence, billingInterval, returnPath: "/onboarding" }),
       });
       const json = await res.json();
+      // Server confirmed already subscribed — advance without creating new checkout.
+      if (json.alreadySubscribed) {
+        setLoading(false);
+        goNext({ plan_type: "subscription", cadence });
+        return;
+      }
       if (!json.url || json.error) {
         setError(json.error ?? "Couldn't start checkout. Please try again.");
         setLoading(false);
@@ -315,7 +334,7 @@ export default function OnboardingFlow({
                 {step === 3 && (
                   <StepInterests
                     defaultValues={data.interests}
-                    planType={data.plan_type}
+                    planType={effectivePlanType}
                     onNext={(d) => goNext({ interests: d.interests })}
                     onBack={goBack}
                     continueTrigger={continueTrigger}
@@ -349,7 +368,7 @@ export default function OnboardingFlow({
                       preferred_radius: data.preferred_radius,
                     }}
                     onNext={handleFinish}
-                    planType={data.plan_type}
+                    planType={effectivePlanType}
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
                     unitSystem={unitSystem}

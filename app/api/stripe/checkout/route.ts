@@ -53,10 +53,8 @@ export async function POST(req: Request) {
     .single();
 
   if (profile?.plan_type === "subscription") {
-    return NextResponse.json(
-      { error: "Already subscribed. Manage your plan in the billing portal." },
-      { status: 400 }
-    );
+    // Return 200 so the client can advance cleanly without a console error.
+    return NextResponse.json({ alreadySubscribed: true });
   }
 
   const isFirstTimeSubscriber = !profile?.stripe_customer_id;
