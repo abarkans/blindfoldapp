@@ -344,6 +344,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
   const [heroVideo, setHeroVideo] = useState<(typeof HERO_VIDEOS)[number] | null>(null);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
   const [activeSampleDate, setActiveSampleDate] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const sampleTouchStartX = useRef<number | null>(null);
 
   const sampleDateCount = SAMPLE_DATES.length;
@@ -707,16 +708,45 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               Common questions
             </h2>
             <dl className="flex flex-col divide-y divide-white/[0.07]">
-              {FAQ_ITEMS.map(({ q, a }) => (
-                <div key={q} className="py-6 md:py-8 flex flex-col md:flex-row md:gap-16">
-                  <dt className="text-white font-bold text-base md:text-lg md:w-[300px] shrink-0 mb-3 md:mb-0">
-                    {q}
-                  </dt>
-                  <dd className="text-white/50 text-sm md:text-base leading-[1.75]">
-                    {a}
-                  </dd>
-                </div>
-              ))}
+              {FAQ_ITEMS.map(({ q, a }, i) => {
+                const isOpen = openFaq === i;
+                return (
+                  <div key={q}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? null : i)}
+                      className="w-full flex items-center justify-between gap-4 py-5 md:py-6 text-left group"
+                      aria-expanded={isOpen}
+                    >
+                      <dt className="text-white font-semibold text-base md:text-lg leading-snug">
+                        {q}
+                      </dt>
+                      <span className={[
+                        "shrink-0 w-7 h-7 rounded-full border border-white/20 flex items-center justify-center transition-all duration-200",
+                        isOpen ? "bg-white/10 border-white/40 rotate-45" : "group-hover:border-white/35",
+                      ].join(" ")}>
+                        <X className={`w-3.5 h-3.5 transition-colors ${isOpen ? "text-white" : "text-white/40 group-hover:text-white/60 rotate-[-45deg]"}`} />
+                      </span>
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="answer"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <dd className="text-white/50 text-sm md:text-base leading-[1.75] pb-5 md:pb-6 max-w-[640px]">
+                            {a}
+                          </dd>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </dl>
           </div>
         </section>
