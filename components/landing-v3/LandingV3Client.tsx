@@ -48,25 +48,25 @@ const STEPS = [
   {
     number: "01",
     title: "Set the rules once",
-    body: "Tell us your spending cap, the kinds of things you enjoy, and how far you're happy to travel. Choose between going out to a real venue or planning a cosy night in. That's it — we remember your preferences for every date from here on. No forms to fill in again.",
+    body: "Your budget cap, your interests, how far you'll travel. Pick going out or staying in. Done in a minute — we remember it for every date after.",
     image: "/how/settings.svg",
   },
   {
     number: "02",
     title: "Nudge your partner",
-    body: "Feeling like a date night? Send your partner a nudge directly from the app. They get a notification, they say yes or no — no awkward 'what do you want to do?' back and forth. Both of you need to be in before anything gets revealed.",
+    body: "Tap to let them know you're in the mood. They say yes or no. No 'what do you want to do?' — just a simple signal between two people.",
     image: "/how/message.svg",
   },
   {
     number: "03",
     title: "Unlock together",
-    body: "Once you've both agreed, the date idea unlocks at exactly the same moment. A real venue near you — rated 4.0 or above, inside your budget — or a full stay-in plan written just for you two. Not a shortlist. One plan, ready to go.",
+    body: "Both of you agree, and the plan appears at the same moment. One real venue, rated 4.0+, inside your budget. Not a list — one decision, already made.",
     image: "/how/reveal.svg",
   },
   {
     number: "04",
     title: "Go enjoy it",
-    body: "Open the app, tap navigate, and you're on your way. No last-minute decisions, no second-guessing the choice. Just show up and let the night happen. Mark it complete when you're done — your history builds over time, so we never repeat a venue.",
+    body: "Tap navigate and go. No second-guessing, no last-minute decisions. Mark it done when you're back — we track your history so venues never repeat.",
   },
 ];
 
