@@ -48,25 +48,52 @@ const STEPS = [
   {
     number: "01",
     title: "Set the rules once",
-    body: "Your budget, your interests, how far you'll go. Done in a minute.",
+    body: "Tell us your spending cap, the kinds of things you enjoy, and how far you're happy to travel. Choose between going out to a real venue or planning a cosy night in. That's it — we remember your preferences for every date from here on. No forms to fill in again.",
     image: "/how/settings.svg",
   },
   {
     number: "02",
     title: "Nudge your partner",
-    body: "Let them know you're in the mood for a date. One tap.",
+    body: "Feeling like a date night? Send your partner a nudge directly from the app. They get a notification, they say yes or no — no awkward 'what do you want to do?' back and forth. Both of you need to be in before anything gets revealed.",
     image: "/how/message.svg",
   },
   {
     number: "03",
     title: "Unlock together",
-    body: "You both say yes — the mystery lifts and the plan appears.",
+    body: "Once you've both agreed, the date idea unlocks at exactly the same moment. A real venue near you — rated 4.0 or above, inside your budget — or a full stay-in plan written just for you two. Not a shortlist. One plan, ready to go.",
     image: "/how/reveal.svg",
   },
   {
     number: "04",
     title: "Go enjoy it",
-    body: "We did the thinking. You get the night.",
+    body: "Open the app, tap navigate, and you're on your way. No last-minute decisions, no second-guessing the choice. Just show up and let the night happen. Mark it complete when you're done — your history builds over time, so we never repeat a venue.",
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "How does BlindfoldDate choose our venue?",
+    a: "We search real venues near your location using Google Places — restaurants, bars, galleries, parks, and more. Every suggestion is filtered by your interests, rated 4.0 or above, and priced within your budget cap. Then we write a bespoke date plan around it: what to do when you arrive, what makes it worth going, and why it suits you two specifically.",
+  },
+  {
+    q: "What if we don't like the suggestion?",
+    a: "Plus subscribers get one free reroll per date cycle. On the free plan, you get one reroll ever — use it wisely. If you're not feeling the vibe after the idea is revealed, you can swap it for something different before you've committed to going.",
+  },
+  {
+    q: "Does my partner need an account?",
+    a: "No. Only one of you needs to sign up and complete the setup. You add your partner's name during onboarding — they receive nudges by notification or link, and can confirm they're in without needing their own login. Designed to be as frictionless as possible for the person who didn't install the app.",
+  },
+  {
+    q: "How often do we get new date ideas?",
+    a: "You choose the cadence that works for you: weekly, fortnightly, or monthly. Plus subscribers can also trigger a new date manually whenever they're ready, regardless of the schedule. Free plan users receive one date idea to get started.",
+  },
+  {
+    q: "Is my location data safe?",
+    a: "We only use your location to find venues near you. Your coordinates are stored securely and never shared with third parties or used for anything outside of generating your date plan. You can update your location at any time from your profile settings.",
+  },
+  {
+    q: "What's the difference between free and Plus?",
+    a: "The free plan gives you one date idea to try the experience. Plus unlocks unlimited date ideas on your chosen schedule, a wider range of interest categories, one reroll per date, and the partner nudge feature so you can both signal when you're in the mood for a night out.",
   },
 ];
 
@@ -670,6 +697,27 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ── */}
+        <section className="border-t border-white/[0.07] bg-black">
+          <div className="px-6 md:px-10 py-20 md:py-32 max-w-[860px] mx-auto">
+            <h2 className="text-[28px] md:text-[40px] font-black leading-tight mb-10 md:mb-14">
+              Common questions
+            </h2>
+            <dl className="flex flex-col divide-y divide-white/[0.07]">
+              {FAQ_ITEMS.map(({ q, a }) => (
+                <div key={q} className="py-6 md:py-8 flex flex-col md:flex-row md:gap-16">
+                  <dt className="text-white font-bold text-base md:text-lg md:w-[300px] shrink-0 mb-3 md:mb-0">
+                    {q}
+                  </dt>
+                  <dd className="text-white/50 text-sm md:text-base leading-[1.75]">
+                    {a}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
 
