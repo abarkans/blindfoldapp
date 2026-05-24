@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,8 +26,13 @@ export default function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inviteParam = searchParams.get("invite");
+  const ph = usePostHog();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    ph?.capture("login_page_viewed");
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaActive, setCaptchaActive] = useState(false);
   const turnstileRef = useRef<TurnstileInstance | null>(null);
