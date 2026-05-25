@@ -40,6 +40,10 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
         capture_pageview: false,
         capture_pageleave: true,
         capture_performance: true,
+        session_recording: {
+          maskAllInputs: true,
+          maskTextSelector: "[data-ph-mask]",
+        },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({ disable_toolbar: true } as any),
       });

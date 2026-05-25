@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <h1>Privacy Policy</h1>
-      <p className="!text-white/35 !text-xs !mb-8">Last updated: 26 April 2026</p>
+      <p className="!text-white/35 !text-xs !mb-8">Last updated: 25 May 2026</p>
 
       <nav className="!mb-8 not-prose">
         <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
@@ -80,6 +80,15 @@ export default function PrivacyPolicyPage() {
         suggestions.
       </p>
 
+      <h3>Analytics &amp; session data</h3>
+      <p>
+        We use PostHog (EU region) to understand how the app is used. This includes page views,
+        feature interactions, and session recordings that capture your on-screen activity (clicks,
+        scrolls, and navigation). All form inputs are masked — we never record passwords, email
+        addresses, or other text you type. Session data is not linked to a persistent cookie; a
+        new session ID is created on each visit. You can opt out at any time by contacting us.
+      </p>
+
       <h3>Technical data</h3>
       <p>
         Session cookies (used to keep you signed in), IP address, and browser/device type.
@@ -96,6 +105,7 @@ export default function PrivacyPolicyPage() {
         <li>To track your progress and award gamification milestones</li>
         <li>To send transactional emails (email confirmation, password reset)</li>
         <li>To keep the service secure and prevent abuse</li>
+        <li>To analyse how features are used and improve the product (PostHog analytics &amp; session recordings)</li>
       </ul>
 
       <h2 id="basis">4. Lawful basis for processing</h2>
@@ -110,8 +120,9 @@ export default function PrivacyPolicyPage() {
           your location in Settings.
         </li>
         <li>
-          <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical and security data is
-          processed to maintain the integrity and security of the service.
+          <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical, security, and analytics
+          data (including session recordings) is processed to maintain the integrity, security,
+          and quality of the service.
         </li>
       </ul>
 
@@ -151,6 +162,11 @@ export default function PrivacyPolicyPage() {
             <td>Vercel Inc.</td>
             <td>Application hosting &amp; deployment</td>
             <td>US / EU</td>
+          </tr>
+          <tr>
+            <td>PostHog Inc.</td>
+            <td>Product analytics &amp; session recordings (EU region)</td>
+            <td>EU</td>
           </tr>
         </tbody>
       </table>
@@ -196,10 +212,12 @@ export default function PrivacyPolicyPage() {
         authority.
       </p>
 
-      <h2 id="cookies">8. Cookies</h2>
+      <h2 id="cookies">8. Cookies &amp; local storage</h2>
       <p>
-        We use only strictly necessary session cookies to keep you signed in. We do not use
-        advertising cookies, analytics cookies, or third-party tracking cookies.
+        We use strictly necessary session cookies to keep you signed in. For analytics, PostHog
+        runs in memory-only mode — no analytics cookies or persistent identifiers are written to
+        your browser. A new anonymous session ID is created on each page load. We do not use
+        advertising cookies or third-party tracking cookies.
       </p>
 
       <h2 id="children">9. Children</h2>
