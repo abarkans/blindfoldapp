@@ -92,13 +92,51 @@ export async function GET(request: Request) {
       continue;
     }
 
-    // Mark as notified so we don't send again this cycle
+    // Mark as notified so we don't send again this cycle.
+    // Do this immediately after the owner send so idempotency holds
+    // even if the partner send below fails.
     await supabase
       .from("profiles")
       .update({ notification_sent_at: new Date().toISOString() })
       .eq("id", profile.id as string);
 
     sent++;
+
+    // Also notify the partner (if one has joined the couple).
+    const { data: partnerMember } = await supabase
+      .from("couple_members")
+      .select("user_id")
+      .eq("profile_id", profile.id as string)
+      .eq("role", "partner")
+      .maybeSingle();
+
+    if (partnerMember) {
+      const { data: partnerAuth, error: partnerAuthError } =
+        await supabase.auth.admin.getUserById(partnerMember.user_id);
+
+      if (partnerAuthError || !partnerAuth?.user?.email) {
+        errors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=partner_no_email`);
+      } else {
+        const partnerUnsubscribeToken = generateUnsubscribeToken(partnerMember.user_id);
+        const partnerUnsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(partnerMember.user_id)}&token=${partnerUnsubscribeToken}`;
+        const { subject: partnerSubject, html: partnerHtml } = dateReadyEmail({
+          partner1,
+          partner2,
+          unsubscribeUrl: partnerUnsubscribeUrl,
+        });
+
+        const { error: partnerSendError } = await resend.emails.send({
+          from: FROM_ADDRESS,
+          to: partnerAuth.user.email,
+          subject: partnerSubject,
+          html: partnerHtml,
+        });
+
+        if (partnerSendError) {
+          errors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=${partnerSendError.message}`);
+        }
+      }
+    }
   }
 
   console.info(`[cron/notify-dates] sent=${sent} errors=${errors.length}`);

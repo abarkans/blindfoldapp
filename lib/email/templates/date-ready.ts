@@ -24,7 +24,7 @@ export function dateReadyEmail({ partner1, partner2, unsubscribeUrl }: DateReady
   const safePartner1 = escapeHtml(partner1);
   const safePartner2 = escapeHtml(partner2);
   return {
-    subject: "Your next date is ready to reveal 💝",
+    subject: "Time to plan your next date night 💝",
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,14 +32,14 @@ export function dateReadyEmail({ partner1, partner2, unsubscribeUrl }: DateReady
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="only dark" />
   <meta name="supported-color-schemes" content="only dark" />
-  <title>Your date is ready</title>
+  <title>Time to plan your next date night</title>
   <style>:root { color-scheme: only dark; }</style>
 </head>
 <body style="margin:0;padding:0;background-color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:400px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:420px;">
 
           <!-- Logo -->
           <tr>
@@ -50,32 +50,26 @@ export function dateReadyEmail({ partner1, partner2, unsubscribeUrl }: DateReady
 
           <!-- Card -->
           <tr>
-            <td style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.16);border-radius:24px;box-shadow:0 28px 80px rgba(0,0,0,0.45);padding:32px 28px;">
+            <td style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.16);border-radius:24px;box-shadow:0 28px 80px rgba(0,0,0,0.45);padding:32px 28px;text-align:center;">
 
               <!-- Emoji -->
-              <p style="margin:0 0 16px;text-align:center;font-size:48px;">💝</p>
+              <p style="margin:0 0 16px;font-size:42px;">💝</p>
 
               <!-- Heading -->
-              <h1 style="margin:0 0 12px;text-align:center;font-size:22px;font-weight:700;color:#ffffff;">
-                Your date is ready, ${safePartner1} &amp; ${safePartner2}!
+              <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;line-height:1.25;color:#ffffff;">
+                Time for your next date, ${safePartner1} &amp; ${safePartner2}!
               </h1>
 
               <!-- Body -->
-              <p style="margin:0 0 28px;text-align:center;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6);">
-                A mystery date has been lined up for you. Head over to BlindfoldDate to reveal where the night takes you.
+              <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.62);">
+                Your next mystery date night is ready to be planned. Either of you can kick things off — head over and initiate date night.
               </p>
 
               <!-- CTA -->
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td align="center">
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfoldapp.vercel.app"}/dashboard"
-                       style="display:inline-block;padding:14px 32px;background:linear-gradient(to right,#ec4899,#f43f5e);color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:12px;">
-                      Reveal my date
-                    </a>
-                  </td>
-                </tr>
-              </table>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com"}/dashboard"
+                 style="display:inline-block;padding:14px 28px;background:#f43f5e;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:999px;">
+                Start date night
+              </a>
             </td>
           </tr>
 
