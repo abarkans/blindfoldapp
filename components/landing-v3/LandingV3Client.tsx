@@ -505,6 +505,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
         {/* Mobile menu */}
         <div
+          aria-hidden={!menuOpen}
           className={`min-[992px]:hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex flex-col px-6 pb-8 transition-[opacity,transform] duration-200 ease-out ${
             menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-3 pointer-events-none"
           }`}
