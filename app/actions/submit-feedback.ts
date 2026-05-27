@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function submitDateFeedback(
   dateIdeaId: string,
@@ -9,6 +10,9 @@ export async function submitDateFeedback(
 ): Promise<void> {
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return;
 
+  // Authenticate via session client, then write via admin client.
+  // Migration 057 revoked authenticated UPDATE on date_ideas (security fix);
+  // admin bypasses RLS. Authorization is enforced here: user_id + status filter.
   const supabase = await createClient();
   const {
     data: { user },
@@ -16,9 +20,10 @@ export async function submitDateFeedback(
   if (!user) return;
 
   const sanitized = comment?.trim().slice(0, 500) || null;
+  const admin = createAdminClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await (admin as any)
     .from("date_ideas")
     .update({ rating, feedback: sanitized })
     .eq("id", dateIdeaId)
@@ -26,6 +31,6 @@ export async function submitDateFeedback(
     .eq("status", "completed");
 
   if (error) {
-    console.error("[feedback] save failed", error.message);
+    console.error(`[audit] feedback: save failed uid=${user.id} ideaId=${dateIdeaId} msg=${error.message}`);
   }
 }
