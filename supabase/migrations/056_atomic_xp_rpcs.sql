@@ -9,9 +9,14 @@
 --   3. Server action writes the computed value
 -- If owner and partner act concurrently, one increment is lost.
 --
--- record_checkin(p_profile_id, p_xp_gain)
---   Callable by authenticated users (via supabase.rpc from server action).
---   Internally resolves the caller's role via auth.uid() + couple_members.
+-- record_checkin(p_profile_id, p_user_id, p_xp_gain)
+--   Service-role only (called via admin client from check-in.ts server action).
+--   p_user_id is the authenticated caller — passed explicitly because
+--   service_role has no session and auth.uid() returns null.
+--   The server action has already verified GPS proximity before calling.
+--   Making this service_role-only prevents browser clients from calling
+--   rpc("record_checkin", { p_xp_gain: 99999 }) to farm XP or bypass the
+--   distance check enforced in the server action.
 --   Uses SELECT … FOR UPDATE to prevent the race, then atomically:
 --     - Sets checkin_owner_at or checkin_partner_at (once only)
 --     - Increments total_checkins and total_xp
@@ -27,6 +32,7 @@
 
 create or replace function public.record_checkin(
   p_profile_id uuid,
+  p_user_id    uuid,    -- authenticated caller's user id (passed from server action)
   p_xp_gain    integer
 )
 returns jsonb
@@ -35,22 +41,18 @@ security definer
 set search_path = public, pg_temp
 as $$
 declare
-  v_caller       uuid;
   v_role         text;
   v_was_new      boolean;
   v_new_xp       integer;
   v_new_checkins integer;
 begin
-  v_caller := (select auth.uid());
-  if v_caller is null then
-    raise exception 'Unauthorized';
-  end if;
-
-  -- Resolve caller's role in this couple
+  -- Verify the provided user_id is actually a couple member for this profile.
+  -- Defense-in-depth: the server action already checks this, but an erroneous
+  -- call from a future code path should not silently award XP to the wrong profile.
   select role into v_role
   from   public.couple_members
   where  profile_id = p_profile_id
-    and  user_id    = v_caller;
+    and  user_id    = p_user_id;
 
   if not found then
     raise exception 'Unauthorized';
@@ -97,9 +99,12 @@ begin
 end;
 $$;
 
-revoke execute on function public.record_checkin(uuid, integer) from public;
-revoke execute on function public.record_checkin(uuid, integer) from anon;
-grant  execute on function public.record_checkin(uuid, integer) to authenticated;
+-- Service-role only: prevents browser clients from calling this directly
+-- and farming XP or bypassing the GPS distance check in the server action.
+revoke execute on function public.record_checkin(uuid, uuid, integer) from public;
+revoke execute on function public.record_checkin(uuid, uuid, integer) from anon;
+revoke execute on function public.record_checkin(uuid, uuid, integer) from authenticated;
+grant  execute on function public.record_checkin(uuid, uuid, integer) to service_role;
 
 -- ── award_xp ─────────────────────────────────────────────────────────────────
 

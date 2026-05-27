@@ -73,8 +73,11 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
   // record_checkin atomically sets the checkin timestamp + increments counters in one
   // SQL statement (FOR UPDATE lock prevents the read-modify-write race when both
   // partners check in at the same moment). Returns xp_awarded=0 if already checked in.
-  const { data: checkinResult, error: writeError } = await supabase.rpc("record_checkin", {
+  // Called via admin (service_role) — the function is intentionally not callable by
+  // authenticated clients to prevent XP farming or GPS bypass from the browser.
+  const { data: checkinResult, error: writeError } = await admin.rpc("record_checkin", {
     p_profile_id: access.profileId,
+    p_user_id: user.id,
     p_xp_gain: XP_CHECKIN,
   });
 

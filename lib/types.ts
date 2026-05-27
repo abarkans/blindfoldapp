@@ -407,7 +407,7 @@ export interface Database {
         Returns: { total_xp: number; dates_completed_count: number; xp_awarded: number; completed_idea_id: string };
       };
       record_checkin: {
-        Args: { p_profile_id: string; p_xp_gain: number };
+        Args: { p_profile_id: string; p_user_id: string; p_xp_gain: number };
         Returns: { was_new: boolean; total_xp: number; total_checkins: number; xp_awarded: number };
       };
       award_xp: {
