@@ -46,11 +46,18 @@ export async function GET(req: NextRequest) {
 
   if (!photo) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+  let obj;
+  try {
+    obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+  } catch {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   if (!obj.Body) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const bytes = await obj.Body.transformToByteArray();
-  return new NextResponse(Buffer.from(bytes), {
+  // Stream directly instead of buffering the entire object into memory.
+  // transformToWebStream() returns a Web ReadableStream compatible with NextResponse.
+  const stream = obj.Body.transformToWebStream();
+  return new NextResponse(stream, {
     headers: {
       "Content-Type": "image/jpeg",
       "Cache-Control": "private, max-age=3600",

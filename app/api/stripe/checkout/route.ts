@@ -36,7 +36,8 @@ export async function POST(req: Request) {
 
   await checkStripeRateLimit(user.id);
 
-  const { cadence: rawCadence, billingInterval: rawInterval, returnPath: rawReturnPath } = await req.json();
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const { cadence: rawCadence, billingInterval: rawInterval, returnPath: rawReturnPath } = body;
 
   const cadence = typeof rawCadence === "string" && VALID_CADENCES.has(rawCadence)
     ? rawCadence
@@ -73,7 +74,11 @@ export async function POST(req: Request) {
       ...(applyDiscount
         ? { discounts: [{ coupon: process.env.STRIPE_INTRO_COUPON_ID! }] }
         : {}),
-      customer_email: user.email,
+      // Reuse existing Stripe customer when available to prevent duplicate customers
+      // on re-subscription. Fall back to email lookup only for first-time subscribers.
+      ...(profile?.stripe_customer_id
+        ? { customer: profile.stripe_customer_id }
+        : { customer_email: user.email }),
       success_url: `${origin}/dashboard/upgrade?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: (() => { const base = `${origin}${returnPath}`; return base.includes("?") ? `${base}&checkout=cancelled` : `${base}?checkout=cancelled`; })(),
       metadata: { user_id: user.id, cadence, billing_interval: billingInterval },

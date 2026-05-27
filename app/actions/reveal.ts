@@ -161,7 +161,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         previousTitles,
       });
       idea = { ...homeIdea, location_type: "home" };
-    } else if (profile.last_lat && profile.last_long) {
+    } else if (profile.last_lat != null && profile.last_long != null) {
       const { data: pastIdeas } = await admin
         .from("date_ideas")
         .select("idea")

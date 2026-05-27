@@ -46,7 +46,7 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("date_idea, date_accepted_at, checkin_owner_at, checkin_partner_at, total_checkins, total_xp, plan_type")
+    .select("date_idea, date_accepted_at, plan_type")
     .eq("id", access.profileId)
     .single();
 
@@ -58,7 +58,7 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
     location?: { latitude?: number; longitude?: number };
   } | null;
 
-  if (!idea || idea.type !== "venue" || !idea.location?.latitude || !idea.location?.longitude) {
+  if (!idea || idea.type !== "venue" || idea.location?.latitude == null || idea.location?.longitude == null) {
     return { status: "no_venue" };
   }
 
@@ -67,33 +67,23 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
     return { status: "too_far", distanceMeters: Math.round(distance) };
   }
 
-  const nowIso = new Date().toISOString();
-  const alreadyCheckedIn =
-    access.role === "owner" ? !!profile.checkin_owner_at : !!profile.checkin_partner_at;
-
   // Free: 50 XP per check-in. Plus: 100 XP (2×).
   const XP_CHECKIN = profile.plan_type === "subscription" ? 100 : 50;
-  let xpGained = 0;
 
-  if (!alreadyCheckedIn) {
-    const xpIncrease = XP_CHECKIN;
-    const checkinUpdate =
-      access.role === "owner"
-        ? { checkin_owner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, total_xp: (profile.total_xp ?? 0) + xpIncrease }
-        : { checkin_partner_at: nowIso, total_checkins: (profile.total_checkins ?? 0) + 1, total_xp: (profile.total_xp ?? 0) + xpIncrease };
+  // record_checkin atomically sets the checkin timestamp + increments counters in one
+  // SQL statement (FOR UPDATE lock prevents the read-modify-write race when both
+  // partners check in at the same moment). Returns xp_awarded=0 if already checked in.
+  const { data: checkinResult, error: writeError } = await supabase.rpc("record_checkin", {
+    p_profile_id: access.profileId,
+    p_xp_gain: XP_CHECKIN,
+  });
 
-    const { error: writeError } = await admin
-      .from("profiles")
-      .update(checkinUpdate)
-      .eq("id", access.profileId);
-
-    if (writeError) {
-      console.error(`[audit] checkin: write failed uid=${user.id} msg=${writeError.message}`);
-      return { status: "error", error: "Failed to record check-in. Please try again." };
-    }
-
-    xpGained = xpIncrease;
+  if (writeError) {
+    console.error(`[audit] checkin: write failed uid=${user.id} msg=${writeError.message}`);
+    return { status: "error", error: "Failed to record check-in. Please try again." };
   }
+
+  const xpGained = checkinResult?.xp_awarded ?? 0;
 
   revalidatePath("/dashboard");
   return { status: "waiting", xpGained };

@@ -5,7 +5,7 @@ import { getClientAndUser } from "@/lib/supabase/get-client-and-user";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { revalidatePath } from "next/cache";
 import { completeDate } from "@/app/actions/complete-date";
-import { HeadObjectCommand } from "@aws-sdk/client-s3";
+import { HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { r2, R2_BUCKET } from "@/lib/r2";
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -128,7 +128,7 @@ export async function savePhoto(
   // Block users who skipped check-in (defense-in-depth vs stale presign URLs)
   const { data: checkinProfile } = await admin
     .from("profiles")
-    .select("checkin_owner_skipped, checkin_partner_skipped, total_xp, plan_type")
+    .select("checkin_owner_skipped, checkin_partner_skipped, plan_type")
     .eq("id", access.profileId)
     .single();
   const mySkipped =
@@ -149,7 +149,11 @@ export async function savePhoto(
   try {
     const head = await r2.send(new HeadObjectCommand({ Bucket: R2_BUCKET, Key: r2Key }));
     if (!head.ContentLength || head.ContentLength === 0) return { error: "Photo upload appears empty" };
-    if (head.ContentLength > MAX_PHOTO_BYTES) return { error: "Photo exceeds 5 MB limit" };
+    if (head.ContentLength > MAX_PHOTO_BYTES) {
+      // Delete the oversized object so it doesn't linger in R2 storage.
+      await r2.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: r2Key })).catch(() => {});
+      return { error: "Photo exceeds 5 MB limit" };
+    }
   } catch {
     return { error: "Photo not found — upload may have failed" };
   }
@@ -177,10 +181,11 @@ export async function savePhoto(
 
   let xpGained = 0;
   if (checkinProfile?.plan_type === "subscription") {
-    const { error: xpError } = await admin
-      .from("profiles")
-      .update({ total_xp: (checkinProfile.total_xp ?? 0) + XP_PHOTO })
-      .eq("id", access.profileId);
+    // award_xp increments total_xp atomically in SQL — no read-modify-write race.
+    const { error: xpError } = await admin.rpc("award_xp", {
+      p_profile_id: access.profileId,
+      p_xp: XP_PHOTO,
+    });
     if (xpError) {
       console.error(`[audit] save-photo: xp update failed uid=${user.id} msg=${xpError.message}`);
     } else {

@@ -92,17 +92,10 @@ export async function GET(request: Request) {
       continue;
     }
 
-    // Mark as notified so we don't send again this cycle.
-    // Do this immediately after the owner send so idempotency holds
-    // even if the partner send below fails.
-    await supabase
-      .from("profiles")
-      .update({ notification_sent_at: new Date().toISOString() })
-      .eq("id", profile.id as string);
-
-    sent++;
-
-    // Also notify the partner (if one has joined the couple).
+    // Attempt partner send BEFORE marking notified so that a partner-send
+    // failure doesn't silently lock the couple out of future notifications.
+    // If partner send fails the cycle is still marked notified (to prevent
+    // owner duplicates on the next run) and the failure is logged for review.
     const { data: partnerMember } = await supabase
       .from("couple_members")
       .select("user_id")
@@ -137,6 +130,14 @@ export async function GET(request: Request) {
         }
       }
     }
+
+    // Mark notified after both send attempts.
+    await supabase
+      .from("profiles")
+      .update({ notification_sent_at: new Date().toISOString() })
+      .eq("id", profile.id as string);
+
+    sent++;
   }
 
   console.info(`[cron/notify-dates] sent=${sent} errors=${errors.length}`);
