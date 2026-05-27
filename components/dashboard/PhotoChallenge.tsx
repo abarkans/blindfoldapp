@@ -408,7 +408,7 @@ export default function PhotoChallenge({
             )}
             {!isPaid && !isInline && (
               <p className="text-xs text-amber-400/80 mb-3 text-center">
-                Gallery viewing requires Plus — you can still capture and save locally.
+                Gallery viewing requires Plus. You can still capture and save locally.
               </p>
             )}
             {isInline ? (
@@ -452,7 +452,7 @@ export default function PhotoChallenge({
           <Camera className="w-5 h-5 text-rose-400" />
         </div>
         <h3 className="text-lg font-bold text-white mb-1">Skip photo?</h3>
-        <p className="text-sm text-white/55 mb-6">A photo turns tonight into a memory you can look back on — skip and the moment stays just in your heads.</p>
+        <p className="text-sm text-white/55 mb-6">A photo turns tonight into a memory you can look back on. Skip and the moment stays just in your heads.</p>
         <div className="flex flex-col gap-2">
           <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
             Never mind

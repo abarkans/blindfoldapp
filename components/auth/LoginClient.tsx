@@ -50,7 +50,7 @@ export default function LoginClient() {
 
   async function onSubmit(values: LoginFormData) {
     if (!captchaToken) {
-      setError("Security check still loading — please try again in a moment.");
+      setError("Security check still loading. Please try again in a moment.");
       return;
     }
     setLoading(true);
@@ -66,7 +66,7 @@ export default function LoginClient() {
     if (signInError) {
       setError(
         /captcha/i.test(signInError.message)
-          ? "Security check expired — please try again."
+          ? "Security check expired. Please try again."
           : signInError.message
       );
       setLoading(false);

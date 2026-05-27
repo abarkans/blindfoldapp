@@ -9,7 +9,7 @@ import PublicNav from "@/components/ui/PublicNav";
 const SITE_URL = "https://blindfolddate.com";
 
 export const metadata: Metadata = {
-  title: "Blog — BlindfoldDate",
+  title: "Blog | BlindfoldDate",
   description: "Date night ideas, relationship advice, and tips for couples who want better evenings together.",
   robots: { index: true, follow: true },
   alternates: {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     types: { "application/rss+xml": `${SITE_URL}/feed.xml` },
   },
   openGraph: {
-    title: "Blog — BlindfoldDate",
+    title: "Blog | BlindfoldDate",
     description: "Date night ideas, relationship advice, and tips for couples who want better evenings together.",
     url: `${SITE_URL}/blog`,
     images: [{ url: `${SITE_URL}/og-image.png`, width: 1200, height: 630 }],
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blog — BlindfoldDate",
+    title: "Blog | BlindfoldDate",
     description: "Date night ideas, relationship advice, and tips for couples who want better evenings together.",
     images: [`${SITE_URL}/og-image.png`],
   },

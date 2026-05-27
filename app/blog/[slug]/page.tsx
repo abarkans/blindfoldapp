@@ -25,7 +25,7 @@ export async function generateMetadata({
   const post = getPost(slug);
   if (!post) return {};
   return {
-    title: `${post.title} — BlindfoldDate`,
+    title: `${post.title} | BlindfoldDate`,
     description: post.description,
     robots: { index: true, follow: true },
     alternates: { canonical: `${SITE_URL}/blog/${slug}` },
@@ -167,7 +167,7 @@ export default async function BlogPostPage({
 
           <div className="mt-14 border border-white/10 bg-white/[0.02] rounded-2xl p-7">
             <p className="text-base font-semibold text-white mb-1.5">Let us plan your next date.</p>
-            <p className="text-base text-white/50 mb-5">Tell us your interests once. We find a real venue nearby and plan everything — you just show up.</p>
+            <p className="text-base text-white/50 mb-5">Tell us your interests once. We find a real venue nearby and plan everything. You just show up.</p>
             <Link
               href="/register"
               className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-400 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"

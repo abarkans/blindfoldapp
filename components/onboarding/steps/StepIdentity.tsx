@@ -79,7 +79,7 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
           <div className="flex items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-3">
             <Info className="w-4 h-4 shrink-0 mt-0.5 text-white/50" />
             <p className="text-xs leading-relaxed text-white/60">
-              Optional — invite your partner anytime from Settings. Dates unlock when they join.
+              Optional. Invite your partner anytime from Settings. Dates unlock when they join.
             </p>
           </div>
         </div>

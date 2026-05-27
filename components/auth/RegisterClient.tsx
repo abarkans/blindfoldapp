@@ -98,7 +98,7 @@ export default function RegisterClient() {
 
   async function onSubmit(values: RegisterFormData) {
     if (!captchaToken) {
-      setError("Security check still loading — please try again in a moment.");
+      setError("Security check still loading. Please try again in a moment.");
       return;
     }
     setLoading(true);
@@ -134,7 +134,7 @@ export default function RegisterClient() {
     if (signUpError) {
       setError(
         /captcha/i.test(signUpError.message)
-          ? "Security check expired — please try again."
+          ? "Security check expired. Please try again."
           : signUpError.message
       );
       setLoading(false);
@@ -162,7 +162,7 @@ export default function RegisterClient() {
   async function handleResend() {
     if (resendCooldown > 0 || resending) return;
     if (!captchaToken) {
-      setError("Security check still loading — please try again in a moment.");
+      setError("Security check still loading. Please try again in a moment.");
       return;
     }
     setResending(true);
@@ -222,7 +222,7 @@ export default function RegisterClient() {
           <p className="text-white/50 text-sm mb-1">We sent a confirmation link to</p>
           <p className="text-white font-semibold text-sm mb-6">{emailSent}</p>
           <p className="text-white/30 text-xs">
-            Click the link to activate your account — we&apos;ll get your first date ready.
+            Click the link to activate your account. We&apos;ll get your first date ready.
             The link expires in 24 hours. Check your spam folder if you don&apos;t see it.
           </p>
 
@@ -335,7 +335,7 @@ export default function RegisterClient() {
                   <div className="mb-4 bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3 text-sm text-red-400">
                     {error}
                     {error === "User already registered" && (
-                      <> — <Link href="/login" className="underline hover:text-red-300">Sign in</Link></>
+                      <>. <Link href="/login" className="underline hover:text-red-300">Sign in</Link></>
                     )}
                   </div>
                 )}

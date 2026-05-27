@@ -184,7 +184,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
                 <Navigation className="w-4 h-4 text-white/65" />
               </div>
               <p className="text-sm text-white/70 leading-relaxed">
-                We find <span className="text-white font-medium">real venues</span> near you — restaurants, parks, galleries.
+                We find <span className="text-white font-medium">real venues</span> near you: restaurants, parks, galleries.
               </p>
             </div>
             <Button size="lg" className="w-full" onClick={handleAllowLocation}>
@@ -229,7 +229,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
             <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-white/80">Location access denied</p>
-              <p className="text-xs text-white/55 mt-0.5">No worries — search for your city below.</p>
+              <p className="text-xs text-white/55 mt-0.5">No worries. Search for your city below.</p>
             </div>
           </motion.div>
         )}

@@ -230,7 +230,7 @@ export default function DashboardTabs({
               <span className="text-lg leading-none mt-0.5">💳</span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-white">Payment didn&apos;t complete.</p>
-                <p className="text-xs text-white/50 mt-0.5">No worries — your account is all set! You&apos;re on the Starter plan for now. You can upgrade anytime from Settings.</p>
+                <p className="text-xs text-white/50 mt-0.5">No worries, your account is all set! You&apos;re on the Starter plan for now. You can upgrade anytime from Settings.</p>
               </div>
               <button
                 onClick={() => setShowCancelBanner(false)}

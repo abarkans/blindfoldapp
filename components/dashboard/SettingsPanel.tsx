@@ -917,7 +917,7 @@ export default function SettingsPanel({
                         {locStatus === "denied" && (
                           <div className="flex items-center gap-2 text-xs text-amber-400">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                            Location denied — search below
+                            Location denied. Search below
                           </div>
                         )}
                         <div className="flex gap-2">

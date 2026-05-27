@@ -14,7 +14,7 @@ const SLIDES = [
     icon: '✨',
     title: 'Real Places.',
     subtitle: 'Curated for You.',
-    body: 'AI picks hidden gem venues based on your vibe, budget, and location — with ratings ≥ 4.0 only.',
+    body: 'AI picks hidden gem venues based on your vibe, budget, and location. Ratings 4.0+ only.',
     accent: '#8b5cf6',
   },
   {

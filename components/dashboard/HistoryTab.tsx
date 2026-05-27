@@ -241,7 +241,7 @@ function HistoryContent({
           </div>
           <p className="text-sm font-semibold text-white mb-1">Unlock your Date Scrapbook</p>
           <p className="text-xs text-white/55 leading-relaxed mb-3">
-            Photos are captured — upgrade to Plus to view them.
+            Photos are captured. Upgrade to Plus to view them.
           </p>
           <button
             onClick={onOpenPlanSettings}

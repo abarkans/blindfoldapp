@@ -17,7 +17,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 const SITE_URL = "https://blindfolddate.com";
 
 export const metadata: Metadata = {
-  title: "BlindfoldDate — Date nights, planned for you",
+  title: "BlindfoldDate | Date nights, planned for you",
   description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",
   alternates: {
     canonical: SITE_URL,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     apple: "/apple_icon.png",
   },
   openGraph: {
-    title: "BlindfoldDate — Date nights, planned for you",
+    title: "BlindfoldDate | Date nights, planned for you",
     description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",
     url: SITE_URL,
     siteName: "BlindfoldDate",
@@ -45,7 +45,7 @@ const jsonLd = {
   "@type": "SoftwareApplication",
   name: "BlindfoldDate",
   applicationCategory: "LifestyleApplication",
-  description: "AI-powered mystery date planning. Tell us your interests once — we find real nearby venues and craft your date story.",
+  description: "AI-powered mystery date planning. Tell us your interests once. We find real nearby venues and craft your date story.",
   url: SITE_URL,
   offers: [
     { "@type": "Offer", name: "Starter", price: "0", priceCurrency: "EUR" },

@@ -295,8 +295,8 @@ function BothSkippedScreen({
         </p>
         <p className="text-xs text-white/55 leading-relaxed">
           {isHome
-            ? "No worries — memories aren't made on command. You can still capture the moment, or call it a night."
-            : "No worries — date nights don't always go to plan. You can head to the venue now and check in, or close this one out and look forward to the next."}
+            ? "No worries, memories aren't made on command. You can still capture the moment, or call it a night."
+            : "No worries, date nights don't always go to plan. You can head to the venue now and check in, or close this one out and look forward to the next."}
         </p>
       </div>
       <Button variant="primary" size="lg" className="w-full gap-2" onClick={onReset}>
@@ -909,7 +909,7 @@ export default function DateCard({
                     </div>
 
                     <p className="text-xs text-white/55 text-center">
-                      Unlock the full surprise — or swap for something else.
+                      Unlock the full surprise, or swap for something else.
                     </p>
 
                     {error && <p className="text-xs text-red-400 text-center">{error}</p>}
@@ -1524,7 +1524,7 @@ export default function DateCard({
         </div>
         <h3 className="text-lg font-bold text-white mb-1">Skip check-in?</h3>
         <p className="text-sm text-white/55 mb-6">
-          Checking in at the venue proves you made it — skip and you&apos;ll miss out on bonus XP and streak credit.
+          Checking in at the venue proves you made it. Skip and you&apos;ll miss out on bonus XP and streak credit.
         </p>
         <div className="flex flex-col gap-2">
           <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
@@ -1645,7 +1645,7 @@ export default function DateCard({
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
             <p className="text-xs text-amber-300 leading-relaxed">
               <span className="font-semibold">Starter plan:</span>{" "}
-              <span className="font-bold">1 re-roll total — use it wisely.</span> Once gone, dates are final.
+              <span className="font-bold">1 re-roll total. Use it wisely.</span> Once gone, dates are final.
             </p>
           </div>
         ) : (
@@ -1690,7 +1690,7 @@ export default function DateCard({
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
           <p className="text-xs text-amber-300 leading-relaxed">
             Once revealed, you <span className="font-bold">won&apos;t be able to swap</span> this date.
-            {isFree && " You still have your 1 lifetime swap — you can use it on this date or save it for a future one."}
+            {isFree && " You still have your 1 lifetime swap. Use it on this date or save it for a future one."}
           </p>
         </div>
 

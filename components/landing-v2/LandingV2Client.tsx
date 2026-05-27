@@ -32,7 +32,7 @@ const STEPS = [
     number: "02",
     icon: Sparkles,
     title: "We do the planning",
-    body: "AI finds a top-rated venue near you — or plans a curated night in. Either way, it writes the full date story just for you two.",
+    body: "AI finds a top-rated venue near you, or plans a curated night in. Either way, it writes the full date story just for you two.",
   },
   {
     number: "03",
@@ -48,7 +48,7 @@ const SAMPLE_DATES = [
     title: "Golden Hour Walk",
     vibe: "Romantic & Creative",
     venue: "Botanical Garden, Old Town",
-    description: "A mystery route timed perfectly for golden hour. Camera required — you'll want to remember this one.",
+    description: "A mystery route timed perfectly for golden hour. Camera required. You'll want to remember this one.",
     rating: 4.8,
     duration: "2 hrs",
     budget: "€0–15",
@@ -60,7 +60,7 @@ const SAMPLE_DATES = [
     title: "Blind Tasting Night",
     vibe: "Playful & Sophisticated",
     venue: "La Cave Wine Bar, City Centre",
-    description: "A curated flight of wines at a hidden wine bar. Guess what you're drinking — loser picks next time.",
+    description: "A curated flight of wines at a hidden wine bar. Guess what you're drinking. Loser picks next time.",
     rating: 4.7,
     duration: "2 hrs",
     budget: "€30–60",
@@ -72,7 +72,7 @@ const SAMPLE_DATES = [
     title: "Surprise Cinema Date",
     vibe: "Spontaneous & Fun",
     venue: "Forum Cinemas, City Centre",
-    description: "Show up and see whatever starts next. No trailers, no reviews — pure surprise and shared reactions.",
+    description: "Show up and see whatever starts next. No trailers, no reviews. Pure surprise and shared reactions.",
     rating: 4.6,
     duration: "3 hrs",
     budget: "€20–30",
@@ -193,7 +193,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
           <button
             onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
             className="flex items-center gap-2.5 group"
-            aria-label="BlindfoldDate — scroll to top"
+            aria-label="Scroll to top"
           >
             <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} priority className="object-contain group-hover:opacity-75 transition-opacity" />
           </button>
@@ -364,7 +364,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
 
             {/* Subtext */}
             <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-              Answer a few questions once — budget, interests, distance. We find real venues near you and craft your mystery date story. You just show up.
+              Answer a few questions once: budget, interests, distance. We find real venues near you and craft your mystery date story. You just show up.
             </p>
 
             {/* CTAs */}
@@ -448,10 +448,10 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">
-                    Out or in — we plan both.
+                    Out or in. We plan both.
                   </h3>
                   <p className="text-white/55 text-sm leading-[1.65] max-w-sm">
-                    Get a top-rated venue near you, or a curated night in at home. Real places, vetted and ready — no Googling needed.
+                    Get a top-rated venue near you, or a curated night in at home. Real places, vetted and ready. No Googling needed.
                   </p>
                 </div>
               </div>
@@ -476,7 +476,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Fits your wallet</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">Set a max spend — every suggestion lands inside it.</p>
+                  <p className="text-white/55 text-sm leading-[1.65]">Set a max spend. Every suggestion lands inside it.</p>
                 </div>
               </div>
 
@@ -488,7 +488,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                 <div className="absolute inset-0 bg-black/82 transition-colors duration-300 group-hover:bg-black/74" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-white text-base md:text-lg mb-2">Check in. Earn XP.</h3>
-                  <p className="text-white/55 text-sm leading-[1.65]">Tap check-in when you arrive. Both partners earn XP — Plus earns double.</p>
+                  <p className="text-white/55 text-sm leading-[1.65]">Tap check-in when you arrive. Both partners earn XP. Plus earns double.</p>
                 </div>
               </div>
 
@@ -740,7 +740,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
             <p className="text-white/55 text-base md:text-xl mb-12 md:mb-16 leading-[1.7]">
               Join couples who stopped arguing about what to do
               <br className="hidden sm:block" />
-              — invite your partner and start actually doing it.
+              Invite your partner and start actually doing it.
             </p>
 
             <Link
@@ -761,7 +761,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
             <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
               <Image src="/logo.png" alt="BlindfoldDate" width={120} height={30} className="object-contain opacity-45" />
               <p className="text-white/35 text-sm leading-relaxed max-w-[220px]">
-                Date nights, planned for you. Tell us once — we handle the rest.
+                Date nights, planned for you. Tell us once. We handle the rest.
               </p>
               <a href="https://www.instagram.com/blindfold.date" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors w-fit">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">

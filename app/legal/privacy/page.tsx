@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — BlindfoldDate",
+  title: "Privacy Policy | BlindfoldDate",
   robots: { index: true, follow: true },
 };
 
@@ -84,7 +84,7 @@ export default function PrivacyPolicyPage() {
       <p>
         We use PostHog (EU region) to understand how the app is used. This includes page views,
         feature interactions, and session recordings that capture your on-screen activity (clicks,
-        scrolls, and navigation). All form inputs are masked — we never record passwords, email
+        scrolls, and navigation). All form inputs are masked. We never record passwords, email
         addresses, or other text you type. Session data is not linked to a persistent cookie; a
         new session ID is created on each visit. You can opt out at any time by contacting us.
       </p>
@@ -198,12 +198,12 @@ export default function PrivacyPolicyPage() {
       <h2 id="rights">7. Your rights</h2>
       <p>Under GDPR you have the right to:</p>
       <ul>
-        <li><strong>Access</strong> — request a copy of the personal data we hold about you</li>
-        <li><strong>Rectification</strong> — correct inaccurate data (most data is editable directly in Settings)</li>
-        <li><strong>Erasure</strong> — request deletion of your account and all associated data</li>
-        <li><strong>Portability</strong> — receive your data in a machine-readable format (JSON)</li>
-        <li><strong>Restriction</strong> — ask us to limit how we process your data</li>
-        <li><strong>Objection</strong> — object to processing based on legitimate interests</li>
+        <li><strong>Access</strong>: request a copy of the personal data we hold about you</li>
+        <li><strong>Rectification</strong>: correct inaccurate data (most data is editable directly in Settings)</li>
+        <li><strong>Erasure</strong>: request deletion of your account and all associated data</li>
+        <li><strong>Portability</strong>: receive your data in a machine-readable format (JSON)</li>
+        <li><strong>Restriction</strong>: ask us to limit how we process your data</li>
+        <li><strong>Objection</strong>: object to processing based on legitimate interests</li>
       </ul>
       <p>
         To exercise any of these rights, email us at{" "}
@@ -215,7 +215,7 @@ export default function PrivacyPolicyPage() {
       <h2 id="cookies">8. Cookies &amp; local storage</h2>
       <p>
         We use strictly necessary session cookies to keep you signed in. For analytics, PostHog
-        runs in memory-only mode — no analytics cookies or persistent identifiers are written to
+        runs in memory-only mode. No analytics cookies or persistent identifiers are written to
         your browser. A new anonymous session ID is created on each page load. We do not use
         advertising cookies or third-party tracking cookies.
       </p>

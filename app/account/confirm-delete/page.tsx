@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import ConfirmDeleteClient from "@/components/account/ConfirmDeleteClient";
 
 export const metadata = {
-  title: "Confirm account deletion — BlindfoldDate",
+  title: "Confirm account deletion | BlindfoldDate",
   robots: { index: false },
 };
 

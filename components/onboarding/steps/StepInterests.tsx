@@ -73,7 +73,7 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
         <h2 className="text-2xl font-bold text-white">What do you love?</h2>
         <p className="text-white/50 text-sm">
           {isFree
-            ? `Pick at least ${MIN_INTEREST_CATEGORIES} — Starter includes these 3 categories.`
+            ? `Pick at least ${MIN_INTEREST_CATEGORIES}. Starter includes these 3 categories.`
             : `Pick at least ${MIN_INTEREST_CATEGORIES} categories so we can keep your dates varied.`}
         </p>
       </div>

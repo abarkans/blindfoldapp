@@ -27,19 +27,19 @@ const HOW_IT_WORKS = [
     number: "01",
     icon: Wallet,
     title: "Pick two things together",
-    body: "Your budget cap and whether you want to go out or stay in — two constraints that end the debating before it starts. That's the whole decision. Everything else we handle.",
+    body: "Your budget cap and whether you want to go out or stay in. Two constraints that end the debating before it starts. That's the whole decision. Everything else we handle.",
   },
   {
     number: "02",
     icon: Sparkles,
     title: "We make the call",
-    body: "One venue near you, rated 4.0+, inside your budget — or a full night-in plan. Not a list to debate. One plan, written for you two like a friend who's been there.",
+    body: "One venue near you, rated 4.0+, inside your budget, or a full night-in plan. Not a list to debate. One plan, written for you two like a friend who's been there.",
   },
   {
     number: "03",
     icon: Home,
     title: "Say yes. Show up.",
-    body: "Reveal when you're ready. Navigation opens automatically. The only thing left to decide is when you're leaving — and that one you can handle.",
+    body: "Reveal when you're ready. Navigation opens automatically. The only thing left to decide is when you're leaving, and that one you can handle.",
   },
 ];
 
@@ -48,44 +48,44 @@ const STEPS = [
   {
     number: "01",
     title: "Set the rules once",
-    body: "Your budget cap, your interests, how far you'll travel. Pick going out or staying in. Done in a minute — we remember it for every date after.",
+    body: "Your budget cap, your interests, how far you'll travel. Pick going out or staying in. Done in a minute. We remember it for every date after.",
     image: "/how/settings.svg",
   },
   {
     number: "02",
     title: "Nudge your partner",
-    body: "Tap to let them know you're in the mood. They say yes or no. No 'what do you want to do?' — just a simple signal between two people.",
+    body: "Tap to let them know you're in the mood. They say yes or no. No 'what do you want to do?', just a simple signal between two people.",
     image: "/how/message.svg",
   },
   {
     number: "03",
     title: "Unlock together",
-    body: "Both of you agree, and the plan appears at the same moment. One real venue, rated 4.0+, inside your budget. Not a list — one decision, already made.",
+    body: "Both of you agree, and the plan appears at the same moment. One real venue, rated 4.0+, inside your budget. Not a list. One decision, already made.",
     image: "/how/reveal.svg",
   },
   {
     number: "04",
     title: "Go enjoy it",
-    body: "Tap navigate and go. No second-guessing, no last-minute decisions. Mark it done when you're back — we track your history so venues never repeat.",
+    body: "Tap navigate and go. No second-guessing, no last-minute decisions. Mark it done when you're back. We track your history so venues never repeat.",
   },
 ];
 
 const FAQ_ITEMS = [
   {
     q: "How does BlindfoldDate choose our venue?",
-    a: "We search real venues near your location using Google Places — restaurants, bars, galleries, parks, and more. Every suggestion is filtered by your interests, rated 4.0 or above, and priced within your budget cap. Then we write a bespoke date plan around it: what to do when you arrive, what makes it worth going, and why it suits you two specifically.",
+    a: "We search real venues near your location using Google Places: restaurants, bars, galleries, parks, and more. Every suggestion is filtered by your interests, rated 4.0 or above, and priced within your budget cap. Then we write a bespoke date plan around it: what to do when you arrive, what makes it worth going, and why it suits you two specifically.",
   },
   {
     q: "What if we don't like the suggestion?",
-    a: "Plus subscribers get one free reroll per date cycle. On the free plan, you get one reroll ever — use it wisely. If you're not feeling the vibe after the idea is revealed, you can swap it for something different before you've committed to going.",
+    a: "Plus subscribers get one free reroll per date cycle. On the free plan, you get one reroll ever. Use it wisely. If you're not feeling the vibe after the idea is revealed, you can swap it for something different before you've committed to going.",
   },
   {
     q: "Does my partner need an account?",
-    a: "Your partner joins via an invite link — no full setup required. They connect their email, accept the invite, and they're in. Once linked, they can also manage shared settings like preferences and travel distance.",
+    a: "Your partner joins via an invite link. No full setup required. They connect their email, accept the invite, and they're in. Once linked, they can also manage shared settings like preferences and travel distance.",
   },
   {
     q: "How often do we get new date ideas?",
-    a: "Free users get one date per month. Plus subscribers choose their own cadence — weekly, bi-weekly, or monthly — so the app works around your actual schedule.",
+    a: "Free users get one date per month. Plus subscribers choose their own cadence (weekly, bi-weekly, or monthly) so the app works around your actual schedule.",
   },
   {
     q: "Is my location data safe?",
@@ -93,7 +93,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "What's the difference between free and Plus?",
-    a: "Free gives you one date per month, limited interest preferences, and a capped travel distance. Plus unlocks your full preference set, a wider travel radius, weekly or bi-weekly scheduling, and access to Saved Memories — your date history over time.",
+    a: "Free gives you one date per month, limited interest preferences, and a capped travel distance. Plus unlocks your full preference set, a wider travel radius, weekly or bi-weekly scheduling, and access to Saved Memories - your date history over time.",
   },
 ];
 
@@ -139,7 +139,7 @@ const SAMPLE_DATES = [
     title: "Golden Hour Walk",
     vibe: "Romantic & Creative",
     venue: "Botanical Garden, Old Town",
-    description: "A mystery route timed perfectly for golden hour. Camera required — you'll want to remember this one.",
+    description: "A mystery route timed perfectly for golden hour. Camera required. You'll want to remember this one.",
     rating: 4.8,
     duration: "2 hrs",
     budget: "€0–15",
@@ -151,7 +151,7 @@ const SAMPLE_DATES = [
     title: "Blind Tasting Night",
     vibe: "Playful & Sophisticated",
     venue: "La Cave Wine Bar, City Centre",
-    description: "A curated flight of wines at a hidden wine bar. Guess what you're drinking — loser picks next time.",
+    description: "A curated flight of wines at a hidden wine bar. Guess what you're drinking. Loser picks next time.",
     rating: 4.7,
     duration: "2 hrs",
     budget: "€30–60",
@@ -163,7 +163,7 @@ const SAMPLE_DATES = [
     title: "Surprise Cinema Date",
     vibe: "Spontaneous & Fun",
     venue: "Forum Cinemas, City Centre",
-    description: "Show up and see whatever starts next. No trailers, no reviews — pure surprise and shared reactions.",
+    description: "Show up and see whatever starts next. No trailers, no reviews. Pure surprise and shared reactions.",
     rating: 4.6,
     duration: "3 hrs",
     budget: "€20–30",
@@ -197,7 +197,7 @@ const REVEAL_LINES = [
   "is not a date.",
   "Debating the restaurant,",
   "checking reviews,",
-  "giving up and staying home —",
+  "giving up and staying home...",
   "that's not romance. That's work.",
   "We make the call. You show up.",
 ];
@@ -435,7 +435,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
           <button
             onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
             className="flex items-center gap-2.5 group"
-            aria-label="BlindfoldDate — scroll to top"
+            aria-label="Scroll to top"
           >
             <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} priority className="object-contain group-hover:opacity-75 transition-opacity" />
           </button>
@@ -603,7 +603,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               </h1>
 
               <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                Tell us your budget and whether you want to go out or stay in. One plan, one real venue — no debating.
+                Tell us your budget and whether you want to go out or stay in. One plan, one real venue. No debating.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
@@ -952,7 +952,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
             </h2>
 
             <p className="text-white/55 text-base md:text-xl mb-12 md:mb-16 leading-[1.7] max-w-lg mx-auto">
-              This is something. Set your budget, pick in or out, and we handle the rest — venue, story, navigation. The only thing left to negotiate is when you&rsquo;re leaving.
+              This is something. Set your budget, pick in or out, and we handle the rest: venue, story, navigation. The only thing left to negotiate is when you&rsquo;re leaving.
             </p>
 
             <Link

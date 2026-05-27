@@ -42,9 +42,9 @@ export default function PasswordStrength({ password }: Props) {
       </div>
       <p className={`text-xs ${s <= 1 ? "text-red-400" : s === 2 ? "text-amber-400" : "text-emerald-400"}`}>
         {label}
-        {s <= 1 && password.length < 8 && " — at least 8 characters"}
-        {s === 1 && password.length >= 8 && " — add uppercase, numbers or symbols"}
-        {s === 2 && " — add more variety"}
+        {s <= 1 && password.length < 8 && " - at least 8 characters"}
+        {s === 1 && password.length >= 8 && " - add uppercase, numbers or symbols"}
+        {s === 2 && " - add more variety"}
       </p>
     </div>
   );

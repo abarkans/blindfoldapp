@@ -5,7 +5,7 @@ import { getUnitSystem } from "@/lib/get-unit-system";
 const SITE_URL = "https://blindfolddate.com";
 
 export const metadata: Metadata = {
-  title: "BlindfoldDate — Date Night, Decided. Just Show Up.",
+  title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
   description:
     "Budget + in or out. We pick one real nearby venue and write your complete date plan. Zero back-and-forth. Zero Googling. Just show up.",
   alternates: { canonical: SITE_URL },
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   creator: "BlindfoldDate",
   publisher: "BlindfoldDate",
   openGraph: {
-    title: "BlindfoldDate — Date Night, Decided. Just Show Up.",
+    title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
     description:
       "Budget + in or out. We pick one real nearby venue and write your complete date plan. Zero back-and-forth. Zero Googling. Just show up.",
     url: SITE_URL,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "BlindfoldDate — Date night, decided. Just show up.",
+        alt: "BlindfoldDate - Date night, decided. Just show up.",
       },
     ],
     type: "website",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BlindfoldDate — Date Night, Decided. Just Show Up.",
+    title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
     description:
       "Budget + in or out. One real venue near you, full plan written for you two. Zero back-and-forth. Just show up.",
     images: [`${SITE_URL}/og-image.png`],
@@ -80,12 +80,12 @@ const jsonLd = {
       applicationCategory: "LifestyleApplication",
       operatingSystem: "Web",
       description:
-        "AI-powered mystery date planning for couples. Set your budget and whether you want to go out or stay in — we find one real nearby venue rated 4.0+ and craft your complete date plan. No lists. No debate.",
+        "AI-powered mystery date planning for couples. Set your budget and whether you want to go out or stay in. We find one real nearby venue rated 4.0+ and craft your complete date plan. No lists. No debate.",
       offers: {
         "@type": "Offer",
         price: "0",
         priceCurrency: "USD",
-        description: "Free plan — one date per month",
+        description: "Free plan, one date per month",
       },
       featureList: [
         "Budget-aware venue selection",

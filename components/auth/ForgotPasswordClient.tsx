@@ -38,7 +38,7 @@ export default function ForgotPasswordClient() {
 
   async function onSubmit(values: FormData) {
     if (!captchaToken) {
-      setError("Security check still loading — please try again in a moment.");
+      setError("Security check still loading. Please try again in a moment.");
       return;
     }
     setLoading(true);
@@ -51,7 +51,7 @@ export default function ForgotPasswordClient() {
     if (resetError) {
       setError(
         /captcha/i.test(resetError.message)
-          ? "Security check expired — please try again."
+          ? "Security check expired. Please try again."
           : resetError.message
       );
       setLoading(false);

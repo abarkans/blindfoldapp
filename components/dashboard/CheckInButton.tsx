@@ -69,7 +69,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
                 : meters >= 1000
                 ? `${(meters / 1000).toFixed(1)} km`
                 : `${meters} m`;
-            setErrorMsg(`Not quite there yet — you're ${display} away. Move closer and try again.`);
+            setErrorMsg(`Not quite there yet. You're ${display} away. Move closer and try again.`);
             setState("error");
             return;
           }

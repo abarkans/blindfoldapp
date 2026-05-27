@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — BlindfoldDate",
+  title: "Terms of Service | BlindfoldDate",
   robots: { index: true, follow: true },
 };
 
@@ -71,7 +71,7 @@ export default function TermsPage() {
       <p>
         Date suggestions are created by an AI system (Anthropic Claude) using your preferences
         and publicly available venue data. AI-generated content may occasionally be inaccurate,
-        outdated, or unsuitable. Suggestions are for inspiration only — exercise your own
+        outdated, or unsuitable. Suggestions are for inspiration only. Exercise your own
         judgement before acting on them. We are not liable for any outcome arising from
         following an AI-generated suggestion.
       </p>
