@@ -52,11 +52,25 @@ const CADENCE_LABEL: Record<string, string> = Object.fromEntries(
   CADENCE_OPTIONS.map(({ value, label }) => [value, label])
 );
 
+const CITY_LEVEL_TYPES = new Set([
+  "city",
+  "town",
+  "village",
+  "hamlet",
+  "suburb",
+  "neighbourhood",
+  "municipality",
+  "borough",
+  "quarter",
+]);
+
 const nominatimSearchSchema = z.array(
   z.object({
     lat: z.string().regex(/^-?\d{1,3}\.\d+$/),
     lon: z.string().regex(/^-?\d{1,3}\.\d+$/),
     display_name: z.string().max(500),
+    addresstype: z.string().optional(),
+    type: z.string().optional(),
   })
 );
 
@@ -240,12 +254,14 @@ export default function SettingsPanel({
       setSuggestionsLoading(true);
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=5&featuretype=city`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&limit=10&addressdetails=1`,
           { headers: { "Accept-Language": "en" } }
         );
         const raw = await res.json();
         const parsed = nominatimSearchSchema.safeParse(raw);
-        setSuggestions(parsed.success ? parsed.data : []);
+        if (!parsed.success) { setSuggestions([]); return; }
+        const filtered = parsed.data.filter((r) => CITY_LEVEL_TYPES.has(r.addresstype ?? r.type ?? ""));
+        setSuggestions((filtered.length > 0 ? filtered : parsed.data).slice(0, 5));
       } catch {
         setSuggestions([]);
       } finally {

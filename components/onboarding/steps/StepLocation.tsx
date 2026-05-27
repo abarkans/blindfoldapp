@@ -111,10 +111,8 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
           { headers: { "Accept-Language": "en" } }
         );
         const results: NominatimResult[] = await res.json();
-        const cityResults = results
-          .filter((r) => CITY_LEVEL_TYPES.has(r.addresstype ?? r.type ?? ""))
-          .slice(0, 5);
-        setSuggestions(cityResults);
+        const filtered = results.filter((r) => CITY_LEVEL_TYPES.has(r.addresstype ?? r.type ?? ""));
+        setSuggestions((filtered.length > 0 ? filtered : results).slice(0, 5));
       } catch {
         setSuggestions([]);
       } finally {
