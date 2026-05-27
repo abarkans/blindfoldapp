@@ -8,7 +8,8 @@ import { checkCompleteRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCoupleAccess } from "@/lib/partner-invites";
 
-const XP_PER_DATE = 100;
+// XP is now server-determined inside complete_date_atomic (migration 057).
+// The function hardcodes 100 base XP (200 for Plus) — no caller-supplied value.
 
 type BadgeRow = {
   earned_at: string;
@@ -36,9 +37,11 @@ export async function completeDate(): Promise<CompleteDateResult> {
 
   // Atomically: find the revealed idea (with row lock), mark it completed,
   // and increment XP + count in a single DB round-trip. Plus users earn 2× XP.
-  const { data: result, error } = await supabase.rpc("complete_date_atomic", {
+  // Uses admin client — function is service_role only after migration 057.
+  // XP is determined inside the function; no caller-supplied gain parameter.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: result, error } = await (admin as any).rpc("complete_date_atomic", {
     p_user_id: access.profileId,
-    p_xp_gain: XP_PER_DATE,
   });
 
   if (error) {
