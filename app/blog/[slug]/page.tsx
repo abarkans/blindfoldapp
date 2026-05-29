@@ -161,7 +161,23 @@ export default async function BlogPostPage({
               [&_strong]:text-white/80 [&_strong]:font-semibold
               [&_hr]:border-white/10 [&_hr]:my-10
               [&_blockquote]:border-l-2 [&_blockquote]:border-rose-400/40 [&_blockquote]:pl-5 [&_blockquote]:text-white/40 [&_blockquote]:italic">
-              <MDXRemote source={post.content} />
+              <MDXRemote
+                source={post.content}
+                components={{
+                  a: ({ href, children, ...props }) => {
+                    const isExternal = href?.startsWith("http");
+                    return (
+                      <a
+                        href={href}
+                        {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                        {...props}
+                      >
+                        {children}
+                      </a>
+                    );
+                  },
+                }}
+              />
             </div>
           </article>
 
