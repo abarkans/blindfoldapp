@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <h1>Privacy Policy</h1>
-      <p className="!text-white/35 !text-xs !mb-8">Last updated: 25 May 2026</p>
+      <p className="!text-white/35 !text-xs !mb-8">Last updated: 29 May 2026</p>
 
       <nav className="!mb-8 not-prose">
         <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
@@ -120,9 +120,15 @@ export default function PrivacyPolicyPage() {
           your location in Settings.
         </li>
         <li>
-          <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical, security, and analytics
-          data (including session recordings) is processed to maintain the integrity, security,
-          and quality of the service.
+          <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical data, error monitoring
+          (Sentry), and analytics are processed to maintain the integrity, security, and quality
+          of the service. Session recordings are used to identify usability problems and improve
+          the product. We conducted a balancing test: recordings mask all inputs, are not linked
+          to persistent identifiers, and our interest in improving the service does not override
+          your privacy because the data collected is minimal and anonymised. You have the right to
+          object at any time — email{" "}
+          <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a> and we will disable
+          recordings for your account.
         </li>
       </ul>
 
@@ -150,7 +156,7 @@ export default function PrivacyPolicyPage() {
           </tr>
           <tr>
             <td>Anthropic PBC</td>
-            <td>AI-powered date idea generation</td>
+            <td>AI-powered date idea generation. We send only your interests, budget range, and location context (city-level). No name, email, or account identifiers are included in prompts.</td>
             <td>US</td>
           </tr>
           <tr>
@@ -167,6 +173,11 @@ export default function PrivacyPolicyPage() {
             <td>PostHog Inc.</td>
             <td>Product analytics &amp; session recordings (EU region)</td>
             <td>EU</td>
+          </tr>
+          <tr>
+            <td>Functional Software, Inc. (Sentry)</td>
+            <td>Error monitoring &amp; crash reporting</td>
+            <td>US</td>
           </tr>
         </tbody>
       </table>
@@ -208,8 +219,11 @@ export default function PrivacyPolicyPage() {
       <p>
         To exercise any of these rights, email us at{" "}
         <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a>. We will respond within
-        30 days. You also have the right to lodge a complaint with your local data protection
-        authority.
+        30 days. You also have the right to lodge a complaint with the supervisory authority in
+        your country. If you are in Latvia, that is the{" "}
+        <a href="https://www.dvi.gov.lv" target="_blank" rel="noopener noreferrer">
+          Data State Inspectorate (dvi.gov.lv)
+        </a>.
       </p>
 
       <h2 id="cookies">8. Cookies &amp; local storage</h2>
