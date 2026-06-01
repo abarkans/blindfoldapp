@@ -6,10 +6,10 @@ export default function FeaturedPostCard({ post }: { post: BlogPostMeta }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group grid md:grid-cols-[3fr_2fr] gap-0 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 hover:bg-white/[0.02] transition-all duration-200"
+      className="group grid md:grid-cols-[3fr_2fr] gap-0 rounded-2xl overflow-hidden transition-all duration-200"
     >
       {post.image && (
-        <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[360px] overflow-hidden">
+        <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[360px] overflow-hidden md:rounded-r-2xl">
           <Image
             src={post.image}
             alt={post.title}
@@ -25,7 +25,7 @@ export default function FeaturedPostCard({ post }: { post: BlogPostMeta }) {
           Featured
         </span>
 
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-snug group-hover:text-white/90 transition-colors">
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-snug group-hover:underline transition-colors">
           {post.title}
         </h2>
 

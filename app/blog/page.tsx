@@ -50,19 +50,14 @@ export default function BlogPage() {
           </ol>
         </nav>
 
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-white mb-3">Date Night Inspiration</h1>
-          <p className="text-base text-white/50">Ideas, advice, and stories for couples who want better evenings together.</p>
-        </div>
-
         {posts.length === 0 ? (
           <p className="text-white/40 text-base">No posts yet.</p>
         ) : (
-          <div className="flex flex-col gap-14">
+          <div className="flex flex-col gap-20">
             {featured && <FeaturedPostCard post={featured} />}
 
             {rest.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
                 {rest.map((post) => (
                   <PostCard key={post.slug} post={post} />
                 ))}

@@ -7,16 +7,18 @@ export default function PostCard({ post }: { post: BlogPostMeta }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group flex flex-col border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 hover:bg-white/[0.02] transition-all duration-200"
+      className="group flex flex-col rounded-2xl transition-all duration-200"
     >
       {post.image && (
-        <div className="relative w-full aspect-[2/1] overflow-hidden">
-          <Image
-            src={post.image}
-            alt={post.title}
-            fill
-            className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
-          />
+        <div className="px-5 pt-5">
+          <div className="relative w-full aspect-[2/1] overflow-hidden rounded-xl">
+            <Image
+              src={post.image}
+              alt={post.title}
+              fill
+              className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            />
+          </div>
         </div>
       )}
 
@@ -32,7 +34,7 @@ export default function PostCard({ post }: { post: BlogPostMeta }) {
           ))}
         </div>
 
-        <h2 className="text-base font-semibold text-white mb-2 group-hover:text-white/90 transition-colors leading-snug">
+        <h2 className="text-xl font-semibold text-white mb-2 group-hover:underline transition-colors leading-snug">
           {post.title}
         </h2>
 
