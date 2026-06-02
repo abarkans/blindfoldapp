@@ -963,7 +963,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               href="/register"
               className="group relative inline-flex items-center gap-3 font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-[background-color] duration-150 overflow-hidden bg-rose-500 text-white hover:bg-rose-400 shadow-2xl shadow-rose-500/30 focus-visible:outline-none"
             >
-              Get our first date plan
+              Start free, no card needed
               <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
