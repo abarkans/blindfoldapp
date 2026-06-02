@@ -107,7 +107,7 @@ export default function OnboardingFlow({
   // onCanContinueChange with the correct initial value, and resetting here
   // would override it when the step mounts with pre-filled default values.
   useEffect(() => {
-    setContinueLabel(step === 5 ? "Finish Setup" : "Continue");
+    setContinueLabel(step === 5 ? "Let's go" : "Continue");
     setPlanSubStep(null);
   }, [step]);
 

@@ -92,8 +92,8 @@ export default function StepPlan({
             className="flex flex-col gap-6"
           >
             <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-bold text-white">Choose your plan</h2>
-              <p className="text-white/50 text-sm">You can change this anytime from settings.</p>
+              <h2 className="text-2xl font-bold text-white">How much should we plan?</h2>
+              <p className="text-white/50 text-sm">Start free, upgrade whenever. No card needed to begin.</p>
             </div>
 
             <div className="flex flex-col gap-5">

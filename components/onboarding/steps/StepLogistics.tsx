@@ -48,8 +48,8 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
   return (
     <div className="flex flex-col gap-7">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">Make it work for you</h2>
-        <p className="text-white/50 text-sm">Set your budget and where date night should happen.</p>
+        <h2 className="text-2xl font-bold text-white">How do you like to date?</h2>
+        <p className="text-white/50 text-sm">We&apos;ll only plan dates that fit your budget and style.</p>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -58,7 +58,7 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
           control={control}
           render={({ field }) => (
             <Slider
-              label="Max Budget per Date"
+              label="Budget per date"
               value={field.value}
               onChange={field.onChange}
               min={10}
@@ -89,8 +89,8 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
           >
             <MapPin className={`w-5 h-5 ${dateOutside ? "text-rose-300" : "text-white/45"}`} />
             <div className="text-left flex-1">
-              <p className="text-sm font-semibold">Date night outside home</p>
-              <p className="text-xs opacity-60">Use nearby places</p>
+              <p className="text-sm font-semibold">A night out</p>
+              <p className="text-xs opacity-60">Real venues near you</p>
             </div>
             {dateOutside && <Check className="w-4 h-4 text-rose-300 shrink-0" />}
           </button>
@@ -107,7 +107,7 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
           >
             <House className={`w-5 h-5 ${dateAtHome ? "text-rose-300" : "text-white/45"}`} />
             <div className="text-left flex-1">
-              <p className="text-sm font-semibold">Date night at home</p>
+              <p className="text-sm font-semibold">A night in</p>
               <p className="text-xs opacity-60">Cook, play, make something</p>
             </div>
             {dateAtHome && <Check className="w-4 h-4 text-rose-300 shrink-0" />}

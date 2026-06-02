@@ -70,10 +70,10 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">What do you love?</h2>
+        <h2 className="text-2xl font-bold text-white">What kind of dates do you enjoy?</h2>
         <p className="text-white/50 text-sm">
           {isFree
-            ? `Pick at least ${MIN_INTEREST_CATEGORIES}. Starter includes these 3 categories.`
+            ? `Pick at least ${MIN_INTEREST_CATEGORIES} — these are your Starter categories.`
             : `Pick at least ${MIN_INTEREST_CATEGORIES} categories so we can keep your dates varied.`}
         </p>
       </div>
@@ -110,9 +110,9 @@ export default function StepInterests({ defaultValues = [], planType = "free", o
           transition={{ duration: 0.3, delay: 0.1 }}
           className="group border border-white/10 hover:border-white/20 hover:bg-white/[0.03] rounded-2xl p-4 flex items-center justify-between gap-3 w-full transition-colors active:scale-[0.99]"
         >
-          <p className="text-xs text-white/50">Plus unlocks all date categories</p>
+          <p className="text-xs text-white/50">Plus unlocks every category</p>
           <span className="flex items-center gap-1 text-xs font-semibold text-white/60 group-hover:text-white transition-colors shrink-0">
-            Switch to Plus
+            Explore Plus
             <ArrowRight className="w-3 h-3" />
           </span>
         </motion.button>

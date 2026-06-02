@@ -44,8 +44,8 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
   return (
     <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">Who are we planning for?</h2>
-        <p className="text-white/50 text-sm">We&apos;ll use your names to make dates feel personal.</p>
+        <h2 className="text-2xl font-bold text-white">Let&apos;s start with your names</h2>
+        <p className="text-white/50 text-sm">We&apos;ll use them to make everything feel like it&apos;s made for you two.</p>
       </div>
 
       <div className="flex flex-col gap-4">
@@ -59,7 +59,7 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
         <div className="flex flex-col gap-4 rounded-2xl border border-white/16 bg-white/[0.035] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
           <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
             <Heart className="h-4 w-4 text-white/60" />
-            <span>Partner details</span>
+            <span>Your partner</span>
           </div>
           <Input
             label="Partner name"
@@ -79,7 +79,7 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
           <div className="flex items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-3">
             <Info className="w-4 h-4 shrink-0 mt-0.5 text-white/50" />
             <p className="text-xs leading-relaxed text-white/60">
-              Optional. Invite your partner anytime from Settings. Dates unlock when they join.
+              No rush — you can invite them later from Settings.
             </p>
           </div>
         </div>

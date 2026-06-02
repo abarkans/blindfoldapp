@@ -161,9 +161,9 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">Where are you based?</h2>
+        <h2 className="text-2xl font-bold text-white">One last thing — your location</h2>
         <p className="text-white/50 text-sm">
-          We&apos;ll use this to suggest real venues near you.
+          So we can find real places worth going to.
         </p>
       </div>
 
@@ -182,12 +182,12 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
                 <Navigation className="w-4 h-4 text-white/65" />
               </div>
               <p className="text-sm text-white/70 leading-relaxed">
-                We find <span className="text-white font-medium">real venues</span> near you: restaurants, parks, galleries.
+                Restaurants, parks, galleries — all <span className="text-white font-medium">rated and near you</span>.
               </p>
             </div>
             <Button size="lg" className="w-full" onClick={handleAllowLocation}>
               <MapPin className="w-4 h-4 mr-2" />
-              Allow Location Access
+              Share my location
             </Button>
             <button
               type="button"
@@ -330,7 +330,7 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
         />
         <div className="flex justify-between text-[10px] text-white/55 px-1">
           <span>Nearby</span>
-          <span>{planType === "subscription" ? "Far away" : `Max ${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} · Plus unlocks ${formatRadius(PAID_MAX_RADIUS_KM, unitSystem)}`}</span>
+          <span>{planType === "subscription" ? "Far away" : `Upgrade to Plus for up to ${formatRadius(PAID_MAX_RADIUS_KM, unitSystem)}`}</span>
         </div>
       </div>
 

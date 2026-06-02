@@ -11,7 +11,7 @@ export const PLANS = [
     introPrice: null,
     yearlyPrice: null,
     priceLine: "Free forever",
-    tagline: "Try it — no card needed",
+    tagline: "Try it free, no card needed",
     datesPerMonth: 1,
     cadence: "monthly" as const,
     allowedInterests: FREE_INTERESTS,
