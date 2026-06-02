@@ -33,13 +33,13 @@ const HOW_IT_WORKS = [
     number: "02",
     icon: Sparkles,
     title: "We make the call",
-    body: "One venue near you, rated 4.0+, inside your budget, or a full night-in plan. Not a list to debate. One plan, written for you two like a friend who's been there.",
+    body: "One venue near you, rated 4.0+, inside your budget, or a full night-in plan. Not a list. One plan, written for you two like a friend who's been there.",
   },
   {
     number: "03",
     icon: Home,
     title: "Say yes. Show up.",
-    body: "Reveal when you're ready. Navigation opens automatically. The only thing left to decide is when you're leaving, and that one you can handle.",
+    body: "Reveal when you're ready. Going out? Navigation opens. Staying in? Your plan is right there. The only call left is when to start.",
   },
 ];
 
@@ -60,13 +60,13 @@ const STEPS = [
   {
     number: "03",
     title: "Unlock together",
-    body: "Both of you agree, and the plan appears at the same moment. One real venue, rated 4.0+, inside your budget. Not a list. One decision, already made.",
+    body: "Both of you agree and the plan appears at the same moment. One real venue or a night in, rated and priced within your budget. Not a list. One answer.",
     image: "/how/reveal.svg",
   },
   {
     number: "04",
     title: "Go enjoy it",
-    body: "Tap navigate and go. No second-guessing, no last-minute decisions. Mark it done when you're back. We track your history so venues never repeat.",
+    body: "Tap to see the full plan. Go out or stay in and follow it. Mark it done when you're back. We track your history so venues never repeat.",
   },
 ];
 
@@ -147,15 +147,15 @@ const SAMPLE_DATES = [
     image: "/features/feat-1.jpg",
   },
   {
-    emoji: "🍷",
-    title: "Blind Tasting Night",
-    vibe: "Playful & Sophisticated",
-    venue: "La Cave Wine Bar, City Centre",
-    description: "A curated flight of wines at a hidden wine bar. Guess what you're drinking. Loser picks next time.",
-    rating: 4.7,
-    duration: "2 hrs",
-    budget: "€30–60",
-    tags: ["Evening", "Food & Drink"],
+    emoji: "🕯️",
+    title: "Cosy Night In",
+    vibe: "Intimate & Relaxed",
+    venue: "Your place",
+    description: "A proper night in, planned for you. We pick the theme, you enjoy it.",
+    rating: null,
+    duration: "Your call",
+    budget: "€0–20",
+    tags: ["Indoor", "Cosy"],
     image: "/features/feat-3.jpg",
   },
   {
@@ -197,7 +197,7 @@ const REVEAL_LINES = [
   "is not a date.",
   "Debating the restaurant,",
   "checking reviews,",
-  "giving up and staying home...",
+  "ordering in and calling it a night...",
   "that's not romance. That's work.",
   "We make the call. You show up.",
 ];
@@ -603,7 +603,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               </h1>
 
               <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                Tell us your budget and whether you want to go out or stay in. One plan, one real venue. No debating.
+                Tell us your budget and whether you want to go out or stay in. One plan, written for you two. Done.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
@@ -636,6 +636,10 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
         {/* ── Problem statement scroll reveal ── */}
         <ScrollRevealStatement />
+
+        <div className="text-center px-6 py-10">
+          <p className="text-white/40 text-sm md:text-base">Some nights you don&apos;t want to go anywhere. We plan those too.</p>
+        </div>
 
         {/* ── Features / How it works steps ── */}
         <section id="how-it-works" className="relative border-y border-white/[0.07] bg-black">
@@ -973,7 +977,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
             <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
               <Image src="/logo.png" alt="BlindfoldDate" width={120} height={30} className="object-contain opacity-45" />
               <p className="text-white/35 text-sm leading-relaxed max-w-[220px]">
-                Date nights, decided for you. Tell us your budget and we handle the rest.
+                Date night, decided. You just enjoy it.
               </p>
               <a href="https://www.instagram.com/blindfold.date" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors w-fit">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -1029,10 +1033,12 @@ function DateExampleCard({ date, unitSystem = "metric", compact = false }: { dat
           className="object-cover grayscale opacity-70"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/32 to-black/18" />
-        <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full border border-white/18 bg-black/64 px-2.5 py-1 backdrop-blur-sm">
-          <Star className="w-3 h-3 text-white/72 fill-white/72" />
-          <span className="text-xs font-bold text-white">{date.rating}</span>
-        </div>
+        {date.rating !== null && (
+          <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full border border-white/18 bg-black/64 px-2.5 py-1 backdrop-blur-sm">
+            <Star className="w-3 h-3 text-white/72 fill-white/72" />
+            <span className="text-xs font-bold text-white">{date.rating}</span>
+          </div>
+        )}
       </div>
       <div className="flex min-h-0 flex-1 flex-col p-4 md:block md:p-8">
         <h3 className="text-lg font-bold text-white mb-1">{date.title}</h3>

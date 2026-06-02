@@ -7,7 +7,7 @@ const SITE_URL = "https://blindfolddate.com";
 export const metadata: Metadata = {
   title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
   description:
-    "Budget + in or out. We pick one real nearby venue and write your complete date plan. Zero back-and-forth. Zero Googling. Just show up.",
+    "We plan your next date, out at a real venue or a night in, written for you two. No back-and-forth.",
   alternates: { canonical: SITE_URL },
   robots: { index: true, follow: true },
   authors: [{ name: "BlindfoldDate", url: SITE_URL }],
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
     description:
-      "Budget + in or out. We pick one real nearby venue and write your complete date plan. Zero back-and-forth. Zero Googling. Just show up.",
+      "We plan your next date, out at a real venue or a night in, written for you two. No back-and-forth.",
     url: SITE_URL,
     siteName: "BlindfoldDate",
     images: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
     description:
-      "Budget + in or out. One real venue near you, full plan written for you two. Zero back-and-forth. Just show up.",
+      "We plan your next date, out at a real venue or a night in, written for you two. No back-and-forth.",
     images: [`${SITE_URL}/og-image.png`],
   },
 };

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, User, Info } from "lucide-react";
+import { Mail, User, Info, Heart } from "lucide-react";
 import { identitySchema, type IdentityFormData } from "@/lib/schemas/onboarding";
 import Input from "@/components/ui/Input";
 
@@ -58,7 +58,7 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
         />
         <div className="flex flex-col gap-4 rounded-2xl border border-white/16 bg-white/[0.035] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
           <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
-            <Mail className="h-4 w-4 text-white/60" />
+            <Heart className="h-4 w-4 text-white/60" />
             <span>Partner details</span>
           </div>
           <Input
