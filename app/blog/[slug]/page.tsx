@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type React from "react";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -46,6 +47,19 @@ export async function generateMetadata({
       images: [post.image ? `${SITE_URL}${post.image}` : `${SITE_URL}/og-image.png`],
     },
   };
+}
+
+function CtaButton({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <div className="not-prose my-7">
+      <Link
+        href={href}
+        className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-400 !text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors !no-underline"
+      >
+        {children}
+      </Link>
+    </div>
+  );
 }
 
 export default async function BlogPostPage({
@@ -164,6 +178,7 @@ export default async function BlogPostPage({
               <MDXRemote
                 source={post.content}
                 components={{
+                  CtaButton,
                   a: ({ href, children, ...props }) => {
                     const isExternal = href?.startsWith("http");
                     return (
@@ -182,7 +197,7 @@ export default async function BlogPostPage({
           </article>
 
           <div className="mt-14 border border-white/10 bg-white/[0.02] rounded-2xl p-7">
-            <p className="text-base font-semibold text-white mb-1.5">Let us plan your next date.</p>
+            <p className="text-base font-semibold text-white mb-1.5">One mystery date free every month — no card required.</p>
             <p className="text-base text-white/50 mb-5">Tell us your interests once. We find a real venue nearby and plan everything. You just show up.</p>
             <Link
               href="/register"
