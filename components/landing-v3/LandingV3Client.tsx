@@ -656,7 +656,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                   <div key={step.number} className="flex gap-3 md:gap-5">
                     {/* LEFT: number + full-height line */}
                     <div className="shrink-0 w-16 md:w-20 flex flex-col items-center">
-                      <span className="text-4xl md:text-[42px] font-black text-white/25 tabular-nums leading-none">
+                      <span className="text-4xl md:text-[48px] font-black text-white/25 tabular-nums leading-none">
                         {step.number}
                       </span>
                       {/* Line fills remaining height of the row; 12px gap below number */}

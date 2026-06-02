@@ -40,20 +40,6 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "BlindfoldDate",
-  applicationCategory: "LifestyleApplication",
-  description: "AI-powered mystery date planning. Tell us your interests once. We find real nearby venues and craft your date story.",
-  url: SITE_URL,
-  offers: [
-    { "@type": "Offer", name: "Starter", price: "0", priceCurrency: "EUR" },
-    { "@type": "Offer", name: "Plus", price: "5.99", priceCurrency: "EUR", priceSpecification: { "@type": "UnitPriceSpecification", price: "5.99", priceCurrency: "EUR", unitCode: "MON" } },
-  ],
-  operatingSystem: "Web",
-};
-
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -61,7 +47,7 @@ const orgJsonLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/apple_icon.png`,
   description: "AI-powered mystery date planning app for couples.",
-  sameAs: [],
+  sameAs: ["https://www.instagram.com/blindfold.date"],
 };
 
 export default async function RootLayout({
@@ -83,12 +69,6 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://challenges.cloudflare.com" />
       </head>
       <body className="min-h-full bg-black font-sans antialiased">
-        <script
-          type="application/ld+json"
-          nonce={nonce}
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
         <script
           type="application/ld+json"
           nonce={nonce}
