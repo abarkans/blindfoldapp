@@ -316,27 +316,24 @@ function getPartnerInviteCopy(
 ) {
   if (state === "pending") {
     return {
-      title: `Waiting for ${partnerName}`,
-      subtitle:
-        "They need to accept the invite before you can start date nights together. After that, both of you tap reveal to unlock the full plan.",
-      button: "Manage invite",
+      title: `${partnerName}'s invite is on its way`,
+      subtitle: `Once ${partnerName} joins, either of you can start your first mystery date whenever you're both ready.`,
+      button: "Resend or change email",
     };
   }
 
   if (state === "expired") {
     return {
       title: "Invite expired",
-      subtitle:
-        "Send a fresh invite when you're ready. Dates unlock after your partner accepts and both of you tap reveal.",
+      subtitle: `Send ${partnerName} a fresh invite whenever you're ready.`,
       button: "Send new invite",
     };
   }
 
   return {
-    title: `Invite ${partnerName}`,
-    subtitle:
-      "Dates unlock after your partner accepts the invite. Then both of you tap reveal when you're ready for the full plan.",
-    button: "Invite partner",
+    title: `Bring ${partnerName} in`,
+    subtitle: `Send ${partnerName} an invite. Once they join, either of you can kick off your first mystery date.`,
+    button: `Send ${partnerName} an invite`,
   };
 }
 
@@ -1490,14 +1487,14 @@ export default function DateCard({
                 ) : (
                   <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col gap-4">
                     <div>
-                      <p className="text-base font-bold text-white mb-1">Ready for your next date night?</p>
+                      <p className="text-base font-bold text-white mb-1">Ready to surprise {(memberRole === "partner" ? partnerNames.partner1 : partnerNames.partner2) || "your partner"}?</p>
                       <p className="text-sm text-white/60 leading-relaxed">
-                        Initiate a date night to get a private teaser. When both of you are ready, the full plan will reveal.
+                        Tap and we'll let {(memberRole === "partner" ? partnerNames.partner1 : partnerNames.partner2) || "your partner"} know you're up for a date night. The full plan reveals once you're both in.
                       </p>
                     </div>
                     <Button size="lg" className="w-full" disabled={!canReveal} onClick={canReveal ? handleStartDate : undefined}>
                       {canReveal
-                        ? "Initiate date night"
+                        ? "Start the date night"
                         : nextRevealDate
                         ? `Available ${formatRelative(nextRevealDate)}`
                         : "Not available yet"}
@@ -1582,7 +1579,11 @@ export default function DateCard({
           </button>
         </div>
 
-        <h3 className="text-lg font-bold text-white mb-3">Partner access</h3>
+        <h3 className="text-lg font-bold text-white mb-3">
+          {partnerInviteState === "pending"
+            ? `Invite sent to ${partnerNames.partner2 || "your partner"}`
+            : `Invite ${partnerNames.partner2 || "your partner"}`}
+        </h3>
 
         {partnerInviteState === "accepted" ? (
           <p className="text-xs leading-relaxed text-emerald-300">
@@ -1591,16 +1592,19 @@ export default function DateCard({
         ) : memberRole === "owner" ? (
           <div className="flex flex-col gap-3">
             <p className="text-xs leading-relaxed text-white/50">
-              Invite your partner to create an account. Dates unlock once both of you tap reveal.
+              {partnerInviteState === "pending"
+                ? "They should have an email waiting. If it got lost, send it again below."
+                : "They'll get an email to join Blindfold. Once they're in, your first date is ready to go."}
             </p>
             {partnerInviteState !== "none" && partnerInvitedEmail && (
               <p className="text-xs text-white/45">
-                Current invite: {partnerInvitedEmail}
-                {partnerInviteState === "expired" ? " (expired)" : ""}
+                {partnerInviteState === "expired"
+                  ? `${partnerInvitedEmail} (expired)`
+                  : `Sent to ${partnerInvitedEmail}`}
               </p>
             )}
             <Input
-              label="Partner email"
+              label={partnerNames.partner2 ? `${partnerNames.partner2}'s email` : "Partner email"}
               type="email"
               value={partnerInviteEmail}
               onChange={(e) => setPartnerInviteEmail(e.target.value)}
@@ -1614,7 +1618,7 @@ export default function DateCard({
               onClick={handlePartnerInvite}
               className="w-full"
             >
-              {partnerInviteState === "none" ? "Send invite" : "Send new invite"}
+              {partnerInviteState === "pending" ? "Resend invite" : "Send invite"}
             </Button>
           </div>
         ) : (
