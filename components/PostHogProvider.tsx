@@ -43,7 +43,7 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
         session_recording: {
           maskAllInputs: true,
           maskTextSelector: "[data-ph-mask]",
-          maskNetworkRequestFn: (request) => {
+          maskCapturedNetworkRequestFn: (request) => {
             if (request.name?.includes("/api/place-photo")) return null;
             return request;
           },
