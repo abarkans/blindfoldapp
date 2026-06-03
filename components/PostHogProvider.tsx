@@ -35,7 +35,7 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
       posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
         api_host: "/ingest",
         ui_host: "https://eu.posthog.com",
-        persistence: "memory",
+        persistence: "localStorage",
         autocapture: false,
         capture_pageview: false,
         capture_pageleave: true,
