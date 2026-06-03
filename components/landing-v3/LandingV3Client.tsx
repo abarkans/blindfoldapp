@@ -212,7 +212,7 @@ function ScrollRevealStatement() {
   const total = REVEAL_LINES.length;
 
   return (
-    <section ref={ref} aria-label="The problem we solve" className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
+    <section ref={ref} aria-label="The problem we solve" className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
       <h2 className="sr-only">Why couples stop going on dates</h2>
       <p className="text-[28px] md:text-[42px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
         {REVEAL_LINES.map((line, i) => {
@@ -637,14 +637,14 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
         {/* ── Problem statement scroll reveal ── */}
         <ScrollRevealStatement />
 
-        <div className="text-center px-6 py-10">
+        <div className="text-center px-6 py-5">
           <p className="text-white/40 text-sm md:text-base">Some nights you don&apos;t want to go anywhere. We plan those too.</p>
         </div>
 
         {/* ── Features / How it works steps ── */}
         <section id="how-it-works" className="relative border-y border-white/[0.07] bg-black">
-          <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-            <div className="text-left md:text-center mb-12 md:mb-20">
+          <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
+            <div className="text-left md:text-center mb-8 md:mb-14">
               <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
                 How it works
               </h2>
@@ -670,7 +670,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                     </div>
 
                     {/* RIGHT: title + desc + image box */}
-                    <div className={`flex-1 flex flex-col md:flex-row md:items-start gap-6 md:gap-10 ${!isLast ? "pb-20 md:pb-64" : ""}`}>
+                    <div className={`flex-1 flex flex-col md:flex-row md:items-start gap-6 md:gap-10 ${!isLast ? "pb-20 md:pb-52" : ""}`}>
                       <div className="w-full md:max-w-[520px]">
                         <h3 className="text-4xl md:text-[48px] font-black text-white leading-none mb-3">
                           {step.title}
@@ -707,8 +707,8 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
 
         {/* ── Sample dates ── */}
-        <section className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-          <div className="text-left md:text-center mb-10 md:mb-14">
+        <section className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
+          <div className="text-left md:text-center mb-8 md:mb-12">
             <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
               One plan like this,
               <br />
@@ -758,8 +758,8 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
         {/* ── Pricing ── */}
         <section id="plans" className="relative border-t border-white/[0.07] bg-black">
-          <div className="px-6 md:px-10 py-28 md:py-44 max-w-[1280px] mx-auto">
-            <div className="text-left md:text-center mb-10 md:mb-14">
+          <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
+            <div className="text-left md:text-center mb-8 md:mb-12">
               <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
                 Stop talking about it.
                 <br />
@@ -892,7 +892,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
         {/* ── FAQ ── */}
         <section className="border-t border-white/[0.07] bg-black">
-          <div className="px-6 md:px-10 py-20 md:py-32 max-w-[1280px] mx-auto">
+          <div className="px-6 md:px-10 py-14 md:py-20 max-w-[1280px] mx-auto">
             <h2 className="text-[36px] md:text-[56px] font-black leading-tight mb-10 md:mb-14">
               Frequently asked questions
             </h2>
@@ -942,7 +942,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
         {/* ── Final CTA ── */}
         <section className="relative overflow-hidden border-t border-white/[0.07] bg-black">
-          <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 text-center py-32 md:py-52 flex flex-col items-center">
+          <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 text-center py-20 md:py-36 flex flex-col items-center">
             <div className="w-20 h-20 md:w-28 md:h-28 mb-10 md:mb-12">
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
             </div>
