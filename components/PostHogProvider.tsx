@@ -43,6 +43,10 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
         session_recording: {
           maskAllInputs: true,
           maskTextSelector: "[data-ph-mask]",
+          maskNetworkRequestFn: (request) => {
+            if (request.name?.includes("/api/place-photo")) return null;
+            return request;
+          },
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({ disable_toolbar: true } as any),
