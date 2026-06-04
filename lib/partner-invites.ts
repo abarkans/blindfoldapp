@@ -51,7 +51,7 @@ export async function getCoupleAccess(
   } else if (partnerMembership) {
     return {
       profileId: partnerMembership.profile_id,
-      role: partnerMembership.role,
+      role: partnerMembership.role as CoupleRole,
     };
   }
 
@@ -67,7 +67,7 @@ export async function getCoupleAccess(
   } else if (ownerMembership) {
     return {
       profileId: ownerMembership.profile_id,
-      role: ownerMembership.role,
+      role: ownerMembership.role as CoupleRole,
     };
   }
 

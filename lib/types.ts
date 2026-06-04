@@ -314,6 +314,7 @@ export interface Database {
           checkin_partner_skipped: boolean;
           total_checkins: number;
           email_notifications: boolean;
+          reminder_sent_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -354,6 +355,7 @@ export interface Database {
           checkin_partner_skipped?: boolean;
           total_checkins?: number;
           email_notifications?: boolean;
+          reminder_sent_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -394,6 +396,7 @@ export interface Database {
           checkin_partner_skipped?: boolean;
           total_checkins?: number;
           email_notifications?: boolean;
+          reminder_sent_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
