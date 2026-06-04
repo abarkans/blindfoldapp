@@ -166,9 +166,7 @@ export async function GET(request: Request) {
     for (const profile of reminderProfiles ?? []) {
       // Skip if they've already revealed or completed a date
       if (profile.revealed_at !== null || (profile.dates_completed_count as number) > 0) {
-        // Mark reminded so we don't keep querying them (column added in migration 059)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await supabase.from("profiles").update({ reminder_sent_at: new Date().toISOString() } as any).eq("id", profile.id as string);
+        await supabase.from("profiles").update({ reminder_sent_at: new Date().toISOString() }).eq("id", profile.id as string);
         continue;
       }
 
@@ -235,9 +233,7 @@ export async function GET(request: Request) {
         }
       }
 
-      // column added in migration 059
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await supabase.from("profiles").update({ reminder_sent_at: new Date().toISOString() } as any).eq("id", profile.id as string);
+      await supabase.from("profiles").update({ reminder_sent_at: new Date().toISOString() }).eq("id", profile.id as string);
 
       reminderSent++;
     }
