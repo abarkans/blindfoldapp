@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateReadyEmail } from "@/lib/email/templates/date-ready";
+import { firstDateReminderEmail } from "@/lib/email/templates/first-date-reminder";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 
 // Constant-time comparison so the secret can't be recovered byte-by-byte
@@ -142,6 +143,108 @@ export async function GET(request: Request) {
 
   console.info(`[cron/notify-dates] sent=${sent} errors=${errors.length}`);
   if (errors.length) console.warn("[cron/notify-dates] errors:", errors);
+
+  // --- First-date reminder: users who signed up 5+ days ago, onboarding complete,
+  //     no dates revealed or completed, and not yet reminded. Sent once per user.
+  const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+  const fiveDaysAgo = new Date(now - FIVE_DAYS_MS).toISOString();
+
+  const { data: reminderProfiles, error: reminderError } = await supabase
+    .from("profiles")
+    .select("id, partner_names, created_at, revealed_at, dates_completed_count")
+    .eq("onboarding_complete", true)
+    .is("reminder_sent_at", null)
+    .eq("email_notifications", true)
+    .lte("created_at", fiveDaysAgo);
+
+  if (reminderError) {
+    console.error("[cron/notify-dates] reminder query error:", reminderError.message);
+  } else {
+    let reminderSent = 0;
+    const reminderErrors: string[] = [];
+
+    for (const profile of reminderProfiles ?? []) {
+      // Skip if they've already revealed or completed a date
+      if (profile.revealed_at !== null || (profile.dates_completed_count as number) > 0) {
+        // Mark reminded so we don't keep querying them (column added in migration 059)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await supabase.from("profiles").update({ reminder_sent_at: new Date().toISOString() } as any).eq("id", profile.id as string);
+        continue;
+      }
+
+      const { data: userData, error: userError } =
+        await supabase.auth.admin.getUserById(profile.id as string);
+
+      if (userError || !userData?.user?.email) {
+        reminderErrors.push(`uid=${profile.id} reason=no_email`);
+        continue;
+      }
+
+      const names = profile.partner_names as { partner1: string; partner2: string } | null;
+      const partner1 = names?.partner1 ?? "there";
+      const partner2 = names?.partner2 ?? "your partner";
+
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfoldapp.vercel.app";
+      const unsubscribeToken = generateUnsubscribeToken(profile.id as string);
+      const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(profile.id as string)}&token=${unsubscribeToken}`;
+      const { subject, html } = firstDateReminderEmail({ partner1, partner2, unsubscribeUrl });
+
+      const { error: sendError } = await resend.emails.send({
+        from: FROM_ADDRESS,
+        to: userData.user.email,
+        subject,
+        html,
+      });
+
+      if (sendError) {
+        reminderErrors.push(`uid=${profile.id} reason=${sendError.message}`);
+        continue;
+      }
+
+      // Send to partner if linked
+      const { data: partnerMember } = await supabase
+        .from("couple_members")
+        .select("user_id")
+        .eq("profile_id", profile.id as string)
+        .eq("role", "partner")
+        .maybeSingle();
+
+      if (partnerMember) {
+        const { data: partnerAuth, error: partnerAuthError } =
+          await supabase.auth.admin.getUserById(partnerMember.user_id);
+
+        if (partnerAuthError || !partnerAuth?.user?.email) {
+          reminderErrors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=partner_no_email`);
+        } else {
+          const partnerUnsubToken = generateUnsubscribeToken(partnerMember.user_id);
+          const partnerUnsubUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(partnerMember.user_id)}&token=${partnerUnsubToken}`;
+          const { subject: ps, html: ph } = firstDateReminderEmail({
+            partner1,
+            partner2,
+            unsubscribeUrl: partnerUnsubUrl,
+          });
+          const { error: partnerSendError } = await resend.emails.send({
+            from: FROM_ADDRESS,
+            to: partnerAuth.user.email,
+            subject: ps,
+            html: ph,
+          });
+          if (partnerSendError) {
+            reminderErrors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=${partnerSendError.message}`);
+          }
+        }
+      }
+
+      // column added in migration 059
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await supabase.from("profiles").update({ reminder_sent_at: new Date().toISOString() } as any).eq("id", profile.id as string);
+
+      reminderSent++;
+    }
+
+    console.info(`[cron/notify-dates] reminder_sent=${reminderSent} reminder_errors=${reminderErrors.length}`);
+    if (reminderErrors.length) console.warn("[cron/notify-dates] reminder errors:", reminderErrors);
+  }
 
   // Piggyback rate-limit cleanup on the daily cron so the rate_limits
   // table doesn't grow unbounded. Failure is non-fatal for the cron run.
