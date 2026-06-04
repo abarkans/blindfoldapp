@@ -602,9 +602,11 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                 </span>
               </h1>
 
-              <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
+              <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-4 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
                 Tell us your budget and whether you want to go out or stay in. One plan, written for you two. Done.
               </p>
+
+              <p className="text-base md:text-xl text-white/78 mb-9 md:mb-10">Free. No card needed.</p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
                 {isLoggedIn ? (
@@ -616,21 +618,15 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                     Go to Dashboard
                   </Link>
                 ) : (
-                  <>
-                    <Link
-                      href="/register"
-                      className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
-                    >
-                      <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      Pick our date night
-                    </Link>
-                    <LinkButton href="/login" variant="secondary" size="lg" className="md:h-16">
-                      Sign in
-                    </LinkButton>
-                  </>
+                  <Link
+                    href="/register"
+                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                  >
+                    <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    Pick our date night
+                  </Link>
                 )}
               </div>
-              <p className="text-sm text-white/50 mt-3">Free. No card needed.</p>
             </div>
           </div>
         </section>
