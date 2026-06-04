@@ -622,7 +622,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                       className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                     >
                       <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      Get our first date plan
+                      Surprise us
                     </Link>
                     <LinkButton href="/login" variant="secondary" size="lg" className="md:h-16">
                       Sign in
