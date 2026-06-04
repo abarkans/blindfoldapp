@@ -176,7 +176,7 @@ const NAV_LINKS = [
   { label: "Home", href: "#", scroll: true },
   { label: "How it works", href: "#how-it-works", scroll: false },
   { label: "Pricing", href: "#plans", scroll: false },
-  { label: "Blog", href: "/blog", scroll: false },
+  { label: "Ideas", href: "/blog", scroll: false },
 ];
 
 const HERO_VIDEOS = [
@@ -993,7 +993,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
               {[{ label: "How it works", href: "#how-it-works" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
                 <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
               ))}
-              <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
+              <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Ideas</Link>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Account</p>
