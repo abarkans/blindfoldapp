@@ -602,8 +602,8 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                 </span>
               </h1>
 
-              <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-4 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                Tell us your budget and whether you want to go out or stay in. One plan, written for you two. Done.
+              <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-0 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
+                A mystery date night, picked for you two.
               </p>
 
               <p className="text-base md:text-xl text-white/78 mb-9 md:mb-10">Free. No card needed.</p>
