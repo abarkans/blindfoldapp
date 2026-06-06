@@ -16,6 +16,7 @@ export default function PostCard({ post }: { post: BlogPostMeta }) {
               src={post.image}
               alt={post.title}
               fill
+              sizes="(max-width: 640px) 100vw, 50vw"
               className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
             />
           </div>

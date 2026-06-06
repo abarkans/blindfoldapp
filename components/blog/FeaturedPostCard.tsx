@@ -14,6 +14,7 @@ export default function FeaturedPostCard({ post }: { post: BlogPostMeta }) {
             src={post.image}
             alt={post.title}
             fill
+            sizes="(max-width: 768px) 100vw, 60vw"
             className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
             priority
           />

@@ -401,11 +401,24 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
+  const [pastHero, setPastHero] = useState(false);
+  const heroSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  useEffect(() => {
+    const el = heroSectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPastHero(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const activeHeroVideo = heroVideo ?? HERO_VIDEOS[0];
 
@@ -437,7 +450,8 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
             className="flex items-center gap-2.5 group"
             aria-label="Scroll to top"
           >
-            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} priority className="object-contain group-hover:opacity-75 transition-opacity" />
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} priority className="hidden min-[992px]:block object-contain group-hover:opacity-75 transition-opacity" />
+            <Image src="/icon.png" alt="BlindfoldDate" width={44} height={44} priority className="min-[992px]:hidden object-contain group-hover:opacity-75 transition-opacity" />
           </button>
 
           <div className="hidden min-[992px]:flex items-center gap-8">
@@ -466,7 +480,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-[background-color] duration-150"
+                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
               >
                 Dashboard
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -478,7 +492,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-[background-color] duration-150"
+                  className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
                 >
                   Get started free
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -487,20 +501,37 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
             )}
           </div>
 
-          <button
-            className="min-[992px]:hidden w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-[color,background-color] duration-150"
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-          >
-            {menuOpen ? (
-              <X className="w-6 h-6" />
+          <div className="min-[992px]:hidden flex items-center gap-2">
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
+              >
+                Dashboard
+              </Link>
             ) : (
-              <span className="flex w-6 flex-col gap-1.5" aria-hidden="true">
-                <span className="h-0.5 w-full rounded-full bg-current" />
-                <span className="h-0.5 w-full rounded-full bg-current" />
-              </span>
+              <Link
+                href="/register"
+                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
+              >
+                Get started
+              </Link>
             )}
-          </button>
+            <button
+              className="w-11 h-11 flex items-center justify-center rounded-xl text-white/75 hover:text-white hover:bg-white/[0.04] transition-[color,background-color] duration-150"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+            >
+              {menuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <span className="flex w-6 flex-col gap-1.5" aria-hidden="true">
+                  <span className="h-0.5 w-full rounded-full bg-current" />
+                  <span className="h-0.5 w-full rounded-full bg-current" />
+                </span>
+              )}
+            </button>
+          </div>
         </nav>
 
         {/* Mobile menu */}
@@ -554,7 +585,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
 
       <main id="main">
         {/* ── Hero ── */}
-        <section className="relative overflow-hidden border-b border-white/[0.07] bg-black">
+        <section ref={heroSectionRef} className="relative overflow-hidden bg-black">
           <Image
             src={activeHeroVideo.poster}
             alt="Couple enjoying a surprise date night"
@@ -586,7 +617,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
           )}
           <div className="absolute inset-0 bg-black/20" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.42)_44%,rgba(0,0,0,0.14)_78%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/38 via-transparent to-black/76" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/38 via-transparent to-black" />
 
           <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-end px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
             <div className="w-full max-w-[960px]">
@@ -639,7 +670,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
         </div>
 
         {/* ── Features / How it works steps ── */}
-        <section id="how-it-works" className="relative border-y border-white/[0.07] bg-black">
+        <section id="how-it-works" className="relative bg-black">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-8 md:mb-14">
               <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
@@ -754,7 +785,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
         </section>
 
         {/* ── Pricing ── */}
-        <section id="plans" className="relative border-t border-white/[0.07] bg-black">
+        <section id="plans" className="relative bg-black">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-8 md:mb-12">
               <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
@@ -888,7 +919,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
         </section>
 
         {/* ── FAQ ── */}
-        <section className="border-t border-white/[0.07] bg-black">
+        <section className="bg-black">
           <div className="px-6 md:px-10 py-14 md:py-20 max-w-[1280px] mx-auto">
             <h2 className="text-[36px] md:text-[56px] font-black leading-tight mb-10 md:mb-14">
               Frequently asked questions
@@ -938,7 +969,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
         </section>
 
         {/* ── Final CTA ── */}
-        <section className="relative overflow-hidden border-t border-white/[0.07] bg-black">
+        <section className="relative overflow-hidden bg-black">
           <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 text-center py-20 md:py-36 flex flex-col items-center">
             <div className="w-20 h-20 md:w-28 md:h-28 mb-10 md:mb-12">
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
