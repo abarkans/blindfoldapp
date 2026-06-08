@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LandingV3Client from "@/components/landing-v3/LandingV3Client";
+import LandingV4Client from "@/components/landing-v4/LandingV4Client";
 import { getUnitSystem } from "@/lib/get-unit-system";
 
 const SITE_URL = "https://blindfolddate.com";
@@ -99,7 +99,7 @@ const jsonLd = {
   ],
 };
 
-export default async function HomePage() {
+export default async function LandingPage() {
   const unitSystem = await getUnitSystem();
   return (
     <>
@@ -107,7 +107,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <LandingV3Client unitSystem={unitSystem} />
+      <LandingV4Client unitSystem={unitSystem} />
     </>
   );
 }
