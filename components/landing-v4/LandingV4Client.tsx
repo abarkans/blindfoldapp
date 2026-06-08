@@ -82,7 +82,7 @@ const FLOATING_INTERESTS = [
 
 const BADGE_PREVIEWS = [
   { name: "First Spark", image: "/badges/First_Spark.png", earned: true },
-  { name: "Triple Threat", image: "/badges/Triple_Threat.png", earned: true },
+  { name: "Triple Threat", image: "/badges/Triple_Threat.png", earned: false },
   { name: "High Five", image: "/badges/High_Five.png", earned: false },
 ];
 
@@ -428,10 +428,10 @@ function MemoriesSection() {
     <section ref={sectionRef} className="relative bg-black h-screen overflow-hidden flex flex-col">
       {/* Header — z-20 keeps it above cards that drift upward */}
       <div className="relative z-20 px-6 md:px-10 pt-10 md:pt-14 pb-6 md:pb-0 text-left md:text-center shrink-0 bg-black">
-        <h2 className="text-[32px] md:text-[52px] font-black leading-[1.08] tracking-normal">
+        <h2 className="text-[36px] md:text-[64px] font-black leading-[1.05] tracking-normal">
           Every date, remembered.
         </h2>
-        <p className="text-white/35 text-[32px] md:text-[52px] font-black leading-[1.08]">
+        <p className="text-white/35 text-[36px] md:text-[64px] font-black leading-[1.05]">
           Your scrapbook, growing with you.
         </p>
         <p className="text-white/55 text-base md:text-lg leading-[1.7] mt-3">
