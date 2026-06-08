@@ -208,18 +208,22 @@ function MemoryPolaroidCard({
   config,
   scrollYProgress,
   index,
+  animateRotation,
 }: {
   memory: typeof FAKE_MEMORIES[0];
   config: typeof MEMORY_CARD_CONFIGS[0];
   scrollYProgress: MotionValue<number>;
   index: number;
+  animateRotation: boolean;
 }) {
   const dir = index % 2 === 0 ? 1 : -1;
   const mag = 12 + (index % 3) * 5;
   const rotate = useTransform(
     scrollYProgress,
     [0, 1],
-    [config.scatterRot - dir * mag, config.scatterRot + dir * mag]
+    animateRotation
+      ? [config.scatterRot - dir * mag, config.scatterRot + dir * mag]
+      : [config.scatterRot, config.scatterRot]
   );
 
   return (
@@ -411,6 +415,14 @@ function MemoriesSection() {
     target: sectionRef,
     offset: ["start end", "end start"],
   });
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   return (
     <section ref={sectionRef} className="relative bg-black h-screen overflow-hidden flex flex-col">
@@ -438,6 +450,7 @@ function MemoriesSection() {
               config={MEMORY_CARD_CONFIGS[i]}
               scrollYProgress={scrollYProgress}
               index={i}
+              animateRotation={isDesktop}
             />
           ))}
         </div>
