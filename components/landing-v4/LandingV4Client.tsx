@@ -257,8 +257,7 @@ function MemoryPolaroidCard({
           <div className={`absolute inset-0 bg-gradient-to-br ${memory.gradient}`} style={{ filter: "blur(18px)", transform: "scale(1.4)" }} />
           <div className={`absolute inset-0 bg-gradient-to-br ${memory.gradient} opacity-60`} />
           <div className="absolute inset-0 bg-black/10" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={memory.image} alt={memory.title} className="absolute inset-0 w-full h-full object-cover" />
+          <Image src={memory.image} alt={memory.title} fill sizes="160px" className="object-cover" />
         </div>
         <div style={{ paddingTop: 7 }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: "#1a1215", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -384,7 +383,6 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
                       alt={badge.name}
                       width={64}
                       height={64}
-                      unoptimized
                       className={`w-full h-full object-contain ${badge.earned ? "" : "grayscale opacity-35"}`}
                       style={badge.earned ? {} : { filter: "grayscale(1) blur(1.5px)" }}
                     />
@@ -864,7 +862,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="none"
               poster={heroVideo.poster}
               aria-hidden="true"
               onLoadedData={() => setHeroVideoReady(true)}

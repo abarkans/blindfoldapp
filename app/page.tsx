@@ -103,6 +103,8 @@ export default async function LandingPage() {
   const unitSystem = await getUnitSystem();
   return (
     <>
+      {/* Preload LCP image so browser discovers it from HTML, not after JS hydration */}
+      <link rel="preload" as="image" href="/hero-video-poster.webp" fetchPriority="high" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

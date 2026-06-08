@@ -1,3 +1,4 @@
+import "./typography.css";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import PublicPageShell from "@/components/ui/PublicPageShell";
