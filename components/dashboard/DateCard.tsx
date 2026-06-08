@@ -333,7 +333,7 @@ function getPartnerInviteCopy(
 
   return {
     title: `Bring ${partnerName} in`,
-    subtitle: `Send ${partnerName} an invite. Once they join, either of you can kick off your first mystery date.`,
+    subtitle: `Send ${partnerName} an invite. Once they join, either of you can kick off your next mystery date.`,
     button: `Send ${partnerName} an invite`,
   };
 }
