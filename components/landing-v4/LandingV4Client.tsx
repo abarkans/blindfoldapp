@@ -277,25 +277,18 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
 
         {/* Title */}
         <div className="text-left md:text-center mb-10 md:mb-14">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-[36px] md:text-[64px] font-black leading-[1.05] mb-4">
-              Dates that leave{" "}
-              <span
-                className="bg-clip-text text-transparent"
-                style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
-              >
-                a mark.
-              </span>
-            </h2>
-            <p className="text-white/55 text-base md:text-lg leading-[1.7]">
-              Each completed date earns XP. Level up. Unlock badges.{" "}<br />See where your streak takes you.
-            </p>
-          </motion.div>
+          <h2 className="text-[36px] md:text-[64px] font-black leading-[1.05] mb-4">
+            Dates that leave{" "}
+            <span
+              className="bg-clip-text text-transparent"
+              style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
+            >
+              a mark.
+            </span>
+          </h2>
+          <p className="text-white/55 text-base md:text-lg leading-[1.7]">
+            Each completed date earns XP. Level up. Unlock badges.{" "}<br />See where your streak takes you.
+          </p>
         </div>
 
         {/* Cards fading into XP bar */}
@@ -335,13 +328,7 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
         {/* XP + Badges */}
         <div className="relative z-30 max-w-[1000px] mx-auto bg-black">
             {/* XP bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ delay: 0.2, duration: 0.4 }}
-              className="mb-8 p-5 bg-[#0d0d0d] border border-[#1f1f1f] rounded-2xl text-left"
-            >
+            <div className="mb-8 p-5 bg-[#0d0d0d] border border-[#1f1f1f] rounded-2xl text-left">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center shadow-md shadow-violet-500/30">
@@ -364,17 +351,13 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
                 <span className="text-[10px] text-white/55">Lv 3</span>
                 <span className="text-[10px] text-white/55">Lv 4</span>
               </div>
-            </motion.div>
+            </div>
 
             {/* Badges */}
             <div className="grid grid-cols-3 gap-3">
-              {BADGE_PREVIEWS.map((badge, i) => (
-                <motion.div
+              {BADGE_PREVIEWS.map((badge) => (
+                <div
                   key={badge.name}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ delay: 0.3 + i * 0.1, duration: 0.3 }}
                   className="flex flex-col items-center text-center p-3 rounded-2xl border border-[#1f1f1f] bg-[#0d0d0d]"
                 >
                   <div className="relative w-16 h-16 mb-2">
@@ -397,7 +380,7 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
                   <p className={`text-xs font-semibold ${badge.earned ? "text-white" : "text-white/40"}`}>
                     {badge.name}
                   </p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -623,6 +606,8 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
   }
 
   useEffect(() => {
+    if (window.matchMedia("(max-width: 768px)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setHeroVideoReady(false);
     setHeroVideo(HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)]);
   }, []);
