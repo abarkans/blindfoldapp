@@ -607,7 +607,6 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 768px)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setHeroVideoReady(false);
     setHeroVideo(HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)]);
   }, []);
