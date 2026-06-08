@@ -5,6 +5,7 @@ import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateReadyEmail } from "@/lib/email/templates/date-ready";
 import { firstDateReminderEmail } from "@/lib/email/templates/first-date-reminder";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
+import { safeLogValue } from "@/lib/log";
 
 // Constant-time comparison so the secret can't be recovered byte-by-byte
 // via response-time side channels. Different lengths short-circuit to false
@@ -43,8 +44,8 @@ export async function GET(request: Request) {
     .eq("email_notifications", true);
 
   if (error) {
-    console.error("[cron/notify-dates] query error:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[cron/notify-dates] query error:", safeLogValue(error.message));
+    return NextResponse.json({ error: "Query failed" }, { status: 500 });
   }
 
   if (!profiles || profiles.length === 0) {
@@ -89,7 +90,7 @@ export async function GET(request: Request) {
     });
 
     if (sendError) {
-      errors.push(`uid=${profile.id} reason=${sendError.message}`);
+      errors.push(`uid=${profile.id} reason=${safeLogValue(sendError.message)}`);
       continue;
     }
 
@@ -127,7 +128,7 @@ export async function GET(request: Request) {
         });
 
         if (partnerSendError) {
-          errors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=${partnerSendError.message}`);
+          errors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=${safeLogValue(partnerSendError.message)}`);
         }
       }
     }
@@ -158,7 +159,7 @@ export async function GET(request: Request) {
     .lte("created_at", fiveDaysAgo);
 
   if (reminderError) {
-    console.error("[cron/notify-dates] reminder query error:", reminderError.message);
+    console.error("[cron/notify-dates] reminder query error:", safeLogValue(reminderError.message));
   } else {
     let reminderSent = 0;
     const reminderErrors: string[] = [];
@@ -195,7 +196,7 @@ export async function GET(request: Request) {
       });
 
       if (sendError) {
-        reminderErrors.push(`uid=${profile.id} reason=${sendError.message}`);
+        reminderErrors.push(`uid=${profile.id} reason=${safeLogValue(sendError.message)}`);
         continue;
       }
 
@@ -228,7 +229,7 @@ export async function GET(request: Request) {
             html: ph,
           });
           if (partnerSendError) {
-            reminderErrors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=${partnerSendError.message}`);
+            reminderErrors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=${safeLogValue(partnerSendError.message)}`);
           }
         }
       }

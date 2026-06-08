@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_INTERESTS } from "@/lib/plans";
+import { safeLogValue } from "@/lib/log";
 import type Stripe from "stripe";
 
 const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
@@ -181,7 +182,7 @@ export async function POST(req: Request) {
   if (completeErr) {
     console.error(
       `[audit] stripe/webhook: CRITICAL failed to mark event completed ` +
-      `evt=${event.id} type=${event.type} msg=${completeErr.message}`
+      `evt=${event.id} type=${event.type} msg=${safeLogValue(completeErr.message)}`
     );
   }
 
