@@ -30,6 +30,14 @@ function getDateLocation(idea: Record<string, unknown>): string | null {
   return null;
 }
 
+const FAKE_GRADIENTS = [
+  "from-rose-300 via-amber-200 to-orange-300",
+  "from-violet-300 via-pink-200 to-rose-300",
+  "from-emerald-200 via-cyan-300 to-indigo-300",
+  "from-amber-300 via-orange-200 to-red-300",
+  "from-purple-300 via-indigo-200 to-blue-300",
+];
+
 function PolaroidCard({
   date,
   isPaid,
@@ -62,27 +70,23 @@ function PolaroidCard({
       >
         {/* ── Photo ── */}
         <div className="aspect-[3/4] overflow-hidden relative bg-[#e8e4e0] rounded-xl">
-          {hasPhoto ? (
-            isPaid ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={`/api/photo/view?key=${encodeURIComponent(photos[0].r2_key!)}`}
-                alt={name}
-                className="w-full h-full object-cover"
+          {!isPaid ? (
+            <div className="w-full h-full relative overflow-hidden">
+              <div
+                className={`absolute inset-0 bg-gradient-to-br ${FAKE_GRADIENTS[index % FAKE_GRADIENTS.length]}`}
+                style={{ filter: "blur(18px)", transform: "scale(1.4)" }}
               />
-            ) : (
-              <div className="w-full h-full relative overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/api/photo/view?key=${encodeURIComponent(photos[0].r2_key!)}`}
-                  alt={name}
-                  className="w-full h-full object-cover blur-md scale-110"
-                />
-                <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
-                  <Lock className="w-5 h-5 text-white/80" />
-                </div>
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-white/90 drop-shadow" />
               </div>
-            )
+            </div>
+          ) : hasPhoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`/api/photo/view?key=${encodeURIComponent(photos[0].r2_key!)}`}
+              alt={name}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Camera className="w-7 h-7 text-[#b0a9a3]" />
@@ -229,11 +233,9 @@ function HistoryContent({
     );
   }
 
-  const hasAnyPhotos = history.some((d) => d.photos.length > 0);
-
   return (
     <div>
-      {!isPaid && hasAnyPhotos && (
+      {!isPaid && history.length > 0 && (
         <div className="mb-6 bg-white/[0.035] border border-white/18 rounded-3xl p-4">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-4 h-4 text-white/65" />
