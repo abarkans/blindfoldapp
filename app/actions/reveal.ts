@@ -13,6 +13,7 @@ import { createDateTeaser } from "@/lib/date-teaser";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateInitiatedEmail } from "@/lib/email/templates/date-initiated";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
+import { isPlusPlan } from "@/lib/plans";
 import type { Database, Json } from "@/lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -101,7 +102,19 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
     console.error(`[audit] start-date: partner fetch failed uid=${user.id} profile=${access.profileId} msg=${partnerError.message}`);
     return { status: "error", error: "Could not check partner status. Please try again." };
   }
-  if (!partnerMember) return { status: "error", error: "Invite your partner before starting a date." };
+  if (!partnerMember && profile.plan_type !== "trial") return { status: "error", error: "Invite your partner before starting a date." };
+
+  // Safety net: if a prior downgrade failed, enforce it now before generating another date.
+  if (profile.plan_type === "trial" && profile.dates_completed_count > 0) {
+    const { FREE_INTERESTS } = await import("@/lib/plans");
+    const currentInterests = profile.interests as string[];
+    const freeInterests = currentInterests.filter((i) => (FREE_INTERESTS as readonly string[]).includes(i));
+    await admin.from("profiles").update({
+      plan_type: "free",
+      interests: freeInterests.length >= 2 ? freeInterests : [...FREE_INTERESTS],
+    }).eq("id", access.profileId);
+    return { status: "error", error: "Your trial has ended. You're now on Starter." };
+  }
   if (profile.date_idea && !profile.date_accepted_at) return { status: "started" };
   if (!isRevealAvailableForProfile(profile.revealed_at, profile.cadence)) {
     return { status: "error", error: "Next date not available yet" };
@@ -156,7 +169,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         partnerNames: profile.partner_names,
         interests: safeInterests,
         budgetMax: profile.constraints.budget_max,
-        isSubscribed: profile.plan_type === "subscription",
+        isSubscribed: isPlusPlan(profile.plan_type),
         datesCompleted: profile.dates_completed_count,
         previousTitles,
       });
@@ -184,7 +197,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         budgetMax: profile.constraints.budget_max,
         dateOutside: profile.constraints.date_outside,
         dateAtHome: profile.constraints.date_at_home,
-        isSubscribed: profile.plan_type === "subscription",
+        isSubscribed: isPlusPlan(profile.plan_type),
         datesCompleted: profile.dates_completed_count,
         venue: {
           name: venue.display_name,
@@ -211,7 +224,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         budgetMax: profile.constraints.budget_max,
         dateOutside: profile.constraints.date_outside,
         dateAtHome: profile.constraints.date_at_home,
-        isSubscribed: profile.plan_type === "subscription",
+        isSubscribed: isPlusPlan(profile.plan_type),
         datesCompleted: profile.dates_completed_count,
         previousTitles,
       });
@@ -277,12 +290,27 @@ export async function revealDate(): Promise<RevealResult> {
   const access = await getCoupleAccess(admin, user.id);
   const { data: profile, error } = await admin
     .from("profiles")
-    .select("date_idea, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at")
+    .select("plan_type, date_idea, date_accepted_at, reveal_owner_ready_at, reveal_partner_ready_at")
     .eq("id", access.profileId)
     .single();
 
   if (error || !profile?.date_idea) return { status: "error", error: "Start the date first." };
   if (profile.date_accepted_at) return { status: "revealed" };
+
+  // Trial users are solo — owner ready = immediately accepted.
+  if (profile.plan_type === "trial" && access.role === "owner") {
+    const nowIso = new Date().toISOString();
+    await admin.from("profiles").update({
+      date_accepted_at: nowIso,
+      reveal_owner_ready_at: null,
+      reveal_partner_ready_at: null,
+    }).eq("id", access.profileId);
+    await admin.from("date_ideas").update({ status: "revealed" })
+      .eq("user_id", access.profileId)
+      .eq("status", "pending");
+    revalidatePath("/dashboard");
+    return { status: "revealed" };
+  }
 
   const nowIso = new Date().toISOString();
   const readyUpdate =

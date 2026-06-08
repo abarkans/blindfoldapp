@@ -39,12 +39,21 @@ export async function POST(req: NextRequest) {
   if (idea.location_type !== "home") {
     const { data: profile } = await admin
       .from("profiles")
-      .select("checkin_owner_at, checkin_partner_at, checkin_owner_skipped, checkin_partner_skipped")
+      .select("plan_type, checkin_owner_at, checkin_partner_at, checkin_owner_skipped, checkin_partner_skipped")
       .eq("id", access.profileId)
       .single();
 
-    if (!profile?.checkin_owner_at || !profile?.checkin_partner_at) {
-      return NextResponse.json({ error: "Dual check-in required" }, { status: 403 });
+    const isTrial = profile?.plan_type === "trial";
+    const myCheckedIn = access.role === "owner" ? !!profile?.checkin_owner_at : !!profile?.checkin_partner_at;
+
+    if (isTrial) {
+      if (!myCheckedIn) {
+        return NextResponse.json({ error: "Check-in required to upload photo" }, { status: 403 });
+      }
+    } else {
+      if (!profile?.checkin_owner_at || !profile?.checkin_partner_at) {
+        return NextResponse.json({ error: "Dual check-in required" }, { status: 403 });
+      }
     }
 
     const mySkipped =

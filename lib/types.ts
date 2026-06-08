@@ -474,4 +474,5 @@ export interface CompleteDateResult {
   newLevel: number;
   newBadges: { name: string; description: string; icon_emoji: string }[];
   dateIdeaId: string;
+  trialExpired?: boolean;
 }

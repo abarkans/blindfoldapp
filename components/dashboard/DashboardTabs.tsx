@@ -187,7 +187,7 @@ export default function DashboardTabs({
             </motion.div>
             <div>
               <p className="text-sm font-bold text-white leading-tight">
-                {profile.partner_names.partner1} &amp; {profile.partner_names.partner2}
+                {profile.partner_names.partner1}{profile.partner_names.partner2 ? ` & ${profile.partner_names.partner2}` : ""}
               </p>
             </div>
           </div>

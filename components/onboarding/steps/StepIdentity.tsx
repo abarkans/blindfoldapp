@@ -3,13 +3,23 @@
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, User, Info, Heart } from "lucide-react";
-import { identitySchema, type IdentityFormData } from "@/lib/schemas/onboarding";
+import { User } from "lucide-react";
+import { z } from "zod";
 import Input from "@/components/ui/Input";
 
+const nameOnlySchema = z.object({
+  partner1: z
+    .string()
+    .min(1, "Your name is required")
+    .max(50, "Name too long")
+    .regex(/^[\p{L}\p{M}\s'\-.]+$/u, "Name contains invalid characters"),
+});
+
+type NameOnlyFormData = z.infer<typeof nameOnlySchema>;
+
 interface StepIdentityProps {
-  defaultValues?: Partial<IdentityFormData>;
-  onNext: (data: IdentityFormData) => void;
+  defaultValues?: { partner1?: string };
+  onNext: (data: { partner1: string; partner2: string; partner_email?: string }) => void;
   continueTrigger: number;
   onCanContinueChange: (can: boolean) => void;
 }
@@ -20,70 +30,38 @@ export default function StepIdentity({ defaultValues, onNext, continueTrigger, o
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<IdentityFormData>({
-    resolver: zodResolver(identitySchema),
-    defaultValues,
+  } = useForm<NameOnlyFormData>({
+    resolver: zodResolver(nameOnlySchema),
+    defaultValues: { partner1: defaultValues?.partner1 ?? "" },
   });
 
   const partner1 = watch("partner1");
-  const partner2 = watch("partner2");
   const mountTrigger = useRef(continueTrigger);
 
-  // Report validity as fields change
   useEffect(() => {
-    onCanContinueChange(!!(partner1?.trim() && partner2?.trim()));
-  }, [partner1, partner2, onCanContinueChange]);
+    onCanContinueChange(!!partner1?.trim());
+  }, [partner1, onCanContinueChange]);
 
-  // Trigger form submission when parent presses Continue
   useEffect(() => {
     if (continueTrigger > mountTrigger.current) {
-      handleSubmit(onNext)();
+      handleSubmit((data) => onNext({ partner1: data.partner1, partner2: "" }))();
     }
   }, [continueTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form onSubmit={handleSubmit(onNext)} className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit((data) => onNext({ partner1: data.partner1, partner2: "" }))} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">Let&apos;s start with your names</h2>
-        <p className="text-white/50 text-sm">We&apos;ll use them to make everything feel like it&apos;s made for you two.</p>
+        <h2 className="text-2xl font-bold text-white">What&apos;s your name?</h2>
+        <p className="text-white/50 text-sm">We&apos;ll use it to personalise your date ideas.</p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <Input
-          label="My name"
-          placeholder="e.g. Alex"
-          icon={<User className="w-4 h-4" />}
-          error={errors.partner1?.message}
-          {...register("partner1")}
-        />
-        <div className="flex flex-col gap-4 rounded-2xl border border-white/16 bg-white/[0.035] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
-            <Heart className="h-4 w-4 text-white/60" />
-            <span>Your partner</span>
-          </div>
-          <Input
-            label="Partner name"
-            placeholder="e.g. Jamie"
-            icon={<User className="w-4 h-4" />}
-            error={errors.partner2?.message}
-            {...register("partner2")}
-          />
-          <Input
-            label="Partner email (optional)"
-            type="email"
-            placeholder="jamie@example.com"
-            icon={<Mail className="w-4 h-4" />}
-            error={errors.partner_email?.message}
-            {...register("partner_email")}
-          />
-          <div className="flex items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-3">
-            <Info className="w-4 h-4 shrink-0 mt-0.5 text-white/50" />
-            <p className="text-xs leading-relaxed text-white/60">
-              No rush — you can invite them later from Settings.
-            </p>
-          </div>
-        </div>
-      </div>
+      <Input
+        label="Your name"
+        placeholder="e.g. Alex"
+        icon={<User className="w-4 h-4" />}
+        error={errors.partner1?.message}
+        {...register("partner1")}
+      />
     </form>
   );
 }

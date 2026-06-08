@@ -7,9 +7,10 @@ import type { CompleteDateResult } from "@/lib/types";
 import { checkCompleteRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCoupleAccess } from "@/lib/partner-invites";
+import { FREE_INTERESTS } from "@/lib/plans";
 
-// XP is now server-determined inside complete_date_atomic (migration 057).
-// The function hardcodes 100 base XP (200 for Plus) — no caller-supplied value.
+// XP is server-determined inside complete_date_atomic (migration 060).
+// Trial and subscription earn 200 XP (2×); free earns 100 XP.
 
 type BadgeRow = {
   earned_at: string;
@@ -35,10 +36,15 @@ export async function completeDate(): Promise<CompleteDateResult> {
   const admin = createAdminClient();
   const access = await getCoupleAccess(admin, user.id);
 
-  // Atomically: find the revealed idea (with row lock), mark it completed,
-  // and increment XP + count in a single DB round-trip. Plus users earn 2× XP.
-  // Uses admin client — function is service_role only after migration 057.
-  // XP is determined inside the function; no caller-supplied gain parameter.
+  // Check plan_type before the RPC so we know if downgrade is needed after.
+  const { data: profileBefore } = await admin
+    .from("profiles")
+    .select("plan_type, interests")
+    .eq("id", access.profileId)
+    .single();
+
+  const wasTrial = profileBefore?.plan_type === "trial";
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: result, error } = await (admin as any).rpc("complete_date_atomic", {
     p_user_id: access.profileId,
@@ -63,9 +69,6 @@ export async function completeDate(): Promise<CompleteDateResult> {
 
   const previousCount = Math.max(0, newCount - 1);
 
-  // The DB trigger normally awards badges when dates_completed_count increments.
-  // Keep this server action defensive too: backfill any eligible missing badges,
-  // then return the milestones crossed by this completion.
   const { data: eligibleMilestones } = await admin
     .from("milestones")
     .select("id")
@@ -91,6 +94,28 @@ export async function completeDate(): Promise<CompleteDateResult> {
     .gt("milestones.required_dates", previousCount)
     .lte("milestones.required_dates", newCount) as { data: BadgeRow[] | null };
 
+  // Downgrade trial → free after first date completion.
+  // Guard is === "trial" specifically — never isPlusPlan() — so paying subscribers
+  // are never accidentally downgraded.
+  if (wasTrial) {
+    const safeInterests = (profileBefore?.interests ?? []) as string[];
+    const freeInterests = safeInterests.filter((i) =>
+      (FREE_INTERESTS as readonly string[]).includes(i)
+    );
+    const interests = freeInterests.length >= 2 ? freeInterests : [...FREE_INTERESTS];
+
+    const { error: downgradeError } = await admin
+      .from("profiles")
+      .update({ plan_type: "free", interests })
+      .eq("id", access.profileId);
+
+    if (downgradeError) {
+      console.error(`[audit] complete: trial downgrade failed uid=${user.id} msg=${downgradeError.message}`);
+    } else {
+      console.info(`[audit] complete: trial→free uid=${user.id}`);
+    }
+  }
+
   console.info(`[audit] complete: success uid=${user.id} xp=${newXp} dates=${newCount}`);
   revalidatePath("/dashboard");
 
@@ -107,5 +132,6 @@ export async function completeDate(): Promise<CompleteDateResult> {
       };
     }),
     dateIdeaId,
+    trialExpired: wasTrial,
   };
 }

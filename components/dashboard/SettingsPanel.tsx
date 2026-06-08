@@ -163,10 +163,11 @@ export default function SettingsPanel({
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const [managingSubscription, setManagingSubscription] = useState(false);
   const [planType, setPlanType] = useState<PlanId>(
-    profile.plan_type === "subscription" ? "subscription" : "free"
+    (profile.plan_type as PlanId) ?? "free"
   );
   const isPlus = planType === "subscription";
-  const isStarter = !isPlus;
+  const isTrial = planType === "trial";
+  const isStarter = !isPlus && !isTrial;
   const [partnerInviteEmail, setPartnerInviteEmail] = useState(partnerInviteStatus.invitedEmail ?? "");
   const [partnerInviteSending, setPartnerInviteSending] = useState(false);
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
@@ -195,7 +196,7 @@ export default function SettingsPanel({
     return () => { document.body.style.overflow = ""; };
   }, [signOutConfirm, deleteConfirm]);
 
-  const maxRadiusKm = isPlus ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
+  const maxRadiusKm = (isPlus || isTrial) ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
   const initialLat = profile.last_lat ?? null;
   const initialLng = profile.last_long ?? null;
   const initialRadiusKm = Math.min((profile.preferred_radius ?? 10000) / 1000, maxRadiusKm);
@@ -490,11 +491,11 @@ export default function SettingsPanel({
 
   const ACCOUNT_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
     { id: "account", label: "Manage account", icon: UserCog, summary: userEmail || "Account settings" },
-    { id: "plan", label: "Plan", icon: Sparkles, summary: isPlus ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : "Starter · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Sparkles, summary: isPlus ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : isTrial ? "Trial · 1 free Plus date" : "Starter · Upgrade available" },
   ];
 
   const DATE_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
-    { id: "partners", label: "Partners", icon: User, summary: `${partner1} & ${partner2}` },
+    { id: "partners", label: "Partners", icon: User, summary: partner2 ? `${partner1} & ${partner2}` : partner1 },
     { id: "interests", label: "Interests", icon: Tag, summary: interestsSummary },
     { id: "logistics", label: "Logistics", icon: Sliders, summary: logisticsSummary },
     { id: "location", label: "Location", icon: MapPin, summary: locationLabel || "Not set" },
@@ -630,7 +631,11 @@ export default function SettingsPanel({
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white truncate">
-                        {memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1} &amp; {memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2}
+                        {(() => {
+                          const p1 = memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1;
+                          const p2 = memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2;
+                          return p2 ? `${p1} & ${p2}` : p1;
+                        })()}
                       </p>
                       <p className="text-xs text-white/45 truncate">{userEmail}</p>
                     </div>
@@ -1056,14 +1061,14 @@ export default function SettingsPanel({
                     </div>
                     <div>
                       <p className="text-sm font-bold text-white">
-                        {isPlus ? "Plus" : "Basic"}
+                        {isPlus ? "Plus" : isTrial ? "Trial" : "Starter"}
                       </p>
                       <p className="text-xs text-white/55 mt-0.5">
                         {isPlus
                           ? profile.subscription_ends_at
                             ? `Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
                             : "Active · Cancel anytime"
-                          : "1 date/month · Limited categories"}
+                          : isTrial ? "1 free Plus date · Upgrade to keep going" : "1 date/month · Limited categories"}
                       </p>
                     </div>
                     {isPlus && (
@@ -1073,7 +1078,7 @@ export default function SettingsPanel({
                     )}
                   </div>
 
-                  {isStarter && (
+                  {!isPlus && (
                     <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-rose-400/45 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-white/65" />

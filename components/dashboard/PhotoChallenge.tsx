@@ -17,6 +17,7 @@ interface PhotoChallengeProps {
   dateName: string;
   planType: string;
   onComplete?: () => void;
+  onSkip?: () => void;
   autoOpen?: boolean;
 }
 
@@ -90,6 +91,7 @@ export default function PhotoChallenge({
   dateName,
   planType,
   onComplete,
+  onSkip,
   autoOpen,
 }: PhotoChallengeProps) {
   const router = useRouter();
@@ -421,7 +423,7 @@ export default function PhotoChallenge({
                   <Camera className="w-5 h-5" />
                   Capture the memory
                 </Button>
-                <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
+                <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => onSkip ? onSkip() : setSkipDialogOpen(true)}>
                   Skip
                 </Button>
               </>

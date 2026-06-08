@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { checkCheckInRateLimit } from "@/lib/rate-limit";
 import type { CheckInResult } from "@/lib/types";
+import { isPlusPlan } from "@/lib/plans";
 
 const MAX_CHECKIN_RADIUS_METERS = 200;
 
@@ -68,7 +69,7 @@ export async function checkInToDate({ lat, lng }: { lat: number; lng: number }):
   }
 
   // Free: 50 XP per check-in. Plus: 100 XP (2×).
-  const XP_CHECKIN = profile.plan_type === "subscription" ? 100 : 50;
+  const XP_CHECKIN = isPlusPlan(profile.plan_type) ? 100 : 50;
 
   // record_checkin atomically sets the checkin timestamp + increments counters in one
   // SQL statement (FOR UPDATE lock prevents the read-modify-write race when both

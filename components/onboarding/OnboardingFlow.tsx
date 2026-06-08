@@ -7,25 +7,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { finishOnboarding, saveOnboardingCheckoutDraft } from "@/app/actions/finish-onboarding";
+import { finishOnboarding } from "@/app/actions/finish-onboarding";
 import ProgressBar from "./ProgressBar";
 import StepIdentity from "./steps/StepIdentity";
-import StepPlan from "./steps/StepPlan";
 import StepInterests from "./steps/StepInterests";
 import StepLogistics from "./steps/StepLogistics";
 import StepLocation from "./steps/StepLocation";
 import Button from "@/components/ui/Button";
 import PublicPageShell from "@/components/ui/PublicPageShell";
-import type { IdentityFormData, LogisticsFormData } from "@/lib/schemas/onboarding";
+import type { LogisticsFormData } from "@/lib/schemas/onboarding";
 import type { LocationFormData } from "./steps/StepLocation";
-import type { PlanId } from "@/lib/plans";
 import type { UnitSystem } from "@/lib/units";
 
 type OnboardingData = {
   partner1?: string;
-  partner2?: string;
-  partner_email?: string;
-  plan_type?: PlanId;
   interests?: string[];
   budget_max?: number;
   date_outside?: boolean;
@@ -33,10 +28,10 @@ type OnboardingData = {
   lat?: number;
   lng?: number;
   preferred_radius?: number;
-  cadence?: string;
 };
 
-const STEP_LABELS = ["Names", "Plan", "Interests", "Budget", "Location"];
+const STEP_LABELS_FULL = ["Name", "Interests", "Budget", "Location"];
+const STEP_LABELS_NO_NAME = ["Interests", "Budget", "Location"];
 
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
@@ -46,97 +41,43 @@ const slideVariants = {
 
 interface OnboardingFlowProps {
   initialPartner1?: string;
-  initialPartner2?: string;
-  initialPartnerEmail?: string;
-  initialPlanType?: PlanId;
-  initialSelectedPlan?: PlanId;
-  initialCadence?: string;
   initialStep?: number;
   unitSystem?: UnitSystem;
-  fromCancelledCheckout?: boolean;
-  checkoutSessionId?: string;
 }
 
 export default function OnboardingFlow({
   initialPartner1 = "",
-  initialPartner2 = "",
-  initialPartnerEmail = "",
-  initialPlanType,
-  initialSelectedPlan,
-  initialCadence,
   initialStep,
   unitSystem = "metric",
-  fromCancelledCheckout = false,
-  checkoutSessionId,
 }: OnboardingFlowProps) {
   const router = useRouter();
   const ph = usePostHog();
 
-  const startStep = initialStep ?? (initialPlanType === "subscription" ? 3 : 1);
+  const startStep = initialStep ?? 1;
+  const skipNameStep = startStep > 1;
+  const stepLabels = skipNameStep ? STEP_LABELS_NO_NAME : STEP_LABELS_FULL;
+  const totalSteps = skipNameStep ? 3 : 4;
 
   const [step, setStep] = useState(startStep);
+  const displayStep = skipNameStep ? step - 1 : step;
   const [direction, setDirection] = useState(1);
-  const [data, setData] = useState<OnboardingData>({
-    partner1: initialPartner1,
-    partner2: initialPartner2,
-    partner_email: initialPartnerEmail,
-    plan_type: initialPlanType,
-    cadence: initialCadence,
-  });
+  const [data, setData] = useState<OnboardingData>({ partner1: initialPartner1 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Server-confirmed subscription can never be downgraded by client-state drift
-  // (e.g. user navigates back to step 2 via stale history and selects Free).
-  const effectivePlanType = initialPlanType === "subscription" ? "subscription" : data.plan_type;
-
-  // Nav bar state — lifted out of steps so buttons render outside the motion wrapper
   const [canContinue, setCanContinue] = useState(false);
   const [continueTrigger, setContinueTrigger] = useState(0);
   const [continueLabel, setContinueLabel] = useState("Continue");
-  const [planSubStep, setPlanSubStep] = useState<"plan" | "frequency" | null>(null);
-  const [planBackTrigger, setPlanBackTrigger] = useState(0);
+  const [generating, setGenerating] = useState(false);
 
-  // Track onboarding entry once
   useEffect(() => {
     ph?.capture("onboarding_started", { start_step: startStep });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Reset nav state whenever the step changes.
-  // canContinue is NOT reset here — each step's mount effect always fires
-  // onCanContinueChange with the correct initial value, and resetting here
-  // would override it when the step mounts with pre-filled default values.
   useEffect(() => {
-    setContinueLabel(step === 5 ? "Let's go" : "Continue");
-    setPlanSubStep(null);
+    setContinueLabel(step === 4 ? "Let's go" : "Continue");
   }, [step]);
 
-  // Clear stuck loading state when user returns via browser back from Stripe (bfcache restore)
-  useEffect(() => {
-    function onPageShow(e: PageTransitionEvent) {
-      if (e.persisted) {
-        setLoading(false);
-        setError("");
-      }
-    }
-    window.addEventListener("pageshow", onPageShow);
-    return () => window.removeEventListener("pageshow", onPageShow);
-  }, []);
-
-  // On Stripe cancel return (?checkout=cancelled), history looks like:
-  //   [..., Stripe, /onboarding?checkout=cancelled]
-  // Rewrite it in-place with no navigation (replaceState + pushState don't trigger page loads):
-  //   replaceState → turn cancel URL into /onboarding at step 1
-  //   pushState   → add /onboarding at step 2 as the new current entry
-  // Result: [..., Stripe, /onboarding (step 1), /onboarding (step 2)]
-  // UI back from step 2 → step 1 ✓  (step 1 has no back button, so Stripe is unreachable)
-  useEffect(() => {
-    if (!fromCancelledCheckout) return;
-    history.replaceState({ onboardingStep: 1 }, "", "/onboarding");
-    history.pushState({ onboardingStep: startStep }, "", "/onboarding");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Anchor onboarding to browser history so back button moves between steps
   useEffect(() => {
     if (!history.state?.onboardingStep) {
       history.replaceState({ ...history.state, onboardingStep: startStep }, "");
@@ -163,8 +104,8 @@ export default function OnboardingFlow({
   function goNext(newData: Partial<OnboardingData>) {
     const merged = { ...data, ...newData };
     setData(merged);
-    const next = step === 1 && merged.plan_type === "subscription" ? 3 : step + 1;
-    ph?.capture("onboarding_step_complete", { step, plan_type: merged.plan_type });
+    const next = step + 1;
+    ph?.capture("onboarding_step_complete", { step });
     setDirection(1);
     setStep(next);
     history.pushState({ ...history.state, onboardingStep: next }, "");
@@ -174,91 +115,19 @@ export default function OnboardingFlow({
     history.back();
   }
 
-  function handleBack() {
-    // If on step 2 (Plan) in frequency substep, reset to plan substep
-    if (step === 2 && planSubStep === "frequency") {
-      setPlanBackTrigger((t) => t + 1);
-      setContinueLabel("Continue");
-    } else {
-      goBack();
-    }
-  }
-
-  async function handleSubscribeNow(cadence: string, billingInterval: "monthly" | "yearly" = "monthly") {
-    setLoading(true);
-    setError("");
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Session expired. Please log in again.");
-        setLoading(false);
-        return;
-      }
-
-      // Guard: user may have navigated back to step 2 via stale browser history
-      // after already paying. Client state is authoritative — set from DB on
-      // server render, no extra network call needed.
-      if (data.plan_type === "subscription") {
-        setLoading(false);
-        goNext({ plan_type: "subscription", cadence });
-        return;
-      }
-
-      const draftResult = await saveOnboardingCheckoutDraft({
-        partner1: data.partner1 ?? "",
-        partner2: data.partner2 ?? "",
-        partner_email: data.partner_email,
-      });
-      if (draftResult.error) {
-        setError(draftResult.error);
-        setLoading(false);
-        return;
-      }
-
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cadence, billingInterval, returnPath: "/onboarding" }),
-      });
-      const json = await res.json();
-      // Server confirmed already subscribed — advance without creating new checkout.
-      if (json.alreadySubscribed) {
-        setLoading(false);
-        goNext({ plan_type: "subscription", cadence });
-        return;
-      }
-      if (!json.url || json.error) {
-        setError(json.error ?? "Couldn't start checkout. Please try again.");
-        setLoading(false);
-        return;
-      }
-      ph?.capture("plan_upgrade_initiated", { cadence, billingInterval });
-      // replace() removes /onboarding from history so browser back skips it.
-      // Stripe's own cancel button returns the user via cancel_url.
-      window.location.replace(json.url);
-    } catch (err) {
-      console.error("[checkout]", err);
-      setError("Couldn't start checkout. Please try again.");
-      setLoading(false);
-    }
-  }
-
   async function handleFinish(loc: LocationFormData) {
     setLoading(true);
+    setGenerating(true);
     setError("");
 
-    const cadence = (data.cadence ?? "monthly") as "weekly" | "biweekly" | "monthly";
     const result = await finishOnboarding({
       partner1: data.partner1 ?? "",
-      partner2: data.partner2 ?? "",
+      partner2: "",
       interests: data.interests ?? [],
       budget_max: data.budget_max ?? 50,
       date_outside: data.date_outside ?? true,
       date_at_home: data.date_at_home ?? false,
-      cadence,
-      partner_email: data.partner_email,
-      checkout_session_id: checkoutSessionId,
+      cadence: "monthly",
       lat: loc.lat,
       lng: loc.lng,
       preferred_radius: loc.preferred_radius,
@@ -267,17 +136,45 @@ export default function OnboardingFlow({
     if (result.error) {
       setError(result.error);
       setLoading(false);
+      setGenerating(false);
       return;
     }
 
-    ph?.capture("onboarding_completed", { plan_type: data.plan_type, cadence: data.cadence });
+    ph?.capture("onboarding_completed");
     router.replace("/dashboard");
+  }
+
+  if (generating) {
+    return (
+      <PublicPageShell className="fixed inset-0" decorate={false}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative z-10 flex h-dvh flex-col items-center justify-center gap-8 px-4 text-center"
+        >
+          <Image src="/icon.png" alt="Blindfold" width={72} height={72} className="opacity-90" />
+          <div>
+            <p className="text-white text-xl font-semibold">Your mystery date is loading</p>
+            <p className="text-white/55 text-sm mt-2">Picking the perfect spot for you...</p>
+          </div>
+          <div className="flex gap-2">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 rounded-full bg-white/60"
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.4 }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </PublicPageShell>
+    );
   }
 
   return (
     <PublicPageShell className="fixed inset-0" decorate={false}>
     <div className="relative z-10 flex h-dvh flex-col">
-      {/* Scrollable step content (header scrolls with content) */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 max-w-sm mx-auto">
           <header className="pt-8 pb-4 flex flex-col gap-5">
@@ -293,7 +190,7 @@ export default function OnboardingFlow({
               </div>
             </button>
 
-            <ProgressBar current={step} total={5} labels={STEP_LABELS} />
+            <ProgressBar current={displayStep} total={totalSteps} labels={stepLabels} />
           </header>
 
           {error && (
@@ -317,36 +214,23 @@ export default function OnboardingFlow({
               >
                 {step === 1 && (
                   <StepIdentity
-                    defaultValues={{ partner1: data.partner1, partner2: data.partner2, partner_email: data.partner_email }}
-                    onNext={(d: IdentityFormData) => goNext({ partner1: d.partner1, partner2: d.partner2, partner_email: d.partner_email })}
+                    defaultValues={{ partner1: data.partner1 }}
+                    onNext={(d) => goNext({ partner1: d.partner1 })}
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
                   />
                 )}
                 {step === 2 && (
-                  <StepPlan
-                    onNext={(d) => goNext({ plan_type: d.plan_type, cadence: d.cadence })}
-                    onSubscribeNow={handleSubscribeNow}
-                    continueTrigger={continueTrigger}
-                    backTrigger={planBackTrigger}
-                    onCanContinueChange={setCanContinue}
-                    onContinueLabelChange={setContinueLabel}
-                    onSubstepChange={setPlanSubStep}
-                    planType={data.plan_type ?? initialSelectedPlan}
-                    unitSystem={unitSystem}
-                  />
-                )}
-                {step === 3 && (
                   <StepInterests
                     defaultValues={data.interests}
-                    planType={effectivePlanType}
+                    planType="trial"
                     onNext={(d) => goNext({ interests: d.interests })}
                     onBack={goBack}
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
                   />
                 )}
-                {step === 4 && (
+                {step === 3 && (
                   <StepLogistics
                     defaultValues={{
                       budget_max: data.budget_max,
@@ -365,7 +249,7 @@ export default function OnboardingFlow({
                     unitSystem={unitSystem}
                   />
                 )}
-                {step === 5 && (
+                {step === 4 && (
                   <StepLocation
                     defaultValues={{
                       lat: data.lat,
@@ -373,7 +257,7 @@ export default function OnboardingFlow({
                       preferred_radius: data.preferred_radius,
                     }}
                     onNext={handleFinish}
-                    planType={effectivePlanType}
+                    planType="trial"
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
                     unitSystem={unitSystem}
@@ -383,14 +267,13 @@ export default function OnboardingFlow({
             </AnimatePresence>
           </div>
 
-          {/* Desktop-only buttons — below content */}
           <div className="hidden md:flex gap-3 mt-8">
             <Button
               type="button"
               variant="secondary"
               size="lg"
               className="w-14 shrink-0 px-0"
-              onClick={step === 1 ? handleExitToHome : handleBack}
+              onClick={step === 1 ? handleExitToHome : goBack}
               aria-label={step === 1 ? "Sign out" : "Back"}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -410,7 +293,6 @@ export default function OnboardingFlow({
         </div>
       </div>
 
-      {/* Fixed bottom nav bar — mobile only, outside motion wrapper to avoid transform stacking context */}
       <nav
         className="md:hidden shrink-0 border-t border-white/16 bg-black/72 px-4 pt-3 shadow-[0_-18px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
         style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}
@@ -421,7 +303,7 @@ export default function OnboardingFlow({
             variant="secondary"
             size="lg"
             className="w-14 shrink-0 px-0"
-            onClick={step === 1 ? handleExitToHome : handleBack}
+            onClick={step === 1 ? handleExitToHome : goBack}
             aria-label={step === 1 ? "Sign out" : "Back"}
           >
             <ArrowLeft className="w-5 h-5" />

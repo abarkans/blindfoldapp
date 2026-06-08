@@ -323,7 +323,7 @@ Review excerpts: ${safeReviews || "not available"}
 </venue_data>
 
 <couple_context>
-Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
+Names: ${partnerNames.partner2 ? `${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}` : sanitize(partnerNames.partner1, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget: €${budgetMax}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
 </couple_context>
@@ -357,7 +357,7 @@ Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimat
   const fallbackPrompt = `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
 
 <couple_context>
-Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
+Names: ${partnerNames.partner2 ? `${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}` : sanitize(partnerNames.partner1, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget: €${budgetMax}
 Date style: ${dateStyleNote}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
@@ -485,7 +485,7 @@ export async function generateHomeDateIdea({
   const prompt = `Generate a home date night for this couple.
 
 <couple_context>
-Names: ${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}
+Names: ${partnerNames.partner2 ? `${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}` : sanitize(partnerNames.partner1, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget for any items to buy: €${budgetMax}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
 </couple_context>

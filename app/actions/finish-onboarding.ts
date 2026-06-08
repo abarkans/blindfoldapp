@@ -4,48 +4,19 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { fullOnboardingSchema, identitySchema, type FullOnboardingData, type IdentityFormData } from "@/lib/schemas/onboarding";
+import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
 import { hashEmail } from "@/lib/deletion-hold";
-import { sendPartnerInviteForOnboarding } from "@/app/actions/partner-invite";
-import { FREE_INTERESTS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES } from "@/lib/plans";
+import { PAID_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES } from "@/lib/plans";
+import { generateAIDateIdea, generateHomeDateIdea } from "@/lib/ai/generate-date";
+import { searchNearbyVenues } from "@/lib/places/search";
+import { createDateTeaser } from "@/lib/date-teaser";
+import { getCoupleAccess } from "@/lib/partner-invites";
+import type { Json } from "@/lib/types";
 
 function optionalNumber(value: unknown): number | undefined {
   if (value === "" || value === null || value === undefined) return undefined;
   const numberValue = typeof value === "number" ? value : Number(value);
   return Number.isFinite(numberValue) ? numberValue : undefined;
-}
-
-export async function saveOnboardingCheckoutDraft(input: IdentityFormData): Promise<{ error?: string }> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
-
-  const parsed = identitySchema.safeParse(input);
-  if (!parsed.success) {
-    const firstMessage = Object.values(parsed.error.flatten().fieldErrors).flat()[0];
-    return { error: firstMessage ?? "Invalid names" };
-  }
-
-  const v = parsed.data;
-  const partnerNamesDraft = {
-    partner1: v.partner1,
-    partner2: v.partner2,
-    ...(v.partner_email ? { partner_email: v.partner_email.toLowerCase() } : {}),
-  };
-  const admin = createAdminClient();
-  const { error } = await admin
-    .from("profiles")
-    .upsert({
-      id: user.id,
-      partner_names: partnerNamesDraft,
-    });
-
-  if (error) {
-    console.error(`[audit] save-onboarding-checkout-draft: uid=${user.id} msg=${error.message}`);
-    return { error: "Couldn't save your setup before checkout. Please try again." };
-  }
-
-  return {};
 }
 
 export async function finishOnboarding(input: FullOnboardingData): Promise<{ error?: string }> {
@@ -54,94 +25,19 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
   if (!user) return { error: "Not authenticated" };
 
   const admin = createAdminClient();
-  let { data: profile } = await admin
-    .from("profiles")
-    .select("plan_type, partner_names, cadence, stripe_customer_id")
-    .eq("id", user.id)
-    .single();
 
-  if (profile?.plan_type !== "subscription" && input.checkout_session_id) {
-    try {
-      const { stripe } = await import("@/lib/stripe");
-      const session = await stripe.checkout.sessions.retrieve(input.checkout_session_id);
-      if (
-        session.status === "complete" &&
-        session.mode === "subscription" &&
-        session.metadata?.user_id === user.id
-      ) {
-        // Verify the subscription is still active — session.status === "complete" only
-        // means the checkout was completed, not that the subscription is current. Without
-        // this check a cancelled subscriber could replay their old session_id to re-upgrade
-        // for free.
-        const subId = typeof session.subscription === "string"
-          ? session.subscription
-          : (session.subscription as { id?: string } | null)?.id ?? null;
-
-        let subActive = false;
-        if (subId) {
-          try {
-            const sub = await stripe.subscriptions.retrieve(subId);
-            subActive = sub.status === "active" || sub.status === "trialing";
-          } catch (subErr) {
-            console.error(
-              `[audit] finish-onboarding: subscription retrieve failed uid=${user.id} sub=${subId} msg=${subErr instanceof Error ? subErr.message : String(subErr)}`
-            );
-          }
-        }
-
-        if (subActive) {
-          const customerId = typeof session.customer === "string" ? session.customer : null;
-          const rawCadence = session.metadata?.cadence;
-          const checkoutCadence =
-            rawCadence === "weekly" || rawCadence === "biweekly" || rawCadence === "monthly"
-              ? rawCadence
-              : undefined;
-
-          const { data: updatedProfile, error: checkoutProfileError } = await admin
-            .from("profiles")
-            .update({
-              plan_type: "subscription",
-              ...(customerId ? { stripe_customer_id: customerId } : {}),
-              ...(checkoutCadence ? { cadence: checkoutCadence } : {}),
-            })
-            .eq("id", user.id)
-            .select("plan_type, partner_names, cadence, stripe_customer_id")
-            .single();
-
-          if (checkoutProfileError) {
-            console.error(
-              `[audit] finish-onboarding: checkout profile update failed uid=${user.id} msg=${checkoutProfileError.message}`
-            );
-          } else {
-            profile = updatedProfile;
-          }
-        } else {
-          console.warn(
-            `[audit] finish-onboarding: session replay rejected — subscription not active uid=${user.id} sub=${subId}`
-          );
-        }
-      }
-    } catch (error) {
-      console.error(
-        `[audit] finish-onboarding: checkout verify failed uid=${user.id} msg=${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  }
-
-  const savedNames = profile?.partner_names as { partner1?: string; partner2?: string; partner_email?: string } | null;
-  const inputWithSavedRequiredFields = {
+  const inputWithDefaults = {
     ...input,
-    partner1: input.partner1 || savedNames?.partner1 || "",
-    partner2: input.partner2 || savedNames?.partner2 || "",
-    cadence: input.cadence || profile?.cadence || "monthly",
-    partner_email: input.partner_email || savedNames?.partner_email || undefined,
+    partner1: input.partner1 || "",
+    partner2: input.partner2 || "",
+    cadence: "monthly" as const,
     budget_max: optionalNumber(input.budget_max) ?? 50,
     lat: optionalNumber(input.lat),
     lng: optionalNumber(input.lng),
     preferred_radius: optionalNumber(input.preferred_radius),
   };
 
-  const parsed = fullOnboardingSchema.safeParse(inputWithSavedRequiredFields);
+  const parsed = fullOnboardingSchema.safeParse(inputWithDefaults);
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors;
     console.error(
@@ -152,38 +48,31 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
   }
   const v = parsed.data;
 
-  const isSubscribed = profile?.plan_type === "subscription";
-  const interests = isSubscribed
-    ? v.interests
-    : v.interests.filter((interest) =>
-        (FREE_INTERESTS as readonly string[]).includes(interest)
-      );
+  // All new users start on trial — they get 1 Plus-quality date.
+  // Trial users can pick any interest category.
+  const interests = v.interests.filter((i) =>
+    ["food", "music", "nature", "art", "fitness", "cinema", "books", "coffee", "beach", "photography", "gaming", "romance"].includes(i)
+  );
   if (interests.length < MIN_INTEREST_CATEGORIES) {
-    return { error: `Select at least ${MIN_INTEREST_CATEGORIES} Starter categories` };
+    return { error: `Select at least ${MIN_INTEREST_CATEGORIES} categories` };
   }
 
-  const preferredRadius = isSubscribed
-    ? v.preferred_radius
-    : v.preferred_radius !== undefined
-    ? Math.min(v.preferred_radius, FREE_MAX_RADIUS_KM * 1000)
+  // Trial gets Plus-quality radius (no cap).
+  const preferredRadius = v.preferred_radius !== undefined
+    ? Math.min(v.preferred_radius, PAID_MAX_RADIUS_KM * 1000)
     : undefined;
 
-  // Carry over any active reveal cooldown from a deleted prior account with
-  // the same email. Applied at onboarding finish so the dashboard renders
-  // the countdown state immediately instead of showing a Reveal button that
-  // would then fail.
+  // Carry over any active reveal cooldown from a deleted prior account.
   let carryoverRevealedAt: string | null = null;
-  let carryoverCadence: string | null = null;
   if (user.email) {
     const idHash = hashEmail(user.email);
     const { data: hold } = await admin
       .from("deletion_holds")
-      .select("revealed_at, cadence, expires_at")
+      .select("revealed_at, expires_at")
       .eq("id_hash", idHash)
       .single();
     if (hold && new Date(hold.expires_at).getTime() > Date.now()) {
       carryoverRevealedAt = hold.revealed_at;
-      carryoverCadence = hold.cadence;
       await admin.from("deletion_holds").delete().eq("id_hash", idHash);
     }
   }
@@ -198,7 +87,8 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
         date_outside: v.date_outside,
         date_at_home: v.date_at_home,
       },
-      cadence: carryoverCadence ?? v.cadence,
+      cadence: "monthly",
+      plan_type: "trial",
       last_lat: v.lat ?? null,
       last_long: v.lng ?? null,
       ...(preferredRadius !== undefined ? { preferred_radius: preferredRadius } : {}),
@@ -214,21 +104,9 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     return { error: "Failed to save onboarding" };
   }
 
-  // Verify the trigger didn't silently revert onboarding_complete.
-  // This catches misconfigured admin client (wrong/missing service role key)
-  // where the lockdown_protected_columns trigger blocks the write without error.
   if (!updated?.onboarding_complete) {
     console.error(`[audit] finish-onboarding: onboarding_complete reverted uid=${user.id} — check SUPABASE_SERVICE_ROLE_KEY`);
     return { error: "Setup couldn't be saved. Please check your connection and try again." };
-  }
-
-  // Invite is best-effort: profile is already saved as complete. A transient
-  // email failure must not block onboarding — the user can resend from Settings.
-  if (v.partner_email) {
-    const inviteResult = await sendPartnerInviteForOnboarding(v.partner_email.toLowerCase());
-    if (inviteResult.error) {
-      console.warn(`[audit] finish-onboarding: invite non-fatal uid=${user.id} reason=${inviteResult.error}`);
-    }
   }
 
   const cookieStore = await cookies();
@@ -240,6 +118,121 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     secure: process.env.NODE_ENV === "production",
   });
 
+  try {
+    await generateInitialDate(user.id, {
+      partner_names: { partner1: v.partner1, partner2: v.partner2 },
+      interests,
+      constraints: { budget_max: v.budget_max, date_outside: v.date_outside, date_at_home: v.date_at_home },
+      last_lat: v.lat ?? null,
+      last_long: v.lng ?? null,
+      preferred_radius: preferredRadius ?? null,
+    });
+  } catch (err) {
+    console.error(`[audit] finish-onboarding: initial date generation failed uid=${user.id} msg=${err instanceof Error ? err.message : String(err)}`);
+  }
+
   revalidatePath("/dashboard");
   return {};
+}
+
+const VALID_INTERESTS_SET = new Set([
+  "food", "music", "nature", "art", "fitness", "cinema",
+  "books", "coffee", "beach", "photography", "gaming", "romance",
+]);
+
+async function generateInitialDate(
+  userId: string,
+  profile: {
+    partner_names: { partner1: string; partner2: string };
+    interests: string[];
+    constraints: { budget_max: number; date_outside: boolean; date_at_home: boolean };
+    last_lat: number | null;
+    last_long: number | null;
+    preferred_radius: number | null;
+  }
+) {
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, userId);
+  const safeInterests = profile.interests.filter((i) => VALID_INTERESTS_SET.has(i));
+  const nowIso = new Date().toISOString();
+  const { date_outside, date_at_home } = profile.constraints;
+  const effectiveLocationType: "outside" | "home" =
+    date_at_home && !date_outside ? "home" : "outside";
+
+  let idea: object;
+
+  if (effectiveLocationType === "home") {
+    const homeIdea = await generateHomeDateIdea({
+      partnerNames: profile.partner_names,
+      interests: safeInterests,
+      budgetMax: profile.constraints.budget_max,
+      isSubscribed: true,
+      datesCompleted: 0,
+      previousTitles: [],
+    });
+    idea = { ...homeIdea, location_type: "home" };
+  } else if (profile.last_lat != null && profile.last_long != null) {
+    const venue = await searchNearbyVenues({
+      interests: safeInterests,
+      lat: profile.last_lat,
+      lng: profile.last_long,
+      radiusMeters: profile.preferred_radius ?? 10000,
+      previousPlaceIds: [],
+    });
+    const aiEnrichment = await generateAIDateIdea({
+      partnerNames: profile.partner_names,
+      interests: safeInterests,
+      budgetMax: profile.constraints.budget_max,
+      dateOutside: true,
+      dateAtHome: date_at_home,
+      isSubscribed: true,
+      datesCompleted: 0,
+      venue: {
+        name: venue.display_name,
+        address: venue.formatted_address,
+        rating: venue.rating,
+        price_level: venue.price_level,
+        meta: venue.meta,
+      },
+    });
+    idea = { ...venue, ai: aiEnrichment, location_type: "outside" };
+  } else {
+    const aiIdea = await generateAIDateIdea({
+      partnerNames: profile.partner_names,
+      interests: safeInterests,
+      budgetMax: profile.constraints.budget_max,
+      dateOutside: date_outside,
+      dateAtHome: date_at_home,
+      isSubscribed: true,
+      datesCompleted: 0,
+      previousTitles: [],
+    });
+    idea = { ...aiIdea, location_type: "outside" };
+  }
+
+  const teaser = createDateTeaser(idea);
+
+  await admin.from("date_ideas").insert({
+    user_id: access.profileId,
+    idea: idea as Json,
+    status: "revealed",
+    revealed_at: nowIso,
+    location_type: effectiveLocationType,
+  });
+
+  await admin.from("profiles").update({
+    date_idea: idea as Json,
+    date_teaser: teaser as unknown as Json,
+    revealed_at: nowIso,
+    notification_sent_at: null,
+    current_date_rerolled: false,
+    date_accepted_at: nowIso,
+    reveal_owner_ready_at: null,
+    reveal_partner_ready_at: null,
+    partner_ping_sent_at: null,
+    checkin_owner_at: null,
+    checkin_partner_at: null,
+    checkin_owner_skipped: false,
+    checkin_partner_skipped: false,
+  }).eq("id", access.profileId);
 }

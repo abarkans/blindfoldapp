@@ -20,9 +20,11 @@ export const identitySchema = z.object({
     .transform(collapseCombiningMarks),
   partner2: z
     .string()
-    .min(1, "Partner 2 name is required")
     .max(50, "Name too long")
-    .regex(nameRegex, "Name contains invalid characters")
+    .regex(
+      /^[\p{L}\p{M}\s'\-.]*$/u,
+      "Name contains invalid characters"
+    )
     .transform(collapseCombiningMarks),
   partner_email: z
     .string()
@@ -84,7 +86,7 @@ export const fullOnboardingSchema = z
 
 export const planSchema = z
   .object({
-    plan_type: z.enum(["free", "subscription"]),
+    plan_type: z.enum(["free", "subscription", "trial"]),
     cadence: z.enum(["weekly", "biweekly", "monthly"]).optional(),
   })
   .refine(

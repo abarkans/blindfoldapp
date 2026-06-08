@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { completeDate } from "@/app/actions/complete-date";
 import { HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { r2, R2_BUCKET } from "@/lib/r2";
+import { isPlusPlan } from "@/lib/plans";
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -180,7 +181,7 @@ export async function savePhoto(
   }
 
   let xpGained = 0;
-  if (checkinProfile?.plan_type === "subscription") {
+  if (isPlusPlan(checkinProfile?.plan_type)) {
     // award_xp increments total_xp atomically in SQL — no read-modify-write race.
     const { error: xpError } = await admin.rpc("award_xp", {
       p_profile_id: access.profileId,

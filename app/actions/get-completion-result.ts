@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { calcLevel } from "@/lib/utils";
 import type { CompleteDateResult } from "@/lib/types";
+import { isPlusPlan } from "@/lib/plans";
 
 const XP_PER_DATE = 100;
 
@@ -40,7 +41,7 @@ export async function getCompletionResult(): Promise<CompleteDateResult | null> 
   const newCount = profile.dates_completed_count;
   const newXp = profile.total_xp;
   // Plus earns 2× XP; this result is displayed after photo-completion path.
-  const xpGained = profile.plan_type === "subscription" ? XP_PER_DATE * 2 : XP_PER_DATE;
+  const xpGained = isPlusPlan(profile.plan_type) ? XP_PER_DATE * 2 : XP_PER_DATE;
 
   const { data: dateIdea } = await admin
     .from("date_ideas")

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getClientAndUser } from "@/lib/supabase/get-client-and-user";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { r2, R2_BUCKET } from "@/lib/r2";
+import { isPlusPlan } from "@/lib/plans";
 
 // GET /api/photo/view?key=photos/{profileId}/{dateIdeaId}/{filename}
 export async function GET(req: NextRequest) {
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
     .eq("id", profileId)
     .single();
 
-  if (profile?.plan_type !== "subscription") {
+  if (!isPlusPlan(profile?.plan_type)) {
     return NextResponse.json({ error: "Plus required" }, { status: 403 });
   }
 

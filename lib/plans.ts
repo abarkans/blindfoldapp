@@ -53,4 +53,9 @@ export const PLANS = [
   },
 ] as const;
 
-export type PlanId = "free" | "subscription";
+export type PlanId = "free" | "subscription" | "trial";
+
+/** Returns true for plan types that get Plus-quality features (full interests, larger radius, 2× XP, etc.) */
+export function isPlusPlan(planType: PlanId | string | null | undefined): boolean {
+  return planType === "subscription" || planType === "trial";
+}

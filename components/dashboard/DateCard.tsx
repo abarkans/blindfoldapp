@@ -19,6 +19,7 @@ import { rerollDate } from "@/app/actions/reroll";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import { skipCheckIn } from "@/app/actions/check-in";
 import { dismissDate, resetCheckinSkip } from "@/app/actions/dismiss-date";
+import { skipTrialDate } from "@/app/actions/skip-trial-date";
 import { pingPartner } from "@/app/actions/ping-partner";
 import type { CompleteDateResult } from "@/lib/types";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
@@ -443,7 +444,7 @@ export default function DateCard({
     return () => { document.body.style.overflow = ""; };
   }, [activeSheet]);
 
-  const isFree = planType !== "subscription";
+  const isFree = planType !== "subscription" && planType !== "trial";
   const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
 
   const myDecided = memberRole === "owner" ? !!checkinOwnerAt : !!checkinPartnerAt;
@@ -452,6 +453,8 @@ export default function DateCard({
   const partnerDecided = memberRole === "owner" ? !!checkinPartnerAt : !!checkinOwnerAt;
   const partnerSkippedCheckIn = memberRole === "owner" ? checkinPartnerSkipped : checkinOwnerSkipped;
   const partnerCheckedIn = partnerDecided && !partnerSkippedCheckIn;
+  // Trial users are solo — no partner check-in needed.
+  const effectivePartnerDecided = planType === "trial" ? true : partnerDecided;
   const hasVenueLocation =
     dateIdea && isVenue(dateIdea) && !!dateIdea.location?.latitude;
   const isHomeDateIdea =
@@ -706,6 +709,17 @@ export default function DateCard({
   function handleSkipCheckIn() {
     setSkipDialogOpen(false);
     startSkipTransition(async () => {
+      if (planType === "trial") {
+        wasDismissedRef.current = true;
+        const result = await skipTrialDate();
+        if (result.error) {
+          wasDismissedRef.current = false;
+          setError(result.error);
+        } else {
+          router.refresh();
+        }
+        return;
+      }
       await skipCheckIn();
       router.refresh();
     });
@@ -1135,7 +1149,31 @@ export default function DateCard({
                             })}
                           />
                         )
-                      ) : myCheckedIn && partnerDecided ? (
+                      ) : planType === "trial" && mySkippedCheckIn ? (
+                        isResetCheckinPending ? (
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                            <motion.div
+                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                            />
+                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                          </div>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            className="w-full"
+                            onClick={() => startResetCheckinTransition(async () => {
+                              const result = await resetCheckinSkip();
+                              if (result.error) setError(result.error);
+                              else router.refresh();
+                            })}
+                          >
+                            Undo skip — check in now
+                          </Button>
+                        )
+                      ) : myCheckedIn && effectivePartnerDecided ? (
                         dateIdeaId ? (
                           <PhotoChallenge
                             dateIdeaId={dateIdeaId}
@@ -1146,7 +1184,7 @@ export default function DateCard({
                             onComplete={handlePhotoComplete}
                           />
                         ) : null
-                      ) : mySkippedCheckIn && partnerDecided ? (
+                      ) : mySkippedCheckIn && effectivePartnerDecided ? (
                         <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
                           <motion.div
                             className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
@@ -1157,7 +1195,7 @@ export default function DateCard({
                             Waiting for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"} to capture the moment…
                           </span>
                         </div>
-                      ) : myDecided && !partnerDecided ? (
+                      ) : myDecided && !effectivePartnerDecided ? (
                         <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
                           <motion.div
                             className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
@@ -1182,7 +1220,7 @@ export default function DateCard({
                           <CheckInButton
                             partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}
                             partnerCheckedIn={partnerCheckedIn}
-                            partnerSkipped={partnerDecided && partnerSkippedCheckIn}
+                            partnerSkipped={effectivePartnerDecided && partnerSkippedCheckIn}
                             unitSystem={unitSystem}
                           />
                           <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
@@ -1256,6 +1294,26 @@ export default function DateCard({
                             })}
                           />
                         )
+                      ) : planType === "trial" && mySkippedCheckIn ? (
+                        isSkipPending ? (
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                            <motion.div
+                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                            />
+                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                          </div>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            className="w-full"
+                            onClick={handleSkipCheckIn}
+                          >
+                            Skip this date
+                          </Button>
+                        )
                       ) : mySkippedCheckIn ? (
                         <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
                           <motion.div
@@ -1276,6 +1334,7 @@ export default function DateCard({
                             dateName={(dateIdea as AIDateIdea).title}
                             planType={planType}
                             onComplete={handlePhotoComplete}
+                            onSkip={planType === "trial" ? () => setSkipDialogOpen(true) : undefined}
                           />
                         ) : null
                       )}
@@ -1437,7 +1496,7 @@ export default function DateCard({
                       </Button>
                     )}
                   </div>
-                ) : !hasAcceptedPartner ? (
+                ) : !hasAcceptedPartner && planType !== "trial" ? (
                   <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col gap-4">
                     <div>
                       <p className="text-base font-bold text-white mb-1">
@@ -1521,7 +1580,9 @@ export default function DateCard({
         </div>
         <h3 className="text-lg font-bold text-white mb-1">Skip check-in?</h3>
         <p className="text-sm text-white/55 mb-6">
-          Checking in at the venue proves you made it. Skip and you&apos;ll miss out on bonus XP and streak credit.
+          {planType === "trial"
+            ? "Skipping will end your free trial date. Your next date will be available in a month."
+            : "Checking in at the venue proves you made it. Skip and you’ll miss out on bonus XP and streak credit."}
         </p>
         <div className="flex flex-col gap-2">
           <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
@@ -1717,6 +1778,7 @@ export default function DateCard({
           newLevel={modalData.newLevel}
           newBadges={modalData.newBadges}
           dateIdeaId={modalData.dateIdeaId}
+          trialExpired={modalData.trialExpired}
           onClose={() => setModalData(null)}
           onGoToProgress={() => { setModalData(null); onGoToProgress(); }}
         />

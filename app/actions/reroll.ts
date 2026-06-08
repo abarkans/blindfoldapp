@@ -9,6 +9,7 @@ import { searchNearbyVenues } from "@/lib/places/search";
 import { checkRerollRateLimit } from "@/lib/rate-limit";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { createDateTeaser } from "@/lib/date-teaser";
+import { isPlusPlan } from "@/lib/plans";
 
 const profileSchema = z.object({
   plan_type: z.string(),
@@ -61,7 +62,7 @@ export async function rerollDate(): Promise<void> {
     throw new Error("Profile setup incomplete. Please check your settings.");
   }
   const profile = parseResult.data;
-  const isFree = profile.plan_type !== "subscription";
+  const isFree = !isPlusPlan(profile.plan_type);
   const partnerReadyAt =
     access.role === "owner" ? profile.reveal_partner_ready_at : profile.reveal_owner_ready_at;
 

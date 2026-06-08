@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { safeLogValue } from "@/lib/log";
 import { getCoupleAccess } from "@/lib/partner-invites";
-import { FREE_INTERESTS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM } from "@/lib/plans";
+import { FREE_INTERESTS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, isPlusPlan } from "@/lib/plans";
 import { fullOnboardingSchema } from "@/lib/schemas/onboarding";
 
 const settingsSchema = fullOnboardingSchema.safeExtend({
@@ -42,8 +42,9 @@ export async function updateSettings(input: unknown): Promise<{ error?: string }
   }
 
   const v = parsed.data;
-  const isSubscribed = profile.plan_type === "subscription";
-  const interests = isSubscribed
+  const isPremium = isPlusPlan(profile.plan_type);
+  const isPayingSubscriber = profile.plan_type === "subscription";
+  const interests = isPremium
     ? v.interests
     : v.interests.filter((interest) => (FREE_INTERESTS as readonly string[]).includes(interest));
 
@@ -53,7 +54,7 @@ export async function updateSettings(input: unknown): Promise<{ error?: string }
 
   const preferredRadius = Math.min(
     v.preferred_radius,
-    (isSubscribed ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM) * 1000
+    (isPremium ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM) * 1000
   );
 
   const { error } = await admin
@@ -66,7 +67,7 @@ export async function updateSettings(input: unknown): Promise<{ error?: string }
         date_outside: v.date_outside,
         date_at_home: v.date_at_home,
       },
-      cadence: isSubscribed ? v.cadence : "monthly",
+      cadence: isPayingSubscriber ? v.cadence : "monthly",
       last_lat: v.lat ?? null,
       last_long: v.lng ?? null,
       preferred_radius: preferredRadius,

@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Star } from "lucide-react";
+import { X, Zap, Star, ArrowRight } from "lucide-react";
 import confetti, { type CreateTypes } from "canvas-confetti";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { submitDateFeedback } from "@/app/actions/submit-feedback";
 
@@ -138,6 +139,7 @@ interface CompleteDateModalProps {
   newLevel: number;
   newBadges: NewBadge[];
   dateIdeaId: string;
+  trialExpired?: boolean;
   onClose: () => void;
   onGoToProgress: () => void;
 }
@@ -149,6 +151,7 @@ export default function CompleteDateModal({
   newLevel,
   newBadges,
   dateIdeaId,
+  trialExpired,
   onClose,
   onGoToProgress,
 }: CompleteDateModalProps) {
@@ -310,6 +313,27 @@ export default function CompleteDateModal({
                       </motion.div>
                     ))}
                   </div>
+                </motion.div>
+              )}
+
+              {/* Trial → Starter downgrade notice */}
+              {trialExpired && (
+                <motion.div
+                  className="border border-white/12 rounded-2xl p-4 mb-4 text-left"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <p className="text-sm font-semibold text-white mb-1">You&apos;ve switched to Starter</p>
+                  <p className="text-xs text-white/50 mb-3">Next date picks from food, nature, or romance — one per month.</p>
+                  <Link
+                    href="/dashboard?upgrade=1"
+                    onClick={onClose}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors"
+                  >
+                    Upgrade to Plus
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </motion.div>
               )}
 
