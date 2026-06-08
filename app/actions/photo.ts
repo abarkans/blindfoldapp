@@ -315,10 +315,12 @@ export async function getDateHistory(): Promise<CompletedDateWithPhotos[]> {
     photosByDate.set(p.date_idea_id, list);
   }
 
-  return ideas.map((idea) => ({
-    id: idea.id,
-    idea: idea.idea as Record<string, unknown>,
-    revealed_at: idea.revealed_at,
-    photos: photosByDate.get(idea.id) ?? [],
-  }));
+  return ideas
+    .map((idea) => ({
+      id: idea.id,
+      idea: idea.idea as Record<string, unknown>,
+      revealed_at: idea.revealed_at,
+      photos: photosByDate.get(idea.id) ?? [],
+    }))
+    .filter((d) => d.photos.length > 0);
 }
