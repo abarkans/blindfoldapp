@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preload } from "react-dom";
 import LandingV4Client from "@/components/landing-v4/LandingV4Client";
 import { getUnitSystem } from "@/lib/get-unit-system";
 
@@ -100,11 +101,10 @@ const jsonLd = {
 };
 
 export default async function LandingPage() {
+  preload("/hero-video-poster.webp", { as: "image", fetchPriority: "high" });
   const unitSystem = await getUnitSystem();
   return (
     <>
-      {/* Preload LCP image so browser discovers it from HTML, not after JS hydration */}
-      <link rel="preload" as="image" href="/hero-video-poster.webp" fetchPriority="high" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
