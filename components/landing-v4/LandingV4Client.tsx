@@ -277,7 +277,7 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
 
         {/* Title */}
         <div className="text-left md:text-center mb-10 md:mb-14">
-          <h2 className="text-[36px] md:text-[64px] font-black leading-[1.05] mb-4">
+          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] mb-4">
             Dates that leave{" "}
             <span
               className="bg-clip-text text-transparent"
@@ -409,10 +409,10 @@ function MemoriesSection() {
     <section ref={sectionRef} className="relative bg-black h-screen overflow-hidden flex flex-col">
       {/* Header — z-20 keeps it above cards that drift upward */}
       <div className="relative z-20 px-6 md:px-10 pt-10 md:pt-14 pb-6 md:pb-0 text-left md:text-center shrink-0 bg-black">
-        <h2 className="text-[36px] md:text-[64px] font-black leading-[1.05] tracking-normal">
+        <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
           Every date, remembered.
         </h2>
-        <p className="text-white/35 text-[36px] md:text-[64px] font-black leading-[1.05]">
+        <p className="text-white/35 text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05]">
           Your scrapbook, growing with you.
         </p>
         <p className="text-white/55 text-base md:text-lg leading-[1.7] mt-3">
@@ -456,7 +456,7 @@ function ScrollRevealStatement() {
   return (
     <section ref={ref} aria-label="The problem we solve" className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
       <h2 className="sr-only">Why couples stop going on dates</h2>
-      <p className="text-[28px] md:text-[42px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
+      <p className="text-[28px] md:text-[32px] lg:text-[36px] xl:text-[40px] 2xl:text-[44px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
         {REVEAL_LINES.map((line, i) => {
           const start = (i / total) * 0.9;
           const end = ((i + 1) / total) * 0.9;
@@ -862,7 +862,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
 
           <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-end px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
             <div className="w-full max-w-[960px]">
-              <h1 className="text-[48px] sm:text-[64px] lg:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
+              <h1 className="text-[48px] sm:text-[56px] lg:text-[60px] xl:text-[68px] 2xl:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
                   Date night, decided.
                 </span>
@@ -914,7 +914,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         <section id="plans" className="relative bg-black">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-8 md:mb-12">
-              <h2 className="text-[36px] md:text-[56px] font-black leading-[1.08] tracking-normal">
+              <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-[1.08] tracking-normal">
                 Stop talking about it.
                 <br />
                 <span className="text-white/35">Start actually doing it.</span>
@@ -1047,7 +1047,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         {/* ── FAQ ── */}
         <section className="bg-black">
           <div className="px-6 md:px-10 py-14 md:py-20 max-w-[1280px] mx-auto">
-            <h2 className="text-[36px] md:text-[56px] font-black leading-tight mb-10 md:mb-14">
+            <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-tight mb-10 md:mb-14">
               Frequently asked questions
             </h2>
             <dl className="flex flex-col divide-y divide-white/[0.07]">
@@ -1101,7 +1101,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
             </div>
 
-            <h2 className="text-[40px] sm:text-[56px] md:text-[72px] font-black mb-7 md:mb-8 leading-[1.05] tracking-normal">
+            <h2 className="text-[40px] sm:text-[44px] md:text-[50px] lg:text-[56px] xl:text-[62px] 2xl:text-[72px] font-black mb-7 md:mb-8 leading-[1.05] tracking-normal">
               You&rsquo;ve been saying
               <br />
               <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #fb7185, #c026d3, #8b5cf6)" }}>
