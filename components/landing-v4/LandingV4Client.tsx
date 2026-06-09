@@ -27,6 +27,8 @@ import {
   Camera,
   Heart,
   Dumbbell,
+  BookOpen,
+  Gamepad2,
 } from "lucide-react";
 import { PLANS } from "@/lib/plans";
 import { getCurrencySymbol, formatBudgetRange, type UnitSystem } from "@/lib/units";
@@ -56,6 +58,27 @@ const FAQ_ITEMS = [
     q: "What's the difference between free and Plus?",
     a: "Free gives you one date per month, limited interest preferences, and a capped travel distance. Plus unlocks your full preference set, a wider travel radius, weekly or bi-weekly scheduling, and access to Saved Memories - your date history over time.",
   },
+];
+
+const DATE_IDEA_CARDS = [
+  // Row 1
+  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Omakase for Two",          vibe: "A chef's table. No menu. Just trust." },
+  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Sunset Rooftop Drinks",    vibe: "Golden hour, cold glass, no agenda." },
+  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Sunrise Hike",             vibe: "Early alarm. Worth every minute." },
+  { interest: "Art & Culture",      icon: Palette,  color: "text-purple-300", bg: "bg-purple-500/15", border: "border-purple-400/20", title: "Gallery After Dark",       vibe: "Private viewing night. Wine included." },
+  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Speakeasy Night",          vibe: "Hidden bar. Secret knock optional." },
+  { interest: "Coffee & Cafés",     icon: Coffee,   color: "text-amber-300",  bg: "bg-amber-500/15",  border: "border-amber-400/20",  title: "Third Wave Coffee Tour",   vibe: "Four cafés. Rate them all." },
+  { interest: "Cinema",             icon: Film,     color: "text-sky-300",    bg: "bg-sky-500/15",    border: "border-sky-400/20",    title: "Outdoor Film Night",       vibe: "Blanket, popcorn, sky above." },
+  { interest: "Beach & Water",      icon: Waves,    color: "text-cyan-300",   bg: "bg-cyan-500/15",   border: "border-cyan-400/20",   title: "Kayak at Dusk",            vibe: "Paddle out. Watch the light change." },
+  // Row 2
+  { interest: "Fitness",            icon: Dumbbell, color: "text-lime-300",   bg: "bg-lime-500/15",   border: "border-lime-400/20",   title: "Bouldering Date",          vibe: "Trust your partner to catch you." },
+  { interest: "Photography",        icon: Camera,   color: "text-violet-300", bg: "bg-violet-500/15", border: "border-violet-400/20", title: "Golden Hour Shoot",        vibe: "You two. Best light of the day." },
+  { interest: "Books & Learning",   icon: BookOpen, color: "text-teal-300",   bg: "bg-teal-500/15",   border: "border-teal-400/20",   title: "Bookshop Trawl",           vibe: "£5 each. Find something for the other." },
+  { interest: "Gaming",             icon: Gamepad2, color: "text-indigo-300", bg: "bg-indigo-500/15", border: "border-indigo-400/20", title: "Arcade Night",             vibe: "Tokens, competition, bad winners." },
+  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Street Food Safari",       vibe: "Follow your nose through the market." },
+  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Candlelit Cinema",         vibe: "Old film. Dark room. Just you two." },
+  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Botanical Garden Wander",  vibe: "No destination. Just greenery." },
+  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Cocktail Lab",             vibe: "Build your own drink. Judge each other's." },
 ];
 
 const SPARKLE_CONFIGS = [
@@ -444,6 +467,66 @@ function MemoriesSection() {
   );
 }
 
+type DateIdeaCard = (typeof DATE_IDEA_CARDS)[number];
+
+function DateIdeaCardItem({ card }: { card: DateIdeaCard }) {
+  const Icon = card.icon;
+  return (
+    <div className={`shrink-0 w-64 rounded-2xl border ${card.border} bg-white/[0.05] p-5 flex flex-col gap-3`}>
+      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${card.bg} ${card.border} border w-fit`}>
+        <Icon className={`w-3.5 h-3.5 ${card.color}`} />
+        <span className={`text-xs font-semibold ${card.color}`}>{card.interest}</span>
+      </div>
+      <div>
+        <p className="text-white font-bold text-base leading-snug">{card.title}</p>
+        <p className="text-white/45 text-sm mt-1 leading-snug">{card.vibe}</p>
+      </div>
+    </div>
+  );
+}
+
+function DateIdeasMarqueeRow({ cards, reverse = false }: { cards: DateIdeaCard[]; reverse?: boolean }) {
+  const doubled = [...cards, ...cards];
+  return (
+    <div className="flex overflow-hidden">
+      <motion.div
+        className="flex gap-4 pr-4"
+        animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
+        transition={{ duration: 200, repeat: Infinity, ease: "linear" }}
+      >
+        {doubled.map((card, i) => (
+          <DateIdeaCardItem key={i} card={card} />
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+function DateIdeasSection() {
+  const row1 = DATE_IDEA_CARDS.slice(0, 8);
+  const row2 = DATE_IDEA_CARDS.slice(8, 16);
+  return (
+    <section className="bg-black py-16 md:py-24">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10">
+        <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
+          Made for how you two<br className="hidden sm:block" /> actually are.
+        </h2>
+        <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] mb-10 md:mb-14 md:text-center md:mx-auto">
+          Pick your interests once. Every idea is shaped around them — location, mood, and budget included.
+        </p>
+
+        <div className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
+          <div className="py-2">
+            <DateIdeasMarqueeRow cards={row1} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ScrollRevealStatement() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -451,10 +534,21 @@ function ScrollRevealStatement() {
     offset: ["start 0.85", "center 0.5"],
   });
 
+  // Separate scroll tracker for the line — offset starts at 0.75 so progress=0
+  // at page load (hero is 82dvh tall, already past the 0.85 threshold at scroll=0)
+  const { scrollYProgress: lineScrollProgress } = useScroll({
+    target: ref,
+    offset: ["start 0.75", "center 0.5"],
+  });
+  const lineScaleY = useTransform(lineScrollProgress, [0, 1], [0, 1]);
   const total = REVEAL_LINES.length;
 
   return (
-    <section ref={ref} aria-label="The problem we solve" className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
+    <section ref={ref} aria-label="The problem we solve" className="relative px-6 md:px-10 py-0 pb-16 md:pb-28 max-w-[1280px] mx-auto">
+      {/* scroll-fill vertical line — extends up into hero, fills on scroll */}
+      <div className="hidden xl:block absolute left-40 top-0 bottom-28 w-px bg-white/10 overflow-hidden">
+        <motion.div className="absolute inset-0 bg-white/40 origin-top" style={{ scaleY: lineScaleY }} />
+      </div>
       <h2 className="sr-only">Why couples stop going on dates</h2>
       <p className="text-[28px] md:text-[32px] lg:text-[36px] xl:text-[40px] 2xl:text-[44px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
         {REVEAL_LINES.map((line, i) => {
@@ -558,11 +652,11 @@ function RevealLine({
   isLast: boolean;
   breakAfter: boolean;
 }) {
-  const opacity = useTransform(scrollYProgress, [start, end], [0.15, 1]);
+  const opacity = useTransform(scrollYProgress, [start, end], [0.3, 1]);
   const color = useTransform(
     scrollYProgress,
     [start, end],
-    isLast ? ["rgba(244,63,94,0.2)", "rgba(244,63,94,1)"] : ["rgba(255,255,255,0.15)", "rgba(255,255,255,1)"]
+    isLast ? ["rgba(244,63,94,0.35)", "rgba(244,63,94,1)"] : ["rgba(255,255,255,0.3)", "rgba(255,255,255,1)"]
   );
   const underlineScaleX = useTransform(scrollYProgress, [start, end], [0, 1]);
 
@@ -910,6 +1004,9 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         {/* ── Memories scatter → pile ── */}
         <MemoriesSection />
 
+        {/* ── Date ideas marquee ── */}
+        <DateIdeasSection />
+
         {/* ── Pricing ── */}
         <section id="plans" className="relative bg-black">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
@@ -1046,19 +1143,19 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
 
         {/* ── FAQ ── */}
         <section className="bg-black">
-          <div className="px-6 md:px-10 py-14 md:py-20 max-w-[1280px] mx-auto">
-            <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-tight mb-10 md:mb-14">
+          <div className="px-6 md:px-10 py-14 md:py-20 max-w-[800px] mx-auto">
+            <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-tight mb-10 md:mb-14 md:text-center">
               Frequently asked questions
             </h2>
-            <dl className="flex flex-col divide-y divide-white/[0.07]">
+            <dl className="flex flex-col gap-3">
               {FAQ_ITEMS.map(({ q, a }, i) => {
                 const isOpen = openFaq === i;
                 return (
-                  <div key={q}>
+                  <div key={q} className="bg-white/[0.06] rounded-2xl px-6 md:px-8">
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? null : i)}
-                      className="w-full flex items-center justify-between gap-6 py-6 md:py-7 text-left group"
+                      className="w-full flex items-center justify-between gap-6 py-5 md:py-6 text-left group"
                       aria-expanded={isOpen}
                     >
                       <dt className="text-white font-semibold text-lg md:text-2xl leading-snug">
