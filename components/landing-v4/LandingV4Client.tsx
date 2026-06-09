@@ -29,9 +29,64 @@ import {
   Dumbbell,
   BookOpen,
   Gamepad2,
+  Home,
+  Users,
+  Calendar,
+  Bell,
 } from "lucide-react";
 import { PLANS } from "@/lib/plans";
 import { getCurrencySymbol, formatBudgetRange, type UnitSystem } from "@/lib/units";
+
+const FEATURE_ITEMS = [
+  {
+    icon: Sparkles,
+    title: "Picked for you",
+    description: "Tell the app what you're into once. It handles the rest. No scrolling, no debating, no \"you decide.\"",
+    blob: "bg-violet-400",
+    blobPos: "bottom-0 left-0",
+    iconColor: "text-violet-400",
+  },
+  {
+    icon: MapPin,
+    title: "Real places near you",
+    description: "Every date is built around actual venues in your city, not a generic list of ideas you still have to Google.",
+    blob: "bg-blue-400",
+    blobPos: "top-0 right-0",
+    iconColor: "text-blue-400",
+  },
+  {
+    icon: Home,
+    title: "Staying in counts too",
+    description: "Not every date needs a reservation. The app plans evenings at home that actually feel chosen.",
+    blob: "bg-rose-400",
+    blobPos: "top-0 right-0",
+    iconColor: "text-rose-400",
+  },
+  {
+    icon: Users,
+    title: "Both of you. One date.",
+    description: "Link once, and both partners see the same date revealed at the same time. No spoilers, no coordination.",
+    blob: "bg-indigo-400",
+    blobPos: "bottom-0 left-0",
+    iconColor: "text-indigo-400",
+  },
+  {
+    icon: Calendar,
+    title: "Your date history",
+    description: "Every date you've done lives here. So you actually know it's been three weeks since you left the house.",
+    blob: "bg-amber-400",
+    blobPos: "bottom-0 right-0",
+    iconColor: "text-amber-400",
+  },
+  {
+    icon: Bell,
+    title: "A nudge when life gets loud",
+    description: "Busy weeks happen. A quiet reminder keeps date night from being the first thing that gets dropped.",
+    blob: "bg-teal-400",
+    blobPos: "top-0 left-0",
+    iconColor: "text-teal-400",
+  },
+];
 
 const FAQ_ITEMS = [
   {
@@ -200,9 +255,10 @@ const SAMPLE_DATES = [
 ];
 
 const NAV_LINKS = [
-  { label: "Home", href: "#", scroll: true },
-  { label: "How it works", href: "#how-it-works", scroll: false },
+  { label: "Benefits", href: "#benefits", scroll: false },
+  { label: "Features", href: "#features", scroll: false },
   { label: "Pricing", href: "#plans", scroll: false },
+  { label: "FAQ", href: "#faq", scroll: false },
   { label: "Ideas", href: "/blog", scroll: false },
 ];
 
@@ -295,7 +351,7 @@ function MemoryPolaroidCard({
 
 function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
   return (
-    <section id="how-it-works" className="relative bg-black overflow-hidden">
+    <section id="benefits" className="relative bg-black overflow-hidden">
       <div className="px-6 md:px-10 pt-16 md:pt-28 pb-16 md:pb-28 max-w-[1280px] mx-auto">
 
         {/* Title */}
@@ -462,6 +518,37 @@ function MemoriesSection() {
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black to-transparent pointer-events-none z-30" />
         {/* Fade bottom */}
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none z-30" />
+      </div>
+    </section>
+  );
+}
+
+function FeaturesSection() {
+  return (
+    <section id="features" className="bg-black py-16 md:py-24">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10">
+        <div className="flex flex-col items-start md:items-center mb-10 md:mb-16 gap-4">
+          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal text-white md:text-center max-w-[700px]">
+            What the app actually does
+          </h2>
+          <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] md:text-center md:mx-auto">
+            We handle the parts that usually kill date night. The idea, the venue, the nudge to actually go.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+          {FEATURE_ITEMS.map(({ icon: Icon, title, description, blob, blobPos, iconColor }) => (
+            <div key={title} className="relative overflow-hidden rounded-2xl bg-white/[0.04] border border-white/[0.08] p-7 flex flex-col gap-4">
+              <div className={`absolute ${blobPos} w-40 h-40 ${blob} opacity-[0.08] rounded-full blur-2xl pointer-events-none`} />
+              <div className="relative z-10 w-11 h-11 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+                <Icon className={`w-5 h-5 ${iconColor}`} />
+              </div>
+              <div className="relative z-10">
+                <p className="font-bold text-white text-base mb-1">{title}</p>
+                <p className="text-white/45 text-sm leading-relaxed">{description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -1001,20 +1088,23 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         {/* ── Gamification: date card + XP/badges ── */}
         <GamificationSection unitSystem={unitSystem} />
 
+        {/* ── Date ideas marquee ── */}
+        <DateIdeasSection />
+
         {/* ── Memories scatter → pile ── */}
         <MemoriesSection />
 
-        {/* ── Date ideas marquee ── */}
-        <DateIdeasSection />
+        {/* ── Features ── */}
+        <FeaturesSection />
 
         {/* ── Pricing ── */}
         <section id="plans" className="relative bg-black">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-8 md:mb-12">
               <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-[1.08] tracking-normal">
-                Stop talking about it.
+                The only decision
                 <br />
-                <span className="text-white/35">Start actually doing it.</span>
+                you have to make.
               </h2>
             </div>
 
@@ -1080,9 +1170,9 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                     ].join(" ")}
                   >
                     {plan.highlighted && (
-                      <div className="absolute -top-4 left-8">
+                      <div className="absolute -top-4 left-0 right-0 flex justify-center">
                         <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg shadow-pink-500/25">
-                          Most popular
+                          Best value
                         </span>
                       </div>
                     )}
@@ -1102,9 +1192,11 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                           </>
                         ) : (
                           <>
-                            <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.introPrice}</p>
-                            <p className="text-sm text-white/55">first month</p>
-                            <p className="text-xs text-pink-300/70 mb-3">then {getCurrencySymbol(unitSystem)}{plan.price}/mo · cancel anytime</p>
+                            <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">
+                              {getCurrencySymbol(unitSystem)}{plan.introPrice}
+                              <span className="text-lg font-semibold text-white/55 ml-2">first month</span>
+                            </p>
+                            <p className="text-sm md:text-base text-white/55 mt-2">{getCurrencySymbol(unitSystem)}{plan.price}/mo after. Cancel anytime.</p>
                           </>
                         )
                       ) : (
@@ -1112,7 +1204,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                           {plan.priceLine.split("/")[0].trim()}
                         </p>
                       )}
-                      <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>
+                      {!plan.highlighted && <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>}
                     </div>
                     <ul className="flex flex-col gap-3.5 flex-1">
                       {plan.features.map((feat) => (
@@ -1142,7 +1234,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         </section>
 
         {/* ── FAQ ── */}
-        <section className="bg-black">
+        <section id="faq" className="bg-black">
           <div className="px-6 md:px-10 py-14 md:py-20 max-w-[800px] mx-auto">
             <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-tight mb-10 md:mb-14 md:text-center">
               Frequently asked questions
@@ -1241,7 +1333,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Product</p>
-              {[{ label: "How it works", href: "#how-it-works" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
+              {[{ label: "Features", href: "#features" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
                 <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
               ))}
               <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Ideas</Link>

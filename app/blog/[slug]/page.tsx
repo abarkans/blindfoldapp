@@ -80,7 +80,7 @@ export default async function BlogPostPage({
     description: post.description,
     datePublished: post.date,
     dateModified: post.date,
-    author: { "@type": "Organization", name: post.author, url: SITE_URL },
+    author: { "@type": "Person", name: post.author, url: SITE_URL },
     publisher: { "@type": "Organization", name: "BlindfoldDate", url: SITE_URL },
     url: `${SITE_URL}/blog/${slug}`,
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${slug}` },
@@ -119,7 +119,7 @@ export default async function BlogPostPage({
             <ol className="flex items-center gap-1.5 text-sm flex-wrap">
               <li><Link href="/" className="text-white/40 hover:text-white transition-colors">BlindfoldDate</Link></li>
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
-              <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Blog</Link></li>
+              <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Ideas</Link></li>
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
               <li className="text-white/70 truncate max-w-[180px] md:max-w-xs">{post.title}</li>
             </ol>
@@ -141,6 +141,13 @@ export default async function BlogPostPage({
               <p className="text-xl text-white/50 leading-relaxed mb-5">{post.description}</p>
               <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6 flex-wrap">
                 <div className="flex items-center gap-3 text-sm text-white/30">
+                  <Image
+                    src="/blog/andris.jpg"
+                    alt={post.author}
+                    width={28}
+                    height={28}
+                    className="rounded-full object-cover w-7 h-7"
+                  />
                   <span>{post.author}</span>
                   <span>·</span>
                   <span>{formatDate(post.date)}</span>
@@ -196,7 +203,21 @@ export default async function BlogPostPage({
             </div>
           </article>
 
-          <div className="mt-14 border border-white/10 bg-white/[0.02] rounded-2xl p-7">
+          <div className="mt-14 border border-white/10 bg-white/[0.02] rounded-2xl p-6 flex items-start gap-4">
+            <Image
+              src="/blog/andris.jpg"
+              alt={post.author}
+              width={40}
+              height={40}
+              className="shrink-0 w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <p className="text-sm font-semibold text-white mb-1">{post.author}</p>
+              <p className="text-sm text-white/45">Founder of BlindfoldDate. Writes about dating, relationships, and the small decisions that make evenings memorable.</p>
+            </div>
+          </div>
+
+          <div className="mt-6 border border-white/10 bg-white/[0.02] rounded-2xl p-7">
             <p className="text-base font-semibold text-white mb-1.5">One mystery date free every month — no card required.</p>
             <p className="text-base text-white/50 mb-5">Tell us your interests once. We find a real venue nearby and plan everything. You just show up.</p>
             <Link
