@@ -525,7 +525,7 @@ function MemoriesSection() {
 
 function FeaturesSection() {
   return (
-    <section id="features" className="bg-black py-16 md:py-24">
+    <section id="features" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <div className="flex flex-col items-start md:items-center mb-10 md:mb-16 gap-4">
           <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal text-white md:text-center max-w-[700px]">
@@ -593,7 +593,7 @@ function DateIdeasSection() {
   const row1 = DATE_IDEA_CARDS.slice(0, 8);
   const row2 = DATE_IDEA_CARDS.slice(8, 16);
   return (
-    <section id="benefits" className="bg-black py-16 md:py-24">
+    <section id="benefits" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
           No more &ldquo;I don&rsquo;t know,<br className="hidden sm:block" /> what do you want to do?&rdquo;
@@ -1098,7 +1098,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         <FeaturesSection />
 
         {/* ── Pricing ── */}
-        <section id="plans" className="relative bg-black">
+        <section id="plans" className="relative bg-black scroll-mt-20 md:scroll-mt-28">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-8 md:mb-12">
               <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
@@ -1234,7 +1234,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         </section>
 
         {/* ── FAQ ── */}
-        <section id="faq" className="bg-black">
+        <section id="faq" className="bg-black scroll-mt-20 md:scroll-mt-28">
           <div className="px-6 md:px-10 py-14 md:py-20 max-w-[800px] mx-auto">
             <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-tight mb-10 md:mb-14 md:text-center">
               Frequently asked questions
