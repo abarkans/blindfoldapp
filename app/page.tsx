@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { preload } from "react-dom";
 import LandingV4Client from "@/components/landing-v4/LandingV4Client";
+import AppIntroOverlay from "@/components/app/AppIntroOverlay";
 import { getUnitSystem } from "@/lib/get-unit-system";
 
 const SITE_URL = "https://blindfolddate.com";
@@ -109,6 +110,7 @@ export default async function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <AppIntroOverlay />
       <LandingV4Client unitSystem={unitSystem} />
     </>
   );

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 const SLIDES = [
   {
@@ -26,37 +27,28 @@ const SLIDES = [
   },
 ]
 
-type Mode = 'none' | 'intro' | 'redirect'
-
-export default function AppIntroOverlay() {
-  const [mode, setMode] = useState<Mode>('none')
+export default function AppIntroPage() {
+  const [ready, setReady] = useState(false)
   const [current, setCurrent] = useState(0)
   const touchStartX = useRef<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    function detect() {
-      if ((window as any).Capacitor) {
-        setMode(localStorage.getItem('intro_seen') !== 'true' ? 'intro' : 'redirect')
-        return true
-      }
-      return false
+    async function checkSession() {
+      try {
+        const timeout = new Promise<null>(res => setTimeout(() => res(null), 2000))
+        const supabase = createClient()
+        const sessionPromise = supabase.auth.getSession().then(r => r.data.session)
+        const session = await Promise.race([sessionPromise, timeout])
+        if (session) {
+          router.replace('/dashboard')
+          return
+        }
+      } catch {}
+      setReady(true)
     }
-    if (!detect()) {
-      // Bridge is injected async after page load — retry once after delay
-      const t = setTimeout(detect, 400)
-      return () => clearTimeout(t)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (mode === 'redirect') router.replace('/login')
-  }, [mode, router])
-
-  if (mode === 'none') return null
-  if (mode === 'redirect') return <div className="fixed inset-0 bg-[#0a0a0a] z-[100]" />
-
-  const slide = SLIDES[current]
+    checkSession()
+  }, [router])
 
   function handleTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
@@ -70,19 +62,15 @@ export default function AppIntroOverlay() {
     touchStartX.current = null
   }
 
-  function handleGetStarted() {
-    localStorage.setItem('intro_seen', 'true')
-    router.push('/register')
+  if (!ready) {
+    return <div className="fixed inset-0 bg-[#0a0a0a]" />
   }
 
-  function handleSignIn() {
-    localStorage.setItem('intro_seen', 'true')
-    router.push('/login')
-  }
+  const slide = SLIDES[current]
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-[#0a0a0a] flex flex-col items-center justify-center select-none"
+      className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center select-none"
       style={{ paddingBottom: 'max(32px, env(safe-area-inset-bottom, 32px))' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -116,13 +104,13 @@ export default function AppIntroOverlay() {
         <button
           className="w-full py-[18px] rounded-full text-white text-[17px] font-semibold"
           style={{ background: slide.accent }}
-          onClick={handleGetStarted}
+          onClick={() => router.push('/register')}
         >
           Get Started
         </button>
         <button
           className="w-full py-4 rounded-full bg-transparent border border-white/[0.13] text-white/80 text-[17px] font-medium"
-          onClick={handleSignIn}
+          onClick={() => router.push('/login')}
         >
           Sign In
         </button>
