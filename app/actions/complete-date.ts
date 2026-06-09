@@ -106,7 +106,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
 
     const { error: downgradeError } = await admin
       .from("profiles")
-      .update({ plan_type: "free", interests })
+      .update({ plan_type: "free", preferred_radius: 15000, interests })
       .eq("id", access.profileId);
 
     if (downgradeError) {

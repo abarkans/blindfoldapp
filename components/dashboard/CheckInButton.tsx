@@ -17,9 +17,10 @@ interface CheckInButtonProps {
   partnerCheckedIn: boolean;
   partnerSkipped?: boolean;
   unitSystem?: UnitSystem;
+  onXpEarned?: (amount: number) => void;
 }
 
-export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSkipped, unitSystem = "metric" }: CheckInButtonProps) {
+export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSkipped, unitSystem = "metric", onXpEarned }: CheckInButtonProps) {
   const router = useRouter();
   const [state, setState] = useState<CheckInState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -56,6 +57,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
               setXpToast(result.xpGained);
               if (xpTimerRef.current) clearTimeout(xpTimerRef.current);
               xpTimerRef.current = setTimeout(() => setXpToast(0), XP_FADE_MS);
+              onXpEarned?.(result.xpGained);
             }
             router.refresh();
             return;

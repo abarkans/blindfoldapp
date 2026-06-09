@@ -401,6 +401,8 @@ export default function DateCard({
   const [pingError, setPingError] = useState("");
   const [localPingAt, setLocalPingAt] = useState<string | null>(partnerPingAt);
   const [skipDialogOpen, setSkipDialogOpen] = useState(false);
+  const [skipPhotoDialogOpen, setSkipPhotoDialogOpen] = useState(false);
+  const bonusXpRef = useRef(0);
   const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
   const [locationPickerOpen, setLocationPickerOpen] = useState(false);
   const [pendingLocationType, setPendingLocationType] = useState<"outside" | "home" | "auto" | null>(null);
@@ -1182,6 +1184,7 @@ export default function DateCard({
                             dateName={dateIdea.display_name}
                             planType={planType}
                             onComplete={handlePhotoComplete}
+                            onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
                         ) : null
                       ) : mySkippedCheckIn && effectivePartnerDecided ? (
@@ -1222,6 +1225,7 @@ export default function DateCard({
                             partnerCheckedIn={partnerCheckedIn}
                             partnerSkipped={effectivePartnerDecided && partnerSkippedCheckIn}
                             unitSystem={unitSystem}
+                            onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
                           <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
                             Skip
@@ -1334,7 +1338,8 @@ export default function DateCard({
                             dateName={(dateIdea as AIDateIdea).title}
                             planType={planType}
                             onComplete={handlePhotoComplete}
-                            onSkip={planType === "trial" ? () => setSkipDialogOpen(true) : undefined}
+                            onSkip={planType === "trial" ? () => setSkipPhotoDialogOpen(true) : undefined}
+                            onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
                         ) : null
                       )}
@@ -1585,10 +1590,27 @@ export default function DateCard({
             : "Checking in at the venue proves you made it. Skip and you’ll miss out on bonus XP and streak credit."}
         </p>
         <div className="flex flex-col gap-2">
-          <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
+          <Button type="button" onClick={() => setSkipDialogOpen(false)} className="w-full">
             Never mind
           </Button>
           <Button type="button" variant="ghost" onClick={handleSkipCheckIn} className="w-full">
+            Skip anyway
+          </Button>
+        </div>
+      </Dialog>
+
+      {/* Skip confirmation dialog — home dates (photo capture), trial only */}
+      <Dialog open={skipPhotoDialogOpen} onClose={() => setSkipPhotoDialogOpen(false)} className="text-center">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
+          <Camera className="w-5 h-5 text-rose-400" />
+        </div>
+        <h3 className="text-lg font-bold text-white mb-1">Skip photo?</h3>
+        <p className="text-sm text-white/55 mb-6">Skipping will end your free trial date. Your next date will be available in a month.</p>
+        <div className="flex flex-col gap-2">
+          <Button type="button" onClick={() => setSkipPhotoDialogOpen(false)} className="w-full">
+            Never mind
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => { setSkipPhotoDialogOpen(false); handleSkipCheckIn(); }} className="w-full">
             Skip anyway
           </Button>
         </div>
@@ -1773,7 +1795,7 @@ export default function DateCard({
       {modalData && (
         <CompleteDateModal
           isOpen={!!modalData}
-          xpGained={modalData.xpGained}
+          xpGained={modalData.xpGained + bonusXpRef.current}
           newTotalXp={modalData.newTotalXp}
           newLevel={modalData.newLevel}
           newBadges={modalData.newBadges}

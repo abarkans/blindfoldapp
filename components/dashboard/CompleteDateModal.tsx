@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Zap, Star, ArrowRight } from "lucide-react";
+import { Zap, Star, ArrowRight } from "lucide-react";
+import CloseButton from "@/components/ui/CloseButton";
 import confetti, { type CreateTypes } from "canvas-confetti";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
@@ -233,41 +234,25 @@ export default function CompleteDateModal({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative bg-[#030303] border border-white/14 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
-              <button
-                onClick={handleClose}
-                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="absolute top-4 right-4">
+                <CloseButton onClick={handleClose} />
+              </div>
 
-              {/* Hero emoji */}
-              <motion.div
-                className="text-5xl mb-3"
-                initial={{ scale: 0, rotate: -15 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 280, damping: 16, delay: 0.05 }}
-              >
-                🎉
-              </motion.div>
 
               <h2 className="text-xl font-bold text-white mb-1">Date Complete!</h2>
               <p className="text-white/55 text-sm mb-5">Another one in the books.</p>
 
               {/* XP gained */}
               <motion.div
-                className="bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/25 rounded-2xl p-4 mb-4"
+                className="p-4"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.18 }}
               >
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
+                <p className="text-xs text-white/55 mb-1">Earned</p>
+                <div className="flex items-center justify-center">
                   <span className="text-2xl font-black text-white">+{xpGained} XP</span>
                 </div>
-                <p className="text-xs text-white/55">
-                  Level {newLevel} · {newTotalXp} XP total
-                </p>
               </motion.div>
 
               {/* Newly unlocked badges */}
@@ -278,9 +263,6 @@ export default function CompleteDateModal({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.32 }}
                 >
-                  <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3">
-                    Badge{newBadges.length > 1 ? "s" : ""} Unlocked!
-                  </p>
                   <div className="flex flex-col gap-2">
                     {newBadges.map((badge, i) => (
                       <motion.div
@@ -306,10 +288,16 @@ export default function CompleteDateModal({
                         ) : (
                           <span className="text-2xl flex-shrink-0">{badge.icon_emoji}</span>
                         )}
-                        <div>
+                        <div className="flex-1">
+                          <p className="text-xs text-white/55 mb-0.5">Unlocked</p>
                           <p className="text-sm font-bold text-white">{badge.name}</p>
-                          <p className="text-xs text-white/55">{badge.description}</p>
                         </div>
+                        <button
+                          onClick={onGoToProgress}
+                          className="text-xs text-white/45 hover:text-white transition-colors flex-shrink-0"
+                        >
+                          View
+                        </button>
                       </motion.div>
                     ))}
                   </div>
@@ -350,15 +338,14 @@ export default function CompleteDateModal({
                 divider="top"
               />
 
-              <Button size="lg" className="w-full" onClick={handleClose}>
-                Awesome!
-              </Button>
-              <button
-                onClick={onGoToProgress}
-                className="mt-3 w-full text-sm text-white/55 hover:text-white transition-colors duration-150"
-              >
-                View my progress →
-              </button>
+              <div className="flex flex-col gap-2">
+                <Button size="lg" className="w-full" onClick={handleClose}>
+                  Awesome!
+                </Button>
+                <Button variant="ghost" size="lg" className="w-full" onClick={onGoToProgress}>
+                  My progress
+                </Button>
+              </div>
             </div>
           </motion.div>
           </div>

@@ -104,7 +104,8 @@ async function tryCompleteIfBothDone(
   return true;
 }
 
-const XP_PHOTO = 25;
+const XP_PHOTO_FREE = 25;
+const XP_PHOTO_PLUS = 50;
 
 export async function savePhoto(
   dateIdeaId: string,
@@ -181,17 +182,15 @@ export async function savePhoto(
   }
 
   let xpGained = 0;
-  if (isPlusPlan(checkinProfile?.plan_type)) {
-    // award_xp increments total_xp atomically in SQL — no read-modify-write race.
-    const { error: xpError } = await admin.rpc("award_xp", {
-      p_profile_id: access.profileId,
-      p_xp: XP_PHOTO,
-    });
-    if (xpError) {
-      console.error(`[audit] save-photo: xp update failed uid=${user.id} msg=${xpError.message}`);
-    } else {
-      xpGained = XP_PHOTO;
-    }
+  const xpAmount = isPlusPlan(checkinProfile?.plan_type) ? XP_PHOTO_PLUS : XP_PHOTO_FREE;
+  const { error: xpError } = await admin.rpc("award_xp", {
+    p_profile_id: access.profileId,
+    p_xp: xpAmount,
+  });
+  if (xpError) {
+    console.error(`[audit] save-photo: xp update failed uid=${user.id} msg=${xpError.message}`);
+  } else {
+    xpGained = xpAmount;
   }
 
   const completed = await tryCompleteIfBothDone(admin, access.profileId, dateIdeaId);

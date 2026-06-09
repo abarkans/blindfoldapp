@@ -48,6 +48,7 @@ export async function skipTrialDate(): Promise<{ error?: string }> {
     .from("profiles")
     .update({
       plan_type: "free",
+      preferred_radius: 15000,
       interests,
       date_idea: null,
       date_teaser: null,

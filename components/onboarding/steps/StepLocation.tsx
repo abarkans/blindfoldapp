@@ -61,7 +61,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
 }
 
 export default function StepLocation({ defaultValues, onNext, planType, continueTrigger, onCanContinueChange, unitSystem = "metric" }: StepLocationProps) {
-  const maxRadiusKm = planType === "subscription" ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
+  const maxRadiusKm = (planType === "subscription" || planType === "trial") ? PAID_MAX_RADIUS_KM : FREE_MAX_RADIUS_KM;
   const [status, setStatus] = useState<Status>("idle");
   const [lat, setLat] = useState<number | null>(defaultValues?.lat ?? null);
   const [lng, setLng] = useState<number | null>(defaultValues?.lng ?? null);

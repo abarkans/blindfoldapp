@@ -18,6 +18,7 @@ interface PhotoChallengeProps {
   planType: string;
   onComplete?: () => void;
   onSkip?: () => void;
+  onXpEarned?: (amount: number) => void;
   autoOpen?: boolean;
 }
 
@@ -92,6 +93,7 @@ export default function PhotoChallenge({
   planType,
   onComplete,
   onSkip,
+  onXpEarned,
   autoOpen,
 }: PhotoChallengeProps) {
   const router = useRouter();
@@ -225,6 +227,7 @@ export default function PhotoChallenge({
         setXpToast(result.xpGained!);
         if (xpTimerRef.current) clearTimeout(xpTimerRef.current);
         xpTimerRef.current = setTimeout(() => setXpToast(0), 3000);
+        onXpEarned?.(result.xpGained!);
       }
       await fetchPhotos();
       if (result.completed) onComplete?.();
@@ -456,7 +459,7 @@ export default function PhotoChallenge({
         <h3 className="text-lg font-bold text-white mb-1">Skip photo?</h3>
         <p className="text-sm text-white/55 mb-6">A photo turns tonight into a memory you can look back on. Skip and the moment stays just in your heads.</p>
         <div className="flex flex-col gap-2">
-          <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
+          <Button type="button" onClick={() => setSkipDialogOpen(false)} className="w-full">
             Never mind
           </Button>
           <Button type="button" variant="ghost" onClick={handleSkip} className="w-full">
