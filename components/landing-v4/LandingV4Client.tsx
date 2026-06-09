@@ -492,7 +492,7 @@ function DateIdeasMarqueeRow({ cards, reverse = false }: { cards: DateIdeaCard[]
       <motion.div
         className="flex gap-4 pr-4"
         animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
-        transition={{ duration: 200, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
       >
         {doubled.map((card, i) => (
           <DateIdeaCardItem key={i} card={card} />
@@ -509,10 +509,10 @@ function DateIdeasSection() {
     <section className="bg-black py-16 md:py-24">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
-          Made for how you two<br className="hidden sm:block" /> actually are.
+          No more &ldquo;I don&rsquo;t know,<br className="hidden sm:block" /> what do you want to do?&rdquo;
         </h2>
         <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] mb-10 md:mb-14 md:text-center md:mx-auto">
-          Pick your interests once. Every idea is shaped around them — location, mood, and budget included.
+          Tell us what you&rsquo;re into. We handle the rest — venue, vibe, and a little task to make it interesting.
         </p>
 
         <div className="relative overflow-hidden">
