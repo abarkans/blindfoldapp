@@ -351,7 +351,7 @@ function MemoryPolaroidCard({
 
 function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
   return (
-    <section id="benefits" className="relative bg-black overflow-hidden">
+    <section className="relative bg-black overflow-hidden">
       <div className="px-6 md:px-10 pt-16 md:pt-28 pb-16 md:pb-28 max-w-[1280px] mx-auto">
 
         {/* Title */}
@@ -593,7 +593,7 @@ function DateIdeasSection() {
   const row1 = DATE_IDEA_CARDS.slice(0, 8);
   const row2 = DATE_IDEA_CARDS.slice(8, 16);
   return (
-    <section className="bg-black py-16 md:py-24">
+    <section id="benefits" className="bg-black py-16 md:py-24">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
           No more &ldquo;I don&rsquo;t know,<br className="hidden sm:block" /> what do you want to do?&rdquo;
@@ -1085,11 +1085,11 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         {/* ── Problem statement scroll reveal ── */}
         <ScrollRevealStatement />
 
-        {/* ── Gamification: date card + XP/badges ── */}
-        <GamificationSection unitSystem={unitSystem} />
-
         {/* ── Date ideas marquee ── */}
         <DateIdeasSection />
+
+        {/* ── Gamification: date card + XP/badges ── */}
+        <GamificationSection unitSystem={unitSystem} />
 
         {/* ── Memories scatter → pile ── */}
         <MemoriesSection />
@@ -1101,7 +1101,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         <section id="plans" className="relative bg-black">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-8 md:mb-12">
-              <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-[1.08] tracking-normal">
+              <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
                 The only decision
                 <br />
                 you have to make.
