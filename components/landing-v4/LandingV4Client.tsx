@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform, useInView, AnimatePresence, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, type MotionValue } from "framer-motion";
 import Link from "next/link";
 import LinkButton from "@/components/ui/LinkButton";
 import Image from "next/image";
@@ -1260,22 +1260,17 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                         <X className={`w-4 h-4 transition-[transform,color] duration-200 ${isOpen ? "text-white rotate-0" : "text-white/40 group-hover:text-white/60 -rotate-45"}`} />
                       </span>
                     </button>
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          key="answer"
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: "easeInOut" }}
-                          className="overflow-hidden"
-                        >
-                          <dd className="text-white/50 text-base md:text-xl leading-[1.75] pb-6 md:pb-8 max-w-[800px]">
-                            {a}
-                          </dd>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <motion.div
+                      animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
+                      initial={false}
+                      transition={{ duration: 0.22, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                      aria-hidden={!isOpen}
+                    >
+                      <dd className="text-white/50 text-base md:text-xl leading-[1.75] pb-6 md:pb-8 max-w-[800px]">
+                        {a}
+                      </dd>
+                    </motion.div>
                   </div>
                 );
               })}

@@ -7,18 +7,18 @@ import { getUnitSystem } from "@/lib/get-unit-system";
 const SITE_URL = "https://blindfolddate.com";
 
 export const metadata: Metadata = {
-  title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
+  title: "BlindfoldDate - Mystery Date Night Planner for Couples",
   description:
-    "We plan your next date, out at a real venue or a night in, written for you two. No back-and-forth.",
+    "We plan your next date night. A mystery venue or a cozy night in, with a playful challenge built in. Free, no card needed. Stop deciding, start dating.",
   alternates: { canonical: SITE_URL },
   robots: { index: true, follow: true },
   authors: [{ name: "BlindfoldDate", url: SITE_URL }],
   creator: "BlindfoldDate",
   publisher: "BlindfoldDate",
   openGraph: {
-    title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
+    title: "BlindfoldDate - Mystery Date Night Planner for Couples",
     description:
-      "We plan your next date, out at a real venue or a night in, written for you two. No back-and-forth.",
+      "We plan your next date night. A mystery venue or a cozy night in, with a playful challenge built in. Free, no card needed. Stop deciding, start dating.",
     url: SITE_URL,
     siteName: "BlindfoldDate",
     images: [
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BlindfoldDate - Date Night, Decided. Just Show Up.",
+    title: "BlindfoldDate - Mystery Date Night Planner for Couples",
     description:
-      "We plan your next date, out at a real venue or a night in, written for you two. No back-and-forth.",
+      "We plan your next date night. A mystery venue or a cozy night in, with a playful challenge built in. Free, no card needed. Stop deciding, start dating.",
     images: [`${SITE_URL}/og-image.png`],
   },
 };
