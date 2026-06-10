@@ -100,12 +100,12 @@ export default function PrivacyPolicyPage() {
       <h2 id="how">3. How we use your data</h2>
       <ul>
         <li>To create your account and authenticate you</li>
-        <li>To generate personalised date suggestions based on your interests, budget, and location</li>
+        <li>To generate personalized date suggestions based on your interests, budget, and location</li>
         <li>To avoid repeating suggestions you have already seen</li>
         <li>To track your progress and award gamification milestones</li>
         <li>To send transactional emails (email confirmation, password reset)</li>
         <li>To keep the service secure and prevent abuse</li>
-        <li>To analyse how features are used and improve the product (PostHog analytics &amp; session recordings)</li>
+        <li>To analyze how features are used and improve the product (PostHog analytics &amp; session recordings)</li>
       </ul>
 
       <h2 id="basis">4. Lawful basis for processing</h2>

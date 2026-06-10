@@ -20,7 +20,7 @@ export const PLANS = [
       "3 date categories",
       "Dates out or dates in — your call",
       "Nearby venues only",
-      "1 free swap",
+      "1 swap, ever",
       "XP & milestone badges",
     ],
     cta: "Start free",

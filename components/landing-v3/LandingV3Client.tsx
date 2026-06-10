@@ -148,14 +148,14 @@ const SAMPLE_DATES = [
   },
   {
     emoji: "🕯️",
-    title: "Cosy Night In",
+    title: "Cozy Night In",
     vibe: "Intimate & Relaxed",
     venue: "Your place",
     description: "A proper night in, planned for you. We pick the theme, you enjoy it.",
     rating: null,
     duration: "Your call",
     budget: "€0–20",
-    tags: ["Indoor", "Cosy"],
+    tags: ["Indoor", "Cozy"],
     image: "/features/feat-3.jpg",
   },
   {
@@ -167,7 +167,7 @@ const SAMPLE_DATES = [
     rating: 4.6,
     duration: "3 hrs",
     budget: "€20–30",
-    tags: ["Indoor", "Cosy"],
+    tags: ["Indoor", "Cozy"],
     image: "/features/feat-6.jpg",
   },
 ];
@@ -778,7 +778,7 @@ export default function LandingV3Client({ unitSystem = "metric" }: { unitSystem?
           </div>
 
           <p className="hidden md:block text-center text-white/40 text-sm mt-12">
-            No lists. No options. Just one plan, personalised to you two ✨
+            No lists. No options. Just one plan, personalized to you two ✨
           </p>
         </section>
 

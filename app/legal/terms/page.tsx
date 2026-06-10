@@ -62,7 +62,7 @@ export default function TermsPage() {
 
       <h2 id="service">3. The service</h2>
       <p>
-        BlindfoldDate generates personalised date suggestions for couples using AI and real venue
+        BlindfoldDate generates personalized date suggestions for couples using AI and real venue
         data. We do not guarantee the availability, quality, suitability, or accuracy of any
         suggested venue. Always verify that a venue is open and appropriate before visiting.
       </p>

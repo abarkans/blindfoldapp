@@ -354,7 +354,7 @@ Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimat
     : "They prefer date nights outside home, using real nearby places or venue-style activities.";
 
   const tier = missionTier(datesCompleted);
-  const fallbackPrompt = `You are a creative date planner. Generate a unique, personalised mystery date idea for a couple.
+  const fallbackPrompt = `You are a creative date planner. Generate a unique, personalized mystery date idea for a couple.
 
 <couple_context>
 Names: ${partnerNames.partner2 ? `${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}` : sanitize(partnerNames.partner1, 50)}

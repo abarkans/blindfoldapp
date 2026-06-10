@@ -51,7 +51,7 @@ const REROLL_MESSAGES = [
 
 const HOME_LOADING_MESSAGES = [
   "Planning your perfect night in...",
-  "Crafting something cosy and unexpected...",
+  "Crafting something cozy and unexpected...",
   "Setting the scene at home...",
   "Designing your evening together...",
   "Mixing mood, mission, and magic...",

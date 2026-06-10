@@ -76,7 +76,7 @@ const SAMPLE_DATES = [
     rating: 4.6,
     duration: "3 hrs",
     budget: "€20–30",
-    tags: ["Indoor", "Cosy"],
+    tags: ["Indoor", "Cozy"],
     image: "/features/feat-6.jpg",
   },
 ];

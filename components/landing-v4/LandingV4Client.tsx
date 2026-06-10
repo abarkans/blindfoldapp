@@ -91,27 +91,27 @@ const FEATURE_ITEMS = [
 const FAQ_ITEMS = [
   {
     q: "How does BlindfoldDate choose our venue?",
-    a: "We search real venues near your location using Google Places: restaurants, bars, galleries, parks, and more. Every suggestion is filtered by your interests, rated 4.0 or above, and priced within your budget cap. Then we write a bespoke date plan around it: what to do when you arrive, what makes it worth going, and why it suits you two specifically.",
+    a: "You tell us your taste, budget, and whether you're heading out or staying in. We match that to real venues near you and build the whole date night around one. No generic list to scroll, no reviews to second-guess.",
   },
   {
     q: "What if we don't like the suggestion?",
-    a: "Plus subscribers get one free reroll per date cycle. On the free plan, you get one reroll ever. Use it wisely. If you're not feeling the vibe after the idea is revealed, you can swap it for something different before you've committed to going.",
+    a: "Swap it. Free plans get one swap ever, Plus gets a swap on every date. The point of a mystery date is the surprise, but you're never stuck with something that isn't you.",
   },
   {
     q: "Does my partner need an account?",
-    a: "Your partner joins via an invite link. No full setup required. They connect their email, accept the invite, and they're in. Once linked, they can also manage shared settings like preferences and travel distance.",
+    a: "One of you links the other, and both see the same date revealed at the same moment. No coordination, no spoilers, no \"did you book it yet.\"",
   },
   {
     q: "How often do we get new date ideas?",
-    a: "Free users get one date per month. Plus subscribers choose their own cadence (weekly, bi-weekly, or monthly) so the app works around your actual schedule.",
+    a: "Free gives you one mystery date a month. Plus lets you set your own frequency, so the date night ideas keep coming as often as you actually go out.",
   },
   {
     q: "Is my location data safe?",
-    a: "We only use your location to find venues near you. Your coordinates are stored securely and never shared with third parties or used for anything outside of generating your date plan. You can update your location at any time from your profile settings.",
+    a: "We use your location only to find venues near you and never sell it. You can read exactly what we store in our Privacy Policy.",
   },
   {
     q: "What's the difference between free and Plus?",
-    a: "Free gives you one date per month, limited interest preferences, and a capped travel distance. Plus unlocks your full preference set, a wider travel radius, weekly or bi-weekly scheduling, and access to Saved Memories - your date history over time.",
+    a: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €1.49 your first month, then €5.99.",
   },
 ];
 
@@ -166,7 +166,7 @@ const BADGE_PREVIEWS = [
 
 const FAKE_MEMORIES = [
   { title: "Golden Hour Walk", date: "Mar 12", gradient: "from-rose-300 via-amber-200 to-orange-300",    image: "/memories/golden-hour-walk.jpg" },
-  { title: "Cosy Night In",    date: "Feb 24", gradient: "from-violet-300 via-pink-200 to-rose-300",     image: "/memories/cosy-night-in.jpg" },
+  { title: "Cozy Night In",    date: "Feb 24", gradient: "from-violet-300 via-pink-200 to-rose-300",     image: "/memories/cosy-night-in.jpg" },
   { title: "Surprise Cinema",  date: "Feb 8",  gradient: "from-emerald-200 via-cyan-300 to-indigo-300",  image: "/memories/surprise-cinema.jpg" },
   { title: "Jazz Bar Night",   date: "Jan 19", gradient: "from-amber-300 via-orange-200 to-red-300",     image: "/memories/jazz-bar-night.jpg" },
   { title: "Market Morning",   date: "Jan 5",  gradient: "from-purple-300 via-indigo-200 to-blue-300",   image: "/memories/market-morning.jpg" },
@@ -237,7 +237,7 @@ const SAMPLE_DATES = [
     rating: null,
     duration: "Your call",
     budget: "€0–20",
-    tags: ["Indoor", "Cosy"],
+    tags: ["Indoor", "Cozy"],
     image: "/memories/cosy-night-in.jpg",
   },
   {
@@ -249,7 +249,7 @@ const SAMPLE_DATES = [
     rating: 4.6,
     duration: "3 hrs",
     budget: "€20–30",
-    tags: ["Indoor", "Cosy"],
+    tags: ["Indoor", "Cozy"],
     image: "/features/feat-4.jpg",
   },
 ];

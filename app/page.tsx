@@ -50,28 +50,11 @@ const jsonLd = {
       url: SITE_URL,
       name: "BlindfoldDate",
       description: "Mystery date planning for couples. One plan, no debate.",
+      publisher: { "@id": `${SITE_URL}/#organization` },
       potentialAction: {
         "@type": "SearchAction",
         target: `${SITE_URL}/blog?q={search_term_string}`,
         "query-input": "required name=search_term_string",
-      },
-    },
-    {
-      "@type": "Organization",
-      "@id": `${SITE_URL}/#organization`,
-      name: "BlindfoldDate",
-      url: SITE_URL,
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
-        width: 180,
-        height: 44,
-      },
-      sameAs: ["https://www.instagram.com/blindfold.date"],
-      contactPoint: {
-        "@type": "ContactPoint",
-        email: "info@blindfolddate.com",
-        contactType: "customer support",
       },
     },
     {
@@ -83,19 +66,73 @@ const jsonLd = {
       operatingSystem: "Web",
       description:
         "AI-powered mystery date planning for couples. Set your budget and whether you want to go out or stay in. We find one real nearby venue rated 4.0+ and craft your complete date plan. No lists. No debate.",
+      author: { "@id": `${SITE_URL}/#organization` },
       offers: {
         "@type": "Offer",
         price: "0",
-        priceCurrency: "USD",
+        priceCurrency: "EUR",
         description: "Free plan, one date per month",
       },
       featureList: [
         "Budget-aware venue selection",
         "In-home or out date planning",
         "Location-based venue finder",
-        "AI-written personalised date stories",
+        "AI-written personalized date stories",
         "Automatic navigation to venue",
         "Date night routine scheduling",
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How does BlindfoldDate choose our venue?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "You tell us your taste, budget, and whether you're heading out or staying in. We match that to real venues near you and build the whole date night around one. No generic list to scroll, no reviews to second-guess.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What if we don't like the suggestion?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Swap it. Free plans get one swap ever, Plus gets a swap on every date. The point of a mystery date is the surprise, but you're never stuck with something that isn't you.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Does my partner need an account?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "One of you links the other, and both see the same date revealed at the same moment. No coordination, no spoilers, no \"did you book it yet.\"",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How often do we get new date ideas?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Free gives you one mystery date a month. Plus lets you set your own frequency, so the date night ideas keep coming as often as you actually go out.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is my location data safe?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "We use your location only to find venues near you and never sell it. You can read exactly what we store in our Privacy Policy.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What's the difference between free and Plus?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €1.49 your first month, then €5.99.",
+          },
+        },
       ],
     },
   ],

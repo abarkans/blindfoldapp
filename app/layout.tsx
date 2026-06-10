@@ -43,11 +43,22 @@ export const metadata: Metadata = {
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
   name: "BlindfoldDate",
   url: SITE_URL,
-  logo: `${SITE_URL}/apple_icon.png`,
-  description: "AI-powered mystery date planning app for couples.",
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE_URL}/logo.png`,
+    width: 180,
+    height: 44,
+  },
+  description: "Mystery date night planning for couples. One plan, no debate.",
   sameAs: ["https://www.instagram.com/blindfold.date"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "info@blindfolddate.com",
+    contactType: "customer support",
+  },
 };
 
 export default async function RootLayout({

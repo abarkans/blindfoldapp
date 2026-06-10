@@ -42,7 +42,7 @@ const POOL: PoolItem[] = [
     interests: ["food"],
     title: "Midnight Ramen Run",
     description: "Late-night ramen at a spot picked by a coin flip. No googling allowed.",
-    vibe: "Spontaneous & Cosy",
+    vibe: "Spontaneous & Cozy",
     duration: "1â€“2 hours",
     budget_range: "â‚¬15â€“30",
     budget_tier: "low",
@@ -63,7 +63,7 @@ const POOL: PoolItem[] = [
   {
     interests: ["nature"],
     title: "Sunrise Hike & Picnic",
-    description: "An early morning trail ending at a viewpoint with a mystery picnic basket packed with your favourites.",
+    description: "An early morning trail ending at a viewpoint with a mystery picnic basket packed with your favorites.",
     vibe: "Adventurous & Peaceful",
     duration: "3â€“4 hours",
     budget_range: "â‚¬10â€“20",
@@ -95,7 +95,7 @@ const POOL: PoolItem[] = [
   {
     interests: ["art"],
     title: "Gallery Roulette",
-    description: "Visit three small galleries. Pick your favourite piece in each. Winner chooses dessert.",
+    description: "Visit three small galleries. Pick your favorite piece in each. Winner chooses dessert.",
     vibe: "Cultured & Playful",
     duration: "2â€“3 hours",
     budget_range: "â‚¬10â€“20",
@@ -110,7 +110,7 @@ const POOL: PoolItem[] = [
     duration: "2 hours",
     budget_range: "â‚¬10â€“20",
     budget_tier: "low",
-    tags: ["Walking", "Markets", "Cosy"],
+    tags: ["Walking", "Markets", "Cozy"],
   },
   // Cinema & Entertainment
   {
@@ -169,7 +169,7 @@ const POOL: PoolItem[] = [
   {
     interests: ["romance"],
     title: "Candlelit Rooftop",
-    description: "A rooftop terrace reservation, candles pre-set, favourite drinks on arrival. Pure magic.",
+    description: "A rooftop terrace reservation, candles pre-set, favorite drinks on arrival. Pure magic.",
     vibe: "Deeply Romantic",
     duration: "2â€“3 hours",
     budget_range: "â‚¬50â€“100",
@@ -213,7 +213,7 @@ const POOL: PoolItem[] = [
     interests: ["gaming"],
     title: "Board Game CafÃ© Showdown",
     description: "A mystery game chosen by the cafÃ© owner. Loser buys the next round.",
-    vibe: "Playful & Cosy",
+    vibe: "Playful & Cozy",
     duration: "2â€“3 hours",
     budget_range: "â‚¬15â€“30",
     budget_tier: "low",

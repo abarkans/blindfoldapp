@@ -23,7 +23,7 @@ export default function AccessibilityPage() {
           <p>
             We are actively working to improve the accessibility of this application.
             This includes ensuring compatibility with screen readers, keyboard navigation,
-            sufficient colour contrast, and support for reduced-motion preferences.
+            sufficient color contrast, and support for reduced-motion preferences.
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function AccessibilityPage() {
           <h2>What we are working on</h2>
           <ul>
             <li>Full keyboard navigation across all flows</li>
-            <li>WCAG 2.1 AA colour contrast compliance</li>
+            <li>WCAG 2.1 AA color contrast compliance</li>
             <li>Screen reader labels and ARIA roles throughout the app</li>
             <li>Reduced-motion support for all animations</li>
             <li>Accessible form validation and error messaging</li>
