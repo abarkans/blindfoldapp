@@ -529,7 +529,7 @@ function FeaturesSection() {
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <div className="flex flex-col items-start md:items-center mb-10 md:mb-16 gap-4">
           <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal text-white md:text-center max-w-[700px]">
-            What the app actually does
+            How the date gets made.
           </h2>
           <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] md:text-center md:mx-auto">
             We handle the parts that usually kill date night. The idea, the venue, the nudge to actually go.
@@ -599,7 +599,7 @@ function DateIdeasSection() {
           No more &ldquo;I don&rsquo;t know,<br className="hidden sm:block" /> what do you want to do?&rdquo;
         </h2>
         <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] mb-10 md:mb-14 md:text-center md:mx-auto">
-          Tell us what you&rsquo;re into. We handle the rest — venue, vibe, and a little task to make it interesting.
+          Tell us what you&rsquo;re into. We handle the rest — venue, vibe, and a challenge to make it interesting.
         </p>
 
         <div className="relative overflow-hidden">
@@ -636,7 +636,7 @@ function ScrollRevealStatement() {
       <div className="hidden xl:block absolute left-40 top-0 bottom-28 w-px bg-white/10 overflow-hidden">
         <motion.div className="absolute inset-0 bg-white/40 origin-top" style={{ scaleY: lineScaleY }} />
       </div>
-      <h2 className="sr-only">Why couples stop going on dates</h2>
+      <h2 className="sr-only">Why couples stop going on dates.</h2>
       <p className="text-[28px] md:text-[32px] lg:text-[36px] xl:text-[40px] 2xl:text-[44px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
         {REVEAL_LINES.map((line, i) => {
           const start = (i / total) * 0.9;
@@ -661,7 +661,7 @@ function ScrollRevealStatement() {
   );
 }
 
-const YOU_SUFFIXES = ["show up.", "enjoy the date.", "say yes.", "do it again."];
+const YOU_SUFFIXES = ["show up.", "enjoy the date.", "say yes."];
 const TYPE_SPEED = 55;
 const DELETE_SPEED = 35;
 const PAUSE_AFTER_TYPE = 2000;
@@ -1294,7 +1294,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
             </h2>
 
             <p className="text-white/55 text-base md:text-xl mb-12 md:mb-16 leading-[1.7] max-w-lg mx-auto">
-              This is something. Set your budget, pick in or out, and we handle the rest: venue, story, navigation. The only thing left to negotiate is when you&rsquo;re leaving.
+              This is something. Set your budget, pick in or out, and we handle the rest: venue, challenge, navigation. The only thing left to negotiate is when you&rsquo;re leaving.
             </p>
 
             <Link
