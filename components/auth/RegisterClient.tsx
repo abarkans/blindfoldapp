@@ -287,7 +287,7 @@ export default function RegisterClient() {
                   type="button"
                   variant="secondary"
                   size="lg"
-                  className="w-full mb-4"
+                  className="w-full mb-4 bg-white text-gray-900 hover:bg-gray-50 border-transparent hover:border-transparent"
                   onClick={handleGoogle}
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
