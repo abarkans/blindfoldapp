@@ -403,8 +403,8 @@ async function notifyOtherPartner(
       if (pushProfile?.push_token && pushProfile.push_notifications_enabled !== false) {
         const result = await sendPushNotification({
           token: pushProfile.push_token,
-          title: "Date night incoming! 🎉",
-          body: `${names.partner1} started your next date. Open the app to see what's planned.`,
+          title: `${names.partner1} initiated a date night`,
+          body: "The teaser is ready. Check the vibe, then tap I'm ready when you want the full reveal.",
           data: { path: "/dashboard" },
         });
         if (result === "invalid_token") {
