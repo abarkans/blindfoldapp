@@ -16,7 +16,8 @@ import Button from "@/components/ui/Button";
 import PasswordStrength from "@/components/ui/PasswordStrength";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
-import CapacitorBackButton from "@/components/ui/CapacitorBackButton";
+import CapacitorBackButton from "@/components/ui/CapacitorBackButton"
+import CapacitorOAuthHandler from "@/components/auth/CapacitorOAuthHandler";
 
 const registerSchema = z
   .object({
@@ -270,6 +271,7 @@ export default function RegisterClient() {
 
   return (
     <PublicPageShell>
+    <CapacitorOAuthHandler />
     <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <CapacitorBackButton />
@@ -308,7 +310,7 @@ export default function RegisterClient() {
                 <button
                   type="button"
                   onClick={() => router.push(inviteParam ? `?invite=${encodeURIComponent(inviteParam)}${invitedEmailParam ? `&email=${encodeURIComponent(invitedEmailParam)}` : ""}&step=email` : planParam ? `?plan=${planParam}&step=email` : "?step=email", { scroll: false })}
-                  className="w-full flex items-center justify-center gap-2 h-12 rounded-full border border-white/18 text-white/70 text-sm font-medium hover:border-white/30 hover:text-white hover:bg-white/5 transition-all"
+                  className="w-full flex items-center justify-center gap-2 h-14 rounded-full border border-white/18 text-white/70 text-lg font-semibold hover:border-white/30 hover:text-white hover:bg-white/5 transition-all"
                 >
                   <Mail className="w-4 h-4" />
                   Continue with email
