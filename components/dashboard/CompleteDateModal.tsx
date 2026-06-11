@@ -161,6 +161,8 @@ export default function CompleteDateModal({
   const [comment, setComment] = useState("");
   const [feedbackSaved, setFeedbackSaved] = useState(false);
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [inCapacitor, setInCapacitor] = useState(false);
+  useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
 
   function handleClose() {
     onClose();
@@ -314,14 +316,28 @@ export default function CompleteDateModal({
                 >
                   <p className="text-sm font-semibold text-white mb-1">You&apos;ve switched to Starter</p>
                   <p className="text-xs text-white/50 mb-3">Next date picks from food, nature, or romance — one per month.</p>
-                  <Link
-                    href="/dashboard?upgrade=1"
-                    onClick={onClose}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors"
-                  >
-                    Upgrade to Plus
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
+                  {inCapacitor ? (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { Browser } = await import('@capacitor/browser')
+                        await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
+                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors"
+                    >
+                      Subscribe at blindfolddate.com
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  ) : (
+                    <Link
+                      href="/dashboard?upgrade=1"
+                      onClick={onClose}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors"
+                    >
+                      Upgrade to Plus
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  )}
                 </motion.div>
               )}
 

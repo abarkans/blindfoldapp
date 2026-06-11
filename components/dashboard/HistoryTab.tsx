@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Lock, Sparkles, CalendarDays, MapPin, X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
@@ -221,6 +221,8 @@ function HistoryContent({
   isPaid: boolean;
   onOpenPlanSettings: () => void;
 }) {
+  const [inCapacitor, setInCapacitor] = useState(false);
+  useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
   if (history.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -245,12 +247,25 @@ function HistoryContent({
           <p className="text-xs text-white/55 leading-relaxed mb-3">
             Photos are captured. Upgrade to Plus to view them.
           </p>
-          <button
-            onClick={onOpenPlanSettings}
-            className="w-full py-2.5 rounded-full bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
-          >
-            Upgrade to Plus
-          </button>
+          {inCapacitor ? (
+            <button
+              type="button"
+              onClick={async () => {
+                const { Browser } = await import('@capacitor/browser')
+                await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
+              }}
+              className="w-full py-2.5 rounded-full border border-white/20 text-white/60 text-sm font-semibold"
+            >
+              Subscribe at blindfolddate.com →
+            </button>
+          ) : (
+            <button
+              onClick={onOpenPlanSettings}
+              className="w-full py-2.5 rounded-full bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
+            >
+              Upgrade to Plus
+            </button>
+          )}
         </div>
       )}
 

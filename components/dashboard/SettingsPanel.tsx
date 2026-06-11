@@ -173,6 +173,8 @@ export default function SettingsPanel({
   const [partnerInviteMessage, setPartnerInviteMessage] = useState("");
   const [partnerInviteCooldown, setPartnerInviteCooldown] = useState(0);
   const inviteCooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [inCapacitor, setInCapacitor] = useState(false);
+  useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
 
   // Manage account state
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -1136,28 +1138,54 @@ export default function SettingsPanel({
                           </li>
                         ))}
                       </ul>
-                      <Button
-                        type="button"
-                        variant="primary"
-                        loading={upgradingPlan}
-                        onClick={handleUpgradePlan}
-                        className="w-full h-auto py-3 text-sm font-bold gap-2"
-                      >
-                        {billingInterval === "yearly" ? `Subscribe · ${getCurrencySymbol(unitSystem)}39.99/year` : `Subscribe · ${getCurrencySymbol(unitSystem)}1.49 first month`}
-                      </Button>
+                      {inCapacitor ? (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const { Browser } = await import('@capacitor/browser')
+                            await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
+                          }}
+                          className="w-full py-3 rounded-full border border-white/20 text-white/60 text-sm font-semibold"
+                        >
+                          Subscribe at blindfolddate.com →
+                        </button>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="primary"
+                          loading={upgradingPlan}
+                          onClick={handleUpgradePlan}
+                          className="w-full h-auto py-3 text-sm font-bold gap-2"
+                        >
+                          {billingInterval === "yearly" ? `Subscribe · ${getCurrencySymbol(unitSystem)}39.99/year` : `Subscribe · ${getCurrencySymbol(unitSystem)}1.49 first month`}
+                        </Button>
+                      )}
                     </div>
                   )}
 
                   {isPlus && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      loading={managingSubscription}
-                      onClick={handleManageSubscription}
-                      className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 border border-white/16 hover:border-white/28"
-                    >
-                      Manage or cancel subscription
-                    </Button>
+                    inCapacitor ? (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const { Browser } = await import('@capacitor/browser')
+                          await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
+                        }}
+                        className="w-full py-2.5 rounded-full border border-white/16 text-white/50 text-sm font-semibold"
+                      >
+                        Manage subscription at blindfolddate.com →
+                      </button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        loading={managingSubscription}
+                        onClick={handleManageSubscription}
+                        className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 border border-white/16 hover:border-white/28"
+                      >
+                        Manage or cancel subscription
+                      </Button>
+                    )
                   )}
                 </div>
               )}
