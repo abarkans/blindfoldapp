@@ -83,6 +83,12 @@ export default function AppIntroPage() {
           <Button variant="secondary" size="lg" className="w-full border-2 border-rose-500/60" onClick={() => router.push('/login')}>
             Sign In
           </Button>
+          <p className="text-[11px] text-white/30 text-center leading-relaxed pt-1">
+            By continuing, you agree to our{' '}
+            <a href="/legal/terms" className="text-white/50 underline">Terms</a>
+            {' '}and{' '}
+            <a href="/legal/privacy" className="text-white/50 underline">Privacy Policy</a>.
+          </p>
         </div>
       </div>
     </div>
