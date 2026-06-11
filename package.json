@@ -28,7 +28,7 @@
     "ai": "6.0.154",
     "canvas-confetti": "1.9.4",
     "clsx": "2.1.1",
-    "firebase-admin": "^13.10.0",
+    "firebase-admin": "^14.0.0",
     "framer-motion": "12.38.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "1.7.0",
