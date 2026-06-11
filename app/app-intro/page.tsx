@@ -49,21 +49,19 @@ export default function AppIntroPage() {
       <div className="absolute inset-0 bg-black/80" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full px-4">
-        {/* Icon top */}
-        <div className="pt-[max(48px,env(safe-area-inset-top,48px))] flex justify-center">
+      <div className="relative z-10 flex flex-col h-full px-4" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        {/* Logo + tagline centered */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
           <Image src="/icon.png" alt="BlindfoldDate" width={80} height={80} className="object-contain" />
-        </div>
-
-        {/* Tagline near buttons */}
-        <div className="flex-1 flex flex-col justify-end pb-12 gap-2 text-center">
-          <div className="flex flex-col gap-0">
-            <h1 className="text-[40px] font-bold tracking-tight text-white leading-none">Date night, decided.</h1>
-            <h2 className="text-[40px] font-bold tracking-tight leading-tight bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)' }}>Just show up.</h2>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-0">
+              <h1 className="text-[40px] font-bold tracking-tight text-white leading-none">Date night, decided.</h1>
+              <h2 className="text-[40px] font-bold tracking-tight leading-tight bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)' }}>Just show up.</h2>
+            </div>
+            <p className="text-base text-white/70 leading-relaxed">
+              A mystery date, planned for you both.
+            </p>
           </div>
-          <p className="text-base text-white/70 leading-relaxed">
-            A mystery date, planned for you both.
-          </p>
         </div>
 
         {/* Buttons */}
