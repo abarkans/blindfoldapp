@@ -1,10 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function CapacitorAuthHandler() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -41,10 +39,10 @@ export default function CapacitorAuthHandler() {
         localStorage.removeItem('capacitor_oauth_plan')
 
         if (profile?.onboarding_complete) {
-          router.replace('/dashboard')
+          window.location.replace('/dashboard')
         } else {
           const planSuffix = plan === 'free' || plan === 'subscription' ? `?plan=${plan}` : ''
-          router.replace(`/onboarding${planSuffix}`)
+          window.location.replace(`/onboarding${planSuffix}`)
         }
       })
 
@@ -53,7 +51,7 @@ export default function CapacitorAuthHandler() {
 
     setup()
     return () => { cleanup?.() }
-  }, [router])
+  }, [])
 
   if (!loading) return null
 
