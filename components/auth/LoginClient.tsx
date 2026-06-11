@@ -15,6 +15,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
+import CapacitorBackButton from "@/components/ui/CapacitorBackButton";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -105,6 +106,7 @@ export default function LoginClient() {
     <PublicPageShell>
     <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
+        <CapacitorBackButton />
         {/* Logo */}
         <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
           <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
