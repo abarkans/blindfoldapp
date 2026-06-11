@@ -17,11 +17,19 @@ export default function AppIntroPage() {
         const sessionPromise = supabase.auth.getSession().then(r => r.data.session)
         const session = await Promise.race([sessionPromise, timeout])
         if (session) {
+          if ((window as any).Capacitor) {
+            const { SplashScreen } = await import('@capacitor/splash-screen')
+            await SplashScreen.hide({ fadeOutDuration: 500 })
+          }
           router.replace('/dashboard')
           return
         }
       } catch {}
       setReady(true)
+      if ((window as any).Capacitor) {
+        const { SplashScreen } = await import('@capacitor/splash-screen')
+        await SplashScreen.hide({ fadeOutDuration: 500 })
+      }
     }
     checkSession()
   }, [router])
