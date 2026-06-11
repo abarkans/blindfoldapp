@@ -16,7 +16,8 @@ import Button from "@/components/ui/Button";
 import PasswordStrength from "@/components/ui/PasswordStrength";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import CaptchaWidget, { type TurnstileInstance } from "@/components/auth/CaptchaWidget";
-import CapacitorBackButton from "@/components/ui/CapacitorBackButton";
+import CapacitorBackButton from "@/components/ui/CapacitorBackButton"
+import HideInCapacitor from "@/components/ui/HideInCapacitor";
 
 const registerSchema = z
   .object({
@@ -319,14 +320,16 @@ export default function RegisterClient() {
             ) : (
               <div>
                 <div className="flex items-center gap-3 mb-5">
-                  <button
-                    type="button"
-                    onClick={() => router.back()}
-                    className="text-white/40 hover:text-white transition-colors shrink-0"
-                    aria-label="Back"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                  </button>
+                  <HideInCapacitor>
+                    <button
+                      type="button"
+                      onClick={() => router.back()}
+                      className="text-white/40 hover:text-white transition-colors shrink-0"
+                      aria-label="Back"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                  </HideInCapacitor>
                   <h2 className="text-lg font-bold text-white">Sign up with email</h2>
                 </div>
 
