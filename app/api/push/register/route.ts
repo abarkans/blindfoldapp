@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCoupleAccess } from "@/lib/partner-invites";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -14,12 +13,10 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const access = await getCoupleAccess(admin, user.id);
-
   const { error } = await admin
-    .from("profiles")
+    .from("couple_members")
     .update({ push_token: token })
-    .eq("id", access.profileId);
+    .eq("user_id", user.id);
 
   if (error) {
     console.error("[push] register token failed:", error.message);

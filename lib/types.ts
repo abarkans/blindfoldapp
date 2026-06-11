@@ -83,18 +83,21 @@ export interface Database {
           user_id: string;
           role: "owner" | "partner";
           created_at: string;
+          push_token: string | null;
         };
         Insert: {
           profile_id: string;
           user_id: string;
           role: "owner" | "partner";
           created_at?: string;
+          push_token?: string | null;
         };
         Update: {
           profile_id?: string;
           user_id?: string;
           role?: "owner" | "partner";
           created_at?: string;
+          push_token?: string | null;
         };
         Relationships: [];
       };

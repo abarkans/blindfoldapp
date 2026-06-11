@@ -395,20 +395,28 @@ async function notifyOtherPartner(
   // Fire push in parallel — non-blocking, failure doesn't affect email
   void (async () => {
     try {
-      const { data: pushProfile } = await admin
-        .from("profiles")
-        .select("push_token, push_notifications_enabled")
-        .eq("id", profileId)
-        .single();
-      if (pushProfile?.push_token && pushProfile.push_notifications_enabled !== false) {
+      const [{ data: partnerMember }, { data: pushProfile }] = await Promise.all([
+        admin
+          .from("couple_members")
+          .select("push_token")
+          .eq("user_id", other.user_id)
+          .single(),
+        admin
+          .from("profiles")
+          .select("push_notifications_enabled")
+          .eq("id", profileId)
+          .single(),
+      ]);
+      const token = partnerMember?.push_token;
+      if (token && pushProfile?.push_notifications_enabled !== false) {
         const result = await sendPushNotification({
-          token: pushProfile.push_token,
+          token,
           title: `${names.partner1} initiated a date night`,
           body: "The teaser is ready. Check the vibe, then tap I'm ready when you want the full reveal.",
           data: { path: "/dashboard" },
         });
         if (result === "invalid_token") {
-          await admin.from("profiles").update({ push_token: null }).eq("id", profileId);
+          await admin.from("couple_members").update({ push_token: null }).eq("user_id", other.user_id);
         }
       }
     } catch (e) {
