@@ -1,10 +1,11 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function CapacitorAuthHandler() {
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!(window as any).Capacitor) return
@@ -20,16 +21,15 @@ export default function CapacitorAuthHandler() {
         const code = url.searchParams.get('code')
         if (!code) return
 
-        await Browser.close()
+        setLoading(true)
+        await Browser.close().catch(() => {})
 
         const supabase = createClient()
         const { error } = await supabase.auth.exchangeCodeForSession(code)
-        if (error) return
+        if (error) { setLoading(false); return }
 
-        // Determine destination from actual profile state — avoids embedding
-        // ?next= in the redirectTo URL (which Supabase validates strictly).
         const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        if (!user) { setLoading(false); return }
 
         const { data: profile } = await supabase
           .from('profiles')
@@ -37,7 +37,6 @@ export default function CapacitorAuthHandler() {
           .eq('id', user.id)
           .maybeSingle()
 
-        // plan param stored in localStorage by RegisterClient before OAuth
         const plan = localStorage.getItem('capacitor_oauth_plan') ?? null
         localStorage.removeItem('capacitor_oauth_plan')
 
@@ -56,5 +55,12 @@ export default function CapacitorAuthHandler() {
     return () => { cleanup?.() }
   }, [router])
 
-  return null
+  if (!loading) return null
+
+  return (
+    <div className="fixed inset-0 z-[200] bg-[#0a0a0a] flex flex-col items-center justify-center gap-4">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-rose-500" />
+      <p className="text-white/50 text-sm">Signing you in…</p>
+    </div>
+  )
 }
