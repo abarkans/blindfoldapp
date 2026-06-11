@@ -323,7 +323,7 @@ export default function RegisterClient() {
                   Continue with email
                 </button>
 
-                <ConsentText />
+                <HideInCapacitor><ConsentText /></HideInCapacitor>
               </div>
             ) : (
               <div>
@@ -392,7 +392,7 @@ export default function RegisterClient() {
                   </Button>
                 </form>
 
-                <ConsentText />
+                <HideInCapacitor><ConsentText /></HideInCapacitor>
               </div>
             )}
         </div>
