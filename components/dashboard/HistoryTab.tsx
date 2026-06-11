@@ -256,7 +256,7 @@ function HistoryContent({
               }}
               className="w-full py-2.5 rounded-full border border-white/20 text-white/60 text-sm font-semibold"
             >
-              Subscribe at blindfolddate.com →
+              Get Plus on the web
             </button>
           ) : (
             <button

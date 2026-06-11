@@ -1147,7 +1147,7 @@ export default function SettingsPanel({
                           }}
                           className="w-full py-3 rounded-full border border-white/20 text-white/60 text-sm font-semibold"
                         >
-                          Subscribe at blindfolddate.com →
+                          Get Plus on the web
                         </button>
                       ) : (
                         <Button
@@ -1173,7 +1173,7 @@ export default function SettingsPanel({
                         }}
                         className="w-full py-2.5 rounded-full border border-white/16 text-white/50 text-sm font-semibold"
                       >
-                        Manage subscription at blindfolddate.com →
+                        Manage via website
                       </button>
                     ) : (
                       <Button

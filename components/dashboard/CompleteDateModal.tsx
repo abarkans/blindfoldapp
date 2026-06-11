@@ -325,8 +325,7 @@ export default function CompleteDateModal({
                       }}
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors"
                     >
-                      Subscribe at blindfolddate.com
-                      <ArrowRight className="w-3 h-3" />
+                      Get Plus on the web
                     </button>
                   ) : (
                     <Link
