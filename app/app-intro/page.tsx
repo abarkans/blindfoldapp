@@ -38,6 +38,7 @@ export default function AppIntroPage() {
         muted
         loop
         playsInline
+        poster="/hero-video-poster.webp"
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src="/hero-video.webm" type="video/webm" />
@@ -77,7 +78,7 @@ export default function AppIntroPage() {
             Sign In
           </Button>
           <p className="text-xs text-white/30 text-center leading-relaxed pt-1">
-            By continuing you agree<br />to our{' '}
+            By continuing you agree to our<br />
             <a href="/legal/terms" className="underline text-white/50">Terms of Service</a>
             {' '}and{' '}
             <a href="/legal/privacy" className="underline text-white/50">Privacy Policy</a>.
