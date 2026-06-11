@@ -113,9 +113,6 @@ export default function LoginClient() {
         {inCapacitor ? (
           <div className="flex flex-col items-center gap-3 mb-8">
             <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
-            <div className="text-center">
-              <p className="text-white/40 text-sm">Your date night, handled.</p>
-            </div>
           </div>
         ) : (
           <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
