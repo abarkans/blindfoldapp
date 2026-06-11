@@ -98,6 +98,10 @@ export default function OnboardingFlow({
   async function handleExitToHome() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    if ((window as any).Capacitor) {
+      window.location.replace('https://blindfolddate.com/app-intro');
+      return;
+    }
     router.replace("/");
   }
 

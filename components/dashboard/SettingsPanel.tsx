@@ -385,7 +385,8 @@ export default function SettingsPanel({
     const supabase = createClient();
     await supabase.auth.signOut();
     if ((window as any).Capacitor) {
-      localStorage.removeItem('intro_seen');
+      window.location.replace('https://blindfolddate.com/app-intro');
+      return;
     }
     router.push("/");
   }

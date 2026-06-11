@@ -1,22 +1,16 @@
 import "./typography.css";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
+import LegalBackButton from "@/components/ui/LegalBackButton";
+import HideInCapacitor from "@/components/ui/HideInCapacitor";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
     <PublicPageShell>
-      <PublicNav showCta={false} />
+      <HideInCapacitor><PublicNav showCta={false} /></HideInCapacitor>
     <div className="min-h-dvh px-6 pb-8 max-w-2xl mx-auto">
       <div className="mb-8">
-        <Link
-          href="/"
-          className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
+        <LegalBackButton />
       </div>
 
       <article>

@@ -184,9 +184,6 @@ export default function RegisterClient() {
     const supabase = createClient();
     if ((window as any).Capacitor) {
       const { Browser } = await import('@capacitor/browser');
-      // Store plan so CapacitorAuthHandler can read it after OAuth completes.
-      // redirectTo must be the bare URL — Supabase validates it exactly and
-      // rejects any URL with query params that aren't in the allowed list.
       if (planParam === 'free' || planParam === 'subscription') {
         localStorage.setItem('capacitor_oauth_plan', planParam);
       }
@@ -201,11 +198,11 @@ export default function RegisterClient() {
     } else {
       await supabase.auth.signInWithOAuth({
         provider: "google",
-          options: {
-            redirectTo: inviteParam
-              ? `${window.location.origin}/auth/callback?next=/partner-invite&invite=${encodeURIComponent(inviteParam)}`
-              : `${window.location.origin}/auth/callback?intent=register${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
-          },
+        options: {
+          redirectTo: inviteParam
+            ? `${window.location.origin}/auth/callback?next=/partner-invite&invite=${encodeURIComponent(inviteParam)}`
+            : `${window.location.origin}/auth/callback?intent=register${planParam === "free" || planParam === "subscription" ? `&plan=${planParam}` : ""}`,
+        },
       });
     }
   }
