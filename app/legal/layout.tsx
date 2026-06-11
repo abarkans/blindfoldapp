@@ -1,4 +1,5 @@
 import "./typography.css";
+import Link from "next/link";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 import LegalBackButton from "@/components/ui/LegalBackButton";
