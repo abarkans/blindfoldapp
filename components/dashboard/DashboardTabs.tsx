@@ -15,6 +15,7 @@ import type { Profile } from "@/lib/types";
 import type { UnitSystem } from "@/lib/units";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
+import { usePushNotifications } from "@/lib/hooks/usePushNotifications";
 
 type Tab = "date" | "progress" | "history" | "settings";
 type SettingsInitialView = "plan";
@@ -78,6 +79,7 @@ export default function DashboardTabs({
   memberRole,
   partnerInviteStatus,
 }: DashboardTabsProps) {
+  usePushNotifications();
   const [activeTab, setActiveTab] = useState<Tab>("date");
   const [logoBeating, setLogoBeating] = useState(false);
   const [showCancelBanner, setShowCancelBanner] = useState(false);

@@ -14,6 +14,7 @@ import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateInitiatedEmail } from "@/lib/email/templates/date-initiated";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import { isPlusPlan } from "@/lib/plans";
+import { sendPushNotification } from "@/lib/push/send-push";
 import type { Database, Json } from "@/lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -390,6 +391,30 @@ async function notifyOtherPartner(
     console.warn(`[audit] start-date: email skipped profile=${profileId} reason=no_other_partner`);
     return "skipped";
   }
+
+  // Fire push in parallel — non-blocking, failure doesn't affect email
+  void (async () => {
+    try {
+      const { data: pushProfile } = await admin
+        .from("profiles")
+        .select("push_token, push_notifications_enabled")
+        .eq("id", profileId)
+        .single();
+      if (pushProfile?.push_token && pushProfile.push_notifications_enabled !== false) {
+        const result = await sendPushNotification({
+          token: pushProfile.push_token,
+          title: "Date night incoming! 🎉",
+          body: `${names.partner1} started your next date. Open the app to see what's planned.`,
+          data: { path: "/dashboard" },
+        });
+        if (result === "invalid_token") {
+          await admin.from("profiles").update({ push_token: null }).eq("id", profileId);
+        }
+      }
+    } catch (e) {
+      console.warn("[push] notify partner failed:", e);
+    }
+  })();
 
   const { data: userData, error: userError } = await admin.auth.admin.getUserById(other.user_id);
   if (userError) {
