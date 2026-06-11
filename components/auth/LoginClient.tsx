@@ -30,6 +30,8 @@ export default function LoginClient() {
   const ph = usePostHog();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [inCapacitor, setInCapacitor] = useState(false);
+  useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
 
   useEffect(() => {
     ph?.capture("login_page_viewed");
@@ -108,12 +110,21 @@ export default function LoginClient() {
       <div className="w-full max-w-sm">
         <CapacitorBackButton />
         {/* Logo */}
-        <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
-          <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
-          <div className="text-center">
-            <p className="text-white/40 text-sm">Your dates, handled</p>
+        {inCapacitor ? (
+          <div className="flex flex-col items-center gap-3 mb-8">
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+            <div className="text-center">
+              <p className="text-white/40 text-sm">Your dates, handled</p>
+            </div>
           </div>
-        </Link>
+        ) : (
+          <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+            <div className="text-center">
+              <p className="text-white/40 text-sm">Your dates, handled</p>
+            </div>
+          </Link>
+        )}
 
         {/* Card */}
         <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 backdrop-blur-xl shadow-[0_28px_80px_rgba(0,0,0,0.45)]" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>

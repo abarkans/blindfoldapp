@@ -67,6 +67,8 @@ export default function RegisterClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailSent, setEmailSent] = useState("");
+  const [inCapacitor, setInCapacitor] = useState(false);
+  useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
   const [resending, setResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [captchaToken, setCaptchaToken] = useState("");
@@ -274,10 +276,17 @@ export default function RegisterClient() {
     <div className="min-h-dvh flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <CapacitorBackButton />
-        <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
-          <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
-          <p className="text-white/40 text-sm">Your first date is two minutes away</p>
-        </Link>
+        {inCapacitor ? (
+          <div className="flex flex-col items-center gap-3 mb-8">
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+            <p className="text-white/40 text-sm">Your first date is two minutes away</p>
+          </div>
+        ) : (
+          <Link href="/" prefetch={true} className="flex flex-col items-center gap-3 mb-8 group">
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={44} className="object-contain" />
+            <p className="text-white/40 text-sm">Your first date is two minutes away</p>
+          </Link>
+        )}
 
         <div className="bg-white/[0.035] border border-white/16 rounded-3xl p-6 backdrop-blur-xl overflow-hidden shadow-[0_28px_80px_rgba(0,0,0,0.45)]" onFocus={() => setCaptchaActive(true)} onPointerDown={() => setCaptchaActive(true)}>
             {!emailStep ? (
