@@ -74,7 +74,7 @@ export default function AppIntroPage() {
           <Button size="lg" className="w-full" onClick={() => router.push('/register')}>
             Get Started
           </Button>
-          <Button variant="secondary" size="lg" className="w-full" onClick={() => router.push('/login')}>
+          <Button variant="secondary" size="lg" className="w-full border-2 border-rose-500/60" onClick={() => router.push('/login')}>
             Sign In
           </Button>
           <p className="text-xs text-white/30 text-center leading-relaxed pt-1">
