@@ -607,7 +607,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
               >
                 Yearly
                 <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">
-                  -44%
+                  -30%
                 </span>
               </button>
             </div>
@@ -641,7 +641,7 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                       >
                         Yearly
                         <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">
-                          -44%
+                          -30%
                         </span>
                       </button>
                     </div>
@@ -673,15 +673,13 @@ export default function LandingV2Client({ unitSystem = "metric" }: { unitSystem?
                   {plan.highlighted ? (
                     billingInterval === "yearly" ? (
                       <>
-                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.yearlyPrice}</p>
-                        <p className="text-sm text-white/55">per year</p>
-                        <p className="text-xs text-emerald-400/80 mb-3">~{getCurrencySymbol(unitSystem)}{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo · cancel anytime</p>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.yearlyPrice}<span className="text-lg font-semibold text-white/55 ml-2">per year</span></p>
+                        <p className="text-sm text-white/55 mt-2"><span className="text-emerald-400">Save 30%</span> · Cancel anytime.</p>
                       </>
                     ) : (
                       <>
-                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.introPrice}</p>
-                        <p className="text-sm text-white/55">first month</p>
-                        <p className="text-xs text-pink-300/70 mb-3">then {getCurrencySymbol(unitSystem)}{plan.price}/mo · cancel anytime</p>
+                        <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.introPrice}<span className="text-lg font-semibold text-white/55 ml-2">first month</span></p>
+                        <p className="text-sm text-white/55 mt-2">{getCurrencySymbol(unitSystem)}{plan.price}/mo after. Cancel anytime.</p>
                       </>
                     )
                   ) : (

@@ -130,7 +130,7 @@ const jsonLd = {
           name: "What's the difference between free and Plus?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €1.49 your first month, then €5.99.",
+            text: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €0.99 your first month, then €2.99.",
           },
         },
       ],

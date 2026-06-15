@@ -111,7 +111,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "What's the difference between free and Plus?",
-    a: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €1.49 your first month, then €5.99.",
+    a: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €0.99 your first month, then €2.99.",
   },
 ];
 
@@ -1128,7 +1128,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                   }`}
                 >
                   Yearly
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">-44%</span>
+                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">-30%</span>
                 </button>
               </div>
             </div>
@@ -1156,7 +1156,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                           }`}
                         >
                           Yearly
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">-44%</span>
+                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">-30%</span>
                         </button>
                       </div>
                     </div>
@@ -1186,9 +1186,8 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                       {plan.highlighted ? (
                         billingInterval === "yearly" ? (
                           <>
-                            <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.yearlyPrice}</p>
-                            <p className="text-sm text-white/55">per year</p>
-                            <p className="text-xs text-emerald-400/80 mb-3">~{getCurrencySymbol(unitSystem)}{((plan.yearlyPrice ?? 0) / 12).toFixed(2)}/mo · cancel anytime</p>
+                            <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.yearlyPrice}<span className="text-lg font-semibold text-white/55 ml-2">per year</span></p>
+                            <p className="text-sm md:text-base text-white/55 mt-2"><span className="text-emerald-400">Save 30%</span> · Cancel anytime.</p>
                           </>
                         ) : (
                           <>
