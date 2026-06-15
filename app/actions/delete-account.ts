@@ -8,12 +8,17 @@ import { hashEmail, isCooldownActive, cooldownExpiry } from "@/lib/deletion-hold
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { deleteConfirmationEmail } from "@/lib/email/templates/delete-confirmation";
 import { safeLogValue } from "@/lib/log";
-import { checkDeletionRequestRateLimit } from "@/lib/rate-limit";
+import { checkDeletionRequestRateLimit, checkPublicDeletionRateLimit } from "@/lib/rate-limit";
+import { z } from "zod";
 
 // Short TTL on an irreversible action. The legitimate flow is
 // "open email → click link" which fits comfortably in 5 min; anything
 // longer mostly extends the window for a stolen link to be replayed.
 const TOKEN_TTL_MINUTES = 5;
+
+// Public (unauthenticated) flow needs more time: user must also sign in
+// before they can confirm, so we give a wider window.
+const PUBLIC_TOKEN_TTL_MINUTES = 15;
 
 function sha256Hex(value: string): string {
   return createHash("sha256").update(value).digest("hex");
@@ -120,6 +125,88 @@ export async function requestAccountDeletion(): Promise<{ email: string }> {
 
   console.info(`[audit] delete-request: token issued uid=${safeLogValue(user.id)}`);
   return { email: user.email };
+}
+
+/**
+ * Public (unauthenticated) step 1: accepts an email address and, if it
+ * belongs to a registered account, issues a deletion token and sends the
+ * same confirmation email as the in-app flow. Always returns success so
+ * the caller cannot infer whether the email is registered.
+ */
+export async function requestDeletionByEmail(
+  rawEmail: string
+): Promise<{ ok: true }> {
+  const parsed = z.string().email().max(254).safeParse(rawEmail.trim());
+  if (!parsed.success) throw new Error("Invalid email address");
+  const email = parsed.data.toLowerCase();
+
+  const { ip } = await requestBindings();
+  if (ip) await checkPublicDeletionRateLimit(ip);
+
+  const admin = createAdminClient();
+
+  const { data: userId } = await admin.rpc("get_user_id_by_email", {
+    p_email: email,
+  });
+
+  if (!userId) {
+    // No account with that email — return silently to avoid enumeration.
+    return { ok: true };
+  }
+
+  await admin.from("account_deletion_tokens").delete().eq("user_id", userId);
+
+  const { ip: requestIp, ua: userAgent } = await requestBindings();
+  const plaintext = randomBytes(32).toString("hex");
+  const tokenHash = sha256Hex(plaintext);
+  const expiresAt = new Date(Date.now() + PUBLIC_TOKEN_TTL_MINUTES * 60_000);
+
+  const { error: insertErr } = await admin
+    .from("account_deletion_tokens")
+    .insert({
+      token_hash: tokenHash,
+      user_id: userId,
+      expires_at: expiresAt.toISOString(),
+      request_ip: requestIp,
+      user_agent: userAgent,
+    });
+
+  if (insertErr) {
+    console.error(
+      `[audit] delete-request-public: insert failed uid=${safeLogValue(userId)} msg=${safeLogValue(insertErr.message)}`
+    );
+    throw new Error("Could not start deletion. Please try again.");
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
+  const confirmUrl = `${appUrl}/account/confirm-delete?t=${plaintext}`;
+  const { subject, html } = deleteConfirmationEmail({
+    confirmUrl,
+    expiresInMinutes: PUBLIC_TOKEN_TTL_MINUTES,
+  });
+
+  const { error: sendErr } = await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: email,
+    subject,
+    html,
+  });
+
+  if (sendErr) {
+    await admin
+      .from("account_deletion_tokens")
+      .delete()
+      .eq("token_hash", tokenHash);
+    console.error(
+      `[audit] delete-request-public: email failed uid=${safeLogValue(userId)} msg=${safeLogValue(sendErr.message)}`
+    );
+    throw new Error("Could not send confirmation email. Please try again.");
+  }
+
+  console.info(
+    `[audit] delete-request-public: token issued uid=${safeLogValue(userId)}`
+  );
+  return { ok: true };
 }
 
 /**

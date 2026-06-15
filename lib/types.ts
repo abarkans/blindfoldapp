@@ -414,6 +414,10 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      get_user_id_by_email: {
+        Args: { p_email: string };
+        Returns: string | null;
+      };
       complete_date_atomic: {
         Args: { p_user_id: string; p_xp_gain: number };
         Returns: { total_xp: number; dates_completed_count: number; xp_awarded: number; completed_idea_id: string };

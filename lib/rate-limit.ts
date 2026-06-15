@@ -164,3 +164,12 @@ export async function checkPresignRateLimit(userId: string): Promise<void> {
 export async function checkPartnerPingRateLimit(userId: string): Promise<void> {
   await check(`partner-ping:${userId}`, 3, 60, true);
 }
+
+/**
+ * Enforce per-IP rate limits on the public (unauthenticated) deletion-request form.
+ * Limit: 3 per hour. Fails closed: guards transactional email spend and prevents
+ * enumeration of registered email addresses via timing or error differences.
+ */
+export async function checkPublicDeletionRateLimit(ip: string): Promise<void> {
+  await check(`delete-public-ip:${ip}`, 3, 3600, true);
+}
