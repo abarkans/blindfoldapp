@@ -175,172 +175,188 @@ export default function DashboardTabs({
   }
 
   return (
-    <div className="min-h-dvh flex flex-col bg-black text-white">
-      {/* Sticky header — logo + names on both breakpoints; tab nav injected on desktop */}
-      <header className="md:sticky md:top-0 md:z-30 bg-black/72 md:backdrop-blur-2xl md:backdrop-saturate-150 border-b border-white/12 px-4 py-3 md:py-0 md:h-14 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
-        <div className="max-w-4xl mx-auto flex items-stretch justify-between gap-4 md:h-full">
-          {/* Brand */}
-          <div className="flex items-center gap-2.5 shrink-0 self-center">
+    <div className="min-h-dvh flex flex-col md:flex-row bg-black text-white">
+
+      {/* ── Desktop sidebar — hidden on mobile ── */}
+      <aside className="hidden md:flex flex-col w-72 shrink-0 border-r border-white/8 sticky top-0 h-dvh bg-zinc-950">
+        {/* Brand */}
+        <div className="px-5 py-6 border-b border-white/8 flex flex-col items-start gap-2 shrink-0">
+          <motion.div
+            animate={logoBeating ? { scale: [1, 1.08, 1, 1.05, 1] } : { scale: 1 }}
+            transition={{ duration: 0.75, ease: "easeInOut" }}
+          >
+            <Image src="/logo.png" alt="BlindfoldDate" width={180} height={52} loading="eager" priority className="object-contain" />
+          </motion.div>
+          <p className="text-xs text-white/50 leading-tight pl-0.5">
+            {profile.partner_names.partner1}{profile.partner_names.partner2 ? ` & ${profile.partner_names.partner2}` : ""}
+          </p>
+        </div>
+
+        {/* Sidebar nav */}
+        <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto">
+          {TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => switchTab(id)}
+              className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
+                activeTab === id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
+              }`}
+            >
+              {activeTab === id && (
+                <motion.div
+                  layoutId="sidebar-active-bg"
+                  className="absolute inset-0 rounded-xl bg-white/[0.08] border border-white/10"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                />
+              )}
+              <Icon className="w-4 h-4 shrink-0 relative z-10" />
+              <span className="relative z-10">{label}</span>
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      {/* ── Right column ── */}
+      <div className="flex-1 flex flex-col md:h-dvh md:overflow-hidden">
+
+        {/* Mobile-only header */}
+        <header className="md:hidden bg-black/72 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/12 px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
+          <div className="flex items-center gap-2.5">
             <motion.div
               animate={logoBeating ? { scale: [1, 1.08, 1, 1.05, 1] } : { scale: 1 }}
               transition={{ duration: 0.75, ease: "easeInOut" }}
             >
               <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} loading="eager" priority className="object-contain" />
             </motion.div>
-            <div>
-              <p className="text-sm font-bold text-white leading-tight">
-                {profile.partner_names.partner1}{profile.partner_names.partner2 ? ` & ${profile.partner_names.partner2}` : ""}
-              </p>
-            </div>
+            <p className="text-sm font-bold text-white leading-tight">
+              {profile.partner_names.partner1}{profile.partner_names.partner2 ? ` & ${profile.partner_names.partner2}` : ""}
+            </p>
           </div>
+        </header>
 
-          {/* Desktop tab navigation — hidden on mobile */}
-          <nav className="hidden md:flex self-stretch items-stretch gap-6">
-            {TABS.map(({ id, label }) => (
+        {/* Payment cancelled banner */}
+        <AnimatePresence>
+          {showCancelBanner && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="mx-4 mt-3"
+            >
+              <div className="max-w-sm md:max-w-2xl mx-auto flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3.5">
+                <span className="text-lg leading-none mt-0.5">💳</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white">Payment didn&apos;t complete.</p>
+                  <p className="text-xs text-white/50 mt-0.5">No worries, your account is all set! You&apos;re on the Starter plan for now. You can upgrade anytime from Settings.</p>
+                </div>
+                <button
+                  onClick={() => setShowCancelBanner(false)}
+                  className="shrink-0 text-white/55 hover:text-white transition-colors mt-0.5"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Tab content */}
+        <main ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
+          <div className="w-full md:max-w-2xl md:mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+              >
+                {activeTab === "date" && (
+                  <DateTabContent
+                    profile={profile}
+                    isDateCompleted={isDateCompleted}
+                    dateIdeaId={dateIdeaId}
+                    myUserId={myUserId}
+                    profileId={profileId}
+                    onGoToProgress={() => switchTab("progress")}
+                    memberRole={memberRole}
+                    partnerInviteStatus={partnerInviteStatus}
+                    unitSystem={unitSystem}
+                  />
+                )}
+                {activeTab === "progress" && (
+                  <Suspense fallback={<ProgressTabSkeleton />}>
+                    <ProgressTabContent
+                      profile={profile}
+                      earnedBadgesPromise={earnedBadgesPromise}
+                    />
+                  </Suspense>
+                )}
+                {activeTab === "history" && (
+                  <Suspense fallback={<HistoryTabSkeleton />}>
+                    <HistoryTab
+                      historyPromise={historyPromise}
+                      planType={profile.plan_type ?? "free"}
+                      onOpenPlanSettings={openPlanSettings}
+                    />
+                  </Suspense>
+                )}
+                {activeTab === "settings" && (
+                  <SettingsTabContent
+                    profile={profile}
+                    unitSystem={unitSystem}
+                    memberRole={memberRole}
+                    partnerInviteStatus={partnerInviteStatus}
+                    initialView={settingsInitialView}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
+
+        <SubscriberBadgeModal
+          isOpen={showSubscriberBadge}
+          onClose={() => setShowSubscriberBadge(false)}
+        />
+
+        {/* Bottom nav — mobile only */}
+        <nav
+          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-xl border-t border-white/16"
+          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        >
+          <div className="max-w-sm mx-auto flex items-stretch h-16">
+            {TABS.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => switchTab(id)}
-                className={`relative flex items-center text-sm font-medium transition-colors duration-150 ${
-                  activeTab === id ? "text-white" : "text-white/55 hover:text-white"
-                }`}
+                className="relative flex-1 flex flex-col items-center justify-center gap-1 group active:scale-95 transition-transform"
               >
-                {label}
                 {activeTab === id && (
                   <motion.div
-                    layoutId="desktop-tab-underline"
-                    className="absolute bottom-0 left-0 right-0 h-px bg-white/75"
+                    layoutId="tab-indicator"
+                    className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-white/75"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
+                <Icon
+                  className={`w-5 h-5 transition-colors duration-150 ${
+                    activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
+                  }`}
+                />
+                <span
+                  className={`text-[10px] font-semibold tracking-wide transition-colors duration-150 ${
+                    activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
+                  }`}
+                >
+                  {label}
+                </span>
               </button>
             ))}
-          </nav>
-        </div>
-      </header>
-
-      {/* Payment cancelled banner */}
-      <AnimatePresence>
-        {showCancelBanner && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="mx-4 mt-3"
-          >
-            <div className="max-w-sm md:max-w-2xl mx-auto flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3.5">
-              <span className="text-lg leading-none mt-0.5">💳</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white">Payment didn&apos;t complete.</p>
-                <p className="text-xs text-white/50 mt-0.5">No worries, your account is all set! You&apos;re on the Starter plan for now. You can upgrade anytime from Settings.</p>
-              </div>
-              <button
-                onClick={() => setShowCancelBanner(false)}
-                className="shrink-0 text-white/55 hover:text-white transition-colors mt-0.5"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-
-      {/* Tab content — wider container on desktop */}
-      <main ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8">
-        <div className="w-full md:max-w-2xl md:mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-            >
-              {activeTab === "date" && (
-                <DateTabContent
-                  profile={profile}
-                  isDateCompleted={isDateCompleted}
-                  dateIdeaId={dateIdeaId}
-                  myUserId={myUserId}
-                  profileId={profileId}
-                  onGoToProgress={() => switchTab("progress")}
-                  memberRole={memberRole}
-                  partnerInviteStatus={partnerInviteStatus}
-                  unitSystem={unitSystem}
-                />
-              )}
-              {activeTab === "progress" && (
-                <Suspense fallback={<ProgressTabSkeleton />}>
-                  <ProgressTabContent
-                    profile={profile}
-                    earnedBadgesPromise={earnedBadgesPromise}
-                  />
-                </Suspense>
-              )}
-              {activeTab === "history" && (
-                <Suspense fallback={<HistoryTabSkeleton />}>
-                  <HistoryTab
-                    historyPromise={historyPromise}
-                    planType={profile.plan_type ?? "free"}
-                    onOpenPlanSettings={openPlanSettings}
-                  />
-                </Suspense>
-              )}
-              {activeTab === "settings" && (
-                <SettingsTabContent
-                  profile={profile}
-                  unitSystem={unitSystem}
-                  memberRole={memberRole}
-                  partnerInviteStatus={partnerInviteStatus}
-                  initialView={settingsInitialView}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </main>
-
-      <SubscriberBadgeModal
-        isOpen={showSubscriberBadge}
-        onClose={() => setShowSubscriberBadge(false)}
-      />
-
-      {/* Bottom nav — mobile only */}
-      <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-xl border-t border-white/16"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-      >
-        <div className="max-w-sm mx-auto flex items-stretch h-16">
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => switchTab(id)}
-              className="relative flex-1 flex flex-col items-center justify-center gap-1 group active:scale-95 transition-transform"
-            >
-              {activeTab === id && (
-                <motion.div
-                  layoutId="tab-indicator"
-                  className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-white/75"
-                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                />
-              )}
-              <Icon
-                className={`w-5 h-5 transition-colors duration-150 ${
-                  activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
-                }`}
-              />
-              <span
-                className={`text-[10px] font-semibold tracking-wide transition-colors duration-150 ${
-                  activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
-                }`}
-              >
-                {label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </nav>
+          </div>
+        </nav>
+      </div>
     </div>
   );
 }
