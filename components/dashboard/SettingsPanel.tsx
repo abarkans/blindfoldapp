@@ -122,6 +122,7 @@ interface SettingsPanelProps {
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
   initialView?: SettingsView;
+  navigateToPartnersSeq?: number;
 }
 
 const slideVariants = {
@@ -150,6 +151,7 @@ export default function SettingsPanel({
   memberRole,
   partnerInviteStatus,
   initialView,
+  navigateToPartnersSeq,
 }: SettingsPanelProps) {
   const [view, setView] = useState<SettingsView>(initialView ?? "list");
   const [direction, setDirection] = useState(1);
@@ -507,6 +509,12 @@ export default function SettingsPanel({
       : []),
   ];
 
+  useEffect(() => {
+    if (!navigateToPartnersSeq) return;
+    navigate("partners");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigateToPartnersSeq]);
+
   function navigate(to: SettingsView) {
     const dir = to === "list" ? -1 : 1;
     setDirection(dir);
@@ -627,10 +635,14 @@ export default function SettingsPanel({
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/75 to-white/45 flex items-center justify-center text-sm font-bold text-white shrink-0">
                         {(memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1).charAt(0).toUpperCase()}
                       </div>
-                      <span className="text-white/40 text-sm font-medium">+</span>
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/55 to-white/30 flex items-center justify-center text-sm font-bold text-white shrink-0">
-                        {(memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2).charAt(0).toUpperCase()}
-                      </div>
+                      {(memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2) && (
+                        <>
+                          <span className="text-white/40 text-sm font-medium">+</span>
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/55 to-white/30 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                            {(memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2).charAt(0).toUpperCase()}
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white truncate">

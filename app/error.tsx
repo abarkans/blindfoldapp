@@ -20,7 +20,7 @@ export default function GlobalError({
     <PublicPageShell>
       <div className="flex min-h-dvh flex-col items-center justify-center px-6 text-center">
         <Link href="/" className="mb-10">
-          <Image src="/logo.png" alt="BlindfoldDate" width={100} height={30} className="object-contain" />
+          <Image src="/logo.png" alt="BlindfoldDate" width={160} height={48} className="object-contain" />
         </Link>
         <div className="w-full max-w-sm rounded-3xl border border-white/16 bg-[#030303]/88 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl">
           <p className="text-white/25 text-sm font-mono mb-3">500</p>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Camera } from "lucide-react";
+import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Camera, Mail } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -16,9 +16,10 @@ import type { UnitSystem } from "@/lib/units";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
 import { usePushNotifications } from "@/lib/hooks/usePushNotifications";
+import Button from "@/components/ui/Button";
 
 type Tab = "date" | "progress" | "history" | "settings";
-type SettingsInitialView = "plan";
+type SettingsInitialView = "plan" | "partners";
 
 interface EarnedBadge {
   name: string;
@@ -174,6 +175,16 @@ export default function DashboardTabs({
     window.scrollTo({ top: 0 });
   }
 
+  function openPartnerSettings() {
+    setSettingsInitialView("partners");
+    setActiveTab("settings");
+    window.history.replaceState({}, "", "/dashboard?tab=settings");
+    mainRef.current?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 });
+  }
+
+  const showPartnerNudge = !!profile.revealed_at && partnerInviteStatus.state !== "accepted";
+
   return (
     <div className="min-h-dvh flex flex-col md:flex-row bg-black text-white">
 
@@ -209,7 +220,12 @@ export default function DashboardTabs({
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}
-              <Icon className="w-4 h-4 shrink-0 relative z-10" />
+              <div className="relative shrink-0 z-10">
+                <Icon className="w-4 h-4" />
+                {id === "settings" && showPartnerNudge && activeTab !== "settings" && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-zinc-950" />
+                )}
+              </div>
               <span className="relative z-10">{label}</span>
             </button>
           ))}
@@ -309,6 +325,8 @@ export default function DashboardTabs({
                     memberRole={memberRole}
                     partnerInviteStatus={partnerInviteStatus}
                     initialView={settingsInitialView}
+                    showPartnerNudge={showPartnerNudge}
+                    onInvitePartner={openPartnerSettings}
                   />
                 )}
               </motion.div>
@@ -340,11 +358,16 @@ export default function DashboardTabs({
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
-                <Icon
-                  className={`w-5 h-5 transition-colors duration-150 ${
-                    activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
-                  }`}
-                />
+                <div className="relative">
+                  <Icon
+                    className={`w-5 h-5 transition-colors duration-150 ${
+                      activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
+                    }`}
+                  />
+                  {id === "settings" && showPartnerNudge && activeTab !== "settings" && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-black" />
+                  )}
+                </div>
                 <span
                   className={`text-[10px] font-semibold tracking-wide transition-colors duration-150 ${
                     activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
@@ -600,15 +623,20 @@ function SettingsTabContent({
   memberRole,
   partnerInviteStatus,
   initialView,
+  showPartnerNudge,
+  onInvitePartner,
 }: {
   profile: Profile;
   unitSystem: UnitSystem;
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
   initialView?: SettingsInitialView;
+  showPartnerNudge?: boolean;
+  onInvitePartner?: () => void;
 }) {
   const [subpageHeader, setSubpageHeader] = useState<{ title: string; onBack: () => void } | null>(null);
   const [headerDir, setHeaderDir] = useState(1);
+  const [partnerNavSeq, setPartnerNavSeq] = useState(0);
 
   function handleHeaderChange(title: string | null, onBack: (() => void) | null, direction = 1) {
     setHeaderDir(direction);
@@ -654,6 +682,20 @@ function SettingsTabContent({
           )}
         </AnimatePresence>
       </div>
+
+      {showPartnerNudge && !subpageHeader && (
+        <div className="mb-5 flex items-center gap-3 bg-rose-500/[0.08] border border-rose-500/20 rounded-2xl px-4 py-4">
+          <Mail className="w-5 h-5 text-rose-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white">Invite your partner</p>
+            <p className="text-xs text-white/50 mt-0.5">Both of you need to be ready to reveal the next date together.</p>
+          </div>
+          <Button size="sm" onClick={() => setPartnerNavSeq(s => s + 1)} className="shrink-0">
+            Invite
+          </Button>
+        </div>
+      )}
+
       <SettingsPanel
         profile={profile}
         onHeaderChange={handleHeaderChange}
@@ -661,6 +703,7 @@ function SettingsTabContent({
         memberRole={memberRole}
         partnerInviteStatus={partnerInviteStatus}
         initialView={initialView}
+        navigateToPartnersSeq={partnerNavSeq}
       />
     </div>
   );
