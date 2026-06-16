@@ -668,9 +668,11 @@ const PAUSE_AFTER_TYPE = 2000;
 
 function CyclingLastLine({
   opacity,
+  textColor,
   underlineScaleX,
 }: {
   opacity: MotionValue<number>;
+  textColor: MotionValue<string>;
   underlineScaleX: MotionValue<number>;
 }) {
   const [suffixIndex, setSuffixIndex] = useState(0);
@@ -710,7 +712,7 @@ function CyclingLastLine({
 
   return (
     <>
-      <motion.span style={{ opacity }} className="block text-white">
+      <motion.span style={{ opacity, color: textColor }} className="block">
         We make the call.
       </motion.span>
       <motion.span style={{ opacity }} className="block">
@@ -745,10 +747,11 @@ function RevealLine({
     [start, end],
     isLast ? ["rgba(244,63,94,0.35)", "rgba(244,63,94,1)"] : ["rgba(255,255,255,0.3)", "rgba(255,255,255,1)"]
   );
+  const textColor = useTransform(scrollYProgress, [start, end], ["rgba(255,255,255,0.3)", "rgba(255,255,255,1)"]);
   const underlineScaleX = useTransform(scrollYProgress, [start, end], [0, 1]);
 
   if (isLast) {
-    return <CyclingLastLine opacity={opacity} underlineScaleX={underlineScaleX} />;
+    return <CyclingLastLine opacity={opacity} textColor={textColor} underlineScaleX={underlineScaleX} />;
   }
 
   return (
