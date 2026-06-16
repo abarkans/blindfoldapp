@@ -78,7 +78,6 @@ async function createAndSendInvite(profileId: string, inviterUserId: string, ema
   const inviteUrl = `${getAppUrl()}/partner-invite?token=${encodeURIComponent(token)}`;
   const { subject, html } = partnerInviteEmail({
     inviterName: names?.partner1 ?? "Your partner",
-    partnerName: names?.partner2 ?? "there",
     inviteUrl,
   });
 

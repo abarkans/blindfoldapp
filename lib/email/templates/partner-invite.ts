@@ -1,6 +1,5 @@
 interface PartnerInviteEmailProps {
   inviterName: string;
-  partnerName: string;
   inviteUrl: string;
 }
 
@@ -15,11 +14,9 @@ function escapeHtml(value: string): string {
 
 export function partnerInviteEmail({
   inviterName,
-  partnerName,
   inviteUrl,
 }: PartnerInviteEmailProps): { subject: string; html: string } {
   const safeInviter = escapeHtml(inviterName || "Your partner");
-  const safePartner = escapeHtml(partnerName || "there");
   const safeUrl = escapeHtml(inviteUrl);
 
   return {
@@ -48,7 +45,7 @@ export function partnerInviteEmail({
             <td style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.16);border-radius:24px;box-shadow:0 28px 80px rgba(0,0,0,0.45);padding:32px 28px;">
               <p style="margin:0 0 16px;text-align:center;font-size:44px;">&#128140;</p>
               <h1 style="margin:0 0 12px;text-align:center;font-size:22px;line-height:1.25;font-weight:700;color:#ffffff;">
-                ${safePartner}, ${safeInviter} wants to plan dates with you.
+                ${safeInviter} wants to plan dates with you.
               </h1>
               <p style="margin:0 0 28px;text-align:center;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.62);">
                 Join BlindfoldDate to reveal mystery dates together. The invitation expires in 24 hours.
