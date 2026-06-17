@@ -2,12 +2,23 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { WifiOff, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Button from '@/components/ui/Button'
 
 export default function AppIntroPage() {
   const [ready, setReady] = useState(false)
+  const [showOfflineToast, setShowOfflineToast] = useState(false)
   const router = useRouter()
+
+  function navigate(path: string) {
+    if (!navigator.onLine) {
+      setShowOfflineToast(true)
+      setTimeout(() => setShowOfflineToast(false), 4000)
+      return
+    }
+    router.push(path)
+  }
 
   useEffect(() => {
     async function checkSession() {
@@ -77,10 +88,10 @@ export default function AppIntroPage() {
           className="flex flex-col gap-3 w-full"
           style={{ paddingBottom: 'max(32px, env(safe-area-inset-bottom, 32px))' }}
         >
-          <Button size="lg" className="w-full" onClick={() => router.push('/register')}>
+          <Button size="lg" className="w-full" onClick={() => navigate('/register')}>
             Get Started
           </Button>
-          <Button variant="secondary" size="lg" className="w-full border-2 border-rose-500/60" onClick={() => router.push('/login')}>
+          <Button variant="secondary" size="lg" className="w-full border-2 border-rose-500/60" onClick={() => navigate('/login')}>
             Sign In
           </Button>
           <p className="text-[11px] text-white/30 text-center leading-relaxed pt-1">
@@ -91,6 +102,16 @@ export default function AppIntroPage() {
           </p>
         </div>
       </div>
+
+      {showOfflineToast && (
+        <div className="absolute inset-x-4 z-20 flex items-center gap-3 rounded-2xl border border-rose-500/30 bg-black/90 px-4 py-3 backdrop-blur-xl" style={{ top: 'max(16px, env(safe-area-inset-top, 16px))' }}>
+          <WifiOff className="w-5 h-5 text-rose-400 shrink-0" />
+          <p className="flex-1 text-sm text-white/80">No internet connection. Check your Wi-Fi or mobile data and try again.</p>
+          <button onClick={() => setShowOfflineToast(false)} aria-label="Dismiss" className="text-white/40 hover:text-white shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   )
 }
