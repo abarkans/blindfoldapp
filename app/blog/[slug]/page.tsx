@@ -203,7 +203,7 @@ export default async function BlogPostPage({
             </div>
           </article>
 
-          <div className="mt-14 border border-white/10 bg-white/[0.02] rounded-2xl p-6 flex items-start gap-4">
+          <div className="mt-14 pt-6 border-t border-white/10 flex items-start gap-4">
             <Image
               src="/blog/andris.jpg"
               alt={post.author}
@@ -217,7 +217,7 @@ export default async function BlogPostPage({
             </div>
           </div>
 
-          <div className="mt-6 border border-white/10 bg-white/[0.02] rounded-2xl p-7">
+          <div className="mt-10 border border-white/10 bg-white/[0.02] rounded-2xl p-7">
             <p className="text-base font-semibold text-white mb-1.5">One mystery date free every month — no card required.</p>
             <p className="text-base text-white/50 mb-5">Tell us your interests once. We find a real venue nearby and plan everything. You just show up.</p>
             <Link
