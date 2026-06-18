@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { getAllPosts } from "@/lib/blog";
+import { getPostsForPage } from "@/lib/blog";
 import PostCard from "@/components/blog/PostCard";
 import FeaturedPostCard from "@/components/blog/FeaturedPostCard";
+import Pagination from "@/components/blog/Pagination";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 
@@ -33,8 +34,7 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
-  const posts = getAllPosts();
-  const [featured, ...rest] = posts;
+  const { featured, posts: rest, totalPages } = getPostsForPage(1);
 
   return (
     <PublicPageShell>
@@ -49,7 +49,7 @@ export default function BlogPage() {
           </ol>
         </nav>
 
-        {posts.length === 0 ? (
+        {!featured && rest.length === 0 ? (
           <p className="text-white/40 text-base">No posts yet.</p>
         ) : (
           <div className="flex flex-col gap-20">
@@ -64,6 +64,8 @@ export default function BlogPage() {
             )}
           </div>
         )}
+
+        <Pagination currentPage={1} totalPages={totalPages} />
 
         <div className="mt-16 pt-6 border-t border-white/10 flex gap-6 text-sm text-white/30">
           <Link href="/legal/privacy" className="hover:text-white/60 transition-colors">Privacy</Link>

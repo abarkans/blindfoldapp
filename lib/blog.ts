@@ -47,6 +47,37 @@ export function getAllPosts(): BlogPostMeta[] {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
+const FEATURED_COUNT = 1;
+const FIRST_PAGE_GRID_SIZE = 6;
+const PAGE_SIZE = 10;
+
+export function getTotalBlogPages(): number {
+  const total = getAllPosts().length;
+  const remaining = total - FEATURED_COUNT - FIRST_PAGE_GRID_SIZE;
+  if (remaining <= 0) return 1;
+  return 1 + Math.ceil(remaining / PAGE_SIZE);
+}
+
+export function getPostsForPage(page: number): {
+  featured: BlogPostMeta | null;
+  posts: BlogPostMeta[];
+  totalPages: number;
+} {
+  const all = getAllPosts();
+  const totalPages = getTotalBlogPages();
+  if (all.length === 0) return { featured: null, posts: [], totalPages };
+
+  const [featured, ...rest] = all;
+
+  if (page <= 1) {
+    return { featured, posts: rest.slice(0, FIRST_PAGE_GRID_SIZE), totalPages };
+  }
+
+  const afterFirstPage = rest.slice(FIRST_PAGE_GRID_SIZE);
+  const start = (page - 2) * PAGE_SIZE;
+  return { featured: null, posts: afterFirstPage.slice(start, start + PAGE_SIZE), totalPages };
+}
+
 export function getPost(slug: string): BlogPost | null {
   const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
   if (!fs.existsSync(filePath)) return null;

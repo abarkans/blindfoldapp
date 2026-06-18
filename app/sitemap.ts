@@ -1,10 +1,11 @@
 import { MetadataRoute } from "next";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPosts, getTotalBlogPages } from "@/lib/blog";
 
 const SITE_URL = "https://blindfolddate.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts();
+  const totalPages = getTotalBlogPages();
 
   const blogEntries: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${SITE_URL}/blog/${post.slug}`,
@@ -12,6 +13,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "monthly",
     priority: 0.7,
   }));
+
+  const blogPageEntries: MetadataRoute.Sitemap = Array.from(
+    { length: Math.max(totalPages - 1, 0) },
+    (_, i) => ({
+      url: `${SITE_URL}/blog/page/${i + 2}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    })
+  );
 
   return [
     {
@@ -27,6 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     ...blogEntries,
+    ...blogPageEntries,
     {
       url: `${SITE_URL}/register`,
       lastModified: new Date(),
