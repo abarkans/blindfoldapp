@@ -47,6 +47,14 @@ next-env.d.ts
 # internal security notes
 security-audit-findings.txt
 SECURITY-TODO.txt
+SECURITY_REPORT.md
+
+# local debug/test tools
+app/api/push/test/
+scripts/test-push.mjs
+
+# supabase CLI local state
+supabase/.temp/
 
 # claude project instructions (local only)
 CLAUDE.md
