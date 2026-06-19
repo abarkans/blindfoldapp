@@ -14,7 +14,7 @@ export default function XPProgressBar({ totalXp }: XPProgressBarProps) {
 
   return (
     <div className="mb-10">
-      <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
+      <h3 className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
         Level
       </h3>
       <div className="flex items-center justify-between mb-2.5">

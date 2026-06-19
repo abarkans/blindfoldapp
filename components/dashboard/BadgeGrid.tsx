@@ -172,7 +172,7 @@ export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone,
   return (
     <>
       <div>
-        <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
+        <h3 className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
           Trophy Room
         </h3>
         {nextMilestone && (

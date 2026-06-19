@@ -547,7 +547,7 @@ function StatsGrid({
 
   return (
     <div className="mt-6 mb-10">
-      <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
+      <h3 className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
         Statistics
       </h3>
       <div className="grid grid-cols-2 gap-2">

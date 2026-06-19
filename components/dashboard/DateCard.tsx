@@ -815,7 +815,7 @@ export default function DateCard({
           {!(revealed && !completed) && !(!!dateIdea && !!dateTeaser && !revealed) && (
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-white/65 uppercase tracking-widest">
+                <span className="text-xs font-semibold text-white/60 uppercase tracking-widest">
                   {(revealed && completed && dateIdea) ? "Previous date" : "Getting started"}
                 </span>
               </div>

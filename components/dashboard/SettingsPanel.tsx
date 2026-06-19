@@ -561,7 +561,7 @@ export default function SettingsPanel({
             transition={{ duration: 0.18, ease: "easeInOut" }}
           >
             {/* Account section */}
-            <p className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
+            <p className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
               Account
             </p>
             <div className="flex flex-col gap-2 mb-5">
@@ -569,7 +569,7 @@ export default function SettingsPanel({
             </div>
 
             {/* Date section */}
-            <p className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">
+            <p className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
               Date
             </p>
             <div className="flex flex-col gap-2">
