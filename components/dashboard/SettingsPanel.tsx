@@ -577,7 +577,13 @@ export default function SettingsPanel({
         className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
       >
         <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-          <Icon className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+          <Icon
+            className={
+              id === "account"
+                ? `w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`
+                : "w-4 h-4 text-[rgb(var(--fg)/0.65)]"
+            }
+          />
         </div>
         <div className="flex-1 text-left min-w-0">
           <p className="text-sm font-semibold text-[rgb(var(--fg))]">{label}</p>
@@ -756,7 +762,7 @@ export default function SettingsPanel({
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <p className="text-sm font-semibold text-[rgb(var(--fg))]">Rate the app</p>
-                    <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Enjoying BlindfoldDate? Leave us a rating</p>
+                    <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Rating helps other couples find us.</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
                 </button>

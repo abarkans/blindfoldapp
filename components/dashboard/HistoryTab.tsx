@@ -5,11 +5,13 @@ import Button from "@/components/ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Lock, Sparkles, CalendarDays, MapPin, X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
+import type { Theme } from "@/lib/types";
 
 interface HistoryTabProps {
   historyPromise: Promise<CompletedDateWithPhotos[]>;
   planType: string;
   onOpenPlanSettings: () => void;
+  theme: Theme;
 }
 
 function formatDate(iso: string | null) {
@@ -285,10 +287,12 @@ function HistoryContent({
   history,
   isPaid,
   onOpenPlanSettings,
+  theme,
 }: {
   history: CompletedDateWithPhotos[];
   isPaid: boolean;
   onOpenPlanSettings: () => void;
+  theme: Theme;
 }) {
   const [inCapacitor, setInCapacitor] = useState(false);
   useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
@@ -296,7 +300,7 @@ function HistoryContent({
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center mb-4">
-          <CalendarDays className="w-7 h-7 text-[rgb(var(--fg)/0.25)]" />
+          <CalendarDays className={`w-7 h-7 ${theme === "dark" ? "text-[#383838]" : "text-[#d6d6d6]"}`} />
         </div>
         <p className="text-[rgb(var(--fg)/0.6)] text-sm">No completed dates yet.</p>
         <p className="text-[rgb(var(--fg)/0.35)] text-xs mt-1">Finish a date to start your scrapbook.</p>
@@ -351,6 +355,7 @@ export default function HistoryTab({
   historyPromise,
   planType,
   onOpenPlanSettings,
+  theme,
 }: HistoryTabProps) {
   const history = use(historyPromise);
   const isPaid = planType === "subscription";
@@ -365,6 +370,7 @@ export default function HistoryTab({
         history={history}
         isPaid={isPaid}
         onOpenPlanSettings={onOpenPlanSettings}
+        theme={theme}
       />
     </div>
   );

@@ -233,7 +233,13 @@ export default function DashboardTabs({
                 />
               )}
               <div className="relative shrink-0 z-10">
-                <Icon className="w-4 h-4" />
+                <Icon
+                  className={`w-4 h-4 ${
+                    activeTab === id
+                      ? theme === "dark" ? "text-[#d6d6d6]" : "text-[#404040]"
+                      : theme === "dark" ? "text-[#8a8a8a]" : "text-[#737373]"
+                  }`}
+                />
                 {id === "settings" && showPartnerNudge && activeTab !== "settings" && (
                   <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-[rgb(var(--sidebar-bg))]" />
                 )}
@@ -354,6 +360,7 @@ export default function DashboardTabs({
                       historyPromise={historyPromise}
                       planType={profile.plan_type ?? "free"}
                       onOpenPlanSettings={openPlanSettings}
+                      theme={theme}
                     />
                   </Suspense>
                 )}
