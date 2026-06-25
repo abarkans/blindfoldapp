@@ -3,25 +3,25 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { WifiOff, X, EyeOff, MapPin, Trophy } from 'lucide-react'
+import { WifiOff, X, EyeOff, MapPin, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Button from '@/components/ui/Button'
 
 const SLIDES = [
   {
     icon: EyeOff,
-    title: 'A surprise, planned for you',
-    body: 'Your date stays hidden until you both tap reveal together — no more decision fatigue.',
+    title: 'Nobody picks. Nobody argues.',
+    body: 'Tap reveal together and there it is — your night, decided.',
   },
   {
     icon: MapPin,
-    title: 'Real places, picked for you two',
-    body: 'Real restaurants, bars, and spots nearby — matched to your vibe and budget.',
+    title: 'Real spots, right near you',
+    body: 'Restaurants and bars that fit where you are and what you’ll spend.',
   },
   {
-    icon: Trophy,
-    title: 'Turn dates into a story',
-    body: 'Earn XP, unlock badges, and save photo memories from every date you complete.',
+    icon: Sparkles,
+    title: 'Every date comes with a twist',
+    body: 'A playful task to do together — then save the photos and look back later.',
   },
 ]
 
@@ -162,16 +162,6 @@ export default function AppIntroPage() {
             className="relative z-10 flex flex-col h-full px-4"
             style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
           >
-            {/* Skip */}
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={() => navigate('/register')}
-                className="text-sm font-medium text-white/55 hover:text-white transition-colors px-2 py-1.5"
-              >
-                Skip
-              </button>
-            </div>
-
             {/* Slide — drag spans the full area so swipe works anywhere, not just on the text */}
             <motion.div
               className="flex-1 flex items-center justify-center overflow-hidden touch-pan-y select-none"
@@ -221,9 +211,14 @@ export default function AppIntroPage() {
                   />
                 ))}
               </div>
-              <Button size="lg" className="w-full" onClick={handleSlideNext}>
-                {slideIdx < SLIDES.length - 1 ? 'Next' : 'Get Started'}
-              </Button>
+              <div className="flex flex-col gap-2 w-full">
+                <Button size="lg" className="w-full" onClick={handleSlideNext}>
+                  Next
+                </Button>
+                <Button variant="ghost" size="lg" className="w-full" onClick={() => navigate('/register')}>
+                  Skip
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
