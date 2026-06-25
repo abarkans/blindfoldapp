@@ -14,8 +14,6 @@ const SLIDES = [
     body: 'Tap reveal together and there it is — your night, decided.',
     iconColor: 'text-violet-400',
     iconBg: 'bg-violet-400/15',
-    blob: 'bg-violet-400',
-    blobPos: '-top-16 -left-16',
   },
   {
     icon: MapPin,
@@ -23,8 +21,6 @@ const SLIDES = [
     body: 'Picked to fit where you are and what you’ll spend — not just restaurants and bars.',
     iconColor: 'text-blue-400',
     iconBg: 'bg-blue-400/15',
-    blob: 'bg-blue-400',
-    blobPos: '-bottom-16 -right-16',
   },
   {
     icon: Sparkles,
@@ -32,8 +28,6 @@ const SLIDES = [
     body: 'A playful task to do together — then save the photos and look back later.',
     iconColor: 'text-rose-400',
     iconBg: 'bg-rose-400/15',
-    blob: 'bg-rose-400',
-    blobPos: '-top-16 -right-16',
   },
 ]
 
@@ -211,18 +205,6 @@ export default function AppIntroPage() {
                 else handleSlideBack()
               }}
             >
-              {/* Background blob — moves and changes color per slide */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`blob-${slideIdx}`}
-                  className={`absolute w-72 h-72 rounded-full blur-3xl pointer-events-none ${SLIDES[slideIdx].blob} ${SLIDES[slideIdx].blobPos}`}
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 0.16, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.1 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                />
-              </AnimatePresence>
-
               <AnimatePresence mode="wait" custom={slideIdx}>
                 <motion.div
                   key={slideIdx}
