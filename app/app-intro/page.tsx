@@ -32,6 +32,7 @@ export default function AppIntroPage() {
   const [showSlides, setShowSlides] = useState(false)
   const [slideIdx, setSlideIdx] = useState(0)
   const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({})
+  const [slideDirection, setSlideDirection] = useState(1)
   const router = useRouter()
 
   useEffect(() => {
@@ -66,15 +67,18 @@ export default function AppIntroPage() {
   }
 
   function handleSlideNext() {
+    setSlideDirection(1)
     if (slideIdx < SLIDES.length - 1) setSlideIdx((i) => i + 1)
     else navigate('/register')
   }
 
   function handleSlideBack() {
+    setSlideDirection(-1)
     setSlideIdx((i) => Math.max(0, i - 1))
   }
 
   function handleBack() {
+    setSlideDirection(-1)
     if (slideIdx > 0) setSlideIdx((i) => i - 1)
     else setShowSlides(false)
   }
@@ -213,12 +217,18 @@ export default function AppIntroPage() {
               }}
               style={{ alignItems: 'center' }}
             >
-              <AnimatePresence mode="wait" custom={slideIdx}>
+              <AnimatePresence mode="wait" custom={slideDirection}>
                 <motion.div
                   key={slideIdx}
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -24 }}
+                  custom={slideDirection}
+                  variants={{
+                    enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
+                    center: { opacity: 1, x: 0 },
+                    exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -24 : 24 }),
+                  }}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
                   transition={{ duration: 0.2 }}
                   className="relative flex flex-col items-center gap-6 text-center px-2"
                 >
