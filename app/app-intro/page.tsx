@@ -12,16 +12,28 @@ const SLIDES = [
     icon: EyeOff,
     title: 'Picked for you',
     body: 'Tap reveal together and there it is — your night, decided.',
+    iconColor: 'text-violet-400',
+    iconBg: 'bg-violet-400/15',
+    blob: 'bg-violet-400',
+    blobPos: '-top-16 -left-16',
   },
   {
     icon: MapPin,
     title: 'Real places near you',
     body: 'Picked to fit where you are and what you’ll spend — not just restaurants and bars.',
+    iconColor: 'text-blue-400',
+    iconBg: 'bg-blue-400/15',
+    blob: 'bg-blue-400',
+    blobPos: '-bottom-16 -right-16',
   },
   {
     icon: Sparkles,
     title: 'Dates that leave a mark',
     body: 'A playful task to do together — then save the photos and look back later.',
+    iconColor: 'text-rose-400',
+    iconBg: 'bg-rose-400/15',
+    blob: 'bg-rose-400',
+    blobPos: '-top-16 -right-16',
   },
 ]
 
@@ -188,7 +200,7 @@ export default function AppIntroPage() {
 
             {/* Slide — drag spans the full area so swipe works anywhere, not just on the text */}
             <motion.div
-              className="flex-1 flex items-center justify-center overflow-hidden touch-pan-y select-none"
+              className="flex-1 relative flex items-center justify-center overflow-hidden touch-pan-y select-none"
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.15}
@@ -199,6 +211,18 @@ export default function AppIntroPage() {
                 else handleSlideBack()
               }}
             >
+              {/* Background blob — moves and changes color per slide */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`blob-${slideIdx}`}
+                  className={`absolute w-72 h-72 rounded-full blur-3xl pointer-events-none ${SLIDES[slideIdx].blob} ${SLIDES[slideIdx].blobPos}`}
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 0.16, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.1 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                />
+              </AnimatePresence>
+
               <AnimatePresence mode="wait" custom={slideIdx}>
                 <motion.div
                   key={slideIdx}
@@ -206,12 +230,12 @@ export default function AppIntroPage() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -24 }}
                   transition={{ duration: 0.2 }}
-                  className="flex flex-col items-center gap-6 text-center px-2"
+                  className="relative flex flex-col items-center gap-6 text-center px-2"
                 >
-                  <div className="w-20 h-20 rounded-3xl flex items-center justify-center" style={{ backgroundImage: 'linear-gradient(135deg, rgba(251,113,133,0.18) 0%, rgba(192,38,211,0.18) 45%, rgba(139,92,246,0.18) 100%)' }}>
+                  <div className={`w-20 h-20 rounded-3xl flex items-center justify-center ${SLIDES[slideIdx].iconBg}`}>
                     {(() => {
                       const Icon = SLIDES[slideIdx].icon
-                      return <Icon className="w-9 h-9 text-rose-300" />
+                      return <Icon className={`w-9 h-9 ${SLIDES[slideIdx].iconColor}`} />
                     })()}
                   </div>
                   <div className="flex flex-col gap-2 max-w-xs">
