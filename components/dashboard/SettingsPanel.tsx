@@ -1007,7 +1007,7 @@ export default function SettingsPanel({
                           loading={partnerInviteSending}
                           disabled={partnerInviteCooldown > 0}
                           onClick={handlePartnerInvite}
-                          className="h-auto w-full py-3 text-sm"
+                          className="h-auto w-full py-3"
                         >
                           {partnerInviteCooldown > 0
                             ? `Wait ${partnerInviteCooldown}s`
