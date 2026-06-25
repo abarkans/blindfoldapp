@@ -53,6 +53,59 @@ function PolaroidCard({
   const hasPhoto = photos.length > 0 && !!photos[0]?.r2_key;
   const canView = isPaid && hasPhoto;
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [actionError, setActionError] = useState("");
+
+  const fileNameBase = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "memory";
+
+  async function fetchPhotoFile(key: string): Promise<File> {
+    const res = await fetch(`/api/photo/view?key=${encodeURIComponent(key)}`);
+    if (!res.ok) throw new Error("Couldn't load photo");
+    const blob = await res.blob();
+    return new File([blob], `${fileNameBase}.jpg`, { type: "image/jpeg" });
+  }
+
+  async function handleShare(key: string) {
+    setActionError("");
+    setSharing(true);
+    try {
+      const file = await fetchPhotoFile(key);
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: name });
+      } else if (navigator.share) {
+        await navigator.share({ title: name, url: window.location.href });
+      } else {
+        throw new Error("Sharing isn't supported on this device");
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        setActionError(err.message || "Couldn't share photo");
+      }
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  async function handleDownload(key: string) {
+    setActionError("");
+    setDownloading(true);
+    try {
+      const file = await fetchPhotoFile(key);
+      const url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Couldn't download photo");
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <>
@@ -194,12 +247,28 @@ function PolaroidCard({
                 </div>
               )}
 
+              {actionError && (
+                <p className="text-xs text-red-400 text-center mt-3">{actionError}</p>
+              )}
               <div className="flex flex-col md:flex-row gap-3 mt-4">
-                <Button disabled size="md" className="w-full md:flex-1 gap-2">
+                <Button
+                  size="md"
+                  className="w-full md:flex-1 gap-2"
+                  loading={sharing}
+                  disabled={downloading}
+                  onClick={(e) => { e.stopPropagation(); handleShare(photos[lightboxIdx].r2_key!); }}
+                >
                   <Share2 className="w-4 h-4" />
                   Share
                 </Button>
-                <Button disabled variant="outline" size="md" className="w-full md:flex-1 gap-2">
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="w-full md:flex-1 gap-2"
+                  loading={downloading}
+                  disabled={sharing}
+                  onClick={(e) => { e.stopPropagation(); handleDownload(photos[lightboxIdx].r2_key!); }}
+                >
                   <Download className="w-4 h-4" />
                   Download
                 </Button>

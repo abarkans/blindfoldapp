@@ -21,7 +21,7 @@ import { skipCheckIn } from "@/app/actions/check-in";
 import { dismissDate, resetCheckinSkip } from "@/app/actions/dismiss-date";
 import { skipTrialDate } from "@/app/actions/skip-trial-date";
 import { pingPartner } from "@/app/actions/ping-partner";
-import type { CompleteDateResult } from "@/lib/types";
+import type { CompleteDateResult, Theme } from "@/lib/types";
 import { requestNativeReview } from "@/lib/app-review";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import CheckInButton from "@/components/dashboard/CheckInButton";
@@ -118,6 +118,7 @@ function getShortAddress(venue: VenueDateIdea): string {
 }
 
 interface DateCardProps {
+  theme: Theme;
   partnerNames: { partner1: string; partner2: string };
   cadence: string;
   revealedAt: string | null;
@@ -340,6 +341,7 @@ function getPartnerInviteCopy(
 }
 
 export default function DateCard({
+  theme,
   partnerNames,
   cadence,
   revealedAt,
@@ -767,9 +769,9 @@ export default function DateCard({
             { value: countdown.minutes, label: "Mins" },
             { value: countdown.seconds, label: "Secs" },
           ].map(({ value, label }) => (
-            <div key={label} className="bg-white rounded-2xl py-3 text-center">
-              <p className="text-4xl font-black text-zinc-900 tabular-nums">{String(value).padStart(2, "0")}</p>
-              <p className="text-xs font-medium text-zinc-500 mt-0.5">{label}</p>
+            <div key={label} className={`rounded-2xl py-3 text-center ${theme === "light" ? "bg-zinc-900" : "bg-white"}`}>
+              <p className={`text-4xl font-black tabular-nums ${theme === "light" ? "text-white" : "text-zinc-900"}`}>{String(value).padStart(2, "0")}</p>
+              <p className={`text-xs font-medium mt-0.5 ${theme === "light" ? "text-zinc-400" : "text-zinc-500"}`}>{label}</p>
             </div>
           ))}
           </div>

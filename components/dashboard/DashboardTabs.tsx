@@ -337,6 +337,7 @@ export default function DashboardTabs({
                     memberRole={memberRole}
                     partnerInviteStatus={partnerInviteStatus}
                     unitSystem={unitSystem}
+                    theme={theme}
                   />
                 )}
                 {activeTab === "progress" && (
@@ -440,6 +441,7 @@ function DateTabContent({
   memberRole,
   partnerInviteStatus,
   unitSystem = "metric",
+  theme,
 }: {
   profile: Profile;
   isDateCompleted: boolean;
@@ -450,6 +452,7 @@ function DateTabContent({
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
   unitSystem?: UnitSystem;
+  theme: Theme;
 }) {
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -515,6 +518,7 @@ function DateTabContent({
       </AnimatePresence>
 
       <DateCard
+        theme={theme}
         partnerNames={profile.partner_names}
         cadence={profile.cadence}
         revealedAt={profile.revealed_at ?? null}
