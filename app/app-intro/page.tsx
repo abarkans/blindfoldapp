@@ -172,25 +172,27 @@ export default function AppIntroPage() {
               </button>
             </div>
 
-            {/* Slide */}
-            <div className="flex-1 flex items-center justify-center overflow-hidden">
+            {/* Slide — drag spans the full area so swipe works anywhere, not just on the text */}
+            <motion.div
+              className="flex-1 flex items-center justify-center overflow-hidden touch-pan-y select-none"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.15}
+              onDragEnd={(_, info) => {
+                const swipe = Math.abs(info.offset.x) > 50 || Math.abs(info.velocity.x) > 400
+                if (!swipe) return
+                if (info.offset.x < 0) handleSlideNext()
+                else handleSlideBack()
+              }}
+            >
               <AnimatePresence mode="wait" custom={slideIdx}>
                 <motion.div
                   key={slideIdx}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.15}
-                  onDragEnd={(_, info) => {
-                    const swipe = Math.abs(info.offset.x) > 50 || Math.abs(info.velocity.x) > 400
-                    if (!swipe) return
-                    if (info.offset.x < 0) handleSlideNext()
-                    else handleSlideBack()
-                  }}
                   initial={{ opacity: 0, x: 24 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -24 }}
                   transition={{ duration: 0.2 }}
-                  className="flex flex-col items-center gap-6 text-center px-2 touch-pan-y select-none"
+                  className="flex flex-col items-center gap-6 text-center px-2"
                 >
                   <div className="w-20 h-20 rounded-3xl flex items-center justify-center" style={{ backgroundImage: 'linear-gradient(135deg, rgba(251,113,133,0.18) 0%, rgba(192,38,211,0.18) 45%, rgba(139,92,246,0.18) 100%)' }}>
                     {(() => {
@@ -204,7 +206,7 @@ export default function AppIntroPage() {
                   </div>
                 </motion.div>
               </AnimatePresence>
-            </div>
+            </motion.div>
 
             {/* Dots + CTA */}
             <div
