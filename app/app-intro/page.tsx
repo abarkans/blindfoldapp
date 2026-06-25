@@ -3,31 +3,25 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { WifiOff, X, EyeOff, MapPin, Sparkles, ArrowLeft } from 'lucide-react'
+import { WifiOff, X, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Button from '@/components/ui/Button'
 
 const SLIDES = [
   {
-    icon: EyeOff,
     title: 'Picked for you',
-    body: 'Tap reveal together and there it is — your night, decided.',
-    iconColor: 'text-violet-400',
-    iconBg: 'bg-violet-400/15',
+    body: 'Tell the app what you’re into once. It handles the rest.',
+    image: '/app-intro/slide-realplaces.png',
   },
   {
-    icon: MapPin,
     title: 'Real places near you',
     body: 'Picked to fit where you are and what you’ll spend — not just restaurants and bars.',
-    iconColor: 'text-blue-400',
-    iconBg: 'bg-blue-400/15',
+    image: '/app-intro/slide-interests.png',
   },
   {
-    icon: Sparkles,
     title: 'Dates that leave a mark',
     body: 'A playful task to do together — then save the photos and look back later.',
-    iconColor: 'text-rose-400',
-    iconBg: 'bg-rose-400/15',
+    image: '/app-intro/slide-memories.png',
   },
 ]
 
@@ -37,9 +31,13 @@ export default function AppIntroPage() {
   const [inCapacitor, setInCapacitor] = useState(false)
   const [showSlides, setShowSlides] = useState(false)
   const [slideIdx, setSlideIdx] = useState(0)
+  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({})
   const router = useRouter()
 
-  useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, [])
+  useEffect(() => {
+    const forceCapacitor = new URLSearchParams(window.location.search).get('capacitor') === '1'
+    if ((window as any).Capacitor || forceCapacitor) setInCapacitor(true)
+  }, [])
 
   function navigate(path: string) {
     if (!navigator.onLine) {
@@ -204,6 +202,7 @@ export default function AppIntroPage() {
                 if (info.offset.x < 0) handleSlideNext()
                 else handleSlideBack()
               }}
+              style={{ alignItems: 'center' }}
             >
               <AnimatePresence mode="wait" custom={slideIdx}>
                 <motion.div
@@ -214,11 +213,28 @@ export default function AppIntroPage() {
                   transition={{ duration: 0.2 }}
                   className="relative flex flex-col items-center gap-6 text-center px-2"
                 >
-                  <div className={`w-20 h-20 rounded-3xl flex items-center justify-center ${SLIDES[slideIdx].iconBg}`}>
-                    {(() => {
-                      const Icon = SLIDES[slideIdx].icon
-                      return <Icon className={`w-9 h-9 ${SLIDES[slideIdx].iconColor}`} />
-                    })()}
+                  <div className="relative w-full max-w-[360px] aspect-[4320/2956]">
+                    {!imgErrors[slideIdx] ? (
+                      <>
+                        <Image
+                          src={SLIDES[slideIdx].image}
+                          alt={SLIDES[slideIdx].title}
+                          fill
+                          sizes="300px"
+                          className="object-contain"
+                          onError={() => setImgErrors((e) => ({ ...e, [slideIdx]: true }))}
+                        />
+                        {/* Fade the image's bottom edge into the slide background */}
+                        <div
+                          className="absolute inset-x-0 bottom-0 h-1/4 pointer-events-none"
+                          style={{ background: 'linear-gradient(to bottom, transparent 0%, #0a0a0a 100%)' }}
+                        />
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 rounded-2xl border border-dashed border-white/15 flex items-center justify-center">
+                        <p className="text-[11px] text-white/30 px-6 text-center">Missing: {SLIDES[slideIdx].image}</p>
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-col gap-2 max-w-xs">
                     <h2 className="text-2xl font-bold text-white leading-tight">{SLIDES[slideIdx].title}</h2>
