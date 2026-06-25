@@ -8,8 +8,8 @@ import {
   User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star, Moon, Sun,
-  MessageCircle, Bug, Lightbulb, HelpCircle,
+  Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star, Moon, Sun,
+  MessageCircle, Bug, Lightbulb, HelpCircle, Gem,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -1264,8 +1264,8 @@ export default function SettingsPanel({
                       isPlus ? "bg-[rgb(var(--fg)/0.06)]" : "bg-[rgb(var(--fg)/0.06)]",
                     ].join(" ")}>
                       {isPlus
-                        ? <Crown className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
-                        : <Lock className="w-4 h-4 text-[rgb(var(--fg)/0.4)]" />}
+                        ? <Gem className={`w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
+                        : <Lock className={`w-4 h-4 ${theme === "dark" ? "text-[#737373]" : "text-[#919191]"}`} />}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-[rgb(var(--fg))]">
@@ -1289,7 +1289,7 @@ export default function SettingsPanel({
                   {!isPlus && (
                     <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-rose-400/45 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                        <Gem className={`w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
                         <p className="text-sm font-bold text-[rgb(var(--fg))]">Unlock Plus</p>
                         <div className="ml-auto text-right">
                           {billingInterval === "yearly" ? (
@@ -1343,16 +1343,17 @@ export default function SettingsPanel({
                         ))}
                       </ul>
                       {inCapacitor ? (
-                        <button
+                        <Button
                           type="button"
+                          variant="primary"
                           onClick={async () => {
                             const { Browser } = await import('@capacitor/browser')
                             await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
                           }}
-                          className="w-full py-3 rounded-full border border-[rgb(var(--fg)/0.2)] text-[rgb(var(--fg)/0.6)] text-sm font-semibold"
+                          className="w-full h-auto py-3 text-sm font-bold gap-2"
                         >
                           Get Plus on the web
-                        </button>
+                        </Button>
                       ) : (
                         <Button
                           type="button"
