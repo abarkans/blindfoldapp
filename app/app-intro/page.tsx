@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { WifiOff, X, EyeOff, MapPin, Sparkles } from 'lucide-react'
+import { WifiOff, X, EyeOff, MapPin, Sparkles, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Button from '@/components/ui/Button'
 
@@ -59,6 +59,11 @@ export default function AppIntroPage() {
 
   function handleSlideBack() {
     setSlideIdx((i) => Math.max(0, i - 1))
+  }
+
+  function handleBack() {
+    if (slideIdx > 0) setSlideIdx((i) => i - 1)
+    else setShowSlides(false)
   }
 
   useEffect(() => {
@@ -164,8 +169,15 @@ export default function AppIntroPage() {
             className="relative z-10 flex flex-col h-full px-4"
             style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
           >
-            {/* Skip */}
-            <div className="flex justify-end pt-2">
+            {/* Back + Skip */}
+            <div className="flex items-center justify-between pt-2">
+              <button
+                onClick={handleBack}
+                aria-label="Back"
+                className="text-white/55 hover:text-white transition-colors p-1.5 -ml-1.5"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
               <button
                 onClick={() => navigate('/register')}
                 className="text-sm font-medium text-white/55 hover:text-white transition-colors px-2 py-1.5"
