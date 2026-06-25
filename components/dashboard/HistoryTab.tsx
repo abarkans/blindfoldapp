@@ -313,18 +313,14 @@ function HistoryContent({
       {!isPaid && history.length > 0 && (
         <div className="mb-6 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.18)] rounded-3xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Gem className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+            <Gem className={`w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
             <p className="text-xs font-semibold text-[rgb(var(--fg))] uppercase tracking-widest">Plus</p>
           </div>
           <p className="text-sm font-semibold text-[rgb(var(--fg))] mb-1">Unlock your Date Scrapbook</p>
           <p className="text-xs text-[rgb(var(--fg)/0.55)] leading-relaxed mb-3">
             Photos are captured. To view them upgrade by visiting blindfolddate.com from your account.
           </p>
-          {inCapacitor ? (
-            <p className="text-xs text-[rgb(var(--fg)/0.5)] text-center leading-relaxed">
-              To upgrade to Plus, visit blindfolddate.com from your account.
-            </p>
-          ) : (
+          {!inCapacitor && (
             <button
               onClick={onOpenPlanSettings}
               className="w-full py-2.5 rounded-full bg-rose-500 text-white font-semibold text-sm hover:bg-rose-400 transition-all active:scale-[0.98]"
