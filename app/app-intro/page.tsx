@@ -10,17 +10,17 @@ import Button from '@/components/ui/Button'
 const SLIDES = [
   {
     icon: EyeOff,
-    title: 'Nobody picks. Nobody argues.',
+    title: 'Picked for you',
     body: 'Tap reveal together and there it is — your night, decided.',
   },
   {
     icon: MapPin,
-    title: 'Real spots, right near you',
+    title: 'Real places near you',
     body: 'Picked to fit where you are and what you’ll spend — not just restaurants and bars.',
   },
   {
     icon: Sparkles,
-    title: 'Every date comes with a twist',
+    title: 'Dates that leave a mark',
     body: 'A playful task to do together — then save the photos and look back later.',
   },
 ]
