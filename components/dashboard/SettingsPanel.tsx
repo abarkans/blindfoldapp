@@ -5,11 +5,11 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
+  Users, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
   Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star, Moon, Sun,
-  MessageCircle, Bug, Lightbulb, HelpCircle, Gem,
+  MessageCircle, Bug, Lightbulb, HelpCircle, Gem, BadgeCheck,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -541,8 +541,8 @@ export default function SettingsPanel({
   ];
 
   const DATE_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
-    { id: "partners", label: "Partners", icon: User, summary: partner2 ? `${partner1} & ${partner2}` : partner1 },
-    { id: "interests", label: "Interests", icon: Tag, summary: interestsSummary },
+    { id: "partners", label: "Partners", icon: Users, summary: partner2 ? `${partner1} & ${partner2}` : partner1 },
+    { id: "interests", label: "Interests", icon: Heart, summary: interestsSummary },
     { id: "logistics", label: "Logistics", icon: Sliders, summary: logisticsSummary },
     { id: "location", label: "Location", icon: MapPin, summary: locationLabel || "Not set" },
     ...(isPlus
@@ -579,7 +579,7 @@ export default function SettingsPanel({
         <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
           <Icon
             className={
-              id === "account" || id === "logistics"
+              id === "account" || id === "logistics" || id === "partners"
                 ? `w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`
                 : "w-4 h-4 text-[rgb(var(--fg)/0.65)]"
             }
@@ -1265,6 +1265,8 @@ export default function SettingsPanel({
                     ].join(" ")}>
                       {isPlus
                         ? <Gem className={`w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
+                        : isStarter
+                        ? <BadgeCheck className={`w-4 h-4 ${theme === "dark" ? "text-[#737373]" : "text-[#919191]"}`} />
                         : <Lock className={`w-4 h-4 ${theme === "dark" ? "text-[#737373]" : "text-[#919191]"}`} />}
                     </div>
                     <div>
