@@ -854,7 +854,7 @@ export default function SettingsPanel({
                 <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                      <Mail className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                      <Mail className={`w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[rgb(var(--fg))]">Email notifications</p>
@@ -982,7 +982,7 @@ export default function SettingsPanel({
                   {partnerInviteStatus.state !== "accepted" && (
                   <div className="mt-2 rounded-2xl border border-[rgb(var(--fg)/0.16)] bg-[rgb(var(--fg)/0.04)] p-4">
                     <div className="mb-3 flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-[rgb(var(--fg)/0.65)]" />
+                      <Mail className={`h-4 w-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
                       <p className="text-sm font-semibold text-[rgb(var(--fg))]">Partner access</p>
                     </div>
                     {memberRole === "owner" ? (
