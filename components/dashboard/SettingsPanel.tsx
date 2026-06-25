@@ -9,6 +9,7 @@ import {
   AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
   Sparkles, Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star, Moon, Sun,
+  MessageCircle, Bug, Lightbulb, HelpCircle,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -30,6 +31,13 @@ import { updateEmailNotifications } from "@/app/actions/update-email-notificatio
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 import { openStoreListing } from "@/lib/app-review";
 import Drawer from "@/components/ui/Drawer";
+import { submitAppFeedback, type AppFeedbackCategory } from "@/app/actions/submit-app-feedback";
+
+const FEEDBACK_CATEGORIES: { value: AppFeedbackCategory; label: string; icon: React.ElementType }[] = [
+  { value: "bug", label: "Bug", icon: Bug },
+  { value: "idea", label: "Idea", icon: Lightbulb },
+  { value: "other", label: "Other", icon: HelpCircle },
+];
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
@@ -166,6 +174,12 @@ export default function SettingsPanel({
   const [clearingLocation, setClearingLocation] = useState(false);
   const [error, setError] = useState("");
   const [themeSheetOpen, setThemeSheetOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackCategory, setFeedbackCategory] = useState<AppFeedbackCategory>("idea");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackSending, setFeedbackSending] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackError, setFeedbackError] = useState("");
   const [signOutConfirm, setSignOutConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [upgradingPlan, setUpgradingPlan] = useState(false);
@@ -418,6 +432,26 @@ export default function SettingsPanel({
     }
   }
 
+  async function handleSendFeedback() {
+    setFeedbackSending(true);
+    setFeedbackError("");
+    const result = await submitAppFeedback(feedbackCategory, feedbackMessage, inCapacitor ? "capacitor" : "web");
+    setFeedbackSending(false);
+    if (result.error) {
+      setFeedbackError(result.error);
+      return;
+    }
+    setFeedbackSent(true);
+  }
+
+  function closeFeedbackDialog() {
+    setFeedbackOpen(false);
+    setFeedbackSent(false);
+    setFeedbackMessage("");
+    setFeedbackCategory("idea");
+    setFeedbackError("");
+  }
+
   async function handleToggleEmailNotifications() {
     setTogglingEmailNotifications(true);
     const next = !emailNotifications;
@@ -591,6 +625,74 @@ export default function SettingsPanel({
               </button>
             </div>
 
+            <Dialog open={feedbackOpen} onClose={closeFeedbackDialog} className="text-center">
+              {!feedbackSent ? (
+                <>
+                  <div className="w-12 h-12 rounded-2xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center mx-auto mb-4">
+                    <MessageCircle className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Send feedback</h3>
+                  <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-5">Tell us what's broken or what you'd love to see.</p>
+
+                  <div className="flex gap-2 mb-4">
+                    {FEEDBACK_CATEGORIES.map(({ value, label, icon: Icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setFeedbackCategory(value)}
+                        className={[
+                          "flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200",
+                          feedbackCategory === value
+                            ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                            : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.48)]",
+                        ].join(" ")}
+                      >
+                        <Icon className={`w-4 h-4 ${feedbackCategory === value ? "text-rose-300" : "text-[rgb(var(--fg)/0.45)]"}`} />
+                        <span className="text-xs font-medium">{label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    value={feedbackMessage}
+                    onChange={(e) => setFeedbackMessage(e.target.value)}
+                    placeholder="What's on your mind?"
+                    maxLength={1000}
+                    rows={4}
+                    className="w-full bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-xl px-3 py-2.5 text-[16px] text-[rgb(var(--fg))] placeholder-[rgb(var(--fg)/0.3)] resize-none focus:outline-none focus:border-[rgb(var(--fg)/0.2)] transition-colors mb-4"
+                  />
+
+                  {feedbackError && <p className="text-xs text-red-400 mb-3">{feedbackError}</p>}
+
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="button"
+                      loading={feedbackSending}
+                      disabled={!feedbackMessage.trim()}
+                      onClick={handleSendFeedback}
+                      className="w-full"
+                    >
+                      Send
+                    </Button>
+                    <Button type="button" variant="outline" onClick={closeFeedbackDialog} className="w-full">
+                      Cancel
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Thanks!</h3>
+                  <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">We read every message — appreciate you taking the time.</p>
+                  <Button type="button" variant="outline" onClick={closeFeedbackDialog} className="w-full">
+                    Close
+                  </Button>
+                </>
+              )}
+            </Dialog>
+
             <Drawer open={themeSheetOpen} onClose={() => setThemeSheetOpen(false)} title="App theme">
               <div className="flex flex-col gap-2">
                 {([
@@ -623,22 +725,43 @@ export default function SettingsPanel({
               {DATE_ROWS.map(renderRow)}
             </div>
 
-            {inCapacitor && (
+            {/* Support section */}
+            <p className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-widest mb-3 mt-5">
+              Support
+            </p>
+            <div className="flex flex-col gap-2">
               <button
                 type="button"
-                onClick={() => openStoreListing()}
-                className="w-full flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98] mt-5"
+                onClick={() => setFeedbackOpen(true)}
+                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
               >
                 <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                  <Star className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                  <MessageCircle className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-semibold text-[rgb(var(--fg))]">Rate the app</p>
-                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Enjoying BlindfoldDate? Leave us a rating</p>
+                  <p className="text-sm font-semibold text-[rgb(var(--fg))]">Send feedback</p>
+                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Report a bug or suggest an idea</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
               </button>
-            )}
+
+              {inCapacitor && (
+                <button
+                  type="button"
+                  onClick={() => openStoreListing()}
+                  className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                    <Star className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                  </div>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-sm font-semibold text-[rgb(var(--fg))]">Rate the app</p>
+                    <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Enjoying BlindfoldDate? Leave us a rating</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
+                </button>
+              )}
+            </div>
 
             <button
               type="button"

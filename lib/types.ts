@@ -79,6 +79,33 @@ export interface Database {
         };
         Relationships: [];
       };
+      app_feedback: {
+        Row: {
+          id: string;
+          user_id: string;
+          category: "bug" | "idea" | "other";
+          message: string;
+          platform: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          category: "bug" | "idea" | "other";
+          message: string;
+          platform?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          category?: "bug" | "idea" | "other";
+          message?: string;
+          platform?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       couple_members: {
         Row: {
           profile_id: string;
