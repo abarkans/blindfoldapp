@@ -2,14 +2,38 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { WifiOff, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { WifiOff, X, EyeOff, MapPin, Trophy } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Button from '@/components/ui/Button'
+
+const SLIDES = [
+  {
+    icon: EyeOff,
+    title: 'A surprise, planned for you',
+    body: 'Your date stays hidden until you both tap reveal together — no more decision fatigue.',
+  },
+  {
+    icon: MapPin,
+    title: 'Real places, picked for you two',
+    body: 'Real restaurants, bars, and spots nearby — matched to your vibe and budget.',
+  },
+  {
+    icon: Trophy,
+    title: 'Turn dates into a story',
+    body: 'Earn XP, unlock badges, and save photo memories from every date you complete.',
+  },
+]
 
 export default function AppIntroPage() {
   const [ready, setReady] = useState(false)
   const [showOfflineToast, setShowOfflineToast] = useState(false)
+  const [inCapacitor, setInCapacitor] = useState(false)
+  const [showSlides, setShowSlides] = useState(false)
+  const [slideIdx, setSlideIdx] = useState(0)
   const router = useRouter()
+
+  useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, [])
 
   function navigate(path: string) {
     if (!navigator.onLine) {
@@ -18,6 +42,23 @@ export default function AppIntroPage() {
       return
     }
     router.push(path)
+  }
+
+  function handleGetStarted() {
+    if (inCapacitor) {
+      setShowSlides(true)
+      return
+    }
+    navigate('/register')
+  }
+
+  function handleSlideNext() {
+    if (slideIdx < SLIDES.length - 1) setSlideIdx((i) => i + 1)
+    else navigate('/register')
+  }
+
+  function handleSlideBack() {
+    setSlideIdx((i) => Math.max(0, i - 1))
   }
 
   useEffect(() => {
@@ -67,41 +108,124 @@ export default function AppIntroPage() {
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/80" />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col h-full px-4" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-        {/* Logo + tagline centered */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
-          <Image src="/icon.png" alt="BlindfoldDate" width={80} height={80} className="object-contain" />
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-0">
-              <h1 className="text-[40px] font-bold tracking-tight text-white leading-none">Date night, decided.</h1>
-              <h2 className="text-[40px] font-bold tracking-tight leading-tight bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)' }}>Just show up.</h2>
+      <AnimatePresence mode="wait">
+        {!showSlides ? (
+          <motion.div
+            key="hero"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative z-10 flex flex-col h-full px-4"
+            style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+          >
+            {/* Logo + tagline centered */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
+              <Image src="/icon.png" alt="BlindfoldDate" width={80} height={80} className="object-contain" />
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-0">
+                  <h1 className="text-[40px] font-bold tracking-tight text-white leading-none">Date night, decided.</h1>
+                  <h2 className="text-[40px] font-bold tracking-tight leading-tight bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)' }}>Just show up.</h2>
+                </div>
+                <p className="text-base text-white/70 leading-relaxed">
+                  A mystery date, planned for you both.
+                </p>
+              </div>
             </div>
-            <p className="text-base text-white/70 leading-relaxed">
-              A mystery date, planned for you both.
-            </p>
-          </div>
-        </div>
 
-        {/* Buttons */}
-        <div
-          className="flex flex-col gap-3 w-full"
-          style={{ paddingBottom: 'max(32px, env(safe-area-inset-bottom, 32px))' }}
-        >
-          <Button size="lg" className="w-full" onClick={() => navigate('/register')}>
-            Get Started
-          </Button>
-          <Button variant="secondary" size="lg" className="w-full border-2 border-rose-500/60" onClick={() => navigate('/login')}>
-            Sign In
-          </Button>
-          <p className="text-[11px] text-white/30 text-center leading-relaxed pt-1">
-            By continuing, you agree to our{' '}
-            <a href="/legal/terms" className="text-white/50 underline">Terms</a>
-            {' '}and{' '}
-            <a href="/legal/privacy" className="text-white/50 underline">Privacy Policy</a>.
-          </p>
-        </div>
-      </div>
+            {/* Buttons */}
+            <div
+              className="flex flex-col gap-3 w-full"
+              style={{ paddingBottom: 'max(32px, env(safe-area-inset-bottom, 32px))' }}
+            >
+              <Button size="lg" className="w-full" onClick={handleGetStarted}>
+                Get Started
+              </Button>
+              <Button variant="secondary" size="lg" className="w-full border-2 border-rose-500/60" onClick={() => navigate('/login')}>
+                Sign In
+              </Button>
+              <p className="text-[11px] text-white/30 text-center leading-relaxed pt-1">
+                By continuing, you agree to our{' '}
+                <a href="/legal/terms" className="text-white/50 underline">Terms</a>
+                {' '}and{' '}
+                <a href="/legal/privacy" className="text-white/50 underline">Privacy Policy</a>.
+              </p>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="slides"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative z-10 flex flex-col h-full px-4"
+            style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+          >
+            {/* Skip */}
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => navigate('/register')}
+                className="text-sm font-medium text-white/55 hover:text-white transition-colors px-2 py-1.5"
+              >
+                Skip
+              </button>
+            </div>
+
+            {/* Slide */}
+            <div className="flex-1 flex items-center justify-center overflow-hidden">
+              <AnimatePresence mode="wait" custom={slideIdx}>
+                <motion.div
+                  key={slideIdx}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.15}
+                  onDragEnd={(_, info) => {
+                    const swipe = Math.abs(info.offset.x) > 50 || Math.abs(info.velocity.x) > 400
+                    if (!swipe) return
+                    if (info.offset.x < 0) handleSlideNext()
+                    else handleSlideBack()
+                  }}
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col items-center gap-6 text-center px-2 touch-pan-y select-none"
+                >
+                  <div className="w-20 h-20 rounded-3xl flex items-center justify-center" style={{ backgroundImage: 'linear-gradient(135deg, rgba(251,113,133,0.18) 0%, rgba(192,38,211,0.18) 45%, rgba(139,92,246,0.18) 100%)' }}>
+                    {(() => {
+                      const Icon = SLIDES[slideIdx].icon
+                      return <Icon className="w-9 h-9 text-rose-300" />
+                    })()}
+                  </div>
+                  <div className="flex flex-col gap-2 max-w-xs">
+                    <h2 className="text-2xl font-bold text-white leading-tight">{SLIDES[slideIdx].title}</h2>
+                    <p className="text-sm text-white/65 leading-relaxed">{SLIDES[slideIdx].body}</p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Dots + CTA */}
+            <div
+              className="flex flex-col items-center gap-5 w-full"
+              style={{ paddingBottom: 'max(32px, env(safe-area-inset-bottom, 32px))' }}
+            >
+              <div className="flex items-center gap-1.5">
+                {SLIDES.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 rounded-full transition-all ${i === slideIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/30'}`}
+                  />
+                ))}
+              </div>
+              <Button size="lg" className="w-full" onClick={handleSlideNext}>
+                {slideIdx < SLIDES.length - 1 ? 'Next' : 'Get Started'}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {showOfflineToast && (
         <div className="absolute inset-x-4 z-20 flex items-center gap-3 rounded-2xl border border-rose-500/30 bg-black/90 px-4 py-3 backdrop-blur-xl" style={{ top: 'max(16px, env(safe-area-inset-top, 16px))' }}>
