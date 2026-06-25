@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Lock, Sparkles, CalendarDays, MapPin, X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
+import { Camera, Lock, Gem, CalendarDays, MapPin, X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
 import type { Theme } from "@/lib/types";
 
@@ -313,12 +313,12 @@ function HistoryContent({
       {!isPaid && history.length > 0 && (
         <div className="mb-6 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.18)] rounded-3xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+            <Gem className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
             <p className="text-xs font-semibold text-[rgb(var(--fg))] uppercase tracking-widest">Plus</p>
           </div>
           <p className="text-sm font-semibold text-[rgb(var(--fg))] mb-1">Unlock your Date Scrapbook</p>
           <p className="text-xs text-[rgb(var(--fg)/0.55)] leading-relaxed mb-3">
-            Photos are captured. Upgrade to Plus to view them.
+            Photos are captured. To view them upgrade by visiting blindfolddate.com from your account.
           </p>
           {inCapacitor ? (
             <p className="text-xs text-[rgb(var(--fg)/0.5)] text-center leading-relaxed">

@@ -1345,11 +1345,7 @@ export default function SettingsPanel({
                           </li>
                         ))}
                       </ul>
-                      {inCapacitor ? (
-                        <p className="text-xs text-[rgb(var(--fg)/0.5)] text-center leading-relaxed">
-                          To upgrade to Plus, visit blindfolddate.com from your account.
-                        </p>
-                      ) : (
+                      {!inCapacitor && (
                         <Button
                           type="button"
                           variant="primary"
@@ -1361,6 +1357,12 @@ export default function SettingsPanel({
                         </Button>
                       )}
                     </div>
+                  )}
+
+                  {!isPlus && inCapacitor && (
+                    <p className="text-sm text-[rgb(var(--fg)/0.6)] text-center leading-relaxed font-medium">
+                      To upgrade to Plus, visit blindfolddate.com from your account.
+                    </p>
                   )}
 
                   {isPlus && (
