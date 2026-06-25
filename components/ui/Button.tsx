@@ -7,14 +7,14 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "outl
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center font-semibold rounded-full transition-[color,background-color,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d14] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]";
+  "inline-flex items-center justify-center font-semibold rounded-full transition-[color,background-color,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--page-bg))] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]";
 
 const variantMap: Record<ButtonVariant, string> = {
   primary: "bg-rose-500 text-white hover:bg-rose-400",
-  secondary: "bg-black/90 text-white border-2 border-rose-500 hover:border-rose-400 hover:bg-black/80 backdrop-blur-sm",
-  ghost: "text-white/70 hover:text-white hover:bg-white/10",
+  secondary: "bg-[rgb(var(--modal-bg)/0.9)] text-[rgb(var(--fg))] border-2 border-rose-500 hover:border-rose-400 hover:bg-[rgb(var(--modal-bg)/0.8)] backdrop-blur-sm",
+  ghost: "text-[rgb(var(--fg)/0.7)] hover:text-[rgb(var(--fg))] hover:bg-[rgb(var(--fg)/0.1)]",
   danger: "bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30",
-  outline: "bg-white/5 border border-white/10 text-white/60 hover:border-white/20 hover:text-white/80",
+  outline: "bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.1)] text-[rgb(var(--fg)/0.6)] hover:border-[rgb(var(--fg)/0.2)] hover:text-[rgb(var(--fg)/0.8)]",
 };
 
 const sizeMap: Record<ButtonSize, string> = {

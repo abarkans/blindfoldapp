@@ -67,19 +67,19 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors"
+          className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.1)] hover:border-[rgb(var(--fg)/0.2)] transition-colors"
         >
           <div className="text-left">
             {selected ? (
               <>
-                <p className="text-sm font-semibold text-white">{selected.label}</p>
-                <p className="text-xs text-white/40 mt-0.5">{selected.sublabel}</p>
+                <p className="text-sm font-semibold text-[rgb(var(--fg))]">{selected.label}</p>
+                <p className="text-xs text-[rgb(var(--fg)/0.4)] mt-0.5">{selected.sublabel}</p>
               </>
             ) : (
-              <p className="text-sm text-white/35">Select frequency…</p>
+              <p className="text-sm text-[rgb(var(--fg)/0.35)]">Select frequency…</p>
             )}
           </div>
-          <ChevronDown className="w-4 h-4 text-white/40 shrink-0 ml-2" />
+          <ChevronDown className="w-4 h-4 text-[rgb(var(--fg)/0.4)] shrink-0 ml-2" />
         </button>
       </div>
 
@@ -93,8 +93,8 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
             className={[
               "flex flex-col items-start gap-0.5 p-4 rounded-2xl border text-left transition-all duration-200",
               value === v
-                ? "bg-white/[0.075] border-rose-400/70 text-white"
-                : "bg-white/[0.035] border-white/16 text-white/55 hover:border-white/30",
+                ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.55)] hover:border-[rgb(var(--fg)/0.3)]",
             ].join(" ")}
           >
             <p className="font-semibold text-sm">{label}</p>
@@ -128,7 +128,7 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
                 ? { type: "tween", duration: 0 }          // instant follow while dragging
                 : { type: "spring", stiffness: 400, damping: 40 }
               }
-              className="md:hidden fixed left-4 right-4 bottom-4 z-50 bg-[#030303] border border-white/14 rounded-3xl px-6 shadow-2xl shadow-black/60"
+              className="md:hidden fixed left-4 right-4 bottom-4 z-50 bg-[rgb(var(--modal-bg))] border border-[rgb(var(--fg)/0.14)] rounded-3xl px-6 shadow-2xl shadow-black/60"
               style={{ paddingBottom: "40px", touchAction: "none" }}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
@@ -136,10 +136,10 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
             >
               {/* Handle */}
               <div className="flex justify-center pt-3 pb-5">
-                <div className="w-10 h-1 rounded-full bg-white/20" />
+                <div className="w-10 h-1 rounded-full bg-[rgb(var(--fg)/0.2)]" />
               </div>
 
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
+              <p className="text-xs font-semibold text-[rgb(var(--fg)/0.4)] uppercase tracking-widest mb-4">
                 How often?
               </p>
 
@@ -153,8 +153,8 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
                     className={[
                       "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-150",
                       value === v
-                        ? "bg-white/[0.075] border-rose-400/70 text-white"
-                        : "bg-white/[0.035] border-white/16 text-white/55 active:bg-white/[0.06]",
+                        ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                        : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.55)] active:bg-[rgb(var(--fg)/0.06)]",
                     ].join(" ")}
                   >
                     <div className="flex-1">

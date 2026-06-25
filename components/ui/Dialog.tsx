@@ -19,7 +19,7 @@ export default function Dialog({ open, onClose, children, className }: DialogPro
         onClick={onClose}
       />
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-sm px-4">
-        <div className={cn("bg-[#030303] border border-white/14 rounded-3xl p-6 shadow-2xl shadow-black/60", className)}>
+        <div className={cn("bg-[rgb(var(--modal-bg))] border border-[rgb(var(--fg)/0.14)] rounded-3xl p-6 shadow-2xl shadow-black/60", className)}>
           {children}
         </div>
       </div>

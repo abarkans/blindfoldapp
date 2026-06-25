@@ -288,14 +288,14 @@ function BothSkippedScreen({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="rounded-2xl bg-white/[0.05] border border-white/12 px-4 py-4 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-white/[0.07] flex items-center justify-center mx-auto mb-3">
-          {isHome ? <Camera className="w-6 h-6 text-white/55" /> : <MapPinOff className="w-6 h-6 text-white/55" />}
+      <div className="rounded-2xl bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.12)] px-4 py-4 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center mx-auto mb-3">
+          {isHome ? <Camera className="w-6 h-6 text-[rgb(var(--fg)/0.55)]" /> : <MapPinOff className="w-6 h-6 text-[rgb(var(--fg)/0.55)]" />}
         </div>
-        <p className="text-sm font-semibold text-white mb-1">
+        <p className="text-sm font-semibold text-[rgb(var(--fg))] mb-1">
           {isHome ? "Looks like you both skipped the photo" : "Looks like you both skipped check-in"}
         </p>
-        <p className="text-xs text-white/55 leading-relaxed">
+        <p className="text-xs text-[rgb(var(--fg)/0.55)] leading-relaxed">
           {isHome
             ? "No worries, memories aren't made on command. You can still capture the moment, or call it a night."
             : "No worries, date nights don't always go to plan. You can head to the venue now and check in, or close this one out and look forward to the next."}
@@ -759,7 +759,7 @@ export default function DateCard({
       {/* Countdown card — shown first when date is completed */}
       {showCompletedCooldown && countdown && nextRevealDate && (
         <div className="mb-8">
-          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-3">Next mystery date</p>
+          <p className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-wider mb-3">Next mystery date</p>
           <div className="grid grid-cols-4 gap-2">
           {[
             { value: countdown.days, label: "Days" },
@@ -777,17 +777,17 @@ export default function DateCard({
       )}
 
       {!!dateIdea && !!dateTeaser && !revealed && (
-        <p className="text-xs font-semibold text-white/65 uppercase tracking-widest mb-3">The teaser</p>
+        <p className="text-xs font-semibold text-[rgb(var(--fg)/0.65)] uppercase tracking-widest mb-3">The teaser</p>
       )}
 
       <div
         className={
           completed
             ? ""
-            : `relative overflow-hidden rounded-3xl border bg-white/[0.035] backdrop-blur-sm ${
+            : `relative overflow-hidden rounded-3xl border bg-[rgb(var(--fg)/0.035)] backdrop-blur-sm ${
                 !!dateIdea && !!dateTeaser && !revealed
                   ? "border-fuchsia-500/20 shadow-lg shadow-indigo-500/10"
-                  : "border-white/16"
+                  : "border-[rgb(var(--fg)/0.16)]"
               }`
         }
       >
@@ -828,7 +828,7 @@ export default function DateCard({
           {!(revealed && !completed) && !(!!dateIdea && !!dateTeaser && !revealed) && (
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-white/60 uppercase tracking-widest">
+                <span className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-widest">
                   {(revealed && completed && dateIdea) ? "Previous date" : "Getting started"}
                 </span>
               </div>
@@ -847,20 +847,20 @@ export default function DateCard({
               >
                 {completed ? (
                   /* ── COMPLETED: collapsed card ── */
-                  <div className="flex items-center gap-4 bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-4">
+                  <div className="flex items-center gap-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl px-4 py-4">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-white truncate">
+                      <p className="text-sm font-bold text-[rgb(var(--fg))] truncate">
                         {isVenue(dateIdea) ? dateIdea.display_name : dateIdea.title}
                       </p>
-                      <p className="text-xs text-white/55 mt-0.5">
+                      <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">
                         {isVenue(dateIdea) ? getShortAddress(dateIdea) : dateIdea.vibe}
                       </p>
                     </div>
                     <div className="ml-auto flex items-center gap-1.5 shrink-0">
                       {checkinOwnerSkipped && checkinPartnerSkipped ? (
                         <>
-                          <AlertCircle className="w-4 h-4 text-white/40" />
-                          <span className="text-xs font-semibold text-white/40">Incomplete</span>
+                          <AlertCircle className="w-4 h-4 text-[rgb(var(--fg)/0.4)]" />
+                          <span className="text-xs font-semibold text-[rgb(var(--fg)/0.4)]">Incomplete</span>
                         </>
                       ) : (
                         <>
@@ -878,7 +878,7 @@ export default function DateCard({
                       {[0, 1, 2].map((i) => (
                         <motion.div
                           key={i}
-                          className="w-2 h-2 rounded-full bg-white/70"
+                          className="w-2 h-2 rounded-full bg-[rgb(var(--fg)/0.7)]"
                           animate={{ y: [0, -8, 0] }}
                           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
                         />
@@ -891,7 +891,7 @@ export default function DateCard({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="text-sm text-white/50 text-center px-4"
+                        className="text-sm text-[rgb(var(--fg)/0.5)] text-center px-4"
                       >
                         {REROLL_MESSAGES[loadingMsgIndex % REROLL_MESSAGES.length]}
                       </motion.p>
@@ -908,33 +908,33 @@ export default function DateCard({
                     className="flex flex-col gap-4"
                   >
                     {/* Peek preview */}
-                    <div className="bg-white/[0.045] border border-white/16 rounded-2xl p-4 text-center">
+                    <div className="bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-4 text-center">
                       {isVenue(dateIdea) ? (
                         <>
-                          <div className="w-12 h-12 rounded-xl bg-white/[0.06] flex items-center justify-center mx-auto mb-3">
-                            <MapPin className="w-6 h-6 text-white/65" />
+                          <div className="w-12 h-12 rounded-xl bg-[rgb(var(--fg)/0.06)] flex items-center justify-center mx-auto mb-3">
+                            <MapPin className="w-6 h-6 text-[rgb(var(--fg)/0.65)]" />
                           </div>
-                          <p className="text-base font-bold text-white mb-1">{dateIdea.display_name}</p>
+                          <p className="text-base font-bold text-[rgb(var(--fg))] mb-1">{dateIdea.display_name}</p>
                           <div className="flex items-center justify-center gap-1.5">
                             <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                            <span className="text-xs text-white/50">{dateIdea.rating.toFixed(1)}</span>
+                            <span className="text-xs text-[rgb(var(--fg)/0.5)]">{dateIdea.rating.toFixed(1)}</span>
                             {dateIdea.ai?.vibe && (
                               <>
-                                <span className="text-white/20">·</span>
-                                <span className="text-xs text-white/70">{dateIdea.ai.vibe}</span>
+                                <span className="text-[rgb(var(--fg)/0.2)]">·</span>
+                                <span className="text-xs text-[rgb(var(--fg)/0.7)]">{dateIdea.ai.vibe}</span>
                               </>
                             )}
                           </div>
                         </>
                       ) : (
                         <>
-                          <p className="text-base font-bold text-white mb-1">{dateIdea.title}</p>
-                          <p className="text-xs text-white/70">{dateIdea.vibe}</p>
+                          <p className="text-base font-bold text-[rgb(var(--fg))] mb-1">{dateIdea.title}</p>
+                          <p className="text-xs text-[rgb(var(--fg)/0.7)]">{dateIdea.vibe}</p>
                         </>
                       )}
                     </div>
 
-                    <p className="text-xs text-white/55 text-center">
+                    <p className="text-xs text-[rgb(var(--fg)/0.55)] text-center">
                       Unlock the full surprise, or swap for something else.
                     </p>
 
@@ -979,8 +979,8 @@ export default function DateCard({
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-white/[0.035]">
-                          <MapPin className="w-10 h-10 text-white/20" />
+                        <div className="flex h-full w-full items-center justify-center bg-[rgb(var(--fg)/0.035)]">
+                          <MapPin className="w-10 h-10 text-[rgb(var(--fg)/0.2)]" />
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent" />
@@ -1022,29 +1022,29 @@ export default function DateCard({
 
                     {/* Title + Rating on same row */}
                     <div className="flex items-start justify-between gap-3 mt-4 mb-1.5">
-                      <h3 className="text-xl font-bold text-white leading-tight">
+                      <h3 className="text-xl font-bold text-[rgb(var(--fg))] leading-tight">
                         {dateIdea.ai?.title || dateIdea.display_name}
                       </h3>
                       <div className="flex items-center gap-1 shrink-0 mt-1">
                         <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        <span className="text-sm font-bold text-white">{dateIdea.rating.toFixed(1)}</span>
+                        <span className="text-sm font-bold text-[rgb(var(--fg))]">{dateIdea.rating.toFixed(1)}</span>
                       </div>
                     </div>
 
                     {/* Metadata row */}
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45 mb-4">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[rgb(var(--fg)/0.45)] mb-4">
                       {dateIdea.ai?.duration && (
                         <span className="inline-flex items-center gap-1.5">
-                          <Timer className="h-3.5 w-3.5 text-white/55" />
+                          <Timer className="h-3.5 w-3.5 text-[rgb(var(--fg)/0.55)]" />
                           {dateIdea.ai.duration}
                         </span>
                       )}
                       <span className="inline-flex items-center gap-1.5">
-                        <Wallet className="h-3.5 w-3.5 text-white/55" />
+                        <Wallet className="h-3.5 w-3.5 text-[rgb(var(--fg)/0.55)]" />
                         {formatBudgetRange(dateIdea.ai?.budget_range || getPriceLevelLabel(dateIdea.price_level, getCurrencySymbol(unitSystem)), unitSystem)}
                       </span>
                       <span className="inline-flex min-w-0 items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 shrink-0 text-white/55" />
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-[rgb(var(--fg)/0.55)]" />
                         <span className="truncate">{venueShortAddress}</span>
                       </span>
                     </div>
@@ -1053,78 +1053,78 @@ export default function DateCard({
                     {!(mySkippedCheckIn && partnerSkippedCheckIn) && (dateIdea.ai?.description || dateIdea.ai?.mission || (!isFree && (dateIdea.ai?.preparation || dateIdea.ai?.conversation_starter))) && (
                       <div className="mb-4 flex flex-col gap-2">
                         {dateIdea.ai?.description && (
-                          <p className="text-sm leading-relaxed text-white/70 mb-2">{dateIdea.ai.description}</p>
+                          <p className="text-sm leading-relaxed text-[rgb(var(--fg)/0.7)] mb-2">{dateIdea.ai.description}</p>
                         )}
                         {dateIdea.ai?.mission && (
-                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
+                          <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
                             <button
                               onClick={() => setActiveSheet(activeSheet === "mission" ? null : "mission")}
                               className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
-                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                                <Target className="w-4 h-4 text-white/65" />
+                              <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                                <Target className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-white">Mission</p>
+                                <p className="text-sm font-semibold text-[rgb(var(--fg))]">Mission</p>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
-                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
+                              <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.35)] shrink-0 md:hidden" />
+                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-[rgb(var(--fg)/0.4)] text-lg leading-none shrink-0">
                                 {activeSheet === "mission" ? "−" : "+"}
                               </span>
                             </button>
                             <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "mission" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                               <div className="overflow-hidden">
-                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/75 border-t border-white/[0.07] pt-3">{dateIdea.ai.mission}</p>
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-[rgb(var(--fg)/0.75)] border-t border-[rgb(var(--fg)/0.07)] pt-3">{dateIdea.ai.mission}</p>
                               </div>
                             </div>
                           </div>
                         )}
                         {!isFree && dateIdea.ai?.preparation && (
-                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
+                          <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
                             <button
                               onClick={() => setActiveSheet(activeSheet === "preparation" ? null : "preparation")}
                               className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
-                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                                <PackageCheck className="w-4 h-4 text-white/65" />
+                              <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                                <PackageCheck className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-white">Before you go</p>
+                                <p className="text-sm font-semibold text-[rgb(var(--fg))]">Before you go</p>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
-                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
+                              <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.35)] shrink-0 md:hidden" />
+                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-[rgb(var(--fg)/0.4)] text-lg leading-none shrink-0">
                                 {activeSheet === "preparation" ? "−" : "+"}
                               </span>
                             </button>
                             <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "preparation" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                               <div className="overflow-hidden">
-                                <p className="px-4 pb-4 text-sm leading-relaxed text-white/70 border-t border-white/[0.07] pt-3">{dateIdea.ai.preparation}</p>
+                                <p className="px-4 pb-4 text-sm leading-relaxed text-[rgb(var(--fg)/0.7)] border-t border-[rgb(var(--fg)/0.07)] pt-3">{dateIdea.ai.preparation}</p>
                               </div>
                             </div>
                           </div>
                         )}
                         {!isFree && dateIdea.ai?.conversation_starter && (
-                          <div className="bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
+                          <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors overflow-hidden active:scale-[0.98] md:active:scale-100">
                             <button
                               onClick={() => setActiveSheet(activeSheet === "conversation" ? null : "conversation")}
                               className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
-                              <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                                <MessageCircle className="w-4 h-4 text-white/65" />
+                              <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                                <MessageCircle className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-white">Conversation starter</p>
+                                <p className="text-sm font-semibold text-[rgb(var(--fg))]">Conversation starter</p>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-white/35 shrink-0 md:hidden" />
-                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-white/40 text-lg leading-none shrink-0">
+                              <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.35)] shrink-0 md:hidden" />
+                              <span className="hidden md:flex items-center justify-center w-5 h-5 text-[rgb(var(--fg)/0.4)] text-lg leading-none shrink-0">
                                 {activeSheet === "conversation" ? "−" : "+"}
                               </span>
                             </button>
                             <div className={`hidden md:grid transition-[grid-template-rows] duration-200 ease-out ${activeSheet === "conversation" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                              <div className="overflow-hidden border-t border-white/[0.07]">
+                              <div className="overflow-hidden border-t border-[rgb(var(--fg)/0.07)]">
                                 <div className="px-4 pb-4 pt-3">
                                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-amber-400">Ask:</p>
-                                  <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.conversation_starter}</p>
+                                  <p className="text-sm leading-relaxed text-[rgb(var(--fg)/0.7)]">{dateIdea.ai.conversation_starter}</p>
                                 </div>
                               </div>
                             </div>
@@ -1137,13 +1137,13 @@ export default function DateCard({
                     {showCheckinFlow ? (
                       mySkippedCheckIn && partnerSkippedCheckIn ? (
                         isDismissPending || isResetCheckinPending ? (
-                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                             <motion.div
-                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              className="w-3.5 h-3.5 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
                               animate={{ rotate: 360 }}
                               transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
                             />
-                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                            <span className="text-sm font-semibold text-[rgb(var(--fg)/0.6)]">One moment…</span>
                           </div>
                         ) : (
                           <BothSkippedScreen
@@ -1166,13 +1166,13 @@ export default function DateCard({
                         )
                       ) : planType === "trial" && mySkippedCheckIn ? (
                         isResetCheckinPending ? (
-                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                             <motion.div
-                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              className="w-3.5 h-3.5 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
                               animate={{ rotate: 360 }}
                               transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
                             />
-                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                            <span className="text-sm font-semibold text-[rgb(var(--fg)/0.6)]">One moment…</span>
                           </div>
                         ) : (
                           <Button
@@ -1223,13 +1223,13 @@ export default function DateCard({
                           </span>
                         </div>
                       ) : isSkipPending ? (
-                        <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                        <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                           <motion.div
-                            className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                            className="w-3.5 h-3.5 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
                           />
-                          <span className="text-sm font-semibold text-white/60">Recording…</span>
+                          <span className="text-sm font-semibold text-[rgb(var(--fg)/0.6)]">Recording…</span>
                         </div>
                       ) : (
                         <>
@@ -1266,7 +1266,7 @@ export default function DateCard({
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />
-                        <p className="text-center text-xs text-white/50 mt-1.5">Press and hold to confirm</p>
+                        <p className="text-center text-xs text-[rgb(var(--fg)/0.5)] mt-1.5">Press and hold to confirm</p>
                       </>
                     )}
                   </>
@@ -1283,13 +1283,13 @@ export default function DateCard({
                     <div className="mt-4">
                       {mySkippedCheckIn && partnerSkippedCheckIn ? (
                         isDismissPending || isResetCheckinPending ? (
-                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                             <motion.div
-                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              className="w-3.5 h-3.5 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
                               animate={{ rotate: 360 }}
                               transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
                             />
-                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                            <span className="text-sm font-semibold text-[rgb(var(--fg)/0.6)]">One moment…</span>
                           </div>
                         ) : (
                           <BothSkippedScreen
@@ -1313,13 +1313,13 @@ export default function DateCard({
                         )
                       ) : planType === "trial" && mySkippedCheckIn ? (
                         isSkipPending ? (
-                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+                          <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                             <motion.div
-                              className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                              className="w-3.5 h-3.5 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
                               animate={{ rotate: 360 }}
                               transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
                             />
-                            <span className="text-sm font-semibold text-white/60">One moment…</span>
+                            <span className="text-sm font-semibold text-[rgb(var(--fg)/0.6)]">One moment…</span>
                           </div>
                         ) : (
                           <Button
@@ -1362,31 +1362,31 @@ export default function DateCard({
                 ) : (
                   /* ── ACCEPTED AI ── */
                   <>
-                    <div className="bg-gradient-to-br from-white/[0.06] to-white/[0.025] rounded-2xl p-5 mb-4 text-center border border-white/16">
-                      <h3 className="text-xl font-bold text-white mb-1">{dateIdea.title}</h3>
-                      <p className="text-xs text-white/70 font-medium">{dateIdea.vibe}</p>
+                    <div className="bg-gradient-to-br from-white/[0.06] to-white/[0.025] rounded-2xl p-5 mb-4 text-center border border-[rgb(var(--fg)/0.16)]">
+                      <h3 className="text-xl font-bold text-[rgb(var(--fg))] mb-1">{dateIdea.title}</h3>
+                      <p className="text-xs text-[rgb(var(--fg)/0.7)] font-medium">{dateIdea.vibe}</p>
                     </div>
 
-                    <p className="text-white/60 text-sm leading-relaxed mb-4">{dateIdea.description}</p>
+                    <p className="text-[rgb(var(--fg)/0.6)] text-sm leading-relaxed mb-4">{dateIdea.description}</p>
 
                     {dateIdea.mission && (
-                      <div className="bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-white/65 uppercase tracking-wider mb-1">The plan</p>
-                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.mission}</p>
+                      <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-[rgb(var(--fg)/0.65)] uppercase tracking-wider mb-1">The plan</p>
+                        <p className="text-sm text-[rgb(var(--fg)/0.7)] leading-relaxed">{dateIdea.mission}</p>
                       </div>
                     )}
 
                     {!isFree && dateIdea.preparation && (
-                      <div className="bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-white/65 uppercase tracking-wider mb-1">Before you go</p>
-                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.preparation}</p>
+                      <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-[rgb(var(--fg)/0.65)] uppercase tracking-wider mb-1">Before you go</p>
+                        <p className="text-sm text-[rgb(var(--fg)/0.7)] leading-relaxed">{dateIdea.preparation}</p>
                       </div>
                     )}
 
                     {!isFree && dateIdea.conversation_starter && (
                       <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Conversation starter</p>
-                        <p className="text-sm text-white/70 leading-relaxed">{dateIdea.conversation_starter}</p>
+                        <p className="text-sm text-[rgb(var(--fg)/0.7)] leading-relaxed">{dateIdea.conversation_starter}</p>
                       </div>
                     )}
 
@@ -1396,16 +1396,16 @@ export default function DateCard({
                         { icon: Wallet, value: formatBudgetRange(dateIdea.budget_range, unitSystem) },
                         { icon: MapPin, value: dateIdea.tags[0] ?? "Anywhere" },
                       ].map(({ icon: Icon, value }) => (
-                        <div key={value} className="flex flex-col items-center gap-1 bg-white/[0.035] rounded-2xl p-3 border border-white/16">
-                          <Icon className="w-3.5 h-3.5 text-white/65" />
-                          <span className="text-xs text-white/60 text-center leading-tight">{value}</span>
+                        <div key={value} className="flex flex-col items-center gap-1 bg-[rgb(var(--fg)/0.035)] rounded-2xl p-3 border border-[rgb(var(--fg)/0.16)]">
+                          <Icon className="w-3.5 h-3.5 text-[rgb(var(--fg)/0.65)]" />
+                          <span className="text-xs text-[rgb(var(--fg)/0.6)] text-center leading-tight">{value}</span>
                         </div>
                       ))}
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {dateIdea.tags.map((tag) => (
-                        <span key={tag} className="px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/16 text-xs text-white/70">{tag}</span>
+                        <span key={tag} className="px-2.5 py-1 rounded-full bg-[rgb(var(--fg)/0.04)] border border-[rgb(var(--fg)/0.16)] text-xs text-[rgb(var(--fg)/0.7)]">{tag}</span>
                       ))}
                     </div>
 
@@ -1431,7 +1431,7 @@ export default function DateCard({
                     ) : (
                       <>
                         <HoldToCompleteButton onComplete={handleComplete} />
-                        <p className="text-center text-xs text-white/50 mt-1.5">Press and hold to confirm</p>
+                        <p className="text-center text-xs text-[rgb(var(--fg)/0.5)] mt-1.5">Press and hold to confirm</p>
                       </>
                     )}
                   </>
@@ -1458,10 +1458,10 @@ export default function DateCard({
                           { icon: MapPin, label: "The hook", value: dateTeaser.hook },
                         ].map(({ icon: Icon, label, value }) => (
                           <div key={label} className="flex items-center gap-3 py-1.5">
-                            <Icon className="h-4 w-4 shrink-0 text-white/60" />
+                            <Icon className="h-4 w-4 shrink-0 text-[rgb(var(--fg)/0.6)]" />
                             <div className="min-w-0">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/35">{label}</p>
-                              <p className="mt-0.5 text-sm font-semibold leading-snug text-white/80 line-clamp-2">{label === "The hook" ? `${value}…` : value}</p>
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--fg)/0.35)]">{label}</p>
+                              <p className="mt-0.5 text-sm font-semibold leading-snug text-[rgb(var(--fg)/0.8)] line-clamp-2">{label === "The hook" ? `${value}…` : value}</p>
                             </div>
                           </div>
                         ))}
@@ -1491,7 +1491,7 @@ export default function DateCard({
                         ) : pingMessage ? (
                           <p className="text-xs text-emerald-400 text-center">{pingMessage}</p>
                         ) : (
-                          <p className="text-xs text-white/30">Reminder sent</p>
+                          <p className="text-xs text-[rgb(var(--fg)/0.3)]">Reminder sent</p>
                         )}
                       </div>
                     )}
@@ -1515,12 +1515,12 @@ export default function DateCard({
                     )}
                   </div>
                 ) : !hasAcceptedPartner && planType !== "trial" ? (
-                  <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col gap-4">
+                  <div className="rounded-2xl bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] p-5 flex flex-col gap-4">
                     <div>
-                      <p className="text-base font-bold text-white mb-1">
+                      <p className="text-base font-bold text-[rgb(var(--fg))] mb-1">
                         {partnerInviteCopy.title}
                       </p>
-                      <p className="text-sm text-white/60 leading-relaxed">
+                      <p className="text-sm text-[rgb(var(--fg)/0.6)] leading-relaxed">
                         {partnerInviteCopy.subtitle}
                       </p>
                     </div>
@@ -1529,12 +1529,12 @@ export default function DateCard({
                     </Button>
                   </div>
                 ) : isPending ? (
-                  <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col items-center gap-3 py-8">
+                  <div className="rounded-2xl bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] p-5 flex flex-col items-center gap-3 py-8">
                     <div className="flex gap-1.5">
                       {[0, 1, 2].map((i) => (
                         <motion.div
                           key={i}
-                          className="w-2 h-2 rounded-full bg-white/70"
+                          className="w-2 h-2 rounded-full bg-[rgb(var(--fg)/0.7)]"
                           animate={{ y: [0, -8, 0] }}
                           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
                         />
@@ -1547,7 +1547,7 @@ export default function DateCard({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="text-sm text-white/50 text-center px-4"
+                        className="text-sm text-[rgb(var(--fg)/0.5)] text-center px-4"
                       >
                         {(isRerollPending
                           ? REROLL_MESSAGES
@@ -1562,10 +1562,10 @@ export default function DateCard({
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <div className="rounded-2xl bg-white/[0.035] border border-white/16 p-5 flex flex-col gap-4">
+                  <div className="rounded-2xl bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] p-5 flex flex-col gap-4">
                     <div>
-                      <p className="text-base font-bold text-white mb-1">Ready to surprise {(memberRole === "partner" ? partnerNames.partner1 : partnerNames.partner2) || "your partner"}?</p>
-                      <p className="text-sm text-white/60 leading-relaxed">
+                      <p className="text-base font-bold text-[rgb(var(--fg))] mb-1">Ready to surprise {(memberRole === "partner" ? partnerNames.partner1 : partnerNames.partner2) || "your partner"}?</p>
+                      <p className="text-sm text-[rgb(var(--fg)/0.6)] leading-relaxed">
                         Tap and we'll let {(memberRole === "partner" ? partnerNames.partner1 : partnerNames.partner2) || "your partner"} know you're up for a date night. The full plan reveals once you're both in.
                       </p>
                     </div>
@@ -1596,8 +1596,8 @@ export default function DateCard({
         <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
           <MapPin className="w-5 h-5 text-rose-400" />
         </div>
-        <h3 className="text-lg font-bold text-white mb-1">Skip check-in?</h3>
-        <p className="text-sm text-white/55 mb-6">
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip check-in?</h3>
+        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">
           {planType === "trial"
             ? "Skipping will end your free trial date. Your next date will be available in a month."
             : "Checking in at the venue proves you made it. Skip and you’ll miss out on bonus XP and streak credit."}
@@ -1617,8 +1617,8 @@ export default function DateCard({
         <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
           <Camera className="w-5 h-5 text-rose-400" />
         </div>
-        <h3 className="text-lg font-bold text-white mb-1">Skip photo?</h3>
-        <p className="text-sm text-white/55 mb-6">Skipping will end your free trial date. Your next date will be available in a month.</p>
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip photo?</h3>
+        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">Skipping will end your free trial date. Your next date will be available in a month.</p>
         <div className="flex flex-col gap-2">
           <Button type="button" onClick={() => setSkipPhotoDialogOpen(false)} className="w-full">
             Never mind
@@ -1642,18 +1642,18 @@ export default function DateCard({
           }
         >
           {activeSheet === "description" && (
-            <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.description}</p>
+            <p className="text-sm leading-relaxed text-[rgb(var(--fg)/0.7)]">{dateIdea.ai.description}</p>
           )}
           {activeSheet === "mission" && (
-            <p className="text-sm leading-relaxed text-white/75">{dateIdea.ai.mission}</p>
+            <p className="text-sm leading-relaxed text-[rgb(var(--fg)/0.75)]">{dateIdea.ai.mission}</p>
           )}
           {activeSheet === "preparation" && (
-            <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.preparation}</p>
+            <p className="text-sm leading-relaxed text-[rgb(var(--fg)/0.7)]">{dateIdea.ai.preparation}</p>
           )}
           {activeSheet === "conversation" && (
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-400">Ask:</p>
-              <p className="text-sm leading-relaxed text-white/70">{dateIdea.ai.conversation_starter}</p>
+              <p className="text-sm leading-relaxed text-[rgb(var(--fg)/0.7)]">{dateIdea.ai.conversation_starter}</p>
             </div>
           )}
         </Drawer>
@@ -1662,20 +1662,20 @@ export default function DateCard({
       {/* Partner invite modal */}
       <Dialog open={partnerInviteModalOpen} onClose={() => setPartnerInviteModalOpen(false)}>
         <div className="flex items-start justify-between mb-4">
-          <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/10 flex items-center justify-center">
-            <Mail className="w-5 h-5 text-white/65" />
+          <div className="w-11 h-11 rounded-2xl bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center">
+            <Mail className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
           </div>
           <button
             type="button"
             onClick={() => setPartnerInviteModalOpen(false)}
-            className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
+            className="w-8 h-8 rounded-xl bg-[rgb(var(--fg)/0.035)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.075)] transition-colors"
             aria-label="Close partner invite dialog"
           >
-            <X className="w-4 h-4 text-white/60" />
+            <X className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
           </button>
         </div>
 
-        <h3 className="text-lg font-bold text-white mb-3">
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-3">
           {partnerInviteState === "pending"
             ? `Invite sent to ${partnerNames.partner2 || "your partner"}`
             : `Invite ${partnerNames.partner2 || "your partner"}`}
@@ -1687,13 +1687,13 @@ export default function DateCard({
           </p>
         ) : memberRole === "owner" ? (
           <div className="flex flex-col gap-3">
-            <p className="text-xs leading-relaxed text-white/50">
+            <p className="text-xs leading-relaxed text-[rgb(var(--fg)/0.5)]">
               {partnerInviteState === "pending"
                 ? "They should have an email waiting. If it got lost, send it again below."
                 : "They'll get an email to join Blindfold. Once they're in, your first date is ready to go."}
             </p>
             {partnerInviteState !== "none" && partnerInvitedEmail && (
-              <p className="text-xs text-white/45">
+              <p className="text-xs text-[rgb(var(--fg)/0.45)]">
                 {partnerInviteState === "expired"
                   ? `${partnerInvitedEmail} (expired)`
                   : `Sent to ${partnerInvitedEmail}`}
@@ -1718,7 +1718,7 @@ export default function DateCard({
             </Button>
           </div>
         ) : (
-          <p className="text-xs leading-relaxed text-white/50">
+          <p className="text-xs leading-relaxed text-[rgb(var(--fg)/0.5)]">
             Ask the account owner to send a partner invite.
           </p>
         )}
@@ -1727,19 +1727,19 @@ export default function DateCard({
       {/* Re-roll confirmation modal */}
       <Dialog open={rerollModalOpen} onClose={() => setRerollModalOpen(false)}>
         <div className="flex items-start justify-between mb-4">
-          <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/10 flex items-center justify-center">
-            <Shuffle className="w-5 h-5 text-white/65" />
+          <div className="w-11 h-11 rounded-2xl bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center">
+            <Shuffle className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
           </div>
           <button
             type="button"
             onClick={() => setRerollModalOpen(false)}
-            className="w-8 h-8 rounded-full bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
+            className="w-8 h-8 rounded-full bg-[rgb(var(--fg)/0.035)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.075)] transition-colors"
           >
-            <X className="w-4 h-4 text-white/60" />
+            <X className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
           </button>
         </div>
 
-        <h3 className="text-lg font-bold text-white mb-2">Try a different date?</h3>
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-2">Try a different date?</h3>
 
         {isFree ? (
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
@@ -1756,7 +1756,7 @@ export default function DateCard({
           </div>
         )}
 
-        <p className="text-xs text-white/55 mb-5">
+        <p className="text-xs text-[rgb(var(--fg)/0.55)] mb-5">
           The current date idea will be saved so you won&apos;t see it again.
         </p>
 
@@ -1773,19 +1773,19 @@ export default function DateCard({
       {/* Accept confirmation modal */}
       <Dialog open={acceptConfirmOpen} onClose={() => setAcceptConfirmOpen(false)}>
         <div className="flex items-start justify-between mb-4">
-          <div className="w-11 h-11 rounded-2xl bg-white/[0.045] border border-white/10 flex items-center justify-center">
-            <Check className="w-5 h-5 text-white/65" />
+          <div className="w-11 h-11 rounded-2xl bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center">
+            <Check className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
           </div>
           <button
             type="button"
             onClick={() => setAcceptConfirmOpen(false)}
-            className="w-8 h-8 rounded-xl bg-white/[0.035] flex items-center justify-center hover:bg-white/[0.075] transition-colors"
+            className="w-8 h-8 rounded-xl bg-[rgb(var(--fg)/0.035)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.075)] transition-colors"
           >
-            <X className="w-4 h-4 text-white/60" />
+            <X className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
           </button>
         </div>
 
-        <h3 className="text-lg font-bold text-white mb-2">Reveal this date?</h3>
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-2">Reveal this date?</h3>
 
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
           <p className="text-xs text-amber-300 leading-relaxed">

@@ -124,7 +124,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
             Waiting for {partnerName}…
           </span>
         </div>
-        <p className="text-center text-[10px] text-white/30">
+        <p className="text-center text-[10px] text-[rgb(var(--fg)/0.3)]">
           Waiting for {partnerName} to arrive
         </p>
       </div>
@@ -146,13 +146,13 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
 
   if (state === "locating") {
     return (
-      <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-white/[0.06] border border-white/16">
+      <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
         <motion.div
-          className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+          className="w-3.5 h-3.5 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
           animate={{ rotate: 360 }}
           transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
         />
-        <span className="text-sm font-semibold text-white/60">Finding you…</span>
+        <span className="text-sm font-semibold text-[rgb(var(--fg)/0.6)]">Finding you…</span>
       </div>
     );
   }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Camera, Mail } from "lucide-react";
+import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Camera, Mail, Moon, Sun } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -11,7 +11,7 @@ import BadgeGrid from "@/components/dashboard/BadgeGrid";
 import SettingsPanel from "@/components/dashboard/SettingsPanel";
 import SubscriberBadgeModal from "@/components/dashboard/SubscriberBadgeModal";
 import HistoryTab from "@/components/dashboard/HistoryTab";
-import type { Profile } from "@/lib/types";
+import type { Profile, Theme } from "@/lib/types";
 import type { UnitSystem } from "@/lib/units";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
@@ -82,6 +82,18 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   usePushNotifications();
   const [activeTab, setActiveTab] = useState<Tab>("date");
+  const [theme, setTheme] = useState<Theme>("dark");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored === "light" || stored === "dark") setTheme(stored);
+  }, []);
+
+  function handleThemeChange(next: Theme) {
+    setTheme(next);
+    localStorage.setItem("theme", next);
+  }
+
   const [logoBeating, setLogoBeating] = useState(false);
   const [showCancelBanner, setShowCancelBanner] = useState(false);
   const [settingsInitialView, setSettingsInitialView] = useState<SettingsInitialView | undefined>();
@@ -186,19 +198,19 @@ export default function DashboardTabs({
   const showPartnerNudge = !!profile.revealed_at && partnerInviteStatus.state !== "accepted";
 
   return (
-    <div className="min-h-dvh flex flex-col md:flex-row bg-black text-white">
+    <div data-theme={theme} className="min-h-dvh flex flex-col md:flex-row bg-[rgb(var(--page-bg))] text-[rgb(var(--fg))]">
 
       {/* ── Desktop sidebar — hidden on mobile ── */}
-      <aside className="hidden md:flex flex-col w-72 shrink-0 border-r border-white/8 sticky top-0 h-dvh bg-zinc-950">
+      <aside className="hidden md:flex flex-col w-72 shrink-0 border-r border-[rgb(var(--fg)/0.08)] sticky top-0 h-dvh bg-[rgb(var(--sidebar-bg))]">
         {/* Brand */}
-        <div className="px-5 py-6 border-b border-white/8 flex flex-col items-start gap-2 shrink-0">
+        <div className="px-5 py-6 border-b border-[rgb(var(--fg)/0.08)] flex flex-col items-start gap-2 shrink-0">
           <motion.div
             animate={logoBeating ? { scale: [1, 1.08, 1, 1.05, 1] } : { scale: 1 }}
             transition={{ duration: 0.75, ease: "easeInOut" }}
           >
             <Image src="/logo.png" alt="BlindfoldDate" width={180} height={52} loading="eager" priority className="object-contain" />
           </motion.div>
-          <p className="text-xs text-white/50 leading-tight pl-0.5">
+          <p className="text-xs text-[rgb(var(--fg)/0.5)] leading-tight pl-0.5">
             {profile.partner_names.partner1}{profile.partner_names.partner2 ? ` & ${profile.partner_names.partner2}` : ""}
           </p>
         </div>
@@ -210,33 +222,59 @@ export default function DashboardTabs({
               key={id}
               onClick={() => switchTab(id)}
               className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
-                activeTab === id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
+                activeTab === id ? "text-[rgb(var(--fg))]" : "text-[rgb(var(--fg)/0.5)] hover:text-[rgb(var(--fg)/0.8)] hover:bg-[rgb(var(--fg)/0.04)]"
               }`}
             >
               {activeTab === id && (
                 <motion.div
                   layoutId="sidebar-active-bg"
-                  className="absolute inset-0 rounded-xl bg-white/[0.08] border border-white/10"
+                  className="absolute inset-0 rounded-xl bg-[rgb(var(--fg)/0.08)] border border-[rgb(var(--fg)/0.1)]"
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}
               <div className="relative shrink-0 z-10">
                 <Icon className="w-4 h-4" />
                 {id === "settings" && showPartnerNudge && activeTab !== "settings" && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-zinc-950" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-[rgb(var(--sidebar-bg))]" />
                 )}
               </div>
               <span className="relative z-10">{label}</span>
             </button>
           ))}
         </nav>
+
+        {/* Theme switcher — desktop only; mobile/Capacitor gets the equivalent toggle row in Settings */}
+        <div className="border-t border-[rgb(var(--fg)/0.08)] p-3 shrink-0">
+          <div className="flex items-center gap-0.5 bg-[rgb(var(--page-bg)/0.2)] rounded-xl p-0.5">
+            <button
+              type="button"
+              onClick={() => handleThemeChange("light")}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                theme === "light" ? "bg-[rgb(var(--fg)/0.15)] text-[rgb(var(--fg))]" : "text-[rgb(var(--fg)/0.45)] hover:text-[rgb(var(--fg)/0.7)]"
+              }`}
+            >
+              <Sun className="w-3.5 h-3.5" />
+              Light
+            </button>
+            <button
+              type="button"
+              onClick={() => handleThemeChange("dark")}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                theme === "dark" ? "bg-[rgb(var(--fg)/0.15)] text-[rgb(var(--fg))]" : "text-[rgb(var(--fg)/0.45)] hover:text-[rgb(var(--fg)/0.7)]"
+              }`}
+            >
+              <Moon className="w-3.5 h-3.5" />
+              Dark
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* ── Right column ── */}
       <div className="flex-1 flex flex-col md:h-dvh md:overflow-hidden">
 
         {/* Mobile-only header */}
-        <header className="md:hidden bg-black/72 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/12 px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
+        <header className={`md:hidden bg-[rgb(var(--page-bg)/0.72)] backdrop-blur-2xl backdrop-saturate-150 border-b border-[rgb(var(--fg)/0.12)] px-4 py-3 ${theme === "dark" ? "shadow-[0_18px_60px_rgba(0,0,0,0.35)]" : ""}`}>
           <div className="flex items-center gap-2.5">
             <motion.div
               animate={logoBeating ? { scale: [1, 1.08, 1, 1.05, 1] } : { scale: 1 }}
@@ -244,7 +282,7 @@ export default function DashboardTabs({
             >
               <Image src="/icon.png" alt="BlindfoldDate" width={48} height={48} loading="eager" priority className="object-contain" />
             </motion.div>
-            <p className="text-sm font-bold text-white leading-tight">
+            <p className="text-sm font-bold text-[rgb(var(--fg))] leading-tight">
               {profile.partner_names.partner1}{profile.partner_names.partner2 ? ` & ${profile.partner_names.partner2}` : ""}
             </p>
           </div>
@@ -263,12 +301,12 @@ export default function DashboardTabs({
               <div className="max-w-sm md:max-w-2xl mx-auto flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3.5">
                 <span className="text-lg leading-none mt-0.5">💳</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white">Payment didn&apos;t complete.</p>
-                  <p className="text-xs text-white/50 mt-0.5">No worries, your account is all set! You&apos;re on the Starter plan for now. You can upgrade anytime from Settings.</p>
+                  <p className="text-sm font-semibold text-[rgb(var(--fg))]">Payment didn&apos;t complete.</p>
+                  <p className="text-xs text-[rgb(var(--fg)/0.5)] mt-0.5">No worries, your account is all set! You&apos;re on the Starter plan for now. You can upgrade anytime from Settings.</p>
                 </div>
                 <button
                   onClick={() => setShowCancelBanner(false)}
-                  className="shrink-0 text-white/55 hover:text-white transition-colors mt-0.5"
+                  className="shrink-0 text-[rgb(var(--fg)/0.55)] hover:text-[rgb(var(--fg))] transition-colors mt-0.5"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -327,6 +365,8 @@ export default function DashboardTabs({
                     initialView={settingsInitialView}
                     showPartnerNudge={showPartnerNudge}
                     onInvitePartner={openPartnerSettings}
+                    theme={theme}
+                    onThemeChange={handleThemeChange}
                   />
                 )}
               </motion.div>
@@ -341,7 +381,7 @@ export default function DashboardTabs({
 
         {/* Bottom nav — mobile only */}
         <nav
-          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-xl border-t border-white/16"
+          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[rgb(var(--page-bg)/0.95)] backdrop-blur-xl border-t border-[rgb(var(--fg)/0.16)]"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           <div className="max-w-sm mx-auto flex items-stretch h-16">
@@ -354,23 +394,27 @@ export default function DashboardTabs({
                 {activeTab === id && (
                   <motion.div
                     layoutId="tab-indicator"
-                    className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-white/75"
+                    className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-[rgb(var(--fg)/0.75)]"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
                 <div className="relative">
                   <Icon
                     className={`w-5 h-5 transition-colors duration-150 ${
-                      activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
+                      activeTab === id
+                        ? theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"
+                        : theme === "dark" ? "text-[#737373] group-hover:text-[#bfbfbf]" : "text-[#919191] group-hover:text-[#474747]"
                     }`}
                   />
                   {id === "settings" && showPartnerNudge && activeTab !== "settings" && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-black" />
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-[rgb(var(--page-bg))]" />
                   )}
                 </div>
                 <span
                   className={`text-[10px] font-semibold tracking-wide transition-colors duration-150 ${
-                    activeTab === id ? "text-[#a6a6a6]" : "text-[#737373] group-hover:text-[#bfbfbf]"
+                    activeTab === id
+                      ? theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"
+                      : theme === "dark" ? "text-[#737373] group-hover:text-[#bfbfbf]" : "text-[#919191] group-hover:text-[#474747]"
                   }`}
                 >
                   {label}
@@ -423,8 +467,8 @@ function DateTabContent({
   return (
     <div>
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-white">Your next date</h2>
-        <p className="text-white/55 text-sm mt-1">Ready when you are.</p>
+        <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Your next date</h2>
+        <p className="text-[rgb(var(--fg)/0.55)] text-sm mt-1">Ready when you are.</p>
       </div>
 
       <AnimatePresence>
@@ -434,16 +478,16 @@ function DateTabContent({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="mb-4 bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-white/16 rounded-3xl p-5"
+            className="mb-4 bg-gradient-to-br from-[rgb(var(--fg)/0.045)] to-[rgb(var(--fg)/0.025)] border border-[rgb(var(--fg)/0.16)] rounded-3xl p-5"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-white/65" />
-                <p className="text-xs font-semibold text-white/65 uppercase tracking-widest">How it works</p>
+                <Sparkles className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                <p className="text-xs font-semibold text-[rgb(var(--fg)/0.65)] uppercase tracking-widest">How it works</p>
               </div>
               <button
                 onClick={dismissWelcome}
-                className="text-white/30 hover:text-white/60 transition-colors"
+                className="text-[rgb(var(--fg)/0.3)] hover:text-[rgb(var(--fg)/0.6)] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -456,13 +500,13 @@ function DateTabContent({
               ].map(({ emoji, text }) => (
                 <div key={text} className="flex items-center gap-3">
                   <span className="text-base w-6 text-center leading-none">{emoji}</span>
-                  <p className="text-sm text-white/70">{text}</p>
+                  <p className="text-sm text-[rgb(var(--fg)/0.7)]">{text}</p>
                 </div>
               ))}
             </div>
             <button
               onClick={dismissWelcome}
-              className="w-full py-2.5 rounded-2xl bg-white/[0.06] border border-white/16 text-sm font-semibold text-white/70 hover:bg-white/[0.09] hover:text-white transition-all active:scale-[0.98]"
+              className="w-full py-2.5 rounded-2xl bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)] text-sm font-semibold text-[rgb(var(--fg)/0.7)] hover:bg-[rgb(var(--fg)/0.09)] hover:text-[rgb(var(--fg))] transition-all active:scale-[0.98]"
             >
               Got it
             </button>
@@ -509,12 +553,12 @@ function DateTabContent({
 function ProgressTabSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="h-8 w-40 bg-white/[0.075] rounded-full mb-2" />
-      <div className="h-4 w-56 bg-white/[0.075] rounded-full mb-5" />
-      <div className="h-12 w-full bg-white/[0.075] rounded-2xl mb-4" />
+      <div className="h-8 w-40 bg-[rgb(var(--fg)/0.075)] rounded-full mb-2" />
+      <div className="h-4 w-56 bg-[rgb(var(--fg)/0.075)] rounded-full mb-5" />
+      <div className="h-12 w-full bg-[rgb(var(--fg)/0.075)] rounded-2xl mb-4" />
       <div className="grid grid-cols-2 gap-3">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-24 bg-white/[0.075] rounded-2xl" />
+          <div key={i} className="h-24 bg-[rgb(var(--fg)/0.075)] rounded-2xl" />
         ))}
       </div>
     </div>
@@ -524,10 +568,10 @@ function ProgressTabSkeleton() {
 function HistoryTabSkeleton() {
   return (
     <div className="animate-pulse space-y-3">
-      <div className="h-8 w-40 bg-white/[0.075] rounded-full mb-2" />
-      <div className="h-4 w-48 bg-white/[0.075] rounded-full mb-5" />
+      <div className="h-8 w-40 bg-[rgb(var(--fg)/0.075)] rounded-full mb-2" />
+      <div className="h-4 w-48 bg-[rgb(var(--fg)/0.075)] rounded-full mb-5" />
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="h-48 bg-white/[0.075] rounded-3xl" />
+        <div key={i} className="h-48 bg-[rgb(var(--fg)/0.075)] rounded-3xl" />
       ))}
     </div>
   );
@@ -547,21 +591,21 @@ function StatsGrid({
 
   return (
     <div className="mt-6 mb-10">
-      <h3 className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
+      <h3 className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-widest mb-3">
         Statistics
       </h3>
       <div className="grid grid-cols-2 gap-2">
         {stats.map(({ icon: Icon, label, value }) => (
           <div
             key={label}
-            className="bg-white/[0.035] border border-white/16 rounded-2xl p-3.5 flex items-center gap-3"
+            className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-3.5 flex items-center gap-3"
           >
-            <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
-              <Icon className="w-4 h-4 text-white/55" />
+            <div className="w-8 h-8 rounded-xl bg-[rgb(var(--fg)/0.06)] flex items-center justify-center shrink-0">
+              <Icon className="w-4 h-4 text-[rgb(var(--fg)/0.55)]" />
             </div>
             <div>
-              <p className="text-lg font-bold text-white tabular-nums">{value}</p>
-              <p className="text-xs text-white/60">{label}</p>
+              <p className="text-lg font-bold text-[rgb(var(--fg))] tabular-nums">{value}</p>
+              <p className="text-xs text-[rgb(var(--fg)/0.6)]">{label}</p>
             </div>
           </div>
         ))}
@@ -593,8 +637,8 @@ function ProgressTabContent({
   return (
     <div>
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-white">Your progress</h2>
-        <p className="text-white/55 text-sm mt-1">Every date earns XP and unlocks badges.</p>
+        <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Your progress</h2>
+        <p className="text-[rgb(var(--fg)/0.55)] text-sm mt-1">Every date earns XP and unlocks badges.</p>
       </div>
 
       <StatsGrid
@@ -625,6 +669,8 @@ function SettingsTabContent({
   initialView,
   showPartnerNudge,
   onInvitePartner,
+  theme,
+  onThemeChange,
 }: {
   profile: Profile;
   unitSystem: UnitSystem;
@@ -633,6 +679,8 @@ function SettingsTabContent({
   initialView?: SettingsInitialView;
   showPartnerNudge?: boolean;
   onInvitePartner?: () => void;
+  theme: Theme;
+  onThemeChange: (next: Theme) => void;
 }) {
   const [subpageHeader, setSubpageHeader] = useState<{ title: string; onBack: () => void } | null>(null);
   const [headerDir, setHeaderDir] = useState(1);
@@ -661,11 +709,11 @@ function SettingsTabContent({
               <button
                 type="button"
                 onClick={subpageHeader.onBack}
-                className="w-9 h-9 rounded-xl bg-white/[0.035] border border-white/16 flex items-center justify-center hover:border-white/30 transition-colors shrink-0"
+                className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] flex items-center justify-center hover:border-[rgb(var(--fg)/0.3)] transition-colors shrink-0"
               >
-                <ArrowLeft className="w-4 h-4 text-white/60" />
+                <ArrowLeft className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
               </button>
-              <h2 className="text-2xl font-bold text-white">{subpageHeader.title}</h2>
+              <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">{subpageHeader.title}</h2>
             </motion.div>
           ) : (
             <motion.div
@@ -677,7 +725,7 @@ function SettingsTabContent({
               exit="exit"
               transition={{ duration: 0.18, ease: "easeInOut" }}
             >
-              <h2 className="text-2xl font-bold text-white">Settings</h2>
+              <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Settings</h2>
             </motion.div>
           )}
         </AnimatePresence>
@@ -687,8 +735,8 @@ function SettingsTabContent({
         <div className="mb-5 flex items-center gap-3 bg-rose-500/[0.08] border border-rose-500/20 rounded-2xl px-4 py-4">
           <Mail className="w-5 h-5 text-rose-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white">Invite your partner</p>
-            <p className="text-xs text-white/50 mt-0.5">Both of you need to be ready to reveal the next date together.</p>
+            <p className="text-sm font-semibold text-[rgb(var(--fg))]">Invite your partner</p>
+            <p className="text-xs text-[rgb(var(--fg)/0.5)] mt-0.5">Both of you need to be ready to reveal the next date together.</p>
           </div>
           <Button size="sm" onClick={() => setPartnerNavSeq(s => s + 1)} className="shrink-0">
             Invite
@@ -704,6 +752,8 @@ function SettingsTabContent({
         partnerInviteStatus={partnerInviteStatus}
         initialView={initialView}
         navigateToPartnersSeq={partnerNavSeq}
+        theme={theme}
+        onThemeChange={onThemeChange}
       />
     </div>
   );

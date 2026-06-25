@@ -226,11 +226,11 @@ function HistoryContent({
   if (history.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-4">
-          <CalendarDays className="w-7 h-7 text-white/25" />
+        <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center mb-4">
+          <CalendarDays className="w-7 h-7 text-[rgb(var(--fg)/0.25)]" />
         </div>
-        <p className="text-white/60 text-sm">No completed dates yet.</p>
-        <p className="text-white/35 text-xs mt-1">Finish a date to start your scrapbook.</p>
+        <p className="text-[rgb(var(--fg)/0.6)] text-sm">No completed dates yet.</p>
+        <p className="text-[rgb(var(--fg)/0.35)] text-xs mt-1">Finish a date to start your scrapbook.</p>
       </div>
     );
   }
@@ -238,13 +238,13 @@ function HistoryContent({
   return (
     <div>
       {!isPaid && history.length > 0 && (
-        <div className="mb-6 bg-white/[0.035] border border-white/18 rounded-3xl p-4">
+        <div className="mb-6 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.18)] rounded-3xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-white/65" />
-            <p className="text-xs font-semibold text-white uppercase tracking-widest">Plus</p>
+            <Sparkles className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+            <p className="text-xs font-semibold text-[rgb(var(--fg))] uppercase tracking-widest">Plus</p>
           </div>
-          <p className="text-sm font-semibold text-white mb-1">Unlock your Date Scrapbook</p>
-          <p className="text-xs text-white/55 leading-relaxed mb-3">
+          <p className="text-sm font-semibold text-[rgb(var(--fg))] mb-1">Unlock your Date Scrapbook</p>
+          <p className="text-xs text-[rgb(var(--fg)/0.55)] leading-relaxed mb-3">
             Photos are captured. Upgrade to Plus to view them.
           </p>
           {inCapacitor ? (
@@ -254,7 +254,7 @@ function HistoryContent({
                 const { Browser } = await import('@capacitor/browser')
                 await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
               }}
-              className="w-full py-2.5 rounded-full border border-white/20 text-white/60 text-sm font-semibold"
+              className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.2)] text-[rgb(var(--fg)/0.6)] text-sm font-semibold"
             >
               Get Plus on the web
             </button>
@@ -289,8 +289,8 @@ export default function HistoryTab({
   return (
     <div>
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-white">Your scrapbook</h2>
-        <p className="text-white/55 text-sm mt-1">Every date you&apos;ve completed.</p>
+        <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Your scrapbook</h2>
+        <p className="text-[rgb(var(--fg)/0.55)] text-sm mt-1">Every date you&apos;ve completed.</p>
       </div>
       <HistoryContent
         history={history}

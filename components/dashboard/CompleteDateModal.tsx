@@ -46,8 +46,8 @@ function FeedbackSection({
 }) {
   const cls =
     divider === "top"
-      ? "border-t border-white/16 pt-4 mt-2 mb-4"
-      : "border-b border-white/16 pb-4 mb-4";
+      ? "border-t border-[rgb(var(--fg)/0.16)] pt-4 mt-2 mb-4"
+      : "border-b border-[rgb(var(--fg)/0.16)] pb-4 mb-4";
   return (
     <motion.div
       className={cls}
@@ -55,7 +55,7 @@ function FeedbackSection({
       animate={{ opacity: 1 }}
       transition={{ delay: 0.18 }}
     >
-      <p className="text-xs text-white/45 text-center mb-3">How was your date?</p>
+      <p className="text-xs text-[rgb(var(--fg)/0.45)] text-center mb-3">How was your date?</p>
       <div className="flex justify-center gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -71,7 +71,7 @@ function FeedbackSection({
               className={`w-7 h-7 transition-colors duration-100 ${
                 star <= (hovered ?? rating ?? 0)
                   ? "text-amber-400 fill-amber-400"
-                  : "text-white/20"
+                  : "text-[rgb(var(--fg)/0.2)]"
               }`}
             />
           </button>
@@ -102,13 +102,13 @@ function FeedbackSection({
               placeholder="Add a note... (optional)"
               maxLength={500}
               rows={2}
-              className="w-full bg-white/[0.035] border border-white/16 rounded-xl px-3 py-2.5 text-[16px] text-white placeholder-white/30 resize-none focus:outline-none focus:border-white/20 transition-colors"
+              className="w-full bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-xl px-3 py-2.5 text-[16px] text-[rgb(var(--fg))] placeholder-[rgb(var(--fg)/0.3)] resize-none focus:outline-none focus:border-[rgb(var(--fg)/0.2)] transition-colors"
             />
             <button
               type="button"
               onClick={onSubmit}
               disabled={submitting}
-              className="mt-2 w-full py-2.5 rounded-full bg-white/[0.06] border border-white/15 text-sm font-semibold text-white hover:bg-white/[0.09] transition-colors disabled:opacity-50"
+              className="mt-2 w-full py-2.5 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.15)] text-sm font-semibold text-[rgb(var(--fg))] hover:bg-[rgb(var(--fg)/0.09)] transition-colors disabled:opacity-50"
             >
               {submitting ? "Saving…" : "Submit rating"}
             </button>
@@ -220,7 +220,7 @@ export default function CompleteDateModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/80 z-50 overflow-y-auto"
+          className="fixed inset-0 bg-[rgb(var(--modal-bg)/0.8)] z-50 overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -235,14 +235,14 @@ export default function CompleteDateModal({
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative bg-[#030303] border border-white/14 rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
+            <div className="relative bg-[rgb(var(--modal-bg))] border border-[rgb(var(--fg)/0.14)] rounded-3xl p-6 text-center shadow-2xl shadow-black/60">
               <div className="absolute top-4 right-4">
                 <CloseButton onClick={handleClose} />
               </div>
 
 
-              <h2 className="text-xl font-bold text-white mb-1">Date Complete!</h2>
-              <p className="text-white/55 text-sm mb-5">Another one in the books.</p>
+              <h2 className="text-xl font-bold text-[rgb(var(--fg))] mb-1">Date Complete!</h2>
+              <p className="text-[rgb(var(--fg)/0.55)] text-sm mb-5">Another one in the books.</p>
 
               {/* XP gained */}
               <motion.div
@@ -251,9 +251,9 @@ export default function CompleteDateModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.18 }}
               >
-                <p className="text-xs text-white/55 mb-1">Earned</p>
+                <p className="text-xs text-[rgb(var(--fg)/0.55)] mb-1">Earned</p>
                 <div className="flex items-center justify-center">
-                  <span className="text-2xl font-black text-white">+{xpGained} XP</span>
+                  <span className="text-2xl font-black text-[rgb(var(--fg))]">+{xpGained} XP</span>
                 </div>
               </motion.div>
 
@@ -291,12 +291,12 @@ export default function CompleteDateModal({
                           <span className="text-2xl flex-shrink-0">{badge.icon_emoji}</span>
                         )}
                         <div className="flex-1">
-                          <p className="text-xs text-white/55 mb-0.5">Unlocked</p>
-                          <p className="text-sm font-bold text-white">{badge.name}</p>
+                          <p className="text-xs text-[rgb(var(--fg)/0.55)] mb-0.5">Unlocked</p>
+                          <p className="text-sm font-bold text-[rgb(var(--fg))]">{badge.name}</p>
                         </div>
                         <button
                           onClick={() => onGoToProgress(rating)}
-                          className="text-xs text-white/45 hover:text-white transition-colors flex-shrink-0"
+                          className="text-xs text-[rgb(var(--fg)/0.45)] hover:text-[rgb(var(--fg))] transition-colors flex-shrink-0"
                         >
                           View
                         </button>
@@ -309,13 +309,13 @@ export default function CompleteDateModal({
               {/* Trial → Starter downgrade notice */}
               {trialExpired && (
                 <motion.div
-                  className="border border-white/12 rounded-2xl p-4 mb-4 text-left"
+                  className="border border-[rgb(var(--fg)/0.12)] rounded-2xl p-4 mb-4 text-left"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <p className="text-sm font-semibold text-white mb-1">You&apos;ve switched to Starter</p>
-                  <p className="text-xs text-white/50 mb-3">Next date picks from food, nature, or romance — one per month.</p>
+                  <p className="text-sm font-semibold text-[rgb(var(--fg))] mb-1">You&apos;ve switched to Starter</p>
+                  <p className="text-xs text-[rgb(var(--fg)/0.5)] mb-3">Next date picks from food, nature, or romance — one per month.</p>
                   {inCapacitor ? (
                     <button
                       type="button"

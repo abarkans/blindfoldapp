@@ -14,8 +14,8 @@ export default function LocationPickerModal({ open, onClose, onSelect }: Locatio
   return (
     <Dialog open={open} onClose={onClose}>
       <div className="mb-5">
-        <h3 className="text-lg font-bold text-white mb-1">Where&apos;s tonight?</h3>
-        <p className="text-sm text-white/55">
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Where&apos;s tonight?</h3>
+        <p className="text-sm text-[rgb(var(--fg)/0.55)]">
           Pick a vibe and we&apos;ll plan the rest.
         </p>
       </div>

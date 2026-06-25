@@ -102,7 +102,7 @@ export default function SubscriberBadgeModal({ isOpen, onClose }: SubscriberBadg
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-[#030303]/90 z-50"
+            className="fixed inset-0 bg-[rgb(var(--modal-bg)/0.9)] z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -120,10 +120,10 @@ export default function SubscriberBadgeModal({ isOpen, onClose }: SubscriberBadg
             {/* Close */}
             <button
               onClick={onClose}
-              className="pointer-events-auto absolute top-8 right-6 w-10 h-10 rounded-full bg-white/[0.075] border border-white/15 flex items-center justify-center hover:bg-white/20 transition-colors"
+              className="pointer-events-auto absolute top-8 right-6 w-10 h-10 rounded-full bg-[rgb(var(--fg)/0.075)] border border-[rgb(var(--fg)/0.15)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.2)] transition-colors"
               aria-label="Close"
             >
-              <X className="w-5 h-5 text-white/70" />
+              <X className="w-5 h-5 text-[rgb(var(--fg)/0.7)]" />
             </button>
 
             {/* Badge label */}
@@ -145,14 +145,14 @@ export default function SubscriberBadgeModal({ isOpen, onClose }: SubscriberBadg
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.12 }}
             >
-              <p className="text-xl font-bold text-white mb-1">Subscriber</p>
-              <p className="text-sm text-white/55">You joined Blindfold Plus. Welcome!</p>
-              <p className="text-xs text-white/40 mt-4">Swipe to flip ✦</p>
+              <p className="text-xl font-bold text-[rgb(var(--fg))] mb-1">Subscriber</p>
+              <p className="text-sm text-[rgb(var(--fg)/0.55)]">You joined Blindfold Plus. Welcome!</p>
+              <p className="text-xs text-[rgb(var(--fg)/0.4)] mt-4">Swipe to flip ✦</p>
             </motion.div>
 
             {/* CTA */}
             <motion.button
-              className="pointer-events-auto mt-8 px-8 py-3 rounded-full bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors active:scale-[0.98]"
+              className="pointer-events-auto mt-8 px-8 py-3 rounded-full bg-[rgb(var(--fg))] text-[rgb(var(--modal-bg))] font-semibold text-sm hover:bg-[rgb(var(--fg)/0.9)] transition-colors active:scale-[0.98]"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}

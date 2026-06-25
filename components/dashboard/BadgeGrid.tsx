@@ -118,14 +118,14 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
       >
-        <div className="pointer-events-auto bg-[#030303] border border-white/14 rounded-3xl p-6 shadow-2xl shadow-black/60 flex flex-col items-center">
+        <div className="pointer-events-auto bg-[rgb(var(--modal-bg))] border border-[rgb(var(--fg)/0.14)] rounded-3xl p-6 shadow-2xl shadow-black/60 flex flex-col items-center">
           {/* Close button */}
           <button
             onClick={onClose}
-            className="self-end w-8 h-8 rounded-full bg-white/[0.075] border border-white/15 flex items-center justify-center hover:bg-white/20 transition-colors mb-4"
+            className="self-end w-8 h-8 rounded-full bg-[rgb(var(--fg)/0.075)] border border-[rgb(var(--fg)/0.15)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.2)] transition-colors mb-4"
             aria-label="Close"
           >
-            <X className="w-4 h-4 text-white/70" />
+            <X className="w-4 h-4 text-[rgb(var(--fg)/0.7)]" />
           </button>
 
           {/* Badge — swipe/click to flip, CSS transition on compositor thread */}
@@ -154,9 +154,9 @@ function BadgeModal({ badge, onClose }: { badge: OpenBadge; onClose: () => void 
 
           {/* Title + date */}
           <div className="text-center mt-5">
-            <p className="text-xl font-bold text-white mb-1">{badge.name}</p>
-            <p className="text-sm text-white/55">Unlocked on {earnedDate}</p>
-            <p className="text-xs text-white/50 mt-3">Tap or swipe to flip ✦</p>
+            <p className="text-xl font-bold text-[rgb(var(--fg))] mb-1">{badge.name}</p>
+            <p className="text-sm text-[rgb(var(--fg)/0.55)]">Unlocked on {earnedDate}</p>
+            <p className="text-xs text-[rgb(var(--fg)/0.5)] mt-3">Tap or swipe to flip ✦</p>
           </div>
         </div>
       </motion.div>
@@ -172,21 +172,21 @@ export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone,
   return (
     <>
       <div>
-        <h3 className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
+        <h3 className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-widest mb-3">
           Trophy Room
         </h3>
         {nextMilestone && (
-          <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4 mb-4 flex items-center gap-3.5">
-            <div className="w-9 h-9 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
-              <Target className="w-5 h-5 text-white/65" />
+          <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-4 mb-4 flex items-center gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.06)] flex items-center justify-center flex-shrink-0">
+              <Target className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">
+              <p className="text-sm font-semibold text-[rgb(var(--fg))]">
                 {nextMilestone.threshold - datesCompleted} date
                 {nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} until{" "}
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-pink-400">{nextMilestone.name}</span>
               </p>
-              <p className="text-xs text-white/55 mt-0.5">
+              <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">
                 Complete {nextMilestone.threshold - datesCompleted} more date{nextMilestone.threshold - datesCompleted !== 1 ? "s" : ""} to earn this badge
               </p>
             </div>
@@ -238,10 +238,10 @@ export default function BadgeGrid({ earnedBadges, isFree = false, nextMilestone,
                   )}
                 </div>
 
-                <p className={`text-sm font-semibold mb-0.5 ${earned ? "text-white" : "text-white/50"}`}>
+                <p className={`text-sm font-semibold mb-0.5 ${earned ? "text-[rgb(var(--fg))]" : "text-[rgb(var(--fg)/0.5)]"}`}>
                   {milestone.name}
                 </p>
-                <p className={`text-xs leading-snug ${earned ? "text-white/50" : "text-white/50"}`}>
+                <p className={`text-xs leading-snug text-[rgb(var(--fg)/0.5)]`}>
                   {earned
                     ? milestone.description
                     : milestone.lockText ?? `Complete ${milestone.required_dates} date${(milestone.required_dates ?? 0) > 1 ? "s" : ""} to unlock`}

@@ -57,8 +57,8 @@ export default function Slider({
     <div className={cn("flex flex-col gap-3", className)}>
       {label && (
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-white/70">{label}</span>
-          <span className={cn("text-sm font-bold", tone === "neutral" ? "text-white/78" : "text-pink-400")}>
+          <span className="text-sm font-medium text-[rgb(var(--fg)/0.7)]">{label}</span>
+          <span className={cn("text-sm font-bold", tone === "neutral" ? "text-[rgb(var(--fg)/0.78)]" : "text-pink-400")}>
             {formatValue ? formatValue(value) : value}
           </span>
         </div>
@@ -69,11 +69,11 @@ export default function Slider({
         onPointerMove={handlePointerMove}
       >
         {/* Track — ref here so getValueFromPointer measures the actual track width */}
-        <div ref={trackRef} className="relative w-full h-2 rounded-full bg-white/10 overflow-visible">
+        <div ref={trackRef} className="relative w-full h-2 rounded-full bg-[rgb(var(--fg)/0.1)] overflow-visible">
           <div
             className={cn(
               "absolute left-0 top-0 h-full rounded-full",
-              tone === "neutral" ? "bg-white/75" : "bg-gradient-to-r from-pink-500 to-rose-500"
+              tone === "neutral" ? "bg-[rgb(var(--fg)/0.75)]" : "bg-gradient-to-r from-pink-500 to-rose-500"
             )}
             style={{ width: `${pct}%` }}
           />
@@ -81,7 +81,7 @@ export default function Slider({
           <div
             className={cn(
               "absolute top-1/2 w-6 h-6 -translate-y-1/2 rounded-full bg-white shadow-lg border-2 pointer-events-none",
-              tone === "neutral" ? "border-white shadow-white/20" : "border-pink-500 shadow-pink-500/40"
+              tone === "neutral" ? "border-[rgb(var(--fg))] shadow-[rgb(var(--fg)/0.2)]" : "border-pink-500 shadow-pink-500/40"
             )}
             style={{ left: `calc(${pct}% - 12px)` }}
           />

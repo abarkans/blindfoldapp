@@ -28,11 +28,11 @@ export default function Drawer({ open, onClose, title, children }: DrawerProps) 
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="fixed left-4 right-4 bottom-4 z-[60] bg-[#030303] border border-white/14 rounded-3xl max-h-[75vh] overflow-y-auto shadow-2xl shadow-black/60 md:hidden"
+            className="fixed left-4 right-4 bottom-4 z-[60] bg-[rgb(var(--modal-bg))] border border-[rgb(var(--fg)/0.14)] rounded-3xl max-h-[75vh] overflow-y-auto shadow-2xl shadow-black/60 md:hidden"
           >
-            <div className="sticky top-0 bg-[#030303] pt-6 px-6 pb-3">
+            <div className="sticky top-0 bg-[rgb(var(--modal-bg))] pt-6 px-6 pb-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-base font-bold text-white">{title}</h4>
+                <h4 className="text-base font-bold text-[rgb(var(--fg))]">{title}</h4>
                 <CloseButton onClick={onClose} />
               </div>
             </div>

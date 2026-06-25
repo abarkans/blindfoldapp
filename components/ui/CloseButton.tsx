@@ -12,10 +12,10 @@ export default function CloseButton({ onClick, label = "Close" }: CloseButtonPro
     <button
       type="button"
       onClick={onClick}
-      className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
+      className="w-8 h-8 rounded-full bg-[rgb(var(--fg)/0.05)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.1)] transition-colors"
       aria-label={label}
     >
-      <X className="w-4 h-4 text-white/60" />
+      <X className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
     </button>
   );
 }

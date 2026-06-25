@@ -1,5 +1,7 @@
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
+export type Theme = "dark" | "light";
+
 export interface Database {
   public: {
     Tables: {

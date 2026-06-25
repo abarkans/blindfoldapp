@@ -8,7 +8,7 @@ import {
   User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star,
+  Sparkles, Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star, Moon, Sun,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { fullOnboardingSchema, type FullOnboardingData } from "@/lib/schemas/onboarding";
-import type { Profile } from "@/lib/types";
+import type { Profile, Theme } from "@/lib/types";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
@@ -29,6 +29,7 @@ import { clearSettingsLocation, updateSettings } from "@/app/actions/update-sett
 import { updateEmailNotifications } from "@/app/actions/update-email-notifications";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 import { openStoreListing } from "@/lib/app-review";
+import Drawer from "@/components/ui/Drawer";
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
@@ -124,6 +125,8 @@ interface SettingsPanelProps {
   partnerInviteStatus: PartnerInviteStatus;
   initialView?: SettingsView;
   navigateToPartnersSeq?: number;
+  theme: Theme;
+  onThemeChange: (next: Theme) => void;
 }
 
 const slideVariants = {
@@ -153,6 +156,8 @@ export default function SettingsPanel({
   partnerInviteStatus,
   initialView,
   navigateToPartnersSeq,
+  theme,
+  onThemeChange,
 }: SettingsPanelProps) {
   const [view, setView] = useState<SettingsView>(initialView ?? "list");
   const [direction, setDirection] = useState(1);
@@ -160,6 +165,7 @@ export default function SettingsPanel({
   const [saving, setSaving] = useState(false);
   const [clearingLocation, setClearingLocation] = useState(false);
   const [error, setError] = useState("");
+  const [themeSheetOpen, setThemeSheetOpen] = useState(false);
   const [signOutConfirm, setSignOutConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [upgradingPlan, setUpgradingPlan] = useState(false);
@@ -534,16 +540,16 @@ export default function SettingsPanel({
         key={id}
         type="button"
         onClick={() => navigate(id)}
-        className="flex items-center gap-4 p-4 bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors active:scale-[0.98]"
+        className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
       >
-        <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-          <Icon className="w-4 h-4 text-white/65" />
+        <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
         </div>
         <div className="flex-1 text-left min-w-0">
-          <p className="text-sm font-semibold text-white">{label}</p>
-          <p className="text-xs text-white/55 mt-0.5 truncate">{summary}</p>
+          <p className="text-sm font-semibold text-[rgb(var(--fg))]">{label}</p>
+          <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5 truncate">{summary}</p>
         </div>
-        <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
+        <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
       </button>
     );
   }
@@ -562,15 +568,55 @@ export default function SettingsPanel({
             transition={{ duration: 0.18, ease: "easeInOut" }}
           >
             {/* Account section */}
-            <p className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
+            <p className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-widest mb-3">
               Account
             </p>
             <div className="flex flex-col gap-2 mb-5">
               {ACCOUNT_ROWS.filter((row) => memberRole === "owner" || row.id !== "plan").map(renderRow)}
+
+              {/* Theme picker — mobile/Capacitor only; desktop gets the equivalent switcher at the bottom of the sidebar */}
+              <button
+                type="button"
+                onClick={() => setThemeSheetOpen(true)}
+                className="md:hidden flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                  {theme === "dark" ? <Moon className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" /> : <Sun className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />}
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-sm font-semibold text-[rgb(var(--fg))]">App theme</p>
+                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">{theme === "dark" ? "Dark theme" : "Light theme"}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
+              </button>
             </div>
 
+            <Drawer open={themeSheetOpen} onClose={() => setThemeSheetOpen(false)} title="App theme">
+              <div className="flex flex-col gap-2">
+                {([
+                  { value: "light" as const, label: "Light", icon: Sun },
+                  { value: "dark" as const, label: "Dark", icon: Moon },
+                ]).map(({ value, label, icon: Icon }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => { onThemeChange(value); setThemeSheetOpen(false); }}
+                    className={[
+                      "flex items-center gap-4 p-4 rounded-2xl border text-left transition-all duration-150",
+                      theme === value
+                        ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                        : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.55)] active:bg-[rgb(var(--fg)/0.06)]",
+                    ].join(" ")}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="text-sm font-semibold">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </Drawer>
+
             {/* Date section */}
-            <p className="text-xs font-semibold text-white/60 uppercase tracking-widest mb-3">
+            <p className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-widest mb-3">
               Date
             </p>
             <div className="flex flex-col gap-2">
@@ -581,23 +627,23 @@ export default function SettingsPanel({
               <button
                 type="button"
                 onClick={() => openStoreListing()}
-                className="w-full flex items-center gap-4 p-4 bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors active:scale-[0.98] mt-5"
+                className="w-full flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98] mt-5"
               >
-                <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                  <Star className="w-4 h-4 text-white/65" />
+                <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                  <Star className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-semibold text-white">Rate the app</p>
-                  <p className="text-xs text-white/55 mt-0.5">Enjoying BlindfoldDate? Leave us a rating</p>
+                  <p className="text-sm font-semibold text-[rgb(var(--fg))]">Rate the app</p>
+                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Enjoying BlindfoldDate? Leave us a rating</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
+                <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
               </button>
             )}
 
             <button
               type="button"
               onClick={() => setSignOutConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-white/16 text-white/55 hover:text-white hover:border-white/28 transition-all text-sm mt-6"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.55)] hover:text-[rgb(var(--fg))] hover:border-[rgb(var(--fg)/0.28)] transition-all text-sm mt-6"
             >
               <LogOut className="w-4 h-4" />
               Sign out
@@ -608,8 +654,8 @@ export default function SettingsPanel({
                 <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
                   <LogOut className="w-5 h-5 text-red-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-1">Sign out?</h3>
-                <p className="text-sm text-white/55 mb-6">You can always sign back in to continue your mystery dates.</p>
+                <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Sign out?</h3>
+                <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">You can always sign back in to continue your mystery dates.</p>
                 <div className="flex flex-col gap-2">
                   <Button
                     type="button"
@@ -646,44 +692,44 @@ export default function SettingsPanel({
                 )}
 
                 {/* Account information */}
-                <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4">
-                  <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-3">Account information</p>
+                <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-4">
+                  <p className="text-[11px] font-semibold text-[rgb(var(--fg)/0.3)] uppercase tracking-wider mb-3">Account information</p>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/75 to-white/45 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[rgb(var(--fg)/0.75)] to-[rgb(var(--fg)/0.45)] flex items-center justify-center text-sm font-bold text-[rgb(var(--fg))] shrink-0">
                         {(memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1).charAt(0).toUpperCase()}
                       </div>
                       {(memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2) && (
                         <>
-                          <span className="text-white/40 text-sm font-medium">+</span>
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/55 to-white/30 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                          <span className="text-[rgb(var(--fg)/0.4)] text-sm font-medium">+</span>
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[rgb(var(--fg)/0.55)] to-[rgb(var(--fg)/0.3)] flex items-center justify-center text-sm font-bold text-[rgb(var(--fg))] shrink-0">
                             {(memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2).charAt(0).toUpperCase()}
                           </div>
                         </>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">
+                      <p className="text-sm font-semibold text-[rgb(var(--fg))] truncate">
                         {(() => {
                           const p1 = memberRole === "partner" ? profile.partner_names.partner2 : profile.partner_names.partner1;
                           const p2 = memberRole === "partner" ? profile.partner_names.partner1 : profile.partner_names.partner2;
                           return p2 ? `${p1} & ${p2}` : p1;
                         })()}
                       </p>
-                      <p className="text-xs text-white/45 truncate">{userEmail}</p>
+                      <p className="text-xs text-[rgb(var(--fg)/0.45)] truncate">{userEmail}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Email notifications */}
-                <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4">
+                <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                      <Mail className="w-4 h-4 text-white/65" />
+                    <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                      <Mail className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white">Email notifications</p>
-                      <p className="text-xs text-white/45 mt-0.5">Date-ready reminders</p>
+                      <p className="text-sm font-semibold text-[rgb(var(--fg))]">Email notifications</p>
+                      <p className="text-xs text-[rgb(var(--fg)/0.45)] mt-0.5">Date-ready reminders</p>
                     </div>
                     <Toggle
                       checked={emailNotifications}
@@ -695,14 +741,14 @@ export default function SettingsPanel({
                 </div>
 
                 {/* Delete account */}
-                <div className="bg-white/[0.035] border border-white/16 rounded-2xl p-4">
+                <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
                       <Trash2 className="w-4 h-4 text-red-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">Delete account</p>
-                      <p className="text-xs text-white/45 mt-0.5">Permanently removes all your data</p>
+                      <p className="text-sm font-semibold text-[rgb(var(--fg))]">Delete account</p>
+                      <p className="text-xs text-[rgb(var(--fg)/0.45)] mt-0.5">Permanently removes all your data</p>
                     </div>
                   </div>
                   <button
@@ -726,11 +772,11 @@ export default function SettingsPanel({
                         <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
                           <Trash2 className="w-5 h-5 text-red-400" />
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-1">Delete account?</h3>
-                        <p className="text-sm text-white/55 mb-2">
+                        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Delete account?</h3>
+                        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-2">
                           This permanently deletes your account and all data. This cannot be undone.
                         </p>
-                        <p className="text-xs text-white/40 mb-6">
+                        <p className="text-xs text-[rgb(var(--fg)/0.4)] mb-6">
                           We&apos;ll email a confirmation link to {userEmail || "your address"}. The link expires in 15 minutes.
                         </p>
                         <div className="flex flex-col gap-2">
@@ -759,12 +805,12 @@ export default function SettingsPanel({
                         <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
                           <Trash2 className="w-5 h-5 text-emerald-400" />
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-1">Check your email</h3>
-                        <p className="text-sm text-white/55 mb-2">
+                        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Check your email</h3>
+                        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-2">
                           We sent a confirmation link to
                         </p>
-                        <p className="text-sm text-white font-semibold mb-6 break-all">{userEmail}</p>
-                        <p className="text-xs text-white/40 mb-6">
+                        <p className="text-sm text-[rgb(var(--fg))] font-semibold mb-6 break-all">{userEmail}</p>
+                        <p className="text-xs text-[rgb(var(--fg)/0.4)] mb-6">
                           Click the link to permanently delete your account. The link expires in 15 minutes.
                           Your account will remain active until you confirm.
                         </p>
@@ -803,15 +849,15 @@ export default function SettingsPanel({
                     </div>
                   )}
                   {partnerInviteStatus.state !== "accepted" && (
-                  <div className="mt-2 rounded-2xl border border-white/16 bg-white/[0.04] p-4">
+                  <div className="mt-2 rounded-2xl border border-[rgb(var(--fg)/0.16)] bg-[rgb(var(--fg)/0.04)] p-4">
                     <div className="mb-3 flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-white/65" />
-                      <p className="text-sm font-semibold text-white">Partner access</p>
+                      <Mail className="h-4 w-4 text-[rgb(var(--fg)/0.65)]" />
+                      <p className="text-sm font-semibold text-[rgb(var(--fg))]">Partner access</p>
                     </div>
                     {memberRole === "owner" ? (
                       <div className="flex flex-col gap-3">
                         {partnerInviteStatus.state === "none" && (
-                          <p className="text-xs leading-relaxed text-white/50">
+                          <p className="text-xs leading-relaxed text-[rgb(var(--fg)/0.5)]">
                             Invite your partner to create an account. Dates unlock once both of you tap reveal.
                           </p>
                         )}
@@ -837,7 +883,7 @@ export default function SettingsPanel({
                         </Button>
                       </div>
                     ) : (
-                      <p className="text-xs leading-relaxed text-white/50">
+                      <p className="text-xs leading-relaxed text-[rgb(var(--fg)/0.5)]">
                         Ask the account owner to send a partner invite.
                       </p>
                     )}
@@ -871,11 +917,11 @@ export default function SettingsPanel({
                           className={[
                             "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                             isSelected
-                              ? "bg-white/[0.075] border-rose-400/70 text-white"
-                              : "bg-white/[0.035] border-white/16 text-white/48 hover:border-white/30 hover:text-white/75",
+                              ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                              : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.48)] hover:border-[rgb(var(--fg)/0.3)] hover:text-[rgb(var(--fg)/0.75)]",
                           ].join(" ")}
                         >
-                          <Icon className={`w-5 h-5 ${isSelected ? "text-rose-300" : "text-white/45"}`} />
+                          <Icon className={`w-5 h-5 ${isSelected ? "text-rose-300" : "text-[rgb(var(--fg)/0.45)]"}`} />
                           <span className="text-xs font-medium leading-tight">{label}</span>
                         </button>
                       );
@@ -918,11 +964,11 @@ export default function SettingsPanel({
                         className={[
                           "flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                           val
-                            ? "bg-white/[0.075] border-rose-400/70 text-white"
-                            : "bg-white/[0.035] border-white/16 text-white/48 hover:border-white/30 hover:text-white/75",
+                            ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                            : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.48)] hover:border-[rgb(var(--fg)/0.3)] hover:text-[rgb(var(--fg)/0.75)]",
                         ].join(" ")}
                       >
-                        <Icon className={`w-5 h-5 ${val ? "text-rose-300" : "text-white/45"}`} />
+                        <Icon className={`w-5 h-5 ${val ? "text-rose-300" : "text-[rgb(var(--fg)/0.45)]"}`} />
                         <span className="text-xs font-medium leading-tight">{label}</span>
                       </button>
                     ))}
@@ -946,11 +992,11 @@ export default function SettingsPanel({
                         className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-4 py-3"
                       >
                         <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <p className="text-sm text-white/80 flex-1 truncate">{locationLabel}</p>
+                        <p className="text-sm text-[rgb(var(--fg)/0.8)] flex-1 truncate">{locationLabel}</p>
                         <button
                           type="button"
                           onClick={() => { setLocStatus("search"); setLat(null); setLng(null); setLocationLabel(""); }}
-                          className="text-xs font-semibold text-white/65 hover:text-white/70 transition-colors shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.06]"
+                          className="text-xs font-semibold text-[rgb(var(--fg)/0.65)] hover:text-[rgb(var(--fg)/0.7)] transition-colors shrink-0 px-2.5 py-1 rounded-full bg-[rgb(var(--fg)/0.04)] hover:bg-[rgb(var(--fg)/0.06)]"
                         >
                           Change
                         </button>
@@ -959,10 +1005,10 @@ export default function SettingsPanel({
                       <motion.div key="requesting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="flex items-center gap-3 px-4 py-3"
                       >
-                        <motion.div className="w-4 h-4 rounded-full border-2 border-white/18 border-t-white/75"
+                        <motion.div className="w-4 h-4 rounded-full border-2 border-[rgb(var(--fg)/0.18)] border-t-[rgb(var(--fg)/0.75)]"
                           animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
-                        <p className="text-sm text-white/55">Detecting location…</p>
+                        <p className="text-sm text-[rgb(var(--fg)/0.55)]">Detecting location…</p>
                       </motion.div>
                     ) : (
                       <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -978,17 +1024,17 @@ export default function SettingsPanel({
                           <button
                             type="button"
                             onClick={handleDetectLocation}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/[0.035] border border-white/16 text-sm text-white/60 hover:border-white/30 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] text-sm text-[rgb(var(--fg)/0.6)] hover:border-[rgb(var(--fg)/0.3)] transition-colors"
                           >
-                            <Navigation className="w-3.5 h-3.5 text-white/65" />
+                            <Navigation className="w-3.5 h-3.5 text-[rgb(var(--fg)/0.65)]" />
                             Detect
                           </button>
                           <button
                             type="button"
                             onClick={() => setLocStatus("search")}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/[0.035] border border-white/16 text-sm text-white/60 hover:border-white/30 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] text-sm text-[rgb(var(--fg)/0.6)] hover:border-[rgb(var(--fg)/0.3)] transition-colors"
                           >
-                            <Search className="w-3.5 h-3.5 text-white/65" />
+                            <Search className="w-3.5 h-3.5 text-[rgb(var(--fg)/0.65)]" />
                             Search city
                           </button>
                         </div>
@@ -999,10 +1045,10 @@ export default function SettingsPanel({
                   {locStatus === "search" && (
                     <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--fg)/0.5)] pointer-events-none" />
                         {suggestionsLoading && (
                           <motion.div
-                            className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white/60"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
                           />
@@ -1012,7 +1058,7 @@ export default function SettingsPanel({
                           placeholder="Search city or town…"
                           value={cityInput}
                           onChange={(e) => setCityInput(e.target.value)}
-                          className="w-full pl-9 pr-9 py-3 rounded-2xl bg-white/[0.035] border border-white/16 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-white/45 transition-colors"
+                          className="w-full pl-9 pr-9 py-3 rounded-2xl bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg))] text-sm placeholder:text-[rgb(var(--fg)/0.5)] focus:outline-none focus:border-[rgb(var(--fg)/0.45)] transition-colors"
                           style={{ fontSize: "16px" }}
                         />
                       </div>
@@ -1020,17 +1066,17 @@ export default function SettingsPanel({
                         {suggestions.length > 0 && (
                           <motion.div
                             initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                            className="bg-[#030303] border border-white/16 rounded-2xl overflow-hidden"
+                            className="bg-[rgb(var(--modal-bg))] border border-[rgb(var(--fg)/0.16)] rounded-2xl overflow-hidden"
                           >
                             {suggestions.map((s, i) => (
                               <button
                                 key={i}
                                 type="button"
                                 onClick={() => selectSuggestion(s)}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.035] transition-colors border-b border-white/12 last:border-0"
+                                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[rgb(var(--fg)/0.035)] transition-colors border-b border-[rgb(var(--fg)/0.12)] last:border-0"
                               >
-                                <MapPin className="w-3.5 h-3.5 text-white/50 shrink-0" />
-                                <span className="text-sm text-white/70 truncate">
+                                <MapPin className="w-3.5 h-3.5 text-[rgb(var(--fg)/0.5)] shrink-0" />
+                                <span className="text-sm text-[rgb(var(--fg)/0.7)] truncate">
                                   {s.display_name.split(",").slice(0, 3).join(",")}
                                 </span>
                               </button>
@@ -1051,7 +1097,7 @@ export default function SettingsPanel({
                     formatValue={(v) => formatRadius(v, unitSystem)}
                     tone="neutral"
                   />
-                  <div className="flex justify-between text-[10px] text-white/55 px-1 -mt-2">
+                  <div className="flex justify-between text-[10px] text-[rgb(var(--fg)/0.55)] px-1 -mt-2">
                     <span>Walking distance</span>
                     <span>{isPlus ? "Long drive / Countryside" : `${formatRadius(FREE_MAX_RADIUS_KM, unitSystem)} max on Starter`}</span>
                   </div>
@@ -1059,7 +1105,7 @@ export default function SettingsPanel({
                     <button
                       type="button"
                       onClick={() => navigate("plan")}
-                      className="text-[11px] text-white/55 hover:text-white/75 transition-colors text-left px-1"
+                      className="text-[11px] text-[rgb(var(--fg)/0.55)] hover:text-[rgb(var(--fg)/0.75)] transition-colors text-left px-1"
                     >
                       Upgrade to Plus for up to {formatRadius(PAID_MAX_RADIUS_KM, unitSystem)} →
                     </button>
@@ -1082,21 +1128,21 @@ export default function SettingsPanel({
                     "flex items-center gap-3 rounded-2xl border p-4",
                     isPlus
                       ? "bg-gradient-to-br from-white/[0.045] to-white/[0.025] border-rose-400/45"
-                      : "bg-white/[0.035] border-white/16",
+                      : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)]",
                   ].join(" ")}>
                     <div className={[
                       "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                      isPlus ? "bg-white/[0.06]" : "bg-white/[0.06]",
+                      isPlus ? "bg-[rgb(var(--fg)/0.06)]" : "bg-[rgb(var(--fg)/0.06)]",
                     ].join(" ")}>
                       {isPlus
-                        ? <Crown className="w-4 h-4 text-white/65" />
-                        : <Lock className="w-4 h-4 text-white/40" />}
+                        ? <Crown className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                        : <Lock className="w-4 h-4 text-[rgb(var(--fg)/0.4)]" />}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white">
+                      <p className="text-sm font-bold text-[rgb(var(--fg))]">
                         {isPlus ? "Plus" : isTrial ? "Trial" : "Starter"}
                       </p>
-                      <p className="text-xs text-white/55 mt-0.5">
+                      <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">
                         {isPlus
                           ? profile.subscription_ends_at
                             ? `Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
@@ -1105,7 +1151,7 @@ export default function SettingsPanel({
                       </p>
                     </div>
                     {isPlus && (
-                      <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${profile.subscription_ends_at ? "text-amber-400 bg-amber-500/15 border border-amber-500/30" : "text-white/65 bg-white/[0.045] border border-white/18"}`}>
+                      <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${profile.subscription_ends_at ? "text-amber-400 bg-amber-500/15 border border-amber-500/30" : "text-[rgb(var(--fg)/0.65)] bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.18)]"}`}>
                         {profile.subscription_ends_at ? "Cancels" : "Active"}
                       </span>
                     )}
@@ -1114,31 +1160,31 @@ export default function SettingsPanel({
                   {!isPlus && (
                     <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-rose-400/45 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-white/65" />
-                        <p className="text-sm font-bold text-white">Unlock Plus</p>
+                        <Sparkles className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                        <p className="text-sm font-bold text-[rgb(var(--fg))]">Unlock Plus</p>
                         <div className="ml-auto text-right">
                           {billingInterval === "yearly" ? (
                             <>
-                              <p className="text-base font-black text-white">{getCurrencySymbol(unitSystem)}24.99<span className="text-xs font-normal text-white/60"> / year</span></p>
+                              <p className="text-base font-black text-[rgb(var(--fg))]">{getCurrencySymbol(unitSystem)}24.99<span className="text-xs font-normal text-[rgb(var(--fg)/0.6)]"> / year</span></p>
                             </>
                           ) : (
                             <>
-                              <p className="text-base font-black text-white">{getCurrencySymbol(unitSystem)}0.99<span className="text-xs font-normal text-white/60"> first month</span></p>
-                              <p className="text-[10px] text-white/40">then {getCurrencySymbol(unitSystem)}2.99/mo</p>
+                              <p className="text-base font-black text-[rgb(var(--fg))]">{getCurrencySymbol(unitSystem)}0.99<span className="text-xs font-normal text-[rgb(var(--fg)/0.6)]"> first month</span></p>
+                              <p className="text-[10px] text-[rgb(var(--fg)/0.4)]">then {getCurrencySymbol(unitSystem)}2.99/mo</p>
                             </>
                           )}
                         </div>
                       </div>
 
                       {/* Billing interval toggle */}
-                      <div className="flex items-center gap-0.5 bg-black/20 rounded-xl p-0.5 self-start">
+                      <div className="flex items-center gap-0.5 bg-[rgb(var(--page-bg)/0.2)] rounded-xl p-0.5 self-start">
                         <button
                           type="button"
                           onClick={() => setBillingInterval("monthly")}
                           className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                             billingInterval === "monthly"
-                              ? "bg-white/15 text-white"
-                              : "text-white/45 hover:text-white/70"
+                              ? "bg-[rgb(var(--fg)/0.15)] text-[rgb(var(--fg))]"
+                              : "text-[rgb(var(--fg)/0.45)] hover:text-[rgb(var(--fg)/0.7)]"
                           }`}
                         >
                           Monthly
@@ -1148,8 +1194,8 @@ export default function SettingsPanel({
                           onClick={() => setBillingInterval("yearly")}
                           className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                             billingInterval === "yearly"
-                              ? "bg-white/15 text-white"
-                              : "text-white/45 hover:text-white/70"
+                              ? "bg-[rgb(var(--fg)/0.15)] text-[rgb(var(--fg))]"
+                              : "text-[rgb(var(--fg)/0.45)] hover:text-[rgb(var(--fg)/0.7)]"
                           }`}
                         >
                           Yearly
@@ -1162,8 +1208,8 @@ export default function SettingsPanel({
                       <ul className="flex flex-col gap-2">
                         {PLANS.find((p) => p.id === "subscription")!.features.map((text) => (
                           <li key={text} className="flex items-start gap-2">
-                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-white/65" />
-                            <span className="text-xs text-white font-semibold">{text}</span>
+                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[rgb(var(--fg)/0.65)]" />
+                            <span className="text-xs text-[rgb(var(--fg))] font-semibold">{text}</span>
                           </li>
                         ))}
                       </ul>
@@ -1174,7 +1220,7 @@ export default function SettingsPanel({
                             const { Browser } = await import('@capacitor/browser')
                             await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
                           }}
-                          className="w-full py-3 rounded-full border border-white/20 text-white/60 text-sm font-semibold"
+                          className="w-full py-3 rounded-full border border-[rgb(var(--fg)/0.2)] text-[rgb(var(--fg)/0.6)] text-sm font-semibold"
                         >
                           Get Plus on the web
                         </button>
@@ -1200,7 +1246,7 @@ export default function SettingsPanel({
                           const { Browser } = await import('@capacitor/browser')
                           await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
                         }}
-                        className="w-full py-2.5 rounded-full border border-white/16 text-white/50 text-sm font-semibold"
+                        className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.5)] text-sm font-semibold"
                       >
                         Manage via website
                       </button>
@@ -1210,7 +1256,7 @@ export default function SettingsPanel({
                         variant="ghost"
                         loading={managingSubscription}
                         onClick={handleManageSubscription}
-                        className="w-full h-auto py-2.5 text-sm text-white/50 hover:text-white/80 border border-white/16 hover:border-white/28"
+                        className="w-full h-auto py-2.5 text-sm text-[rgb(var(--fg)/0.5)] hover:text-[rgb(var(--fg)/0.8)] border border-[rgb(var(--fg)/0.16)] hover:border-[rgb(var(--fg)/0.28)]"
                       >
                         Manage or cancel subscription
                       </Button>

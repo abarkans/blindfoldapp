@@ -14,6 +14,28 @@ body {
   background-color: #000;
 }
 
+/* Dashboard theming. Scoped to [data-theme] so it never affects public pages
+   (landing, auth, onboarding, legal) which keep using literal white/black
+   classes and must render identically with no attribute present.
+
+   --fg is an RGB channel triple, not a color: text-white/55 etc become
+   text-[rgb(var(--fg)/0.55)], keeping every existing opacity level intact
+   and only flipping the base channel. Defaults below equal today's dark
+   theme exactly. */
+:root {
+  --fg: 255 255 255;
+  --page-bg: 0 0 0;
+  --modal-bg: 3 3 3;
+  --sidebar-bg: 9 9 11;
+}
+
+[data-theme="light"] {
+  --fg: 10 10 10;
+  --page-bg: 255 255 255;
+  --modal-bg: 255 255 255;
+  --sidebar-bg: 244 244 245;
+}
+
 /* Pointer cursor on all clickable elements.
    Unlayered CSS beats all named @layer rules (including Tailwind utilities),
    so :disabled is explicitly excluded to let disabled:cursor-not-allowed still work. */

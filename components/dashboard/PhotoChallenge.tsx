@@ -276,15 +276,15 @@ export default function PhotoChallenge({
   const isInline = !!onComplete;
 
   return (
-    <div className={isInline ? "mt-4" : "mt-4 rounded-3xl border border-white/16 bg-white/[0.035] p-5"}>
+    <div className={isInline ? "mt-4" : "mt-4 rounded-3xl border border-[rgb(var(--fg)/0.16)] bg-[rgb(var(--fg)/0.035)] p-5"}>
       {isInline ? null : (
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 rounded-xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center shrink-0">
             <Camera className="w-4 h-4 text-rose-400" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">Memory Challenge</p>
-            <p className="text-xs text-white/50">Capture tonight</p>
+            <p className="text-sm font-semibold text-[rgb(var(--fg))]">Memory Challenge</p>
+            <p className="text-xs text-[rgb(var(--fg)/0.5)]">Capture tonight</p>
           </div>
         </div>
       )}
@@ -292,15 +292,15 @@ export default function PhotoChallenge({
       {/* Partner upload status — only show in standalone mode */}
       {!isInline && (
         <div className="flex gap-3 mb-4">
-          <div className={`flex-1 flex items-center gap-2 rounded-2xl border px-3 py-2 ${myPhoto ? "border-emerald-500/30 bg-emerald-500/8" : "border-white/10 bg-white/[0.025]"}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${myPhoto ? "bg-emerald-400" : "bg-white/25"}`} />
-            <span className="text-xs text-white/70">You</span>
+          <div className={`flex-1 flex items-center gap-2 rounded-2xl border px-3 py-2 ${myPhoto ? "border-emerald-500/30 bg-emerald-500/8" : "border-[rgb(var(--fg)/0.1)] bg-[rgb(var(--fg)/0.025)]"}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${myPhoto ? "bg-emerald-400" : "bg-[rgb(var(--fg)/0.25)]"}`} />
+            <span className="text-xs text-[rgb(var(--fg)/0.7)]">You</span>
             {myPhoto && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 ml-auto" />}
           </div>
-          <div className={`flex-1 flex items-center gap-2 rounded-2xl border px-3 py-2 ${partnerPhoto ? "border-emerald-500/30 bg-emerald-500/8" : "border-white/10 bg-white/[0.025]"}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${partnerPhoto ? "bg-emerald-400" : "bg-white/25"}`} />
-            <Users className="w-3 h-3 text-white/40" />
-            <span className="text-xs text-white/70">Partner</span>
+          <div className={`flex-1 flex items-center gap-2 rounded-2xl border px-3 py-2 ${partnerPhoto ? "border-emerald-500/30 bg-emerald-500/8" : "border-[rgb(var(--fg)/0.1)] bg-[rgb(var(--fg)/0.025)]"}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${partnerPhoto ? "bg-emerald-400" : "bg-[rgb(var(--fg)/0.25)]"}`} />
+            <Users className="w-3 h-3 text-[rgb(var(--fg)/0.4)]" />
+            <span className="text-xs text-[rgb(var(--fg)/0.7)]">Partner</span>
             {partnerPhoto && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 ml-auto" />}
           </div>
         </div>
@@ -375,25 +375,25 @@ export default function PhotoChallenge({
               animate={{ rotate: 360 }}
               transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
             />
-            <span className="text-sm text-white/55">Building memory card…</span>
+            <span className="text-sm text-[rgb(var(--fg)/0.55)]">Building memory card…</span>
           </motion.div>
         ) : uploadState === "skipping" ? (
           <motion.div key="skipping" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="flex items-center justify-center gap-2 h-12"
           >
             <motion.div
-              className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white/60"
+              className="w-4 h-4 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
               animate={{ rotate: 360 }}
               transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
             />
-            <span className="text-sm text-white/55">Saving…</span>
+            <span className="text-sm text-[rgb(var(--fg)/0.55)]">Saving…</span>
           </motion.div>
         ) : alreadyUploaded && !isInline ? (
           <motion.div key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20"
           >
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm text-white/70">Your memory is saved</span>
+            <span className="text-sm text-[rgb(var(--fg)/0.7)]">Your memory is saved</span>
           </motion.div>
         ) : alreadyUploaded && isInline ? (
           <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -433,7 +433,7 @@ export default function PhotoChallenge({
             ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl border border-dashed border-white/20 bg-white/[0.02] text-sm font-medium text-white/60 hover:border-rose-500/40 hover:text-white/80 hover:bg-white/[0.04] transition-all active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl border border-dashed border-[rgb(var(--fg)/0.2)] bg-[rgb(var(--fg)/0.02)] text-sm font-medium text-[rgb(var(--fg)/0.6)] hover:border-rose-500/40 hover:text-[rgb(var(--fg)/0.8)] hover:bg-[rgb(var(--fg)/0.04)] transition-all active:scale-[0.98]"
               >
                 <Camera className="w-4 h-4" />
                 Capture the memory
@@ -456,8 +456,8 @@ export default function PhotoChallenge({
         <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
           <Camera className="w-5 h-5 text-rose-400" />
         </div>
-        <h3 className="text-lg font-bold text-white mb-1">Skip photo?</h3>
-        <p className="text-sm text-white/55 mb-6">A photo turns tonight into a memory you can look back on. Skip and the moment stays just in your heads.</p>
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip photo?</h3>
+        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">A photo turns tonight into a memory you can look back on. Skip and the moment stays just in your heads.</p>
         <div className="flex flex-col gap-2">
           <Button type="button" onClick={() => setSkipDialogOpen(false)} className="w-full">
             Never mind
