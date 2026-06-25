@@ -968,7 +968,9 @@ export default function SettingsPanel({
               {view === "partners" && (
                 <div className="flex flex-col gap-3">
                   <Input label="My name" error={errors.partner1?.message} {...register("partner1")} />
-                  <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
+                  {partnerInviteStatus.state === "accepted" && (
+                    <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
+                  )}
                   {partnerInviteStatus.state === "accepted" && (memberRole === "partner" ? partnerInviteStatus.ownerEmail : partnerInviteStatus.invitedEmail) && (
                     <div className="flex items-center gap-1.5 px-1">
                       <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
@@ -990,6 +992,7 @@ export default function SettingsPanel({
                             Invite your partner to create an account. Dates unlock once both of you tap reveal.
                           </p>
                         )}
+                        <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
                         <Input
                           label="Partner email"
                           type="email"
