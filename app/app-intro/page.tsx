@@ -92,21 +92,23 @@ export default function AppIntroPage() {
 
   return (
     <div className="fixed inset-0 bg-[#0a0a0a] overflow-hidden">
-      {/* Video background */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/hero-video-poster.webp"
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src="/hero-video.webm" type="video/webm" />
-        <source src="/hero-video-small.mp4" type="video/mp4" />
-      </video>
-
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/80" />
+      {/* Video background — hero only, intro slides use a plain dark background */}
+      {!showSlides && (
+        <>
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/hero-video-poster.webp"
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/hero-video.webm" type="video/webm" />
+            <source src="/hero-video-small.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/80" />
+        </>
+      )}
 
       <AnimatePresence mode="wait">
         {!showSlides ? (
