@@ -1346,17 +1346,9 @@ export default function SettingsPanel({
                         ))}
                       </ul>
                       {inCapacitor ? (
-                        <Button
-                          type="button"
-                          variant="primary"
-                          onClick={async () => {
-                            const { Browser } = await import('@capacitor/browser')
-                            await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
-                          }}
-                          className="w-full h-auto py-3 text-sm font-bold gap-2"
-                        >
-                          Get Plus on the web
-                        </Button>
+                        <p className="text-xs text-[rgb(var(--fg)/0.5)] text-center leading-relaxed">
+                          To upgrade to Plus, visit blindfolddate.com from your account.
+                        </p>
                       ) : (
                         <Button
                           type="button"

@@ -321,16 +321,9 @@ function HistoryContent({
             Photos are captured. Upgrade to Plus to view them.
           </p>
           {inCapacitor ? (
-            <button
-              type="button"
-              onClick={async () => {
-                const { Browser } = await import('@capacitor/browser')
-                await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
-              }}
-              className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.2)] text-[rgb(var(--fg)/0.6)] text-sm font-semibold"
-            >
-              Get Plus on the web
-            </button>
+            <p className="text-xs text-[rgb(var(--fg)/0.5)] text-center leading-relaxed">
+              To upgrade to Plus, visit blindfolddate.com from your account.
+            </p>
           ) : (
             <button
               onClick={onOpenPlanSettings}
