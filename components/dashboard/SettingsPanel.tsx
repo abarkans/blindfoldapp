@@ -1297,6 +1297,7 @@ export default function SettingsPanel({
                           {billingInterval === "yearly" ? (
                             <>
                               <p className="text-base font-black text-[rgb(var(--fg))]">{getCurrencySymbol(unitSystem)}24.99<span className="text-xs font-normal text-[rgb(var(--fg)/0.6)]"> / year</span></p>
+                              <p className="text-[10px] text-[rgb(var(--fg)/0.4)]">≈ {getCurrencySymbol(unitSystem)}{(24.99 / 12).toFixed(2)}/mo</p>
                             </>
                           ) : (
                             <>
