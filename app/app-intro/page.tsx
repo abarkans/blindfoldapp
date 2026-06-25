@@ -39,6 +39,15 @@ export default function AppIntroPage() {
     if ((window as any).Capacitor || forceCapacitor) setInCapacitor(true)
   }, [])
 
+  // Warm the browser cache for all slide images while the hero screen is showing,
+  // so they're already loaded by the time the user taps through to them.
+  useEffect(() => {
+    SLIDES.forEach((slide) => {
+      const img = new window.Image()
+      img.src = slide.image
+    })
+  }, [])
+
   function navigate(path: string) {
     if (!navigator.onLine) {
       setShowOfflineToast(true)
@@ -221,6 +230,7 @@ export default function AppIntroPage() {
                           alt={SLIDES[slideIdx].title}
                           fill
                           sizes="300px"
+                          priority
                           className="object-contain"
                           onError={() => setImgErrors((e) => ({ ...e, [slideIdx]: true }))}
                         />
