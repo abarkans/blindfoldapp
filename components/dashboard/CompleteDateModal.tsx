@@ -141,8 +141,8 @@ interface CompleteDateModalProps {
   newBadges: NewBadge[];
   dateIdeaId: string;
   trialExpired?: boolean;
-  onClose: () => void;
-  onGoToProgress: () => void;
+  onClose: (rating: number | null) => void;
+  onGoToProgress: (rating: number | null) => void;
 }
 
 export default function CompleteDateModal({
@@ -165,7 +165,7 @@ export default function CompleteDateModal({
   useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
 
   function handleClose() {
-    onClose();
+    onClose(rating);
   }
 
   async function handleFeedbackSubmit() {
@@ -295,7 +295,7 @@ export default function CompleteDateModal({
                           <p className="text-sm font-bold text-white">{badge.name}</p>
                         </div>
                         <button
-                          onClick={onGoToProgress}
+                          onClick={() => onGoToProgress(rating)}
                           className="text-xs text-white/45 hover:text-white transition-colors flex-shrink-0"
                         >
                           View
@@ -330,7 +330,7 @@ export default function CompleteDateModal({
                   ) : (
                     <Link
                       href="/dashboard?upgrade=1"
-                      onClick={onClose}
+                      onClick={() => onClose(rating)}
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors"
                     >
                       Upgrade to Plus
@@ -357,7 +357,7 @@ export default function CompleteDateModal({
                 <Button size="lg" className="w-full" onClick={handleClose}>
                   Awesome!
                 </Button>
-                <Button variant="ghost" size="lg" className="w-full" onClick={onGoToProgress}>
+                <Button variant="ghost" size="lg" className="w-full" onClick={() => onGoToProgress(rating)}>
                   My progress
                 </Button>
               </div>

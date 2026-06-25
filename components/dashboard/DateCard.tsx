@@ -22,6 +22,7 @@ import { dismissDate, resetCheckinSkip } from "@/app/actions/dismiss-date";
 import { skipTrialDate } from "@/app/actions/skip-trial-date";
 import { pingPartner } from "@/app/actions/ping-partner";
 import type { CompleteDateResult } from "@/lib/types";
+import { requestNativeReview } from "@/lib/app-review";
 import CompleteDateModal from "@/components/dashboard/CompleteDateModal";
 import CheckInButton from "@/components/dashboard/CheckInButton";
 import HomeDateCard from "@/components/dashboard/HomeDateCard";
@@ -697,6 +698,18 @@ export default function DateCard({
         setError(e instanceof Error ? e.message : "Something went wrong");
       }
     });
+  }
+
+  // Ask for a store review at most once, after the 2nd+ completed date, and only
+  // when the couple didn't rate the date itself poorly (skip if rating < 4).
+  function maybeRequestReview(rating: number | null) {
+    if (!modalData || modalData.datesCompletedCount < 2) return;
+    if (rating !== null && rating < 4) return;
+    const REVIEW_PROMPT_KEY = "review_prompted_v1";
+    if (localStorage.getItem(REVIEW_PROMPT_KEY)) return;
+    localStorage.setItem(REVIEW_PROMPT_KEY, "true");
+    // Delay so the prompt never overlaps the success modal's close animation.
+    setTimeout(() => { requestNativeReview(); }, 600);
   }
 
   async function handlePhotoComplete() {
@@ -1801,8 +1814,8 @@ export default function DateCard({
           newBadges={modalData.newBadges}
           dateIdeaId={modalData.dateIdeaId}
           trialExpired={modalData.trialExpired}
-          onClose={() => setModalData(null)}
-          onGoToProgress={() => { setModalData(null); onGoToProgress(); }}
+          onClose={(rating) => { setModalData(null); maybeRequestReview(rating); }}
+          onGoToProgress={(rating) => { setModalData(null); maybeRequestReview(rating); onGoToProgress(); }}
         />
       )}
     </>

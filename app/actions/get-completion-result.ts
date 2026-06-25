@@ -72,5 +72,6 @@ export async function getCompletionResult(): Promise<CompleteDateResult | null> 
       icon_emoji: b.milestones?.icon_emoji ?? "🏆",
     })),
     dateIdeaId,
+    datesCompletedCount: newCount,
   };
 }

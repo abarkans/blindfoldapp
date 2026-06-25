@@ -133,5 +133,6 @@ export async function completeDate(): Promise<CompleteDateResult> {
     }),
     dateIdeaId,
     trialExpired: wasTrial,
+    datesCompletedCount: newCount,
   };
 }

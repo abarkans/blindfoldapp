@@ -8,7 +8,7 @@ import {
   User, Tag, Sliders, Calendar, LogOut, MapPin, Search, Navigation,
   AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
-  Sparkles, Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House,
+  Sparkles, Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -28,6 +28,7 @@ import { sendPartnerInvite } from "@/app/actions/partner-invite";
 import { clearSettingsLocation, updateSettings } from "@/app/actions/update-settings";
 import { updateEmailNotifications } from "@/app/actions/update-email-notifications";
 import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
+import { openStoreListing } from "@/lib/app-review";
 
 const INTERESTS = [
   { id: "food", label: "Food & Dining", icon: Utensils },
@@ -575,6 +576,23 @@ export default function SettingsPanel({
             <div className="flex flex-col gap-2">
               {DATE_ROWS.map(renderRow)}
             </div>
+
+            {inCapacitor && (
+              <button
+                type="button"
+                onClick={() => openStoreListing()}
+                className="w-full flex items-center gap-4 p-4 bg-white/[0.035] border border-white/16 rounded-2xl hover:border-white/28 transition-colors active:scale-[0.98] mt-5"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+                  <Star className="w-4 h-4 text-white/65" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-sm font-semibold text-white">Rate the app</p>
+                  <p className="text-xs text-white/55 mt-0.5">Enjoying BlindfoldDate? Leave us a rating</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
+              </button>
+            )}
 
             <button
               type="button"

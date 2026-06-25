@@ -488,4 +488,5 @@ export interface CompleteDateResult {
   newBadges: { name: string; description: string; icon_emoji: string }[];
   dateIdeaId: string;
   trialExpired?: boolean;
+  datesCompletedCount: number;
 }
