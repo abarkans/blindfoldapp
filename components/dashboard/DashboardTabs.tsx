@@ -351,6 +351,7 @@ export default function DashboardTabs({
                     <ProgressTabContent
                       profile={profile}
                       earnedBadgesPromise={earnedBadgesPromise}
+                      theme={theme}
                     />
                   </Suspense>
                 )}
@@ -591,13 +592,15 @@ function HistoryTabSkeleton() {
 function StatsGrid({
   datesCompleted,
   totalCheckins,
+  theme,
 }: {
   datesCompleted: number;
   totalCheckins: number;
+  theme: Theme;
 }) {
   const stats = [
-    { icon: CalendarCheck, label: "Dates done", value: datesCompleted },
-    { icon: MapPin, label: "Check-ins", value: totalCheckins },
+    { icon: CalendarCheck, label: "Dates done", value: datesCompleted, overlapsStroke: true },
+    { icon: MapPin, label: "Check-ins", value: totalCheckins, overlapsStroke: false },
   ];
 
   return (
@@ -606,13 +609,19 @@ function StatsGrid({
         Statistics
       </h3>
       <div className="grid grid-cols-2 gap-2">
-        {stats.map(({ icon: Icon, label, value }) => (
+        {stats.map(({ icon: Icon, label, value, overlapsStroke }) => (
           <div
             key={label}
             className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-3.5 flex items-center gap-3"
           >
             <div className="w-8 h-8 rounded-xl bg-[rgb(var(--fg)/0.06)] flex items-center justify-center shrink-0">
-              <Icon className="w-4 h-4 text-[rgb(var(--fg)/0.55)]" />
+              <Icon
+                className={
+                  overlapsStroke
+                    ? `w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`
+                    : "w-4 h-4 text-[rgb(var(--fg)/0.55)]"
+                }
+              />
             </div>
             <div>
               <p className="text-lg font-bold text-[rgb(var(--fg))] tabular-nums">{value}</p>
@@ -628,9 +637,11 @@ function StatsGrid({
 function ProgressTabContent({
   profile,
   earnedBadgesPromise,
+  theme,
 }: {
   profile: Profile;
   earnedBadgesPromise: Promise<EarnedBadge[]>;
+  theme: Theme;
 }) {
   const earnedBadges = use(earnedBadgesPromise);
   const totalXp = profile.total_xp ?? 0;
@@ -655,6 +666,7 @@ function ProgressTabContent({
       <StatsGrid
         datesCompleted={datesCompleted}
         totalCheckins={totalCheckins}
+        theme={theme}
       />
 
       <XPProgressBar totalXp={totalXp} />

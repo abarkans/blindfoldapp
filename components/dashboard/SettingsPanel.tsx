@@ -537,7 +537,7 @@ export default function SettingsPanel({
 
   const ACCOUNT_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
     { id: "account", label: "Manage account", icon: UserCog, summary: userEmail || "Account settings" },
-    { id: "plan", label: "Plan", icon: Sparkles, summary: isPlus ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : isTrial ? "Trial · 1 free Plus date" : "Starter · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Crown, summary: isPlus ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : isTrial ? "Trial · 1 free Plus date" : "Starter · Upgrade available" },
   ];
 
   const DATE_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
@@ -579,7 +579,7 @@ export default function SettingsPanel({
         <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
           <Icon
             className={
-              id === "account"
+              id === "account" || id === "logistics"
                 ? `w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`
                 : "w-4 h-4 text-[rgb(var(--fg)/0.65)]"
             }
@@ -774,7 +774,7 @@ export default function SettingsPanel({
               onClick={() => setSignOutConfirm(true)}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.55)] hover:text-[rgb(var(--fg))] hover:border-[rgb(var(--fg)/0.28)] transition-all text-sm mt-6"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className={`w-4 h-4 ${theme === "dark" ? "text-[#919191]" : "text-[#737373]"}`} />
               Sign out
             </button>
 
