@@ -1028,10 +1028,10 @@ export default function SettingsPanel({
               {view === "interests" && (
                 <>
                   {isStarter && (
-                    <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-3">
-                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                      <p className="text-xs text-amber-300/80">
-                        Starter includes three date vibes. Choose at least {MIN_INTEREST_CATEGORIES}. <button type="button" onClick={() => navigate("plan")} className="underline underline-offset-2 hover:text-amber-200 transition-colors">Upgrade</button> to explore them all.
+                    <div className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 mb-3 ${theme === "light" ? "bg-amber-50 border border-amber-300" : "bg-amber-500/10 border border-amber-500/20"}`}>
+                      <Lock className={`w-3.5 h-3.5 shrink-0 ${theme === "light" ? "text-amber-600" : "text-amber-400"}`} />
+                      <p className={`text-xs ${theme === "light" ? "text-amber-800" : "text-amber-300/80"}`}>
+                        Starter includes three date vibes. Choose at least {MIN_INTEREST_CATEGORIES}. <button type="button" onClick={() => navigate("plan")} className={`underline underline-offset-2 transition-colors ${theme === "light" ? "hover:text-amber-950" : "hover:text-amber-200"}`}>Upgrade</button> to explore them all.
                       </p>
                     </div>
                   )}
@@ -1049,11 +1049,13 @@ export default function SettingsPanel({
                           className={[
                             "flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                             isSelected
-                              ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                              ? theme === "light"
+                                ? "bg-rose-50 border-rose-400 text-zinc-900"
+                                : "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
                               : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.48)] hover:border-[rgb(var(--fg)/0.3)] hover:text-[rgb(var(--fg)/0.75)]",
                           ].join(" ")}
                         >
-                          <Icon className={`w-5 h-5 ${isSelected ? "text-rose-300" : "text-[rgb(var(--fg)/0.45)]"}`} />
+                          <Icon className={`w-5 h-5 ${isSelected ? (theme === "light" ? "text-rose-500" : "text-rose-300") : "text-[rgb(var(--fg)/0.45)]"}`} />
                           <span className="text-xs font-medium leading-tight">{label}</span>
                         </button>
                       );
@@ -1096,11 +1098,13 @@ export default function SettingsPanel({
                         className={[
                           "flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all duration-200 active:scale-95",
                           val
-                            ? "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
+                            ? theme === "light"
+                              ? "bg-rose-50 border-rose-400 text-zinc-900"
+                              : "bg-[rgb(var(--fg)/0.075)] border-rose-400/70 text-[rgb(var(--fg))]"
                             : "bg-[rgb(var(--fg)/0.035)] border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.48)] hover:border-[rgb(var(--fg)/0.3)] hover:text-[rgb(var(--fg)/0.75)]",
                         ].join(" ")}
                       >
-                        <Icon className={`w-5 h-5 ${val ? "text-rose-300" : "text-[rgb(var(--fg)/0.45)]"}`} />
+                        <Icon className={`w-5 h-5 ${val ? (theme === "light" ? "text-rose-500" : "text-rose-300") : "text-[rgb(var(--fg)/0.45)]"}`} />
                         <span className="text-xs font-medium leading-tight">{label}</span>
                       </button>
                     ))}
