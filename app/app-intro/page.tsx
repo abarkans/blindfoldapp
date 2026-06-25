@@ -16,7 +16,7 @@ const SLIDES = [
   {
     icon: MapPin,
     title: 'Real spots, right near you',
-    body: 'Restaurants and bars that fit where you are and what you’ll spend.',
+    body: 'Picked to fit where you are and what you’ll spend — not just restaurants and bars.',
   },
   {
     icon: Sparkles,
@@ -162,6 +162,16 @@ export default function AppIntroPage() {
             className="relative z-10 flex flex-col h-full px-4"
             style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
           >
+            {/* Skip */}
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => navigate('/register')}
+                className="text-sm font-medium text-white/55 hover:text-white transition-colors px-2 py-1.5"
+              >
+                Skip
+              </button>
+            </div>
+
             {/* Slide — drag spans the full area so swipe works anywhere, not just on the text */}
             <motion.div
               className="flex-1 flex items-center justify-center overflow-hidden touch-pan-y select-none"
@@ -211,14 +221,9 @@ export default function AppIntroPage() {
                   />
                 ))}
               </div>
-              <div className="flex flex-col gap-2 w-full">
-                <Button size="lg" className="w-full" onClick={handleSlideNext}>
-                  Next
-                </Button>
-                <Button variant="ghost" size="lg" className="w-full" onClick={() => navigate('/register')}>
-                  Skip
-                </Button>
-              </div>
+              <Button size="lg" className="w-full" onClick={handleSlideNext}>
+                Next
+              </Button>
             </div>
           </motion.div>
         )}
