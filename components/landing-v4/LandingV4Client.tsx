@@ -1251,8 +1251,10 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                       className="w-full flex items-center justify-between gap-6 py-5 md:py-6 text-left group"
                       aria-expanded={isOpen}
                     >
-                      <dt className="text-white font-semibold text-lg md:text-2xl leading-snug">
-                        {q}
+                      <dt>
+                        <h3 className="text-white font-semibold text-lg md:text-2xl leading-snug">
+                          {q}
+                        </h3>
                       </dt>
                       <span className={[
                         "shrink-0 w-8 h-8 rounded-full border border-white/20 flex items-center justify-center transition-colors duration-200",
