@@ -868,8 +868,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
 
       {/* ── Nav ── */}
       <header className="fixed top-4 left-0 right-0 z-50 px-4 md:px-10 pointer-events-none">
-        <nav className="relative flex items-center justify-between px-4 min-[992px]:px-5 py-3 max-w-[1440px] mx-auto rounded-full pointer-events-auto bg-black/90 backdrop-blur-2xl backdrop-saturate-150 border border-white/[0.12] shadow-[0_1px_0_rgba(255,255,255,0.04),0_8px_40px_rgba(0,0,0,0.55)]">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.055] to-transparent pointer-events-none" />
+        <nav className="liquid-glass relative flex items-center justify-between px-4 min-[992px]:px-5 py-3 max-w-[1440px] mx-auto rounded-full pointer-events-auto">
           <button
             onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}
             className="flex items-center gap-2.5 group"
