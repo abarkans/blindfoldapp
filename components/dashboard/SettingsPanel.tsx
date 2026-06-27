@@ -537,7 +537,7 @@ export default function SettingsPanel({
 
   const ACCOUNT_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
     { id: "account", label: "Manage account", icon: UserCog, summary: userEmail || "Account settings" },
-    { id: "plan", label: "Plan", icon: Crown, summary: isPlus ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : isTrial ? "Trial · 1 free Plus date" : "Starter · Upgrade available" },
+    { id: "plan", label: "Plan", icon: Crown, summary: isPlus ? (profile.subscription_ends_at ? `Plus · Active until ${new Date(profile.subscription_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "Plus · Active") : isTrial ? "Trial · 1 free Plus date" : "Starter" },
   ];
 
   const DATE_ROWS: { id: SettingsView; label: string; icon: React.ElementType; summary: string }[] = [
@@ -1300,7 +1300,15 @@ export default function SettingsPanel({
                       type="button"
                       onClick={async () => {
                         const { Browser } = await import('@capacitor/browser')
-                        await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
+                        let url = 'https://blindfolddate.com/dashboard?tab=settings'
+                        try {
+                          const res = await fetch('/api/auth/handoff', { method: 'POST' })
+                          const data = await res.json()
+                          if (data?.url) url = data.url
+                        } catch {
+                          // Fall back to the plain dashboard URL — user just has to log in there.
+                        }
+                        await Browser.open({ url })
                       }}
                       className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.5)] text-sm font-semibold"
                     >

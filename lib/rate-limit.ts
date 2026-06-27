@@ -173,3 +173,12 @@ export async function checkPartnerPingRateLimit(userId: string): Promise<void> {
 export async function checkPublicDeletionRateLimit(ip: string): Promise<void> {
   await check(`delete-public-ip:${ip}`, 3, 3600, true);
 }
+
+/**
+ * Enforce per-user rate limits on Capacitor → website session handoff links.
+ * Limit: 10 per hour. Fails closed: each call mints a live magic-link token,
+ * so unmetered requests are a credential-issuance abuse vector.
+ */
+export async function checkAuthHandoffRateLimit(userId: string): Promise<void> {
+  await check(`auth-handoff:${userId}`, 10, 3600, true);
+}
