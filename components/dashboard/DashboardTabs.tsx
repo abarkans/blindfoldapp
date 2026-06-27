@@ -17,6 +17,8 @@ import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
 import { usePushNotifications } from "@/lib/hooks/usePushNotifications";
 import Button from "@/components/ui/Button";
+import { Capacitor } from "@capacitor/core";
+import { StatusBar, Style } from "@capacitor/status-bar";
 
 type Tab = "date" | "progress" | "history" | "settings";
 type SettingsInitialView = "plan" | "partners";
@@ -32,6 +34,12 @@ const BADGE_MILESTONES = [
   { threshold: 5, name: "High Five" },
   { threshold: 10, name: "Perfect 10" },
 ];
+
+function syncStatusBar(theme: Theme) {
+  if (!Capacitor.isNativePlatform()) return;
+  StatusBar.setBackgroundColor({ color: theme === "dark" ? "#000000" : "#ffffff" });
+  StatusBar.setStyle({ style: theme === "dark" ? Style.Dark : Style.Light });
+}
 
 function badgesFromCompletedCount(
   earnedBadges: EarnedBadge[],
@@ -88,6 +96,10 @@ export default function DashboardTabs({
     const stored = localStorage.getItem("theme");
     if (stored === "light" || stored === "dark") setTheme(stored);
   }, []);
+
+  useEffect(() => {
+    syncStatusBar(theme);
+  }, [theme]);
 
   function handleThemeChange(next: Theme) {
     setTheme(next);
