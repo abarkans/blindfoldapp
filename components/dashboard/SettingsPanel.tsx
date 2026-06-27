@@ -626,7 +626,7 @@ export default function SettingsPanel({
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">App theme</p>
-                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">{theme === "dark" ? "Dark mode" : "Light mode"}</p>
+                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">{theme === "dark" ? "Dark" : "Light"}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
               </button>
