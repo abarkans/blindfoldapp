@@ -1295,27 +1295,6 @@ export default function SettingsPanel({
                     )}
                   </div>
 
-                  {inCapacitor && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const { Browser } = await import('@capacitor/browser')
-                        let url = 'https://blindfolddate.com/dashboard?tab=settings'
-                        try {
-                          const res = await fetch('/api/auth/handoff', { method: 'POST' })
-                          const data = await res.json()
-                          if (data?.url) url = data.url
-                        } catch {
-                          // Fall back to the plain dashboard URL — user just has to log in there.
-                        }
-                        await Browser.open({ url })
-                      }}
-                      className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.5)] text-sm font-semibold"
-                    >
-                      Manage account
-                    </button>
-                  )}
-
                   {!isPlus && (
                     <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-rose-400/45 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
@@ -1387,12 +1366,6 @@ export default function SettingsPanel({
                     </div>
                   )}
 
-                  {!isPlus && inCapacitor && (
-                    <p className="text-sm text-[rgb(var(--fg)/0.6)] text-center leading-relaxed font-medium">
-                      To upgrade to Plus, visit blindfolddate.com from your account.
-                    </p>
-                  )}
-
                   {isPlus && !inCapacitor && (
                     <Button
                       type="button"
@@ -1403,6 +1376,27 @@ export default function SettingsPanel({
                     >
                       Manage or cancel subscription
                     </Button>
+                  )}
+
+                  {inCapacitor && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { Browser } = await import('@capacitor/browser')
+                        let url = 'https://blindfolddate.com/dashboard?tab=settings'
+                        try {
+                          const res = await fetch('/api/auth/handoff', { method: 'POST' })
+                          const data = await res.json()
+                          if (data?.url) url = data.url
+                        } catch {
+                          // Fall back to the plain dashboard URL — user just has to log in there.
+                        }
+                        await Browser.open({ url })
+                      }}
+                      className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.5)] text-sm font-semibold"
+                    >
+                      Manage account
+                    </button>
                   )}
                 </div>
               )}
