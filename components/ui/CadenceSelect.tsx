@@ -114,7 +114,7 @@ export default function CadenceSelect({ value, onChange }: CadenceSelectProps) {
               animate={{ opacity: 1 - dragY / 300 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+              className="md:hidden fixed inset-0 z-50 bg-black/70"
               onClick={closeSheet}
             />
 

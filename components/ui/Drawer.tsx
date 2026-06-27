@@ -17,7 +17,7 @@ export default function Drawer({ open, onClose, title, children }: DrawerProps) 
       {open && (
         <>
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
+            className="fixed inset-0 bg-black/70 z-50 md:hidden"
             onClick={onClose}
           />
           <motion.div

@@ -626,7 +626,7 @@ export default function SettingsPanel({
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">App theme</p>
-                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">{theme === "dark" ? "Dark theme" : "Light theme"}</p>
+                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">{theme === "dark" ? "Dark mode" : "Light mode"}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
               </button>
@@ -970,7 +970,7 @@ export default function SettingsPanel({
                 <div className="flex flex-col gap-3">
                   <Input label="My name" error={errors.partner1?.message} {...register("partner1")} />
                   {partnerInviteStatus.state === "accepted" && (
-                    <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
+                    <Input label="Partner name" error={errors.partner2?.message} {...register("partner2")} />
                   )}
                   {partnerInviteStatus.state === "accepted" && (memberRole === "partner" ? partnerInviteStatus.ownerEmail : partnerInviteStatus.invitedEmail) && (
                     <div className="flex items-center gap-1.5 px-1">
@@ -993,7 +993,7 @@ export default function SettingsPanel({
                             Invite your partner to create an account. Dates unlock once both of you tap reveal.
                           </p>
                         )}
-                        <Input label="Your partner" error={errors.partner2?.message} {...register("partner2")} />
+                        <Input label="Partner name" error={errors.partner2?.message} {...register("partner2")} />
                         <Input
                           label="Partner email"
                           type="email"
