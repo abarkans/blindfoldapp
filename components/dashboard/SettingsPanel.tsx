@@ -1295,6 +1295,19 @@ export default function SettingsPanel({
                     )}
                   </div>
 
+                  {inCapacitor && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { Browser } = await import('@capacitor/browser')
+                        await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
+                      }}
+                      className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.5)] text-sm font-semibold"
+                    >
+                      Manage account
+                    </button>
+                  )}
+
                   {!isPlus && (
                     <div className="bg-gradient-to-br from-white/[0.045] to-white/[0.025] border border-rose-400/45 rounded-2xl p-5 flex flex-col gap-4">
                       <div className="flex items-center gap-2">
@@ -1372,29 +1385,16 @@ export default function SettingsPanel({
                     </p>
                   )}
 
-                  {isPlus && (
-                    inCapacitor ? (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const { Browser } = await import('@capacitor/browser')
-                          await Browser.open({ url: 'https://blindfolddate.com/dashboard?tab=settings' })
-                        }}
-                        className="w-full py-2.5 rounded-full border border-[rgb(var(--fg)/0.16)] text-[rgb(var(--fg)/0.5)] text-sm font-semibold"
-                      >
-                        Manage via website
-                      </button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        loading={managingSubscription}
-                        onClick={handleManageSubscription}
-                        className="w-full h-auto py-2.5 text-sm text-[rgb(var(--fg)/0.5)] hover:text-[rgb(var(--fg)/0.8)] border border-[rgb(var(--fg)/0.16)] hover:border-[rgb(var(--fg)/0.28)]"
-                      >
-                        Manage or cancel subscription
-                      </Button>
-                    )
+                  {isPlus && !inCapacitor && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      loading={managingSubscription}
+                      onClick={handleManageSubscription}
+                      className="w-full h-auto py-2.5 text-sm text-[rgb(var(--fg)/0.5)] hover:text-[rgb(var(--fg)/0.8)] border border-[rgb(var(--fg)/0.16)] hover:border-[rgb(var(--fg)/0.28)]"
+                    >
+                      Manage or cancel subscription
+                    </Button>
                   )}
                 </div>
               )}
