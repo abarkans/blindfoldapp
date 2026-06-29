@@ -1329,23 +1329,6 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                 </svg>
                 <span className="text-sm">@blindfold.date</span>
               </a>
-              <Script
-                src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
-                strategy="lazyOnload"
-              />
-              <div
-                className="trustpilot-widget"
-                data-locale="en-US"
-                data-template-id="56278e9abfbbba0bdcd568bc"
-                data-businessunit-id="6a3e801c55ed47ab58b28cdf"
-                data-style-height="52px"
-                data-style-width="100%"
-                data-token="2e94904c-a507-4efe-b726-a6296286fd32"
-              >
-                <a href="https://www.trustpilot.com/review/blindfolddate.com" target="_blank" rel="noopener noreferrer">
-                  Trustpilot
-                </a>
-              </div>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Product</p>
@@ -1366,6 +1349,25 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
               <Link href="/legal/terms" className="text-sm text-white/50 hover:text-white transition-colors">Terms of Service</Link>
               <Link href="/legal/accessibility" className="text-sm text-white/50 hover:text-white transition-colors">Accessibility</Link>
               <a href="mailto:info@blindfolddate.com" className="text-sm text-white/50 hover:text-white transition-colors">Contact us</a>
+            </div>
+          </div>
+          <div className="pt-8">
+            <Script
+              src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+              strategy="lazyOnload"
+            />
+            <div
+              className="trustpilot-widget [&>iframe]:!mx-0"
+              data-locale="en-US"
+              data-template-id="56278e9abfbbba0bdcd568bc"
+              data-businessunit-id="6a3e801c55ed47ab58b28cdf"
+              data-style-height="52px"
+              data-style-width="100%"
+              data-token="2e94904c-a507-4efe-b726-a6296286fd32"
+            >
+              <a href="https://www.trustpilot.com/review/blindfolddate.com" target="_blank" rel="noopener noreferrer">
+                Trustpilot
+              </a>
             </div>
           </div>
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
