@@ -185,7 +185,6 @@ export default function SettingsPanel({
   const [upgradingPlan, setUpgradingPlan] = useState(false);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const [managingSubscription, setManagingSubscription] = useState(false);
-  const [openingAccountWebview, setOpeningAccountWebview] = useState(false);
   const [planType, setPlanType] = useState<PlanId>(
     (profile.plan_type as PlanId) ?? "free"
   );
@@ -1380,28 +1379,9 @@ export default function SettingsPanel({
                   )}
 
                   {inCapacitor && (
-                    <Button
-                      type="button"
-                      variant="primary"
-                      loading={openingAccountWebview}
-                      onClick={async () => {
-                        setOpeningAccountWebview(true)
-                        const { Browser } = await import('@capacitor/browser')
-                        let url = 'https://blindfolddate.com/dashboard?tab=settings'
-                        try {
-                          const res = await fetch('/api/auth/handoff', { method: 'POST' })
-                          const data = await res.json()
-                          if (data?.url) url = data.url
-                        } catch {
-                          // Fall back to the plain dashboard URL — user just has to log in there.
-                        }
-                        await Browser.open({ url })
-                        setOpeningAccountWebview(false)
-                      }}
-                      className="w-full h-auto py-3 text-sm font-bold"
-                    >
-                      Manage account
-                    </Button>
+                    <p className="text-xs text-center text-[rgb(var(--fg)/0.5)] py-2">
+                      Plus subscriptions are managed on the web. Visit blindfolddate.com to get started.
+                    </p>
                   )}
                 </div>
               )}
