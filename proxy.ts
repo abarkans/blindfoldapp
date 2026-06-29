@@ -53,11 +53,15 @@ function buildCsp(nonce: string, enforce: boolean): string {
     "https://o4511336614068224.ingest.de.sentry.io",
     // Cloudflare R2 presigned PUT uploads (direct browser → R2)
     "https://*.r2.cloudflarestorage.com",
+    // Trustpilot TrustBox widget data fetch
+    "https://*.trustpilot.com",
     ...(isPreview ? ["https://vercel.live", "wss://ws-us3.pusher.com"] : []),
   ].join(" ");
 
   const frameSrc = [
     "https://challenges.cloudflare.com",
+    // Trustpilot TrustBox widget renders in an iframe
+    "https://widget.trustpilot.com",
     ...(isPreview ? ["https://vercel.live"] : []),
   ].join(" ");
 
@@ -71,7 +75,7 @@ function buildCsp(nonce: string, enforce: boolean): string {
     "style-src 'self' 'unsafe-inline' https://eu.i.posthog.com",
     // Place photos served through internal proxy (/api/place-photo);
     // data: for inline SVGs/favicons; blob: for client-generated assets.
-    "img-src 'self' data: blob: https://vercel.live https://vercel.com",
+    "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.trustpilot.com https://*.trustpilot.net",
     "font-src 'self' https://vercel.live https://assets.vercel.com",
     `connect-src ${connectSrc}`,
     `frame-src ${frameSrc}`,

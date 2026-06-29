@@ -1340,7 +1340,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                 data-businessunit-id="6a3e801c55ed47ab58b28cdf"
                 data-style-height="52px"
                 data-style-width="100%"
-                data-token="3656b2e4-7877-40a6-a1ce-a47fee8c5cc4"
+                data-token="2e94904c-a507-4efe-b726-a6296286fd32"
               >
                 <a href="https://www.trustpilot.com/review/blindfolddate.com" target="_blank" rel="noopener noreferrer">
                   Trustpilot
