@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, useInView, type MotionValue } from "framer-motion";
 import Link from "next/link";
+import Script from "next/script";
 import LinkButton from "@/components/ui/LinkButton";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -1328,6 +1329,23 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                 </svg>
                 <span className="text-sm">@blindfold.date</span>
               </a>
+              <Script
+                src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+                strategy="lazyOnload"
+              />
+              <div
+                className="trustpilot-widget"
+                data-locale="en-US"
+                data-template-id="56278e9abfbbba0bdcd568bc"
+                data-businessunit-id="6a3e801c55ed47ab58b28cdf"
+                data-style-height="52px"
+                data-style-width="100%"
+                data-token="3656b2e4-7877-40a6-a1ce-a47fee8c5cc4"
+              >
+                <a href="https://www.trustpilot.com/review/blindfolddate.com" target="_blank" rel="noopener noreferrer">
+                  Trustpilot
+                </a>
+              </div>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Product</p>
