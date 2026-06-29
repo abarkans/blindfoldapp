@@ -218,13 +218,12 @@ async function callWithFallback({
   prompt: string;
   isSubscribed: boolean;
 }): Promise<GeneratedDateIdea> {
-  const primaryModel = isSubscribed ? SONNET : HAIKU;
   try {
-    return await callModel(primaryModel, system, prompt);
+    return await callModel(SONNET, system, prompt);
   } catch (err) {
-    if (primaryModel === HAIKU) {
+    if (!isSubscribed) {
       // Free-tier path. No fallback model available — surface the failure.
-      logAiEvent("[ai-haiku-failed]", { tier: "free", ...describeErr(err) });
+      logAiEvent("[ai-sonnet-failed]", { tier: "free", ...describeErr(err) });
       throw err;
     }
     // Plus-tier path. Only fall back to Haiku on overload (529) — not on
