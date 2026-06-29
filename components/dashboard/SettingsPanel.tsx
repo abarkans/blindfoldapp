@@ -1379,7 +1379,7 @@ export default function SettingsPanel({
                   )}
 
                   {inCapacitor && (
-                    <p className="text-xs text-center text-[rgb(var(--fg)/0.5)] py-2">
+                    <p className="text-sm text-center text-[rgb(var(--fg)/0.5)] py-2">
                       Plus subscriptions are managed on the web. Visit blindfolddate.com to get started.
                     </p>
                   )}
