@@ -26,13 +26,6 @@ export const identitySchema = z.object({
       "Name contains invalid characters"
     )
     .transform(collapseCombiningMarks),
-  partner_email: z
-    .string()
-    .trim()
-    .optional()
-    .refine((value) => !value || z.string().email().safeParse(value).success, {
-      message: "Enter a valid email",
-    }),
 });
 
 export const interestsSchema = z.object({
@@ -73,7 +66,6 @@ export const fullOnboardingSchema = z
     date_outside: logisticsSchema.shape.date_outside,
     date_at_home: logisticsSchema.shape.date_at_home,
     cadence: frequencySchema.shape.cadence,
-    partner_email: identitySchema.shape.partner_email,
     checkout_session_id: z.string().max(255).optional(),
     lat: z.number().min(-90).max(90).optional(),
     lng: z.number().min(-180).max(180).optional(),

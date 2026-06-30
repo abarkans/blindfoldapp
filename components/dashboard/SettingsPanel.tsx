@@ -358,7 +358,6 @@ export default function SettingsPanel({
       date_outside: profile.constraints.date_outside ?? true,
       date_at_home: profile.constraints.date_at_home ?? false,
       cadence: profile.cadence as FullOnboardingData["cadence"],
-      partner_email: "",
     },
   });
 
@@ -494,7 +493,7 @@ export default function SettingsPanel({
     setPartnerInviteSending(true);
     setPartnerInviteMessage("");
     setError("");
-    const result = await sendPartnerInvite(partnerInviteEmail);
+    const result = await sendPartnerInvite(partnerInviteEmail, partner2);
     setPartnerInviteSending(false);
     if (result.error) {
       setError(result.error);

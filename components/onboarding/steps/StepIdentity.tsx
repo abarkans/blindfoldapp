@@ -19,7 +19,7 @@ type NameOnlyFormData = z.infer<typeof nameOnlySchema>;
 
 interface StepIdentityProps {
   defaultValues?: { partner1?: string };
-  onNext: (data: { partner1: string; partner2: string; partner_email?: string }) => void;
+  onNext: (data: { partner1: string; partner2: string }) => void;
   continueTrigger: number;
   onCanContinueChange: (can: boolean) => void;
 }

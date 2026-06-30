@@ -13,6 +13,9 @@ import {
   partnerEmailSchema,
 } from "@/lib/partner-invites";
 import { checkPartnerInviteRateLimit } from "@/lib/rate-limit";
+import { identitySchema } from "@/lib/schemas/onboarding";
+
+const partnerNameSchema = identitySchema.shape.partner2;
 
 type ActionResult = { error?: string; ok?: boolean; waiting?: boolean };
 
@@ -31,7 +34,12 @@ function normalizeEmailForComparison(email: string): string {
   return lower;
 }
 
-async function createAndSendInvite(profileId: string, inviterUserId: string, email: string) {
+async function createAndSendInvite(
+  profileId: string,
+  inviterUserId: string,
+  email: string,
+  partnerName?: string
+) {
   const admin = createAdminClient();
   const { data: existingPartner } = await admin
     .from("couple_members")
@@ -49,6 +57,14 @@ async function createAndSendInvite(profileId: string, inviterUserId: string, ema
     .select("partner_names")
     .eq("id", profileId)
     .single();
+
+  if (partnerName) {
+    const existingNames = profile?.partner_names as { partner1?: string; partner2?: string } | null;
+    await admin
+      .from("profiles")
+      .update({ partner_names: { partner1: existingNames?.partner1 ?? "", partner2: partnerName } })
+      .eq("id", profileId);
+  }
 
   const token = createInviteToken();
   const tokenHash = hashInviteToken(token);
@@ -96,9 +112,16 @@ async function createAndSendInvite(profileId: string, inviterUserId: string, ema
   return { ok: true };
 }
 
-export async function sendPartnerInvite(email: string): Promise<ActionResult> {
+export async function sendPartnerInvite(email: string, partnerName?: string): Promise<ActionResult> {
   const parsed = partnerEmailSchema.safeParse(email);
   if (!parsed.success) return { error: "Enter a valid partner email." };
+
+  let parsedName: string | undefined;
+  if (partnerName) {
+    const nameResult = partnerNameSchema.safeParse(partnerName);
+    if (!nameResult.success) return { error: nameResult.error.issues[0]?.message ?? "Invalid partner name" };
+    parsedName = nameResult.data || undefined;
+  }
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -120,35 +143,9 @@ export async function sendPartnerInvite(email: string): Promise<ActionResult> {
     return { error: "Too many invite attempts. Try again later." };
   }
 
-  const result = await createAndSendInvite(access.profileId, user.id, parsed.data);
+  const result = await createAndSendInvite(access.profileId, user.id, parsed.data, parsedName);
   revalidatePath("/dashboard");
   return result;
-}
-
-export async function sendPartnerInviteForOnboarding(
-  rawEmail?: string | null
-): Promise<ActionResult> {
-  const trimmed = rawEmail?.trim();
-  if (!trimmed) return { ok: true };
-
-  const parsed = partnerEmailSchema.safeParse(trimmed);
-  if (!parsed.success) return { error: "Enter a valid partner email." };
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
-
-  if (normalizeEmailForComparison(user.email ?? "") === normalizeEmailForComparison(parsed.data)) {
-    return { error: "Use your partner's email, not your own." };
-  }
-
-  try {
-    await checkPartnerInviteRateLimit(user.id);
-  } catch {
-    return { error: "Too many invite attempts. Try again later." };
-  }
-
-  return createAndSendInvite(user.id, user.id, parsed.data);
 }
 
 export async function acceptPartnerInvite(token: string): Promise<ActionResult> {

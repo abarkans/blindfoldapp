@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { safeLogValue } from "@/lib/log";
+import { getCoupleAccess } from "@/lib/partner-invites";
 
 const cadenceSchema = z.enum(["weekly", "biweekly", "monthly"]);
 
@@ -21,10 +22,13 @@ export async function updateCadence(value: unknown): Promise<{ error?: string }>
   const parsed = cadenceSchema.safeParse(value);
   if (!parsed.success) return { error: "Invalid cadence" };
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
+
+  const { data: profile } = await admin
     .from("profiles")
     .select("plan_type")
-    .eq("id", user.id)
+    .eq("id", access.profileId)
     .single();
 
   if (profile?.plan_type !== "subscription") {
@@ -32,14 +36,13 @@ export async function updateCadence(value: unknown): Promise<{ error?: string }>
     return { error: "Plus subscription required" };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin
     .from("profiles")
     .update({ cadence: parsed.data })
-    .eq("id", user.id);
+    .eq("id", access.profileId);
 
   if (error) {
-    console.error(`[audit] update-cadence: uid=${safeLogValue(user.id)} msg=${safeLogValue(error.message)}`);
+    console.error(`[audit] update-cadence: uid=${safeLogValue(user.id)} profile=${safeLogValue(access.profileId)} msg=${safeLogValue(error.message)}`);
     return { error: "Failed to save" };
   }
 

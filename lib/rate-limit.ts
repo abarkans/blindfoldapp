@@ -175,6 +175,15 @@ export async function checkPublicDeletionRateLimit(ip: string): Promise<void> {
 }
 
 /**
+ * Enforce per-user rate limits on push token registration.
+ * Limit: 10 per 60 seconds. Fails open: cheap DB write, no paid APIs —
+ * just throttles churn/spam against the push_token column.
+ */
+export async function checkPushRegisterRateLimit(userId: string): Promise<void> {
+  await check(`push-register:${userId}`, 10, 60, false);
+}
+
+/**
  * Enforce per-user rate limits on Capacitor → website session handoff links.
  * Limit: 10 per hour. Fails closed: each call mints a live magic-link token,
  * so unmetered requests are a credential-issuance abuse vector.
