@@ -20,10 +20,11 @@ BlindfoldDate is a web app that plans surprise date nights for couples. Users an
 
 ## Key pages
 
-- `/` — Landing page
-- `/login` — Authentication
-- `/onboarding` — 5-step couple setup
-- `/dashboard` — Date card, progress, badges
+- [Landing page](https://blindfolddate.com/)
+- [Sign in](https://blindfolddate.com/login)
+- [Get started](https://blindfolddate.com/register)
+- [Onboarding](https://blindfolddate.com/onboarding) — 5-step couple setup
+- [Dashboard](https://blindfolddate.com/dashboard) — date card, progress, badges
 
 ## Technology
 

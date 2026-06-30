@@ -143,10 +143,6 @@ input[type="range"]::-webkit-slider-thumb {
   fill: #b8b8b8;
 }
 
-@media (min-width: 768px) {
-  .bento-grid-v3 { grid-template-rows: repeat(4, 164px); }
-}
-
 /* Liquid glass: translucent pill with specular top highlight + diagonal sheen,
    approximating iOS 26 glass material without a real-time refraction shader. */
 .liquid-glass {

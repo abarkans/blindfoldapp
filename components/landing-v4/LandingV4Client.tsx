@@ -962,6 +962,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
         {/* Mobile menu */}
         <div
           aria-hidden={!menuOpen}
+          inert={!menuOpen}
           className={`min-[992px]:hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex flex-col px-6 pb-8 transition-[opacity,transform] duration-200 ease-out ${
             menuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-3 pointer-events-none"
           }`}
@@ -1246,24 +1247,24 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                 const isOpen = openFaq === i;
                 return (
                   <div key={q} className="bg-white/[0.06] rounded-2xl px-6 md:px-8">
-                    <button
-                      type="button"
-                      onClick={() => setOpenFaq(isOpen ? null : i)}
-                      className="w-full flex items-center justify-between gap-6 py-5 md:py-6 text-left group"
-                      aria-expanded={isOpen}
-                    >
-                      <dt>
+                    <dt>
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaq(isOpen ? null : i)}
+                        className="w-full flex items-center justify-between gap-6 py-5 md:py-6 text-left group"
+                        aria-expanded={isOpen}
+                      >
                         <h3 className="text-white font-semibold text-lg md:text-2xl leading-snug">
                           {q}
                         </h3>
-                      </dt>
-                      <span className={[
-                        "shrink-0 w-8 h-8 rounded-full border border-white/20 flex items-center justify-center transition-colors duration-200",
-                        isOpen ? "bg-white/10 border-white/40" : "group-hover:border-white/35",
-                      ].join(" ")}>
-                        <X className={`w-4 h-4 transition-[transform,color] duration-200 ${isOpen ? "text-white rotate-0" : "text-white/40 group-hover:text-white/60 -rotate-45"}`} />
-                      </span>
-                    </button>
+                        <span className={[
+                          "shrink-0 w-8 h-8 rounded-full border border-white/20 flex items-center justify-center transition-colors duration-200",
+                          isOpen ? "bg-white/10 border-white/40" : "group-hover:border-white/35",
+                        ].join(" ")}>
+                          <X className={`w-4 h-4 transition-[transform,color] duration-200 ${isOpen ? "text-white rotate-0" : "text-white/40 group-hover:text-white/60 -rotate-45"}`} />
+                        </span>
+                      </button>
+                    </dt>
                     <motion.div
                       animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
                       initial={false}
