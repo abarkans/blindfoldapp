@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
@@ -225,8 +226,8 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
     .update({ accepted_at: now, accepted_user_id: user.id })
     .eq("id", invite.id);
 
-  // Fire-and-forget — notify owner their partner joined
-  void (async () => {
+  // after() runs post-response — guaranteed on Vercel even when function instance freezes
+  after(async () => {
     try {
       const { data: profile } = await admin
         .from("profiles")
@@ -250,7 +251,7 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
     } catch (err) {
       console.error(`[partner-invite] joined email failed profile=${invite.profile_id} msg=${err instanceof Error ? err.message : String(err)}`);
     }
-  })();
+  });
 
   revalidatePath("/dashboard");
   return { ok: true };

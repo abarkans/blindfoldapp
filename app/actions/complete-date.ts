@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { calcLevel } from "@/lib/utils";
 import type { CompleteDateResult } from "@/lib/types";
@@ -121,8 +122,8 @@ export async function completeDate(): Promise<CompleteDateResult> {
 
   console.info(`[audit] complete: success uid=${user.id} xp=${newXp} dates=${newCount}`);
 
-  // Fire-and-forget — email failure must not break date completion
-  void (async () => {
+  // after() runs post-response — guaranteed on Vercel even when function instance freezes
+  after(async () => {
     try {
       if (!(profileBefore?.email_notifications ?? true)) return;
 
@@ -160,7 +161,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
     } catch (err) {
       console.error(`[audit] complete: email failed uid=${user.id} msg=${err instanceof Error ? err.message : String(err)}`);
     }
-  })();
+  });
 
   revalidatePath("/dashboard");
 
