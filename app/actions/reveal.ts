@@ -251,6 +251,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
       date_idea: idea as Json,
       date_teaser: teaser as unknown as Json,
       notification_sent_at: null,
+      reengagement_sent_at: null,
       current_date_rerolled: false,
       date_accepted_at: null,
       reveal_owner_ready_at: null,

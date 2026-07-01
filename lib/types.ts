@@ -347,6 +347,7 @@ export interface Database {
           total_checkins: number;
           email_notifications: boolean;
           reminder_sent_at: string | null;
+          reengagement_sent_at: string | null;
           push_token: string | null;
           push_notifications_enabled: boolean;
           created_at: string;
@@ -390,6 +391,7 @@ export interface Database {
           total_checkins?: number;
           email_notifications?: boolean;
           reminder_sent_at?: string | null;
+          reengagement_sent_at?: string | null;
           push_token?: string | null;
           push_notifications_enabled?: boolean;
           created_at?: string;
@@ -433,6 +435,7 @@ export interface Database {
           total_checkins?: number;
           email_notifications?: boolean;
           reminder_sent_at?: string | null;
+          reengagement_sent_at?: string | null;
           push_token?: string | null;
           push_notifications_enabled?: boolean;
           created_at?: string;

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateReadyEmail } from "@/lib/email/templates/date-ready";
 import { firstDateReminderEmail } from "@/lib/email/templates/first-date-reminder";
+import { reengagementEmail } from "@/lib/email/templates/reengagement";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import { safeLogValue } from "@/lib/log";
 
@@ -282,6 +283,103 @@ export async function GET(request: Request) {
     console.warn(`[cron/notify-dates] partner_invites cleanup failed: ${invitesCleanupErr.message}`);
   } else {
     console.info(`[cron/notify-dates] partner_invites cleanup deleted=${deletedInvites ?? 0}`);
+  }
+
+  // --- Re-engagement: users who had at least one date but have been inactive
+  //     for 30+ days (revealed_at is older than 30 days). Sent once per lapse;
+  //     reengagement_sent_at is reset to NULL in reveal.ts when they come back.
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  const thirtyDaysAgo = new Date(now - THIRTY_DAYS_MS).toISOString();
+
+  const { data: reengageProfiles, error: reengageError } = await supabase
+    .from("profiles")
+    .select("id, partner_names, revealed_at")
+    .eq("onboarding_complete", true)
+    .eq("email_notifications", true)
+    .is("reengagement_sent_at", null)
+    .not("revealed_at", "is", null)
+    .lte("revealed_at", thirtyDaysAgo);
+
+  if (reengageError) {
+    console.error("[cron/notify-dates] reengagement query error:", safeLogValue(reengageError.message));
+  } else {
+    let reengageSent = 0;
+    const reengageErrors: string[] = [];
+
+    for (const profile of reengageProfiles ?? []) {
+      const { data: userData, error: userError } =
+        await supabase.auth.admin.getUserById(profile.id as string);
+
+      if (userError || !userData?.user?.email) {
+        reengageErrors.push(`uid=${profile.id} reason=no_email`);
+        continue;
+      }
+
+      const names = profile.partner_names as { partner1: string; partner2?: string } | null;
+      const partner1 = names?.partner1 ?? "there";
+      const partner2 = names?.partner2; // nullable — template handles solo vs couple display
+
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfoldapp.vercel.app";
+      const unsubscribeToken = generateUnsubscribeToken(profile.id as string);
+      const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(profile.id as string)}&token=${unsubscribeToken}`;
+      const { subject, html } = reengagementEmail({ partner1, partner2, unsubscribeUrl });
+
+      const { error: sendError } = await resend.emails.send({
+        from: FROM_ADDRESS,
+        to: userData.user.email,
+        subject,
+        html,
+      });
+
+      if (sendError) {
+        reengageErrors.push(`uid=${profile.id} reason=${safeLogValue(sendError.message)}`);
+        continue;
+      }
+
+      // Send to partner if linked
+      const { data: partnerMember } = await supabase
+        .from("couple_members")
+        .select("user_id")
+        .eq("profile_id", profile.id as string)
+        .eq("role", "partner")
+        .maybeSingle();
+
+      if (partnerMember) {
+        const { data: partnerAuth, error: partnerAuthError } =
+          await supabase.auth.admin.getUserById(partnerMember.user_id);
+
+        if (partnerAuthError || !partnerAuth?.user?.email) {
+          reengageErrors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=partner_no_email`);
+        } else {
+          const partnerUnsubToken = generateUnsubscribeToken(partnerMember.user_id);
+          const partnerUnsubUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(partnerMember.user_id)}&token=${partnerUnsubToken}`;
+          const { subject: ps, html: ph } = reengagementEmail({
+            partner1,
+            partner2,
+            unsubscribeUrl: partnerUnsubUrl,
+          });
+          const { error: partnerSendError } = await resend.emails.send({
+            from: FROM_ADDRESS,
+            to: partnerAuth.user.email,
+            subject: ps,
+            html: ph,
+          });
+          if (partnerSendError) {
+            reengageErrors.push(`uid=${profile.id} partner=${partnerMember.user_id} reason=${safeLogValue(partnerSendError.message)}`);
+          }
+        }
+      }
+
+      await supabase
+        .from("profiles")
+        .update({ reengagement_sent_at: new Date().toISOString() })
+        .eq("id", profile.id as string);
+
+      reengageSent++;
+    }
+
+    console.info(`[cron/notify-dates] reengagement_sent=${reengageSent} reengagement_errors=${reengageErrors.length}`);
+    if (reengageErrors.length) console.warn("[cron/notify-dates] reengagement errors:", reengageErrors);
   }
 
   return NextResponse.json({ sent, errors });

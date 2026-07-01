@@ -185,9 +185,7 @@ export default function SettingsPanel({
   const [upgradingPlan, setUpgradingPlan] = useState(false);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const [managingSubscription, setManagingSubscription] = useState(false);
-  const [planType, setPlanType] = useState<PlanId>(
-    (profile.plan_type as PlanId) ?? "free"
-  );
+  const planType: PlanId = (profile.plan_type as PlanId) ?? "free";
   const isPlus = planType === "subscription";
   const isTrial = planType === "trial";
   const isStarter = !isPlus && !isTrial;
