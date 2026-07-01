@@ -237,7 +237,6 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
       if (!(profile?.email_notifications ?? true)) return;
 
       const names = profile?.partner_names as { partner1?: string; partner2?: string } | null;
-      const ownerName = names?.partner1 ?? "there";
       const partnerName = names?.partner2 || user.email?.split("@")[0] || "Your partner";
 
       const { data: ownerAuth } = await admin.auth.admin.getUserById(invite.profile_id);
