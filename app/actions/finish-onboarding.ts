@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -11,6 +12,9 @@ import { generateAIDateIdea, generateHomeDateIdea } from "@/lib/ai/generate-date
 import { searchNearbyVenues } from "@/lib/places/search";
 import { createDateTeaser } from "@/lib/date-teaser";
 import { getCoupleAccess } from "@/lib/partner-invites";
+import { resend, FROM_ADDRESS } from "@/lib/email/resend";
+import { welcomeEmail } from "@/lib/email/templates/welcome";
+import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import type { Json } from "@/lib/types";
 
 function optionalNumber(value: unknown): number | undefined {
@@ -96,7 +100,7 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
       onboarding_complete: true,
     })
     .eq("id", user.id)
-    .select("onboarding_complete")
+    .select("onboarding_complete, email_notifications")
     .single();
 
   if (error) {
@@ -129,6 +133,22 @@ export async function finishOnboarding(input: FullOnboardingData): Promise<{ err
     });
   } catch (err) {
     console.error(`[audit] finish-onboarding: initial date generation failed uid=${user.id} msg=${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  if (user.email && (updated?.email_notifications ?? true)) {
+    const emailUserId = user.id;
+    const emailPartner1 = v.partner1;
+    const emailPartner2 = v.partner2 || null;
+    after(async () => {
+      try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
+        const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(emailUserId)}&token=${generateUnsubscribeToken(emailUserId)}`;
+        const { subject, html } = welcomeEmail({ partner1: emailPartner1, partner2: emailPartner2, unsubscribeUrl });
+        await resend.emails.send({ from: FROM_ADDRESS, to: user.email!, subject, html });
+      } catch (err) {
+        console.error(`[audit] finish-onboarding: welcome email failed uid=${emailUserId} msg=${err instanceof Error ? err.message : String(err)}`);
+      }
+    });
   }
 
   revalidatePath("/dashboard");
