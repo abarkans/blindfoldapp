@@ -8,6 +8,9 @@ import { checkCompleteRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { FREE_INTERESTS } from "@/lib/plans";
+import { resend, FROM_ADDRESS } from "@/lib/email/resend";
+import { dateCompletedEmail } from "@/lib/email/templates/date-completed";
+import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 
 // XP is server-determined inside complete_date_atomic (migration 060).
 // Trial and subscription earn 200 XP (2×); free earns 100 XP.
@@ -39,7 +42,7 @@ export async function completeDate(): Promise<CompleteDateResult> {
   // Check plan_type before the RPC so we know if downgrade is needed after.
   const { data: profileBefore } = await admin
     .from("profiles")
-    .select("plan_type, interests")
+    .select("plan_type, interests, partner_names, email_notifications")
     .eq("id", access.profileId)
     .single();
 
@@ -117,6 +120,48 @@ export async function completeDate(): Promise<CompleteDateResult> {
   }
 
   console.info(`[audit] complete: success uid=${user.id} xp=${newXp} dates=${newCount}`);
+
+  // Fire-and-forget — email failure must not break date completion
+  void (async () => {
+    try {
+      if (!(profileBefore?.email_notifications ?? true)) return;
+
+      const names = profileBefore?.partner_names as { partner1: string; partner2?: string } | null;
+      const partner1 = names?.partner1 ?? "there";
+      const partner2 = names?.partner2;
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
+
+      const { data: ownerAuth } = await admin.auth.admin.getUserById(access.profileId);
+      if (ownerAuth?.user?.email) {
+        const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(access.profileId)}&token=${generateUnsubscribeToken(access.profileId)}`;
+        const { subject, html } = dateCompletedEmail({
+          partner1, partner2, datesCompleted: newCount, isTrialExpired: wasTrial, unsubscribeUrl,
+        });
+        await resend.emails.send({ from: FROM_ADDRESS, to: ownerAuth.user.email, subject, html });
+      }
+
+      const { data: partnerMember } = await admin
+        .from("couple_members")
+        .select("user_id")
+        .eq("profile_id", access.profileId)
+        .eq("role", "partner")
+        .maybeSingle();
+
+      if (partnerMember) {
+        const { data: partnerAuth } = await admin.auth.admin.getUserById(partnerMember.user_id);
+        if (partnerAuth?.user?.email) {
+          const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(partnerMember.user_id)}&token=${generateUnsubscribeToken(partnerMember.user_id)}`;
+          const { subject, html } = dateCompletedEmail({
+            partner1, partner2, datesCompleted: newCount, isTrialExpired: wasTrial, unsubscribeUrl,
+          });
+          await resend.emails.send({ from: FROM_ADDRESS, to: partnerAuth.user.email, subject, html });
+        }
+      }
+    } catch (err) {
+      console.error(`[audit] complete: email failed uid=${user.id} msg=${err instanceof Error ? err.message : String(err)}`);
+    }
+  })();
+
   revalidatePath("/dashboard");
 
   return {

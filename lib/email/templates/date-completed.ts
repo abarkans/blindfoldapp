@@ -1,6 +1,8 @@
-interface FirstDateReminderEmailProps {
+interface DateCompletedEmailProps {
   partner1: string;
   partner2: string | null | undefined;
+  datesCompleted: number;
+  isTrialExpired: boolean;
   unsubscribeUrl: string;
 }
 
@@ -13,26 +15,38 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-export function firstDateReminderEmail({
+export function dateCompletedEmail({
   partner1,
   partner2,
+  datesCompleted,
+  isTrialExpired,
   unsubscribeUrl,
-}: FirstDateReminderEmailProps): { subject: string; html: string } {
+}: DateCompletedEmailProps): { subject: string; html: string } {
   const safePartner1 = escapeHtml(partner1);
   const hasPartner = Boolean(partner2?.trim());
   const safePartner2 = hasPartner ? escapeHtml(partner2!.trim()) : null;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
 
   const heading = hasPartner
-    ? `${safePartner1} &amp; ${safePartner2}, you've got a date to go on.`
-    : `${safePartner1}, you've got a date to go on.`;
+    ? `${safePartner1} &amp; ${safePartner2}, you actually did it. &#127881;`
+    : `${safePartner1}, you actually did it. &#127881;`;
 
-  const body = hasPartner
-    ? `Your mystery date is planned and ready — it's just waiting for you two to make it happen. Open the app to reveal the full details and lock in the night.`
-    : `Your mystery date is planned and ready — it's just waiting for you to make it happen. Open the app to reveal the full details and lock in the night.`;
+
+  const upsellHtml = isTrialExpired
+    ? `
+          <!-- Plus upsell -->
+          <div style="margin:24px 0 0;padding:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:16px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.04em;text-transform:uppercase;">Your trial is complete</p>
+            <p style="margin:0 0 14px;font-size:14px;line-height:1.5;color:rgba(255,255,255,0.6);">Upgrade to Plus for unlimited dates, all interest categories, and a wider radius.</p>
+            <a href="${appUrl}/dashboard"
+               style="display:inline-block;padding:11px 22px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;border-radius:999px;">
+              Upgrade to Plus
+            </a>
+          </div>`
+    : "";
 
   return {
-    subject: `${escapeHtml(partner1)}, your mystery date is still waiting 🎭`,
+    subject: `Date #${datesCompleted} complete &#127881;`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,7 +54,7 @@ export function firstDateReminderEmail({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="only dark" />
   <meta name="supported-color-schemes" content="only dark" />
-  <title>Your mystery date is still waiting</title>
+  <title>Date complete!</title>
   <style>:root { color-scheme: only dark; }</style>
 </head>
 <body style="margin:0;padding:0;background-color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
@@ -60,24 +74,24 @@ export function firstDateReminderEmail({
           <tr>
             <td style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.16);border-radius:24px;box-shadow:0 28px 80px rgba(0,0,0,0.45);padding:32px 28px;text-align:center;">
 
-              <!-- Emoji -->
-              <p style="margin:0 0 16px;font-size:42px;">&#127917;</p>
-
               <!-- Heading -->
-              <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;line-height:1.25;color:#ffffff;">
+              <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;line-height:1.25;color:#ffffff;">
                 ${heading}
               </h1>
 
               <!-- Body -->
               <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.62);">
-                ${body}
+                Date #${datesCompleted} in the books. Your next mystery date is ready whenever you are — keep the momentum going.
               </p>
 
               <!-- CTA -->
               <a href="${appUrl}/dashboard"
                  style="display:inline-block;padding:14px 28px;background:#f43f5e;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:999px;">
-                Reveal your date
+                Plan your next date
               </a>
+
+              ${upsellHtml}
+
             </td>
           </tr>
 
