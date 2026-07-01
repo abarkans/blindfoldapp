@@ -20,7 +20,7 @@ export function partnerJoinedEmail({
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
 
   return {
-    subject: `${escapeHtml(partnerName)} joined — you're all set 🎉`,
+    subject: `${partnerName} joined — you're all set 🎉`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>

@@ -32,7 +32,7 @@ export function firstDateReminderEmail({
     : `Your mystery date is planned and ready — it's just waiting for you to make it happen. Open the app to reveal the full details and lock in the night.`;
 
   return {
-    subject: `${escapeHtml(partner1)}, your mystery date is still waiting 🎭`,
+    subject: `${partner1}, your mystery date is still waiting 🎭`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>

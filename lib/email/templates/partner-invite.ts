@@ -20,7 +20,7 @@ export function partnerInviteEmail({
   const safeUrl = escapeHtml(inviteUrl);
 
   return {
-    subject: `${safeInviter} invited you to BlindfoldDate`,
+    subject: `${inviterName || "Your partner"} invited you to BlindfoldDate`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>

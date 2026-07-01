@@ -28,7 +28,7 @@ export function reengagementEmail({
     : `${safePartner1}, it's been a while.`;
 
   return {
-    subject: `${escapeHtml(partner1)}, date night is calling 🕯️`,
+    subject: `${partner1}, date night is calling 🕯️`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
