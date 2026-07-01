@@ -1,5 +1,4 @@
 interface PartnerJoinedEmailProps {
-  ownerName: string;
   partnerName: string;
   unsubscribeUrl: string;
 }
@@ -14,11 +13,9 @@ function escapeHtml(value: string): string {
 }
 
 export function partnerJoinedEmail({
-  ownerName,
   partnerName,
   unsubscribeUrl,
 }: PartnerJoinedEmailProps): { subject: string; html: string } {
-  const safeName = escapeHtml(ownerName);
   const safePartner = escapeHtml(partnerName);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://blindfolddate.com";
 
@@ -56,7 +53,7 @@ export function partnerJoinedEmail({
 
               <!-- Heading -->
               <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;line-height:1.25;color:#ffffff;">
-                ${safeName}, ${safePartner} accepted your invite.
+                ${safePartner} accepted your invite.
               </h1>
 
               <!-- Body -->

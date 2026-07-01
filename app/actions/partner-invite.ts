@@ -245,7 +245,7 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
 
       const appUrl = getAppUrl();
       const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(invite.profile_id)}&token=${generateUnsubscribeToken(invite.profile_id)}`;
-      const { subject, html } = partnerJoinedEmail({ ownerName, partnerName, unsubscribeUrl });
+      const { subject, html } = partnerJoinedEmail({ partnerName, unsubscribeUrl });
 
       await resend.emails.send({ from: FROM_ADDRESS, to: ownerAuth.user.email, subject, html });
     } catch (err) {
