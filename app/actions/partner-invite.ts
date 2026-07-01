@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { partnerInviteEmail } from "@/lib/email/templates/partner-invite";
+import { partnerJoinedEmail } from "@/lib/email/templates/partner-joined";
+import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import {
   createInviteToken,
   getAppUrl,
@@ -222,6 +224,34 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
     .from("partner_invites")
     .update({ accepted_at: now, accepted_user_id: user.id })
     .eq("id", invite.id);
+
+  // Fire-and-forget — notify owner their partner joined
+  void (async () => {
+    try {
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("partner_names, email_notifications")
+        .eq("id", invite.profile_id)
+        .single();
+
+      if (!(profile?.email_notifications ?? true)) return;
+
+      const names = profile?.partner_names as { partner1?: string; partner2?: string } | null;
+      const ownerName = names?.partner1 ?? "there";
+      const partnerName = names?.partner2 || user.email?.split("@")[0] || "Your partner";
+
+      const { data: ownerAuth } = await admin.auth.admin.getUserById(invite.profile_id);
+      if (!ownerAuth?.user?.email) return;
+
+      const appUrl = getAppUrl();
+      const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(invite.profile_id)}&token=${generateUnsubscribeToken(invite.profile_id)}`;
+      const { subject, html } = partnerJoinedEmail({ ownerName, partnerName, unsubscribeUrl });
+
+      await resend.emails.send({ from: FROM_ADDRESS, to: ownerAuth.user.email, subject, html });
+    } catch (err) {
+      console.error(`[partner-invite] joined email failed profile=${invite.profile_id} msg=${err instanceof Error ? err.message : String(err)}`);
+    }
+  })();
 
   revalidatePath("/dashboard");
   return { ok: true };
