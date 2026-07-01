@@ -46,7 +46,7 @@ export function dateCompletedEmail({
     : "";
 
   return {
-    subject: `Date #${datesCompleted} complete &#127881;`,
+    subject: `Date #${datesCompleted} complete 🎉`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
