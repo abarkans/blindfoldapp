@@ -3,6 +3,7 @@ interface DateCompletedEmailProps {
   partner2: string | null | undefined;
   datesCompleted: number;
   isTrialExpired: boolean;
+  isPlusSubscriber: boolean;
   unsubscribeUrl: string;
 }
 
@@ -20,6 +21,7 @@ export function dateCompletedEmail({
   partner2,
   datesCompleted,
   isTrialExpired,
+  isPlusSubscriber,
   unsubscribeUrl,
 }: DateCompletedEmailProps): { subject: string; html: string } {
   const safePartner1 = escapeHtml(partner1);
@@ -31,6 +33,10 @@ export function dateCompletedEmail({
     ? `${safePartner1} &amp; ${safePartner2}, you actually did it. &#127881;`
     : `${safePartner1}, you actually did it. &#127881;`;
 
+
+  const nextDateCopy = isPlusSubscriber
+    ? `Date #${datesCompleted} in the books. Your next mystery date is ready whenever you are — keep the momentum going.`
+    : `Date #${datesCompleted} in the books. Your next mystery date will be ready in 30 days — we'll let you know when it's time.`;
 
   const upsellHtml = isTrialExpired
     ? `
@@ -81,7 +87,7 @@ export function dateCompletedEmail({
 
               <!-- Body -->
               <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.62);">
-                Date #${datesCompleted} in the books. Your next mystery date is ready whenever you are — keep the momentum going.
+                ${nextDateCopy}
               </p>
 
               <!-- CTA -->

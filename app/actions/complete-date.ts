@@ -136,7 +136,8 @@ export async function completeDate(): Promise<CompleteDateResult> {
       if (ownerAuth?.user?.email) {
         const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(access.profileId)}&token=${generateUnsubscribeToken(access.profileId)}`;
         const { subject, html } = dateCompletedEmail({
-          partner1, partner2, datesCompleted: newCount, isTrialExpired: wasTrial, unsubscribeUrl,
+          partner1, partner2, datesCompleted: newCount, isTrialExpired: wasTrial,
+          isPlusSubscriber: profileBefore?.plan_type === "subscription", unsubscribeUrl,
         });
         await resend.emails.send({ from: FROM_ADDRESS, to: ownerAuth.user.email, subject, html });
       }
@@ -153,7 +154,8 @@ export async function completeDate(): Promise<CompleteDateResult> {
         if (partnerAuth?.user?.email) {
           const unsubscribeUrl = `${appUrl}/unsubscribe?uid=${encodeURIComponent(partnerMember.user_id)}&token=${generateUnsubscribeToken(partnerMember.user_id)}`;
           const { subject, html } = dateCompletedEmail({
-            partner1, partner2, datesCompleted: newCount, isTrialExpired: wasTrial, unsubscribeUrl,
+            partner1, partner2, datesCompleted: newCount, isTrialExpired: wasTrial,
+            isPlusSubscriber: profileBefore?.plan_type === "subscription", unsubscribeUrl,
           });
           await resend.emails.send({ from: FROM_ADDRESS, to: partnerAuth.user.email, subject, html });
         }
