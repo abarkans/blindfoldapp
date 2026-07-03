@@ -9,7 +9,7 @@ import {
   AlertCircle, Utensils, Martini, TreePine, Palette, Dumbbell, Film,
   BookOpen, Coffee, Waves, Camera, Gamepad2, Heart, ChevronRight,
   Lock, Check, CheckCircle, Crown, UserCog, Trash2, Mail, House, Star, Moon, Sun,
-  MessageCircle, Bug, Lightbulb, HelpCircle, Gem, BadgeCheck,
+  MessageCircle, Bug, Lightbulb, HelpCircle, Gem, BadgeCheck, FileText, Shield,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
@@ -764,6 +764,40 @@ export default function SettingsPanel({
                   <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
                 </button>
               )}
+            </div>
+
+            {/* Legal section */}
+            <p className="text-xs font-semibold text-[rgb(var(--fg)/0.6)] uppercase tracking-widest mb-3 mt-5">
+              Legal
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => router.push("/legal/terms")}
+                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-sm font-semibold text-[rgb(var(--fg))]">Terms of Service</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push("/legal/privacy")}
+                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
+                  <Shield className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-sm font-semibold text-[rgb(var(--fg))]">Privacy Policy</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
+              </button>
             </div>
 
             <button
