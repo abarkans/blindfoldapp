@@ -303,7 +303,7 @@ function HistoryContent({
           <CalendarDays className={`w-7 h-7 ${theme === "dark" ? "text-[#383838]" : "text-[#d6d6d6]"}`} />
         </div>
         <p className="text-[rgb(var(--fg)/0.6)] text-sm">No completed dates yet.</p>
-        <p className="text-[rgb(var(--fg)/0.35)] text-xs mt-1">Finish a date to start your scrapbook.</p>
+        <p className="text-[rgb(var(--fg)/0.55)] text-xs mt-1">Finish a date to start your scrapbook.</p>
       </div>
     );
   }
