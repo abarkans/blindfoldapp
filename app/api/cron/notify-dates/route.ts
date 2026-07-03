@@ -56,6 +56,11 @@ export async function GET(request: Request) {
   const now = Date.now();
   let sent = 0;
   const errors: string[] = [];
+  // Tracks ids that got a date-ready send this run so the reengagement
+  // pass below (same run, stale query snapshot) doesn't also email them —
+  // both *_sent_at flags are reset together on reveal, so a lapsed user
+  // can satisfy both queries at once.
+  const notifiedThisRun = new Set<string>();
 
   for (const profile of profiles) {
     const cadenceDays = CADENCE_DAYS[profile.cadence ?? "weekly"] ?? 7;
@@ -140,6 +145,7 @@ export async function GET(request: Request) {
       .update({ notification_sent_at: new Date().toISOString() })
       .eq("id", profile.id as string);
 
+    notifiedThisRun.add(profile.id as string);
     sent++;
   }
 
@@ -304,6 +310,9 @@ export async function GET(request: Request) {
     const reengageErrors: string[] = [];
 
     for (const profile of reengageProfiles ?? []) {
+      // Already got a date-ready email this run — don't double-send.
+      if (notifiedThisRun.has(profile.id as string)) continue;
+
       const { data: userData, error: userError } =
         await supabase.auth.admin.getUserById(profile.id as string);
 
