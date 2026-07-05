@@ -1081,6 +1081,20 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                     Plan my mystery date
                   </Link>
                 )}
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.blindfolddate.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 h-14 md:h-16 rounded-full bg-white text-gray-900 hover:bg-white/90 text-sm md:text-base font-semibold transition-[background-color] duration-150 shadow-lg shadow-black/30"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#34A853" d="M3.18 23.76c.37.21.8.22 1.2.05l12.1-6.84-2.61-2.61-10.69 9.4z"/>
+                    <path fill="#4285F4" d="M.54 1.1A1.5 1.5 0 0 0 .24 2v20a1.5 1.5 0 0 0 .3.9l.07.07 11.2-11.2v-.27L.61 1.03l-.07.07z"/>
+                    <path fill="#FBBC05" d="M20.3 10.37l-2.98-1.69-2.93 2.93 2.93 2.93 3-1.7a1.56 1.56 0 0 0 0-2.47z"/>
+                    <path fill="#EA4335" d="M4.38.24 16.5 7.08l-2.61 2.61L3.18.29A1.37 1.37 0 0 1 4.38.24z"/>
+                  </svg>
+                  Get on Android
+                </a>
               </div>
             </div>
           </div>
@@ -1337,7 +1351,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                 <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
               ))}
               <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Ideas</Link>
-              <a href="https://play.google.com/apps/testing/com.blindfolddate.app" target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">Android App (Beta)</a>
+              <a href="https://play.google.com/store/apps/details?id=com.blindfolddate.app" target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">Android App</a>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Account</p>
