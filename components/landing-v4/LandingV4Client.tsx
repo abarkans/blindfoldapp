@@ -1085,7 +1085,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                   href="https://play.google.com/store/apps/details?id=com.blindfolddate.app"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 px-7 h-14 md:h-16 rounded-full bg-white text-gray-900 hover:bg-white/90 text-sm md:text-base font-semibold transition-[background-color] duration-150 shadow-lg shadow-black/30"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 h-14 md:h-16 rounded-full bg-white text-gray-900 hover:bg-white/90 text-base md:text-lg font-bold transition-[background-color] duration-150 shadow-lg shadow-black/30"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                     <path fill="#34A853" d="M3.18 23.76c.37.21.8.22 1.2.05l12.1-6.84-2.61-2.61-10.69 9.4z"/>
