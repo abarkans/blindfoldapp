@@ -46,7 +46,8 @@
     "zod": "4.3.6"
   },
   "overrides": {
-    "dompurify": "^3.4.11"
+    "dompurify": "^3.4.11",
+    "js-yaml": "^3.15.0"
   },
   "browserslist": {
     "production": [
