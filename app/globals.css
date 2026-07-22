@@ -177,3 +177,18 @@ input[type="range"]::-webkit-slider-thumb {
   background: linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, 0.25) 48%, transparent 62%);
   opacity: 0.45;
 }
+
+/* Date-idea marquee: CSS animation (not JS) so hover-pause is instant and
+   never jumps position — animation-play-state preserves progress natively. */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee-scroll 70s linear infinite;
+}
+
+.marquee-row:hover .marquee-track {
+  animation-play-state: paused;
+}

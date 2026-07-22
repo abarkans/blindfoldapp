@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform, useInView, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, useReducedMotion, type MotionValue } from "framer-motion";
 import Link from "next/link";
 import Script from "next/script";
 import LinkButton from "@/components/ui/LinkButton";
@@ -18,6 +18,7 @@ import {
   Timer,
   Zap,
   X,
+  Plus,
   Utensils,
   Martini,
   TreePine,
@@ -137,28 +138,6 @@ const DATE_IDEA_CARDS = [
   { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Cocktail Lab",             vibe: "Build your own drink. Judge each other's." },
 ];
 
-const SPARKLE_CONFIGS = [
-  { top: "-12%", left: "10%",   size: 10, delay: 0,    dur: 2.2, rd: 1.2 },
-  { top: "20%",  left: "-8%",   size:  8, delay: 0.5,  dur: 1.9, rd: 0.8 },
-  { top: "-8%",  left: "65%",   size: 12, delay: 0.3,  dur: 2.4, rd: 1.5 },
-  { top: "45%",  left: "105%",  size:  9, delay: 0.8,  dur: 2.0, rd: 1.0 },
-  { top: "80%",  left: "15%",   size: 11, delay: 1.2,  dur: 2.1, rd: 0.9 },
-  { top: "105%", left: "55%",   size:  7, delay: 0.2,  dur: 1.8, rd: 1.3 },
-  { top: "38%",  left: "-6%",   size: 13, delay: 1.0,  dur: 2.3, rd: 0.7 },
-  { top: "-5%",  left: "40%",   size:  8, delay: 0.6,  dur: 2.0, rd: 1.1 },
-];
-
-const FLOATING_INTERESTS = [
-  { icon: Utensils, label: "Food",        bg: "bg-orange-500/20",  border: "border-orange-400/30",  color: "text-orange-300",  front: true,  style: { top: "6%",       left: "-18px"  }, delay: 0    },
-  { icon: Heart,    label: "Romance",     bg: "bg-rose-500/20",    border: "border-rose-400/30",    color: "text-rose-300",    front: true,  style: { top: "6%",       right: "-18px" }, delay: 0.5  },
-  { icon: TreePine, label: "Nature",      bg: "bg-emerald-500/20", border: "border-emerald-400/30", color: "text-emerald-300", front: false, style: { top: "38%",      left: "-22px"  }, delay: 1.0  },
-  { icon: Film,     label: "Cinema",      bg: "bg-violet-500/20",  border: "border-violet-400/30",  color: "text-violet-300",  front: false, style: { top: "38%",      right: "-22px" }, delay: 0.3  },
-  { icon: Coffee,   label: "Coffee",      bg: "bg-amber-500/20",   border: "border-amber-400/30",   color: "text-amber-300",   front: false, style: { bottom: "8%",    left: "-18px"  }, delay: 0.8  },
-  { icon: Waves,    label: "Beach",       bg: "bg-cyan-500/20",    border: "border-cyan-400/30",    color: "text-cyan-300",    front: false, style: { bottom: "8%",    right: "-18px" }, delay: 0.2  },
-  { icon: Dumbbell, label: "Fitness",     bg: "bg-red-500/20",     border: "border-red-400/30",     color: "text-red-300",     front: true,  style: { bottom: "-18px", left: "15%"    }, delay: 0.4  },
-  { icon: Martini,  label: "Nightlife",   bg: "bg-purple-500/20",  border: "border-purple-400/30",  color: "text-purple-300",  front: true,  style: { bottom: "-18px", right: "15%"   }, delay: 0.9  },
-] as const;
-
 const BADGE_PREVIEWS = [
   { name: "First Spark", image: "/badges/First_Spark.png", earned: true },
   { name: "Triple Threat", image: "/badges/Triple_Threat.png", earned: false },
@@ -191,29 +170,14 @@ const MEMORY_CARD_CONFIGS = [
   { scatterX:  170,  scatterY: -190, scatterRot:  62 },
 ];
 
-function StepSparkle({ top, left, size, delay, dur, rd }: typeof SPARKLE_CONFIGS[0]) {
-  return (
-    <motion.div
-      className="absolute pointer-events-none z-20"
-      style={{ top, left, width: size, height: size, transform: "translate(-50%, -50%)" }}
-      animate={{ scale: [0, 1, 0.6, 1, 0], opacity: [0, 1, 0.6, 1, 0], rotate: [0, 180] }}
-      transition={{ duration: dur, delay, repeat: Infinity, repeatDelay: rd, ease: "easeInOut" }}
-    >
-      <svg width={size} height={size} viewBox="0 0 10 10" fill="none">
-        <path
-          d="M5,0 L6.5,3.5 L10,5 L6.5,6.5 L5,10 L3.5,6.5 L0,5 L3.5,3.5 Z"
-          fill="rgb(251 113 133 / 0.85)"
-          filter="url(#sparkle-glow)"
-        />
-        <defs>
-          <filter id="sparkle-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="1" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
-      </svg>
-    </motion.div>
-  );
+// useReducedMotion() resolves synchronously on the client from matchMedia, which can
+// differ from the SSR render (always "not reduced"). Gating behind a mount flag keeps
+// the first client render identical to the server, avoiding a hydration mismatch.
+function useSafeReducedMotion() {
+  const prefersReducedMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted && !!prefersReducedMotion;
 }
 
 const SAMPLE_DATES = [
@@ -289,12 +253,14 @@ function MemoryPolaroidCard({
   scrollYProgress,
   index,
   animateRotation,
+  scatterScale,
 }: {
   memory: typeof FAKE_MEMORIES[0];
   config: typeof MEMORY_CARD_CONFIGS[0];
   scrollYProgress: MotionValue<number>;
   index: number;
   animateRotation: boolean;
+  scatterScale: number;
 }) {
   const dir = index % 2 === 0 ? 1 : -1;
   const mag = 12 + (index % 3) * 5;
@@ -315,8 +281,8 @@ function MemoryPolaroidCard({
         left: "50%",
         marginTop: -128,
         marginLeft: -80,
-        x: config.scatterX,
-        y: config.scatterY,
+        x: config.scatterX * scatterScale,
+        y: config.scatterY * scatterScale,
         zIndex: index + 1,
       }}
     >
@@ -351,6 +317,7 @@ function MemoryPolaroidCard({
 }
 
 function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
+  const reducedMotion = useSafeReducedMotion();
   return (
     <section className="relative bg-black overflow-hidden">
       <div className="px-6 md:px-10 pt-16 md:pt-28 pb-16 md:pb-28 max-w-[1280px] mx-auto">
@@ -373,7 +340,7 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
 
         {/* Cards fading into XP bar */}
         <div className="relative mb-[-180px] md:mb-[-200px]">
-          <motion.div className="relative mx-auto max-w-[660px] cursor-pointer" initial="rest" whileHover="hover">
+          <motion.div className="relative mx-auto max-w-[660px]" initial="rest" whileHover="hover">
             {/* Left card — behind */}
             <motion.div
               className="absolute inset-0 z-0 pointer-events-none opacity-60"
@@ -421,10 +388,10 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
               <div className="h-2 rounded-full bg-white/[0.075] overflow-hidden">
                 <motion.div
                   className="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500 shadow-sm shadow-violet-500/30"
-                  initial={{ width: "42%" }}
+                  initial={{ width: reducedMotion ? "76%" : "42%" }}
                   whileInView={{ width: "76%" }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 1.4, ease: "easeOut", delay: 0.55 }}
+                  transition={reducedMotion ? { duration: 0 } : { duration: 1.4, ease: "easeOut", delay: 0.55 }}
                 />
               </div>
               <div className="flex justify-between mt-1.5">
@@ -477,6 +444,7 @@ function MemoriesSection() {
     offset: ["start end", "end start"],
   });
   const [isDesktop, setIsDesktop] = useState(false);
+  const reducedMotion = useSafeReducedMotion();
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     setIsDesktop(mq.matches);
@@ -484,9 +452,10 @@ function MemoriesSection() {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+  const scatterScale = isDesktop ? 1 : 0.45;
 
   return (
-    <section ref={sectionRef} className="relative bg-black h-screen overflow-hidden flex flex-col">
+    <section ref={sectionRef} className="relative bg-black h-dvh overflow-hidden flex flex-col">
       {/* Header — z-20 keeps it above cards that drift upward */}
       <div className="relative z-20 px-6 md:px-10 pt-10 md:pt-14 pb-6 md:pb-0 text-left md:text-center shrink-0 bg-black">
         <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
@@ -511,7 +480,8 @@ function MemoriesSection() {
               config={MEMORY_CARD_CONFIGS[i]}
               scrollYProgress={scrollYProgress}
               index={i}
-              animateRotation={isDesktop}
+              animateRotation={isDesktop && !reducedMotion}
+              scatterScale={scatterScale}
             />
           ))}
         </div>
@@ -545,7 +515,7 @@ function FeaturesSection() {
               </div>
               <div className="relative z-10">
                 <p className="font-bold text-white text-base mb-1">{title}</p>
-                <p className="text-white/45 text-sm leading-relaxed">{description}</p>
+                <p className="text-white/60 text-sm leading-relaxed">{description}</p>
               </div>
             </div>
           ))}
@@ -567,30 +537,31 @@ function DateIdeaCardItem({ card }: { card: DateIdeaCard }) {
       </div>
       <div>
         <p className="text-white font-bold text-base leading-snug">{card.title}</p>
-        <p className="text-white/45 text-sm mt-1 leading-snug">{card.vibe}</p>
+        <p className="text-white/60 text-sm mt-1 leading-snug">{card.vibe}</p>
       </div>
     </div>
   );
 }
 
 function DateIdeasMarqueeRow({ cards, reverse = false }: { cards: DateIdeaCard[]; reverse?: boolean }) {
-  const doubled = [...cards, ...cards];
+  const reducedMotion = useSafeReducedMotion();
+  const doubled = reducedMotion ? cards : [...cards, ...cards];
   return (
-    <div className="flex overflow-hidden">
-      <motion.div
-        className="flex gap-4 pr-4"
-        animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
-        transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
+    <div className="marquee-row flex overflow-hidden">
+      <div
+        className={`flex gap-4 pr-4 ${reducedMotion ? "" : "marquee-track"}`}
+        style={reverse ? { animationDirection: "reverse" } : undefined}
       >
         {doubled.map((card, i) => (
           <DateIdeaCardItem key={i} card={card} />
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }
 
 function DateIdeasSection() {
+  const reducedMotion = useSafeReducedMotion();
   const row1 = DATE_IDEA_CARDS.slice(0, 8);
   const row2 = DATE_IDEA_CARDS.slice(8, 16);
   return (
@@ -607,8 +578,13 @@ function DateIdeasSection() {
           <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
           <div className="py-2">
-            <DateIdeasMarqueeRow cards={row1} />
+            <DateIdeasMarqueeRow cards={reducedMotion ? [...row1, ...row2] : row1} />
           </div>
+          {!reducedMotion && (
+            <div className="py-2">
+              <DateIdeasMarqueeRow cards={row2} reverse />
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -657,7 +633,7 @@ function ScrollRevealStatement() {
           );
         })}
       </p>
-      <p className="text-white/40 text-sm md:text-base mt-6 max-w-[700px] mx-auto">* Some nights you don&apos;t want to go anywhere. We plan those too.</p>
+      <p className="text-white/50 text-sm md:text-base mt-6 max-w-[700px] mx-auto">* Some nights you don&apos;t want to go anywhere. We plan those too.</p>
     </section>
   );
 }
@@ -670,17 +646,17 @@ const PAUSE_AFTER_TYPE = 2000;
 function CyclingLastLine({
   opacity,
   textColor,
-  underlineScaleX,
 }: {
-  opacity: MotionValue<number>;
-  textColor: MotionValue<string>;
-  underlineScaleX: MotionValue<number>;
+  opacity: MotionValue<number> | number;
+  textColor: MotionValue<string> | string;
 }) {
   const [suffixIndex, setSuffixIndex] = useState(0);
   const [displayed, setDisplayed] = useState(YOU_SUFFIXES[0]);
   const [phase, setPhase] = useState<"typing" | "deleting" | "pausing">("pausing");
+  const reducedMotion = useSafeReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) return;
     const target = YOU_SUFFIXES[suffixIndex];
 
     if (phase === "pausing") {
@@ -707,21 +683,23 @@ function CyclingLastLine({
       const id = setTimeout(() => setDisplayed(target.slice(0, displayed.length + 1)), TYPE_SPEED);
       return () => clearTimeout(id);
     }
-  }, [phase, displayed, suffixIndex]);
+  }, [phase, displayed, suffixIndex, reducedMotion]);
 
   const gradientStyle = { backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" };
+  const shown = reducedMotion ? YOU_SUFFIXES[0] : displayed;
 
   return (
     <>
-      <motion.span style={{ opacity, color: textColor }} className="block">
+      <motion.span style={{ opacity, color: textColor }} className="block" aria-hidden="true">
         We make the call.
       </motion.span>
-      <motion.span style={{ opacity }} className="block">
+      <motion.span style={{ opacity }} className="block" aria-hidden="true">
         <span className="relative inline-block bg-clip-text text-transparent" style={gradientStyle}>
-          You just {displayed}
-          <span className="animate-pulse">|</span>
+          You just {shown}
+          {!reducedMotion && <span className="animate-pulse">|</span>}
         </span>
       </motion.span>
+      <span className="sr-only">{`We make the call. You just ${YOU_SUFFIXES[0]}`}</span>
       <br />
     </>
   );
@@ -742,17 +720,22 @@ function RevealLine({
   isLast: boolean;
   breakAfter: boolean;
 }) {
-  const opacity = useTransform(scrollYProgress, [start, end], [0.3, 1]);
-  const color = useTransform(
+  const reducedMotion = useSafeReducedMotion();
+  const scrollOpacity = useTransform(scrollYProgress, [start, end], [0.3, 1]);
+  const scrollColor = useTransform(
     scrollYProgress,
     [start, end],
     isLast ? ["rgba(244,63,94,0.35)", "rgba(244,63,94,1)"] : ["rgba(255,255,255,0.3)", "rgba(255,255,255,1)"]
   );
-  const textColor = useTransform(scrollYProgress, [start, end], ["rgba(255,255,255,0.3)", "rgba(255,255,255,1)"]);
-  const underlineScaleX = useTransform(scrollYProgress, [start, end], [0, 1]);
+  const scrollTextColor = useTransform(scrollYProgress, [start, end], ["rgba(255,255,255,0.3)", "rgba(255,255,255,1)"]);
+
+  const finalColor = isLast ? "rgba(244,63,94,1)" : "rgba(255,255,255,1)";
+  const opacity = reducedMotion ? 1 : scrollOpacity;
+  const color = reducedMotion ? finalColor : scrollColor;
+  const textColor = reducedMotion ? "rgba(255,255,255,1)" : scrollTextColor;
 
   if (isLast) {
-    return <CyclingLastLine opacity={opacity} textColor={textColor} underlineScaleX={underlineScaleX} />;
+    return <CyclingLastLine opacity={opacity} textColor={textColor} />;
   }
 
   return (
@@ -766,8 +749,8 @@ function RevealLine({
   );
 }
 
-export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?: UnitSystem }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn = false }: { unitSystem?: UnitSystem; initialLoggedIn?: boolean }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(initialLoggedIn);
   const [heroVideo, setHeroVideo] = useState<(typeof HERO_VIDEOS)[number] | null>(null);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
   const [activeSampleDate, setActiveSampleDate] = useState(0);
@@ -802,9 +785,13 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
         await supabase.auth.signOut();
+        setIsLoggedIn(false);
         return;
       }
-      if (!session) return;
+      if (!session) {
+        setIsLoggedIn(false);
+        return;
+      }
 
       if (document.cookie.includes("onboarding_complete=1")) {
         setIsLoggedIn(true);
@@ -905,7 +892,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
+                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-11 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
               >
                 Dashboard
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -917,7 +904,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                 </Link>
                 <Link
                   href="/register"
-                  className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
+                  className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-11 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
                 >
                   Get started free
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -930,14 +917,14 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
+                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-11 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/register"
-                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-10 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
+                className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-11 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
               >
                 Get started
               </Link>
@@ -1060,7 +1047,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
               </h1>
 
               <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                A mystery date, planned for you both. Free - no card needed.
+                A mystery date, planned for you both. Free — no card needed.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
@@ -1096,6 +1083,16 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
                   Get on Android
                 </a>
               </div>
+
+              <a
+                href="https://www.trustpilot.com/review/blindfolddate.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]"
+              >
+                <Star className="w-4 h-4 text-emerald-400 fill-emerald-400" />
+                Rated on Trustpilot
+              </a>
             </div>
           </div>
         </section>
@@ -1256,44 +1253,47 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
             <h2 className="text-[36px] md:text-[40px] lg:text-[44px] xl:text-[50px] 2xl:text-[56px] font-black leading-tight mb-10 md:mb-14 md:text-center">
               Frequently asked questions
             </h2>
-            <dl className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               {FAQ_ITEMS.map(({ q, a }, i) => {
                 const isOpen = openFaq === i;
+                const panelId = `faq-panel-${i}`;
                 return (
                   <div key={q} className="bg-white/[0.06] rounded-2xl px-6 md:px-8">
-                    <dt>
+                    <h3>
                       <button
                         type="button"
                         onClick={() => setOpenFaq(isOpen ? null : i)}
                         className="w-full flex items-center justify-between gap-6 py-5 md:py-6 text-left group"
                         aria-expanded={isOpen}
+                        aria-controls={panelId}
                       >
-                        <h3 className="text-white font-semibold text-lg md:text-2xl leading-snug">
+                        <span className="text-white font-semibold text-lg md:text-2xl leading-snug">
                           {q}
-                        </h3>
+                        </span>
                         <span className={[
                           "shrink-0 w-8 h-8 rounded-full border border-white/20 flex items-center justify-center transition-colors duration-200",
                           isOpen ? "bg-white/10 border-white/40" : "group-hover:border-white/35",
                         ].join(" ")}>
-                          <X className={`w-4 h-4 transition-[transform,color] duration-200 ${isOpen ? "text-white rotate-0" : "text-white/40 group-hover:text-white/60 -rotate-45"}`} />
+                          <Plus className={`w-4 h-4 transition-[transform,color] duration-200 ${isOpen ? "text-white rotate-45" : "text-white/40 group-hover:text-white/60 rotate-0"}`} />
                         </span>
                       </button>
-                    </dt>
+                    </h3>
                     <motion.div
+                      id={panelId}
                       animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
                       initial={false}
                       transition={{ duration: 0.22, ease: "easeInOut" }}
                       className="overflow-hidden"
                       aria-hidden={!isOpen}
                     >
-                      <dd className="text-white/50 text-base md:text-xl leading-[1.75] pb-6 md:pb-8 max-w-[800px]">
+                      <p className="text-white/50 text-base md:text-xl leading-[1.75] pb-6 md:pb-8 max-w-[800px]">
                         {a}
-                      </dd>
+                      </p>
                     </motion.div>
                   </div>
                 );
               })}
-            </dl>
+            </div>
           </div>
         </section>
 
@@ -1333,7 +1333,7 @@ export default function LandingV4Client({ unitSystem = "metric" }: { unitSystem?
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 pb-10 border-b border-white/[0.05]">
             <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
               <Image src="/logo.png" alt="BlindfoldDate" width={120} height={30} className="object-contain opacity-45" />
-              <p className="text-white/35 text-sm leading-relaxed max-w-[220px]">
+              <p className="text-white/50 text-sm leading-relaxed max-w-[220px]">
                 Date night, decided. You just enjoy it.
               </p>
               <a href="https://www.instagram.com/blindfold.date" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors w-fit">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { preload } from "react-dom";
+import { cookies } from "next/headers";
 import LandingV4Client from "@/components/landing-v4/LandingV4Client";
 import AppIntroOverlay from "@/components/app/AppIntroOverlay";
 import { getUnitSystem } from "@/lib/get-unit-system";
@@ -141,6 +142,8 @@ const jsonLd = {
 export default async function LandingPage() {
   preload("/hero-video-poster.webp", { as: "image", fetchPriority: "high" });
   const unitSystem = await getUnitSystem();
+  const cookieStore = await cookies();
+  const initialLoggedIn = cookieStore.get("onboarding_complete")?.value === "1";
   return (
     <>
       <script
@@ -148,7 +151,7 @@ export default async function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <AppIntroOverlay />
-      <LandingV4Client unitSystem={unitSystem} />
+      <LandingV4Client unitSystem={unitSystem} initialLoggedIn={initialLoggedIn} />
     </>
   );
 }
