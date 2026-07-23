@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, Suspense, useState } from "react";
+import { useEffect, useRef, Suspense, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PostHog } from "posthog-js";
 import type { PostHogProvider as PHProviderType } from "posthog-js/react";
+import { getStoredConsent, CONSENT_EVENT } from "@/lib/consent";
 
 // Type-only — no runtime cost. Real modules loaded lazily via dynamic import below.
 
@@ -22,11 +23,15 @@ type PHProviderComponent = typeof PHProviderType;
 
 export default function PostHogProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState<{ Provider: PHProviderComponent; ph: PostHog } | null>(null);
+  const initialized = useRef(false);
 
   useEffect(() => {
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") return;
 
     const init = async () => {
+      if (initialized.current || getStoredConsent() !== "granted") return;
+      initialized.current = true;
+
       const [{ default: posthog }, { PostHogProvider: PHProvider }] = await Promise.all([
         import("posthog-js"),
         import("posthog-js/react"),
@@ -55,12 +60,24 @@ export default function PostHogProvider({ children }: { children: React.ReactNod
       setReady({ Provider: PHProvider, ph: posthog });
     };
 
+    const onConsentChange = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === "granted") init();
+    };
+    window.addEventListener(CONSENT_EVENT, onConsentChange);
+
+    let cleanupDeferred: () => void;
     if (typeof requestIdleCallback !== "undefined") {
       const id = requestIdleCallback(init);
-      return () => cancelIdleCallback(id);
+      cleanupDeferred = () => cancelIdleCallback(id);
+    } else {
+      const t = setTimeout(init, 1000);
+      cleanupDeferred = () => clearTimeout(t);
     }
-    const t = setTimeout(init, 1000);
-    return () => clearTimeout(t);
+
+    return () => {
+      cleanupDeferred();
+      window.removeEventListener(CONSENT_EVENT, onConsentChange);
+    };
   }, []);
 
   if (!ready) return <>{children}</>;

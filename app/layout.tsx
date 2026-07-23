@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import PostHogProvider from "@/components/PostHogProvider";
 import CapacitorAuthHandler from "@/components/CapacitorAuthHandler";
+import CookieConsent from "@/components/CookieConsent";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -69,6 +70,11 @@ export default async function RootLayout({
   // Per-request nonce set by proxy.ts. Must be applied to every inline
   // <script> tag so they pass the strict CSP in production.
   const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  // NODE_ENV (not VERCEL_ENV) so preview deploys also load the tag —
+  // that's the only way to verify the CSP beacon domains before they
+  // reach production, where a missing domain fails silently.
+  const loadGoogleAds = process.env.NODE_ENV === "production" && Boolean(googleAdsId);
 
   return (
     <html lang="en" className={`${plusJakarta.variable} h-full`}>
@@ -85,10 +91,40 @@ export default async function RootLayout({
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
+        {loadGoogleAds && (
+          <>
+            <script
+              async
+              nonce={nonce}
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId!}`}
+            />
+            <script
+              nonce={nonce}
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  window.gtag = gtag;
+                  gtag('consent', 'default', {
+                    ad_storage: 'denied',
+                    ad_user_data: 'denied',
+                    ad_personalization: 'denied',
+                    analytics_storage: 'denied',
+                    wait_for_update: 500
+                  });
+                  gtag('js', new Date());
+                  gtag('config', '${googleAdsId!}');
+                `,
+              }}
+            />
+          </>
+        )}
         <CapacitorAuthHandler />
         <PostHogProvider>{children}</PostHogProvider>
         {process.env.VERCEL_ENV === "production" && <Analytics />}
         {process.env.VERCEL_ENV === "production" && <SpeedInsights />}
+        <CookieConsent />
       </body>
     </html>
   );

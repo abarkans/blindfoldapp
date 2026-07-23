@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <h1>Privacy Policy</h1>
-      <p className="!text-white/35 !text-xs !mb-8">Last updated: 29 May 2026</p>
+      <p className="!text-white/35 !text-xs !mb-8">Last updated: 23 July 2026</p>
 
       <nav className="!mb-8 not-prose">
         <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
@@ -117,18 +117,15 @@ export default function PrivacyPolicyPage() {
         <li>
           <strong>Consent (Art. 6(1)(a)):</strong> Location data is only collected after you
           explicitly grant permission. You can withdraw this consent at any time by removing
-          your location in Settings.
+          your location in Settings. Product analytics (PostHog), session recordings, and Google
+          Ads conversion tracking are also only activated after you accept non-essential cookies
+          in the cookie banner shown on your first visit. You can change your choice at any time
+          by clearing your browser&apos;s local storage for this site, which re-shows the banner.
         </li>
         <li>
-          <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical data, error monitoring
-          (Sentry), and analytics are processed to maintain the integrity, security, and quality
-          of the service. Session recordings are used to identify usability problems and improve
-          the product. We conducted a balancing test: recordings mask all inputs, are not linked
-          to persistent identifiers, and our interest in improving the service does not override
-          your privacy because the data collected is minimal and anonymised. You have the right to
-          object at any time — email{" "}
-          <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a> and we will disable
-          recordings for your account.
+          <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical data and error monitoring
+          (Sentry) are processed to maintain the integrity, security, and quality of the service.
+          Sentry does not record sessions or capture DOM/input data.
         </li>
       </ul>
 
@@ -162,6 +159,12 @@ export default function PrivacyPolicyPage() {
           <tr>
             <td>Google LLC</td>
             <td>Venue search &amp; photos (Places API)</td>
+            <td>US</td>
+          </tr>
+          <tr>
+            <td>Google LLC (Google Ads)</td>
+            <td>Ad conversion tracking &amp; remarketing. Only activated if you accept
+              non-essential cookies in the cookie banner.</td>
             <td>US</td>
           </tr>
           <tr>
@@ -228,10 +231,18 @@ export default function PrivacyPolicyPage() {
 
       <h2 id="cookies">8. Cookies &amp; local storage</h2>
       <p>
-        We use strictly necessary session cookies to keep you signed in. For analytics, PostHog
-        runs in memory-only mode. No analytics cookies or persistent identifiers are written to
-        your browser. A new anonymous session ID is created on each page load. We do not use
-        advertising cookies or third-party tracking cookies.
+        <strong>Strictly necessary:</strong> Session cookies keep you signed in. A cookie also
+        remembers your choice from the cookie banner below. These are always active and do not
+        require consent.
+      </p>
+      <p>
+        <strong>Non-essential (only after you accept the cookie banner):</strong> PostHog stores
+        an anonymous identifier in your browser&apos;s local storage to recognize repeat visits
+        and records masked session activity (see Section 2, Analytics &amp; session data). Google
+        Ads sets conversion and remarketing cookies to measure ad performance. Both are gated
+        behind Google&apos;s Consent Mode — no ad or analytics cookie is set until you click
+        &quot;Accept&quot; in the banner. If you click &quot;Reject&quot;, only strictly necessary
+        cookies are used.
       </p>
 
       <h2 id="children">9. Children</h2>
