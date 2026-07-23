@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useInView, useReducedMotion, type Moti
 import Link from "next/link";
 import Script from "next/script";
 import LinkButton from "@/components/ui/LinkButton";
+import CookieSettingsLink from "@/components/CookieSettingsLink";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -1363,6 +1364,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               <Link href="/legal/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Privacy Policy</Link>
               <Link href="/legal/terms" className="text-sm text-white/50 hover:text-white transition-colors">Terms of Service</Link>
               <Link href="/legal/accessibility" className="text-sm text-white/50 hover:text-white transition-colors">Accessibility</Link>
+              <CookieSettingsLink className="text-sm text-white/50 hover:text-white transition-colors text-left cursor-pointer" />
               <a href="mailto:info@blindfolddate.com" className="text-sm text-white/50 hover:text-white transition-colors">Contact us</a>
             </div>
           </div>

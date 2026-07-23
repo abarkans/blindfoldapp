@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import PostHogProvider from "@/components/PostHogProvider";
 import CapacitorAuthHandler from "@/components/CapacitorAuthHandler";
 import CookieConsent from "@/components/CookieConsent";
+import GoogleAdsLoader from "@/components/GoogleAdsLoader";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -93,11 +94,8 @@ export default async function RootLayout({
         />
         {loadGoogleAds && (
           <>
-            <script
-              async
-              nonce={nonce}
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId!}`}
-            />
+            {/* Stub only — makes no network requests. gtag.js itself is
+                fetched by GoogleAdsLoader strictly after consent. */}
             <script
               nonce={nonce}
               suppressHydrationWarning
@@ -110,14 +108,14 @@ export default async function RootLayout({
                     ad_storage: 'denied',
                     ad_user_data: 'denied',
                     ad_personalization: 'denied',
-                    analytics_storage: 'denied',
-                    wait_for_update: 500
+                    analytics_storage: 'denied'
                   });
                   gtag('js', new Date());
                   gtag('config', '${googleAdsId!}');
                 `,
               }}
             />
+            <GoogleAdsLoader adsId={googleAdsId!} />
           </>
         )}
         <CapacitorAuthHandler />

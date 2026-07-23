@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-import { getStoredConsent, setStoredConsent, type ConsentChoice } from "@/lib/consent";
+import {
+  getStoredConsent,
+  setStoredConsent,
+  CONSENT_OPEN_EVENT,
+  type ConsentChoice,
+} from "@/lib/consent";
 
 declare global {
   interface Window {
@@ -20,17 +25,32 @@ function updateGtagConsent(granted: boolean) {
   });
 }
 
+// Withdrawing after PostHog has already initialized: purge its localStorage
+// state and reload so no tracker keeps running in the current page session.
+function purgeTrackersAndReload() {
+  for (const key of Object.keys(window.localStorage)) {
+    if (key.startsWith("ph_")) window.localStorage.removeItem(key);
+  }
+  window.location.reload();
+}
+
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     setVisible(getStoredConsent() === null);
+
+    const onOpen = () => setVisible(true);
+    window.addEventListener(CONSENT_OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(CONSENT_OPEN_EVENT, onOpen);
   }, []);
 
   const choose = (choice: ConsentChoice) => {
+    const previous = getStoredConsent();
     setStoredConsent(choice);
     updateGtagConsent(choice === "granted");
     setVisible(false);
+    if (previous === "granted" && choice === "denied") purgeTrackersAndReload();
   };
 
   if (!visible) return null;

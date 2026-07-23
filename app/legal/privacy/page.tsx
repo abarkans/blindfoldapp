@@ -80,13 +80,38 @@ export default function PrivacyPolicyPage() {
         suggestions.
       </p>
 
+      <h3>Photos</h3>
+      <p>
+        If you use the Memory Challenge feature, photos you choose to upload are stored on
+        Cloudflare R2. Photos are private to your account, uploaded over encrypted connections,
+        and deleted when you delete your account.
+      </p>
+
+      <h3>Push notification tokens</h3>
+      <p>
+        If you enable push notifications in the mobile app, we store a device push token
+        (FCM/APNs) so we can deliver date reminders. Delivery goes through Google (Android) or
+        Apple (iOS) push services. You can disable notifications at any time in your device
+        settings, which invalidates the token.
+      </p>
+
+      <h3>Payment data</h3>
+      <p>
+        If you subscribe to a paid plan, payment is processed by Stripe. We never see or store
+        your card number — we only receive your subscription status and a Stripe customer
+        reference.
+      </p>
+
       <h3>Analytics &amp; session data</h3>
       <p>
-        We use PostHog (EU region) to understand how the app is used. This includes page views,
-        feature interactions, and session recordings that capture your on-screen activity (clicks,
-        scrolls, and navigation). All form inputs are masked. We never record passwords, email
-        addresses, or other text you type. Session data is not linked to a persistent cookie; a
-        new session ID is created on each visit. You can opt out at any time by contacting us.
+        If you accept non-essential cookies in the cookie banner, we use PostHog (EU region) to
+        understand how the app is used. This includes page views, feature interactions, and
+        session recordings that capture your on-screen activity (clicks, scrolls, and navigation).
+        All form inputs are masked. We never record passwords or other text you type. PostHog
+        stores a persistent anonymous identifier in your browser&apos;s local storage, and if you
+        are signed in, analytics data is linked to your account ID. If you reject the banner, no
+        analytics run at all. We also use Vercel&apos;s cookieless, aggregated analytics
+        (Web Analytics and Speed Insights), which store no identifiers on your device.
       </p>
 
       <h3>Technical data</h3>
@@ -119,8 +144,9 @@ export default function PrivacyPolicyPage() {
           explicitly grant permission. You can withdraw this consent at any time by removing
           your location in Settings. Product analytics (PostHog), session recordings, and Google
           Ads conversion tracking are also only activated after you accept non-essential cookies
-          in the cookie banner shown on your first visit. You can change your choice at any time
-          by clearing your browser&apos;s local storage for this site, which re-shows the banner.
+          in the cookie banner shown on your first visit. You can change or withdraw your choice
+          at any time via the &quot;Cookie settings&quot; link in the page footer, which re-opens
+          the banner.
         </li>
         <li>
           <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical data and error monitoring
@@ -179,8 +205,34 @@ export default function PrivacyPolicyPage() {
           </tr>
           <tr>
             <td>Functional Software, Inc. (Sentry)</td>
-            <td>Error monitoring &amp; crash reporting</td>
+            <td>Error monitoring &amp; crash reporting (EU datacenter)</td>
+            <td>US / EU</td>
+          </tr>
+          <tr>
+            <td>Stripe, Inc.</td>
+            <td>Subscription payments. Card details are handled entirely by Stripe.</td>
+            <td>US / EU</td>
+          </tr>
+          <tr>
+            <td>Resend, Inc.</td>
+            <td>Transactional email delivery (confirmation, password reset, contact form)</td>
             <td>US</td>
+          </tr>
+          <tr>
+            <td>Cloudflare, Inc.</td>
+            <td>Bot protection on sign-in forms (Turnstile) &amp; private photo storage (R2)</td>
+            <td>US / EU</td>
+          </tr>
+          <tr>
+            <td>Google / Apple push services</td>
+            <td>Mobile push notification delivery (only if you enable notifications)</td>
+            <td>US</td>
+          </tr>
+          <tr>
+            <td>Trustpilot A/S</td>
+            <td>Review widget on our landing page. Loads in an iframe; per Trustpilot it sets
+              no cookies. Your IP address is visible to Trustpilot when the widget loads.</td>
+            <td>EU (Denmark)</td>
           </tr>
         </tbody>
       </table>
@@ -200,6 +252,10 @@ export default function PrivacyPolicyPage() {
         <li>
           <strong>Date history:</strong> The last 50 entries are retained to power the service;
           older entries are automatically pruned.
+        </li>
+        <li>
+          <strong>Photos &amp; push tokens:</strong> Deleted when you delete your account (push
+          tokens also expire when you disable notifications on your device).
         </li>
         <li>
           <strong>Session cookies:</strong> Expire when you sign out or after 7 days of inactivity.
@@ -231,18 +287,21 @@ export default function PrivacyPolicyPage() {
 
       <h2 id="cookies">8. Cookies &amp; local storage</h2>
       <p>
-        <strong>Strictly necessary:</strong> Session cookies keep you signed in. A cookie also
-        remembers your choice from the cookie banner below. These are always active and do not
-        require consent.
+        <strong>Strictly necessary:</strong> Session cookies keep you signed in, a small entry in
+        your browser&apos;s local storage remembers your choice from the cookie banner, and local
+        storage is also used for interface preferences (e.g. theme). These are always active and
+        do not require consent.
       </p>
       <p>
         <strong>Non-essential (only after you accept the cookie banner):</strong> PostHog stores
         an anonymous identifier in your browser&apos;s local storage to recognize repeat visits
         and records masked session activity (see Section 2, Analytics &amp; session data). Google
         Ads sets conversion and remarketing cookies to measure ad performance. Both are gated
-        behind Google&apos;s Consent Mode — no ad or analytics cookie is set until you click
-        &quot;Accept&quot; in the banner. If you click &quot;Reject&quot;, only strictly necessary
-        cookies are used.
+        behind Google&apos;s Consent Mode — the Google tag is not even loaded, and no ad or
+        analytics cookie is set, until you click &quot;Accept&quot; in the banner. If you click
+        &quot;Reject&quot;, only strictly necessary cookies are used. You can change your choice
+        at any time via the &quot;Cookie settings&quot; link in the page footer; withdrawing
+        consent stops all analytics and ad tracking and removes stored identifiers.
       </p>
 
       <h2 id="children">9. Children</h2>
