@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "crypto";
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe";
 import { hashEmail, isCooldownActive, cooldownExpiry } from "@/lib/deletion-hold";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { deleteConfirmationEmail } from "@/lib/email/templates/delete-confirmation";
@@ -278,20 +279,41 @@ export async function confirmAccountDeletion(plaintextToken: string): Promise<vo
 
   // Persist a deletion hold if the user is mid-cooldown so they can't bypass
   // the reveal cadence by deleting and re-registering with the same email.
-  if (user.email) {
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("revealed_at, cadence")
-      .eq("id", user.id)
-      .single();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("revealed_at, cadence, stripe_customer_id")
+    .eq("id", user.id)
+    .single();
 
-    if (profile?.revealed_at && profile.cadence && isCooldownActive(profile.revealed_at, profile.cadence)) {
-      await admin.from("deletion_holds").upsert({
-        id_hash: hashEmail(user.email),
-        revealed_at: profile.revealed_at,
-        cadence: profile.cadence,
-        expires_at: cooldownExpiry(profile.revealed_at, profile.cadence).toISOString(),
+  if (user.email && profile?.revealed_at && profile.cadence && isCooldownActive(profile.revealed_at, profile.cadence)) {
+    await admin.from("deletion_holds").upsert({
+      id_hash: hashEmail(user.email),
+      revealed_at: profile.revealed_at,
+      cadence: profile.cadence,
+      expires_at: cooldownExpiry(profile.revealed_at, profile.cadence).toISOString(),
+    });
+  }
+
+  // Cancel any live Stripe subscription before nuking the account — deleting
+  // the auth user does not touch Stripe, and once the account is gone there's
+  // no UI left for the user (or us) to cancel it from. Best-effort: a Stripe
+  // outage must not block an irreversible deletion the user already
+  // confirmed, so we log CRITICAL for manual follow-up instead of throwing.
+  if (profile?.stripe_customer_id) {
+    try {
+      const subs = await stripe.subscriptions.list({
+        customer: profile.stripe_customer_id,
+        status: "all",
       });
+      for (const sub of subs.data) {
+        if (sub.status === "canceled" || sub.status === "incomplete_expired") continue;
+        await stripe.subscriptions.cancel(sub.id);
+      }
+    } catch (stripeErr) {
+      console.error(
+        `[audit] delete-confirm: CRITICAL stripe cancel failed uid=${safeLogValue(user.id)} ` +
+        `cust=${safeLogValue(profile.stripe_customer_id)} msg=${safeLogValue(stripeErr instanceof Error ? stripeErr.message : String(stripeErr))}`
+      );
     }
   }
 
