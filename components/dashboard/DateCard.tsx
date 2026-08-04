@@ -1620,7 +1620,7 @@ export default function DateCard({
             Back to check-in
           </Button>
           <Button type="button" variant="ghost" onClick={() => handleSkipCheckIn("checkin")} className="w-full">
-            Skip check-in
+            {planType === "trial" ? "Skip date" : "Skip check-in"}
           </Button>
         </div>
       </Dialog>
@@ -1637,7 +1637,7 @@ export default function DateCard({
             Back to photo
           </Button>
           <Button type="button" variant="ghost" onClick={() => { setSkipPhotoDialogOpen(false); handleSkipCheckIn("photo"); }} className="w-full">
-            Skip photo
+            Skip date
           </Button>
         </div>
       </Dialog>
