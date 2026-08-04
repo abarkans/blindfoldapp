@@ -723,8 +723,13 @@ export default function DateCard({
     router.refresh();
   }
 
-  function handleSkipCheckIn() {
+  function secondsSinceReveal(): number | null {
+    return dateAcceptedAt ? Math.round((Date.now() - new Date(dateAcceptedAt).getTime()) / 1000) : null;
+  }
+
+  function handleSkipCheckIn(flow: "checkin" | "photo" = "checkin") {
     setSkipDialogOpen(false);
+    ph?.capture("checkin_skip_confirmed", { planType, flow, secondsSinceReveal: secondsSinceReveal() });
     startSkipTransition(async () => {
       if (planType === "trial") {
         wasDismissedRef.current = true;
@@ -1242,7 +1247,10 @@ export default function DateCard({
                             unitSystem={unitSystem}
                             onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
-                          <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
+                          <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => {
+                            ph?.capture("checkin_skip_clicked", { planType, flow: "checkin", secondsSinceReveal: secondsSinceReveal() });
+                            setSkipDialogOpen(true);
+                          }}>
                             Skip
                           </Button>
                         </>
@@ -1328,7 +1336,7 @@ export default function DateCard({
                             variant="secondary"
                             size="lg"
                             className="w-full"
-                            onClick={handleSkipCheckIn}
+                            onClick={() => handleSkipCheckIn()}
                           >
                             Skip this date
                           </Button>
@@ -1353,7 +1361,10 @@ export default function DateCard({
                             dateName={(dateIdea as AIDateIdea).title}
                             planType={planType}
                             onComplete={handlePhotoComplete}
-                            onSkip={planType === "trial" ? () => setSkipPhotoDialogOpen(true) : undefined}
+                            onSkip={planType === "trial" ? () => {
+                              ph?.capture("checkin_skip_clicked", { planType, flow: "photo", secondsSinceReveal: secondsSinceReveal() });
+                              setSkipPhotoDialogOpen(true);
+                            } : undefined}
                             onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
                         ) : null
@@ -1601,15 +1612,15 @@ export default function DateCard({
         <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip check-in?</h3>
         <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">
           {planType === "trial"
-            ? "Skipping will end your free trial date. Your next date will be available in a month."
-            : "Checking in at the venue proves you made it. Skip and you’ll miss out on bonus XP and streak credit."}
+            ? "This is a one-time trial date — skipping closes it out for good. Your next date unlocks in a month."
+            : "Check in at the venue for bonus XP and streak credit. You can skip if you're not going tonight."}
         </p>
         <div className="flex flex-col gap-2">
           <Button type="button" onClick={() => setSkipDialogOpen(false)} className="w-full">
-            Never mind
+            Back to check-in
           </Button>
-          <Button type="button" variant="ghost" onClick={handleSkipCheckIn} className="w-full">
-            Skip anyway
+          <Button type="button" variant="ghost" onClick={() => handleSkipCheckIn("checkin")} className="w-full">
+            Skip check-in
           </Button>
         </div>
       </Dialog>
@@ -1620,13 +1631,13 @@ export default function DateCard({
           <Camera className="w-5 h-5 text-rose-400" />
         </div>
         <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip photo?</h3>
-        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">Skipping will end your free trial date. Your next date will be available in a month.</p>
+        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">This is a one-time trial date — skipping closes it out for good. Your next date unlocks in a month.</p>
         <div className="flex flex-col gap-2">
           <Button type="button" onClick={() => setSkipPhotoDialogOpen(false)} className="w-full">
-            Never mind
+            Back to photo
           </Button>
-          <Button type="button" variant="ghost" onClick={() => { setSkipPhotoDialogOpen(false); handleSkipCheckIn(); }} className="w-full">
-            Skip anyway
+          <Button type="button" variant="ghost" onClick={() => { setSkipPhotoDialogOpen(false); handleSkipCheckIn("photo"); }} className="w-full">
+            Skip photo
           </Button>
         </div>
       </Dialog>

@@ -158,8 +158,8 @@ export default function OnboardingFlow({
         >
           <Image src="/icon.png" alt="Blindfold" width={72} height={72} className="opacity-90" />
           <div>
-            <p className="text-white text-xl font-semibold">Your mystery date is loading</p>
-            <p className="text-white/55 text-sm mt-2">Picking the perfect spot for you...</p>
+            <p className="text-white text-xl font-semibold">Setting up your first surprise</p>
+            <p className="text-white/55 text-sm mt-2">This won't take long...</p>
           </div>
           <div className="flex gap-2">
             {[0, 1, 2].map((i) => (
