@@ -120,6 +120,9 @@ export async function rerollDate(): Promise<void> {
       const previousTitles = (pastIdeas ?? [])
         .map((row) => (row.idea as { title?: string })?.title)
         .filter(Boolean) as string[];
+      const previousMissions = (pastIdeas ?? [])
+        .map((row) => (row.idea as { mission?: string })?.mission)
+        .filter(Boolean) as string[];
 
       const homeIdea = await generateHomeDateIdea({
         partnerNames: profile.partner_names,
@@ -128,6 +131,7 @@ export async function rerollDate(): Promise<void> {
         isSubscribed: !isFree,
         datesCompleted: profile.dates_completed_count,
         previousTitles,
+        previousMissions,
       });
       idea = { ...homeIdea, location_type: "home" };
     } else if (profile.last_lat != null && profile.last_long != null) {
@@ -140,6 +144,12 @@ export async function rerollDate(): Promise<void> {
 
       const previousPlaceIds = (pastIdeas ?? [])
         .map((row) => (row.idea as { place_id?: string })?.place_id)
+        .filter(Boolean) as string[];
+      const previousTitles = (pastIdeas ?? [])
+        .map((row) => (row.idea as { title?: string })?.title)
+        .filter(Boolean) as string[];
+      const previousMissions = (pastIdeas ?? [])
+        .map((row) => (row.idea as { ai?: { mission?: string } })?.ai?.mission)
         .filter(Boolean) as string[];
 
       const venue = await searchNearbyVenues({
@@ -158,6 +168,8 @@ export async function rerollDate(): Promise<void> {
         dateAtHome: constraints.date_at_home,
         isSubscribed: !isFree,
         datesCompleted: profile.dates_completed_count,
+        previousTitles,
+        previousMissions,
         venue: {
           name: venue.display_name,
           address: venue.formatted_address,
@@ -179,6 +191,9 @@ export async function rerollDate(): Promise<void> {
       const previousTitles = (pastIdeas ?? [])
         .map((row) => (row.idea as { title?: string })?.title)
         .filter(Boolean) as string[];
+      const previousMissions = (pastIdeas ?? [])
+        .map((row) => (row.idea as { mission?: string })?.mission)
+        .filter(Boolean) as string[];
 
       const aiIdea = await generateAIDateIdea({
         partnerNames: profile.partner_names,
@@ -189,6 +204,7 @@ export async function rerollDate(): Promise<void> {
         isSubscribed: !isFree,
         datesCompleted: profile.dates_completed_count,
         previousTitles,
+        previousMissions,
       });
       idea = { ...aiIdea, location_type: "outside" };
     }

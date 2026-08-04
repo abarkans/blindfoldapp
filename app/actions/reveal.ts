@@ -166,6 +166,9 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
       const previousTitles = (pastIdeas ?? [])
         .map((row) => (row.idea as { title?: string })?.title)
         .filter(Boolean) as string[];
+      const previousMissions = (pastIdeas ?? [])
+        .map((row) => (row.idea as { mission?: string })?.mission)
+        .filter(Boolean) as string[];
       const homeIdea = await generateHomeDateIdea({
         partnerNames: profile.partner_names,
         interests: safeInterests,
@@ -173,6 +176,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         isSubscribed: isPlusPlan(profile.plan_type),
         datesCompleted: profile.dates_completed_count,
         previousTitles,
+        previousMissions,
       });
       idea = { ...homeIdea, location_type: "home" };
     } else if (profile.last_lat != null && profile.last_long != null) {
@@ -184,6 +188,12 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         .limit(50);
       const previousPlaceIds = (pastIdeas ?? [])
         .map((row) => (row.idea as { place_id?: string })?.place_id)
+        .filter(Boolean) as string[];
+      const previousTitles = (pastIdeas ?? [])
+        .map((row) => (row.idea as { title?: string })?.title)
+        .filter(Boolean) as string[];
+      const previousMissions = (pastIdeas ?? [])
+        .map((row) => (row.idea as { ai?: { mission?: string } })?.ai?.mission)
         .filter(Boolean) as string[];
       const venue = await searchNearbyVenues({
         interests: safeInterests,
@@ -200,6 +210,8 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         dateAtHome: profile.constraints.date_at_home,
         isSubscribed: isPlusPlan(profile.plan_type),
         datesCompleted: profile.dates_completed_count,
+        previousTitles,
+        previousMissions,
         venue: {
           name: venue.display_name,
           address: venue.formatted_address,
@@ -219,6 +231,9 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
       const previousTitles = (pastIdeas ?? [])
         .map((row) => (row.idea as { title?: string })?.title)
         .filter(Boolean) as string[];
+      const previousMissions = (pastIdeas ?? [])
+        .map((row) => (row.idea as { mission?: string })?.mission)
+        .filter(Boolean) as string[];
       const aiIdea = await generateAIDateIdea({
         partnerNames: profile.partner_names,
         interests: safeInterests,
@@ -228,6 +243,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
         isSubscribed: isPlusPlan(profile.plan_type),
         datesCompleted: profile.dates_completed_count,
         previousTitles,
+        previousMissions,
       });
       idea = { ...aiIdea, location_type: "outside" };
     }

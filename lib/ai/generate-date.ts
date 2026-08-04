@@ -35,6 +35,28 @@ function sanitize(value: string, maxLen = 200): string {
     .slice(0, maxLen);
 }
 
+/**
+ * previousTitles/previousMissions come from date_ideas.idea which is RLS-writable
+ * by the row owner. Sanitize each entry so an attacker who edited a past row
+ * cannot inject prompt instructions via this channel.
+ */
+function buildAvoidClause(previousTitles: string[], previousMissions: string[]): string {
+  const safeTitles = previousTitles.map((t) => sanitize(t, 80)).filter(Boolean);
+  const safeMissions = previousMissions.map((m) => sanitize(m, 300)).filter(Boolean);
+  const parts: string[] = [];
+  if (safeTitles.length > 0) {
+    parts.push(
+      `You MUST NOT generate any of the following past date ideas — they are strictly forbidden: ${safeTitles.join(", ")}. The new idea must be meaningfully different in activity type, not just renamed.`
+    );
+  }
+  if (safeMissions.length > 0) {
+    parts.push(
+      `You MUST NOT reuse or lightly reword any of these past missions — invent a genuinely different challenge, not a reskin: ${safeMissions.join(" | ")}`
+    );
+  }
+  return parts.length > 0 ? `\n${parts.join("\n")}` : "";
+}
+
 const DateIdeaSchema = z.object({
   title: z.string().describe("Short catchy name for the date, max 5 words. Must NOT be the venue name verbatim — invent a short evocative phrase about the experience instead."),
   description: z
@@ -101,6 +123,12 @@ MISSION RULES:
 - Slightly competitive OR silly OR requires vulnerability
 - Forbidden: "take a photo together", "share a dessert", "hold hands", anything wellness or therapy-adjacent
 - Tone: a fun friend daring you, not a life coach assigning homework
+- The mission must feel fresh — never repeat a challenge from this couple's past missions listed below, even reworded
+
+MISSION ESCALATION — scale difficulty to the "Mission tier" in the prompt:
+- BEGINNER (0–2 dates): warm and forgiving — the couple is still finding their rhythm. Low stakes, easy to start, no vulnerability required.
+- REGULAR (3–9 dates): they know each other better — raise the ante. More daring, a bit sillier, medium stakes.
+- VETERAN (10+ dates): they've done this before — go harder. More vulnerable, sillier, higher stakes. Assume they can handle it.
 
 GLOBAL RULES:
 - Use only the place data provided — never invent specific menu items, staff names, or room details
@@ -131,7 +159,7 @@ MISSION RULES:
 - Include a clear outcome: name a small forfeit or reward for the winner (e.g., "loser buys dessert", "winner picks next date")
 - Forbidden: "take a photo together", "share a dessert", "hold hands", anything wellness or therapy-adjacent
 - Tone: a fun friend daring you, not a life coach assigning homework
-- The mission must feel fresh — not recycled from other date apps
+- The mission must feel fresh — not recycled from other date apps, and never repeat a challenge from this couple's past missions listed below, even reworded
 
 MISSION ESCALATION — scale difficulty to the "Mission tier" in the prompt:
 - BEGINNER (0–2 dates): warm and forgiving — the couple is still finding their rhythm. Low stakes, easy to start, no vulnerability required.
@@ -257,6 +285,7 @@ export async function generateAIDateIdea({
   isSubscribed = false,
   datesCompleted = 0,
   previousTitles = [],
+  previousMissions = [],
   venue,
 }: {
   partnerNames: { partner1: string; partner2: string };
@@ -267,6 +296,7 @@ export async function generateAIDateIdea({
   isSubscribed?: boolean;
   datesCompleted?: number;
   previousTitles?: string[];
+  previousMissions?: string[];
   venue?: {
     name: string;
     address: string;
@@ -287,6 +317,8 @@ export async function generateAIDateIdea({
     };
   };
 }): Promise<GeneratedDateIdea> {
+  const avoidClause = buildAvoidClause(previousTitles, previousMissions);
+
   if (venue) {
     const venueAttributes = venue.meta
       ? Object.entries({
@@ -324,8 +356,10 @@ Review excerpts: ${safeReviews || "not available"}
 <couple_context>
 Names: ${partnerNames.partner2 ? `${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}` : sanitize(partnerNames.partner1, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
-Max budget: €${budgetMax}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
+Max budget: €${budgetMax}
+Mission tier: ${tier} (${datesCompleted} dates completed)
 </couple_context>
+${avoidClause}
 
 Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimated duration, rough budget range within €${budgetMax}, and 2-4 tags.${isSubscribed ? " Also provide: a preparation instruction and a conversation starter." : ""}`;
 
@@ -337,15 +371,6 @@ Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimat
   }
 
   // Pure AI fallback — no venue
-  // previousTitles comes from date_ideas.idea.title which is RLS-writable by
-  // the row owner. Sanitize each entry so an attacker who edited a past row
-  // cannot inject prompt instructions via this channel.
-  const safePreviousTitles = previousTitles.map((t) => sanitize(t, 80)).filter(Boolean);
-  const avoidClause =
-    safePreviousTitles.length > 0
-      ? `\nYou MUST NOT generate any of the following past date ideas — they are strictly forbidden: ${safePreviousTitles.join(", ")}. The new idea must be meaningfully different in activity type, not just renamed.`
-      : "";
-
   const dateStyleNote = dateAtHome && !dateOutside
     ? "They prefer date nights at home, such as cooking together, games, crafts, or a small shared ritual."
     : dateAtHome && dateOutside
@@ -359,13 +384,14 @@ Also provide: a short catchy title (max 5 words), a 2-4 word vibe label, estimat
 Names: ${partnerNames.partner2 ? `${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}` : sanitize(partnerNames.partner1, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
 Max budget: €${budgetMax}
-Date style: ${dateStyleNote}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
+Date style: ${dateStyleNote}
+Mission tier: ${tier} (${datesCompleted} dates completed)
 </couple_context>
 ${avoidClause}
 
 The date should feel tailored to their specific interests, not generic. Be creative and specific — name real types of venues or activities. Make it feel exciting and slightly unexpected. Keep the tone warm, playful, and romantic.
 
-Also write a mission: a fun challenge the couple does TOGETHER at this type of place. Must start immediately, no prep needed. Slightly competitive or silly. Forbidden: "take a photo together", "share a dessert", anything wellness-adjacent. Tone: a friend daring you.${isSubscribed ? ` Include a small forfeit or reward for the loser. Scale difficulty to the mission tier: BEGINNER = warm and forgiving, REGULAR = medium stakes, VETERAN = harder/more vulnerable/higher stakes. Also provide: a preparation instruction (what to wear or bring, max 15 words) and a conversation starter tailored to their interests (max 25 words).` : ""}`;
+Also write a mission: a fun challenge the couple does TOGETHER at this type of place. Must start immediately, no prep needed. Slightly competitive or silly. Forbidden: "take a photo together", "share a dessert", anything wellness-adjacent. Tone: a friend daring you. Scale difficulty to the mission tier: BEGINNER = warm and forgiving, REGULAR = medium stakes, VETERAN = harder/more vulnerable/higher stakes.${isSubscribed ? ` Include a small forfeit or reward for the loser. Also provide: a preparation instruction (what to wear or bring, max 15 words) and a conversation starter tailored to their interests (max 25 words).` : ""}`;
 
   return callWithFallback({ prompt: fallbackPrompt, isSubscribed });
 }
@@ -388,6 +414,12 @@ MISSION RULES:
 - Slightly competitive OR silly OR requires vulnerability
 - Forbidden: anything wellness or therapy-adjacent
 - Tone: a friend daring you, not a life coach
+- The mission must feel fresh — never repeat a challenge from this couple's past missions listed below, even reworded
+
+MISSION ESCALATION — scale difficulty to the "Mission tier" in the prompt:
+- BEGINNER (0–2 dates): warm and forgiving. Low stakes, easy to start.
+- REGULAR (3–9 dates): more daring, medium stakes.
+- VETERAN (10+ dates): more vulnerable, higher stakes. Assume they can handle it.
 
 PREPARATION LIST RULES:
 - 3-6 items to gather from around the house or easily purchase today
@@ -429,6 +461,7 @@ MISSION RULES:
 - Include a clear outcome: name a small forfeit or reward for the winner
 - Forbidden: anything wellness or therapy-adjacent
 - Tone: a friend daring you, not a life coach
+- The mission must feel fresh — never repeat a challenge from this couple's past missions listed below, even reworded
 
 MISSION ESCALATION — scale difficulty to the "Mission tier" in the prompt:
 - BEGINNER (0–2 dates): warm and forgiving. Low stakes, easy to start.
@@ -466,6 +499,7 @@ export async function generateHomeDateIdea({
   isSubscribed = false,
   datesCompleted = 0,
   previousTitles = [],
+  previousMissions = [],
 }: {
   partnerNames: { partner1: string; partner2: string };
   interests: string[];
@@ -473,12 +507,9 @@ export async function generateHomeDateIdea({
   isSubscribed?: boolean;
   datesCompleted?: number;
   previousTitles?: string[];
+  previousMissions?: string[];
 }): Promise<GeneratedDateIdea> {
-  const safePreviousTitles = previousTitles.map((t) => sanitize(t, 80)).filter(Boolean);
-  const avoidClause =
-    safePreviousTitles.length > 0
-      ? `\nYou MUST NOT generate any of the following past date ideas: ${safePreviousTitles.join(", ")}. The new idea must be meaningfully different.`
-      : "";
+  const avoidClause = buildAvoidClause(previousTitles, previousMissions);
 
   const tier = missionTier(datesCompleted);
   const prompt = `Generate a home date night for this couple.
@@ -486,13 +517,14 @@ export async function generateHomeDateIdea({
 <couple_context>
 Names: ${partnerNames.partner2 ? `${sanitize(partnerNames.partner1, 50)} & ${sanitize(partnerNames.partner2, 50)}` : sanitize(partnerNames.partner1, 50)}
 Interests: ${interests.map((i) => sanitize(i, 30)).join(", ")}
-Max budget for any items to buy: €${budgetMax}${isSubscribed ? `\nMission tier: ${tier} (${datesCompleted} dates completed)` : ""}
+Max budget for any items to buy: €${budgetMax}
+Mission tier: ${tier} (${datesCompleted} dates completed)
 </couple_context>
 ${avoidClause}
 
 The date should feel tailored to their specific interests, not generic. Be creative — think beyond "cook together" or "movie night". Make it feel like a real event they wouldn't have thought of themselves.
 
-Provide: title (max 5 words), description (1 sentence, max 20 words), vibe (2-4 words), mission (2-3 sentences), duration, budget_range within €${budgetMax}, tags (2-4), preparation_list (3-6 items), steps (exactly 3 steps — set the mood, main activity, then the FINAL step MUST start with "Capture the moment" followed by a short phrase specific to this date).${isSubscribed ? ` Scale mission difficulty to tier: BEGINNER = warm/forgiving, REGULAR = medium stakes, VETERAN = higher stakes/more vulnerable. Include a small forfeit or reward in the mission.` : ""}`;
+Provide: title (max 5 words), description (1 sentence, max 20 words), vibe (2-4 words), mission (2-3 sentences), duration, budget_range within €${budgetMax}, tags (2-4), preparation_list (3-6 items), steps (exactly 3 steps — set the mood, main activity, then the FINAL step MUST start with "Capture the moment" followed by a short phrase specific to this date). Scale mission difficulty to tier: BEGINNER = warm/forgiving, REGULAR = medium stakes, VETERAN = higher stakes/more vulnerable.${isSubscribed ? ` Include a small forfeit or reward in the mission.` : ""}`;
 
   return callWithFallback({
     system: isSubscribed ? HOME_SYSTEM_PROMPT_PRO : HOME_SYSTEM_PROMPT,
