@@ -63,11 +63,15 @@ export async function rerollDate(): Promise<void> {
   }
   const profile = parseResult.data;
   const isFree = !isPlusPlan(profile.plan_type);
+  const isTrial = profile.plan_type === "trial";
   const partnerReadyAt =
     access.role === "owner" ? profile.reveal_partner_ready_at : profile.reveal_owner_ready_at;
 
   if (!profile.date_idea) throw new Error("No active date to re-roll.");
-  if (profile.date_accepted_at || partnerReadyAt) {
+  // Trial is solo (no partner to coordinate with), so it can re-roll even after
+  // accepting — replaces the trial "Skip" action in the check-in flow. Everyone
+  // else stays pre-accept-only to avoid swapping a date out from under a partner.
+  if (!isTrial && (profile.date_accepted_at || partnerReadyAt)) {
     throw new Error("Your partner already accepted this date.");
   }
 
@@ -225,18 +229,24 @@ export async function rerollDate(): Promise<void> {
     throw err;
   }
 
+  // Trial can reach this post-accept, where the discarded idea's row is
+  // "revealed" rather than "pending" — cover both.
   await admin
     .from("date_ideas")
     .update({ status: "skipped" })
     .eq("user_id", access.profileId)
-    .eq("status", "pending");
+    .in("status", ["pending", "revealed"]);
 
-  // Insert new idea into history so it won't repeat in future reveals/rerolls
+  const nowIso = new Date().toISOString();
+
+  // Insert new idea into history so it won't repeat in future reveals/rerolls.
+  // Trial re-accepts instantly (no teaser, matches the rest of the trial flow);
+  // everyone else goes back to the pre-accept teaser to re-confirm.
   await admin.from("date_ideas").insert({
     user_id: access.profileId,
     idea: idea as unknown as import("@/lib/types").Json,
-    status: "pending",
-    revealed_at: new Date().toISOString(),
+    status: isTrial ? "revealed" : "pending",
+    revealed_at: nowIso,
     location_type: currentLocationType,
   });
 
@@ -246,11 +256,13 @@ export async function rerollDate(): Promise<void> {
     .update({
       date_idea: idea as unknown as import("@/lib/types").Json,
       date_teaser: createDateTeaser(idea) as unknown as import("@/lib/types").Json,
-      date_accepted_at: null,
+      date_accepted_at: isTrial ? nowIso : null,
       reveal_owner_ready_at: null,
       reveal_partner_ready_at: null,
       checkin_owner_at: null,
       checkin_partner_at: null,
+      checkin_owner_skipped: false,
+      checkin_partner_skipped: false,
     })
     .eq("id", access.profileId);
 

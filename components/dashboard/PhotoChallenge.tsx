@@ -18,6 +18,7 @@ interface PhotoChallengeProps {
   planType: string;
   onComplete?: () => void;
   onSkip?: () => void;
+  skipLabel?: string;
   onXpEarned?: (amount: number) => void;
   autoOpen?: boolean;
 }
@@ -93,6 +94,7 @@ export default function PhotoChallenge({
   planType,
   onComplete,
   onSkip,
+  skipLabel,
   onXpEarned,
   autoOpen,
 }: PhotoChallengeProps) {
@@ -427,7 +429,7 @@ export default function PhotoChallenge({
                   Capture the memory
                 </Button>
                 <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => onSkip ? onSkip() : setSkipDialogOpen(true)}>
-                  Skip
+                  {skipLabel ?? "Skip"}
                 </Button>
               </>
             ) : (

@@ -1247,12 +1247,18 @@ export default function DateCard({
                             unitSystem={unitSystem}
                             onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
-                          <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => {
-                            ph?.capture("checkin_skip_clicked", { planType, flow: "checkin", secondsSinceReveal: secondsSinceReveal() });
-                            setSkipDialogOpen(true);
-                          }}>
-                            Skip
-                          </Button>
+                          {planType === "trial" && canReroll ? (
+                            <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setRerollModalOpen(true)}>
+                              Re-roll date
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => {
+                              ph?.capture("checkin_skip_clicked", { planType, flow: "checkin", secondsSinceReveal: secondsSinceReveal() });
+                              setSkipDialogOpen(true);
+                            }}>
+                              Skip
+                            </Button>
+                          )}
                         </>
                       )
                     ) : dateIdeaId ? (
@@ -1362,9 +1368,14 @@ export default function DateCard({
                             planType={planType}
                             onComplete={handlePhotoComplete}
                             onSkip={planType === "trial" ? () => {
+                              if (canReroll) {
+                                setRerollModalOpen(true);
+                                return;
+                              }
                               ph?.capture("checkin_skip_clicked", { planType, flow: "photo", secondsSinceReveal: secondsSinceReveal() });
                               setSkipPhotoDialogOpen(true);
                             } : undefined}
+                            skipLabel={planType === "trial" && canReroll ? "Re-roll date" : "Skip"}
                             onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
                         ) : null
