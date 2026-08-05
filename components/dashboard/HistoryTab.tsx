@@ -399,7 +399,7 @@ export default function HistoryTab({
   return (
     <div>
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Your scrapbook</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-[rgb(var(--fg))]">Your scrapbook</h2>
         <p className="text-[rgb(var(--fg)/0.55)] text-sm mt-1">Every date you&apos;ve completed.</p>
       </div>
       <HistoryContent

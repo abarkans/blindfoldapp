@@ -501,7 +501,7 @@ function DateTabContent({
   return (
     <div>
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Your next date</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-[rgb(var(--fg))]">Your next date</h2>
         <p className="text-[rgb(var(--fg)/0.55)] text-sm mt-1">Ready when you are.</p>
       </div>
 
@@ -682,7 +682,7 @@ function ProgressTabContent({
   return (
     <div>
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Your progress</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-[rgb(var(--fg))]">Your progress</h2>
         <p className="text-[rgb(var(--fg)/0.55)] text-sm mt-1">Every date earns XP and unlocks badges.</p>
       </div>
 
@@ -759,7 +759,7 @@ function SettingsTabContent({
               >
                 <ArrowLeft className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
               </button>
-              <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">{subpageHeader.title}</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-[rgb(var(--fg))]">{subpageHeader.title}</h2>
             </motion.div>
           ) : (
             <motion.div
@@ -771,7 +771,7 @@ function SettingsTabContent({
               exit="exit"
               transition={{ duration: 0.18, ease: "easeInOut" }}
             >
-              <h2 className="text-2xl font-bold text-[rgb(var(--fg))]">Settings</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-[rgb(var(--fg))]">Settings</h2>
             </motion.div>
           )}
         </AnimatePresence>
