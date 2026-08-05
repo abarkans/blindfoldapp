@@ -94,7 +94,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
       },
       (err) => {
         if (err.code === err.PERMISSION_DENIED) {
-          setErrorMsg("Enable location access in your browser settings, then try again.");
+          setErrorMsg("Enable location access in your device settings, then try again.");
         } else if (err.code === err.TIMEOUT) {
           setErrorMsg("Location timed out. Move to a better signal area and retry.");
         } else {

@@ -7,6 +7,7 @@ import { getCoupleAccess } from "@/lib/partner-invites";
 import { checkCheckInRateLimit } from "@/lib/rate-limit";
 import type { CheckInResult } from "@/lib/types";
 import { isPlusPlan } from "@/lib/plans";
+import { tryCompleteIfBothDone } from "@/app/actions/photo";
 
 const MAX_CHECKIN_RADIUS_METERS = 200;
 
@@ -135,6 +136,105 @@ export async function skipCheckIn(): Promise<{ error?: string }> {
       console.error(`[audit] skip-checkin: write failed uid=${user.id} msg=${writeError.message}`);
       return { error: "Failed to record. Please try again." };
     }
+  }
+
+  revalidatePath("/dashboard");
+  return {};
+}
+
+/**
+ * Lets a partner who's already checked in flag that the other one isn't
+ * coming, instead of waiting on the check-in deadline to auto-resolve it.
+ * Only usable after the caller has decided their own side — this marks the
+ * OTHER role's side as skipped, never the caller's own.
+ */
+export async function markPartnerNotComing(): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  try {
+    await checkCheckInRateLimit(user.id);
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Too many requests." };
+  }
+
+  const admin = createAdminClient();
+  const access = await getCoupleAccess(admin, user.id);
+
+  const { data: profile, error: profileError } = await admin
+    .from("profiles")
+    .select("date_accepted_at, checkin_owner_at, checkin_partner_at")
+    .eq("id", access.profileId)
+    .single();
+
+  if (profileError || !profile) return { error: "Profile not found" };
+  if (!profile.date_accepted_at) return { error: "Date not revealed yet" };
+
+  const myDecided =
+    access.role === "owner" ? !!profile.checkin_owner_at : !!profile.checkin_partner_at;
+  if (!myDecided) return { error: "Check in first." };
+
+  const partnerDecided =
+    access.role === "owner" ? !!profile.checkin_partner_at : !!profile.checkin_owner_at;
+  if (partnerDecided) return { error: "Your partner already decided." };
+
+  const nowIso = new Date().toISOString();
+  const update =
+    access.role === "owner"
+      ? { checkin_partner_at: nowIso, checkin_partner_skipped: true }
+      : { checkin_owner_at: nowIso, checkin_owner_skipped: true };
+
+  const { error: writeError } = await admin
+    .from("profiles")
+    .update(update)
+    .eq("id", access.profileId);
+
+  if (writeError) {
+    console.error(`[audit] mark-partner-not-coming: write failed uid=${user.id} msg=${writeError.message}`);
+    return { error: "Failed to record. Please try again." };
+  }
+
+  // Partner's side just got excluded from the completion requirement — if the
+  // caller already uploaded/skipped their own photo, this may be the final
+  // condition needed to complete. Re-check now instead of waiting on a photo
+  // action that will never come from the excluded partner.
+  const { data: activeIdea } = await admin
+    .from("date_ideas")
+    .select("id, location_type")
+    .eq("user_id", access.profileId)
+    .eq("status", "revealed")
+    .single();
+
+  if (activeIdea) {
+    // Home dates: complete_date_atomic requires a date_photos row from every
+    // couple member unconditionally (unlike the outside-date branch, it has no
+    // checkin-skipped exclusion). Insert the same skipped placeholder skipPhoto()
+    // would, so the partner's forced skip doesn't leave completion unreachable.
+    if (activeIdea.location_type === "home") {
+      const partnerRole = access.role === "owner" ? "partner" : "owner";
+      const { data: partnerMember } = await admin
+        .from("couple_members")
+        .select("user_id")
+        .eq("profile_id", access.profileId)
+        .eq("role", partnerRole)
+        .maybeSingle();
+
+      if (partnerMember) {
+        await admin.from("date_photos").upsert(
+          {
+            date_idea_id: activeIdea.id,
+            profile_id: access.profileId,
+            uploader_user_id: partnerMember.user_id,
+            r2_key: null,
+            skipped: true,
+          },
+          { onConflict: "date_idea_id,uploader_user_id", ignoreDuplicates: true }
+        );
+      }
+    }
+
+    await tryCompleteIfBothDone(admin, access.profileId, activeIdea.id);
   }
 
   revalidatePath("/dashboard");

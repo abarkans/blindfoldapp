@@ -21,7 +21,7 @@ export interface DatePhoto {
   created_at: string;
 }
 
-async function tryCompleteIfBothDone(
+export async function tryCompleteIfBothDone(
   admin: ReturnType<typeof createAdminClient>,
   profileId: string,
   dateIdeaId: string
@@ -35,20 +35,39 @@ async function tryCompleteIfBothDone(
   const isHomeDate = idea?.location_type === "home";
 
   if (isHomeDate) {
-    // Home dates: all members must decide (upload or skip) before completing.
-    // At least one real (non-skipped) photo is required to count the date.
-    const [{ data: members }, { count: totalPhotoCount }, { count: realPhotoCount }] = await Promise.all([
-      admin.from("couple_members").select("user_id").eq("profile_id", profileId),
-      admin.from("date_photos").select("*", { count: "exact", head: true })
-        .eq("date_idea_id", dateIdeaId).eq("profile_id", profileId),
-      admin.from("date_photos").select("*", { count: "exact", head: true })
-        .eq("date_idea_id", dateIdeaId).eq("profile_id", profileId).eq("skipped", false),
+    // Home dates: every member who didn't opt out at check-in (via markPartnerNotComing
+    // or a manual skip) must decide — upload or skip — before completing. Mirrors the
+    // outside-date exclusion below so a partner marked "not coming" doesn't block
+    // completion forever waiting on a photo that will never arrive.
+    const [{ data: members }, { data: profile }] = await Promise.all([
+      admin.from("couple_members").select("user_id, role").eq("profile_id", profileId),
+      admin
+        .from("profiles")
+        .select("checkin_owner_skipped, checkin_partner_skipped")
+        .eq("id", profileId)
+        .single(),
     ]);
 
-    const memberCount = members?.length ?? 0;
-    if (memberCount === 0) return false;
-    if ((totalPhotoCount ?? 0) < memberCount) return false; // not all decided yet
-    if ((realPhotoCount ?? 0) === 0) return false; // both skipped — BothSkippedScreen handles this
+    if (!members?.length) return false;
+
+    const requiredUserIds = members
+      .filter((m) => {
+        if (m.role === "owner") return !profile?.checkin_owner_skipped;
+        return !profile?.checkin_partner_skipped;
+      })
+      .map((m) => m.user_id);
+
+    if (requiredUserIds.length === 0) return false;
+
+    const [{ count: totalPhotoCount }, { count: realPhotoCount }] = await Promise.all([
+      admin.from("date_photos").select("*", { count: "exact", head: true })
+        .eq("date_idea_id", dateIdeaId).eq("profile_id", profileId).in("uploader_user_id", requiredUserIds),
+      admin.from("date_photos").select("*", { count: "exact", head: true })
+        .eq("date_idea_id", dateIdeaId).eq("profile_id", profileId).in("uploader_user_id", requiredUserIds).eq("skipped", false),
+    ]);
+
+    if ((totalPhotoCount ?? 0) < requiredUserIds.length) return false; // not all decided yet
+    if ((realPhotoCount ?? 0) === 0) return false; // all required members skipped — BothSkippedScreen handles this
 
     try {
       await completeDate();

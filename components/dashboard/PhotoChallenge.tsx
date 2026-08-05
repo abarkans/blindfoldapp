@@ -3,12 +3,12 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, CheckCircle2, Users, X } from "lucide-react";
+import { Camera, CheckCircle2, Users, X, RefreshCw } from "lucide-react";
 import Button from "@/components/ui/Button";
-import Dialog from "@/components/ui/Dialog";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { savePhoto, skipPhoto, getPhotosForDate, type DatePhoto } from "@/app/actions/photo";
+import Dialog from "@/components/ui/Dialog";
 
 interface PhotoChallengeProps {
   dateIdeaId: string;
@@ -17,10 +17,13 @@ interface PhotoChallengeProps {
   dateName: string;
   planType: string;
   onComplete?: () => void;
-  onSkip?: () => void;
-  skipLabel?: string;
+  rerollAction?: () => void;
+  partnerName?: string;
+  onPartnerNotComing?: () => void;
+  markPartnerPending?: boolean;
   onXpEarned?: (amount: number) => void;
   autoOpen?: boolean;
+  isHomeDate?: boolean;
 }
 
 // Canvas: draw photo + branded overlay, return JPEG blob (EXIF stripped via re-encode)
@@ -93,10 +96,13 @@ export default function PhotoChallenge({
   dateName,
   planType,
   onComplete,
-  onSkip,
-  skipLabel,
+  rerollAction,
+  partnerName,
+  onPartnerNotComing,
+  markPartnerPending,
   onXpEarned,
   autoOpen,
+  isHomeDate,
 }: PhotoChallengeProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -113,6 +119,10 @@ export default function PhotoChallenge({
   const myPhoto = photos.find((p) => p.uploader_user_id === myUserId);
   const partnerPhoto = photos.find((p) => p.uploader_user_id !== myUserId);
   const alreadyUploaded = !!myPhoto;
+  // Home dates have no GPS check-in to prove the date is happening — a real
+  // (non-skipped) photo from the partner IS that proof, so skipping stops
+  // being an option once one exists.
+  const partnerConfirmedHomeDate = isHomeDate && !!partnerPhoto && !partnerPhoto.skipped;
 
   const fetchPhotos = useCallback(async () => {
     const result = await getPhotosForDate(dateIdeaId);
@@ -398,15 +408,30 @@ export default function PhotoChallenge({
             <span className="text-sm text-[rgb(var(--fg)/0.7)]">Your memory is saved</span>
           </motion.div>
         ) : alreadyUploaded && isInline ? (
-          <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/25"
-          >
-            <motion.div
-              className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
-            />
-            <span className="text-sm text-amber-300">Waiting for partner…</span>
+          <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="flex items-center justify-center gap-2 h-12">
+              <motion.div
+                className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+              />
+              <span className="text-sm text-amber-300">Waiting for {partnerName ?? "partner"}…</span>
+            </div>
+            {onPartnerNotComing && (
+              markPartnerPending ? (
+                <div className="flex items-center justify-center gap-2 h-14 mt-1">
+                  <motion.div
+                    className="w-3 h-3 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                  />
+                </div>
+              ) : (
+                <Button variant="secondary" size="lg" className="w-full mt-1" onClick={onPartnerNotComing}>
+                  Check in for {partnerName ?? "Partner"}
+                </Button>
+              )
+            )}
           </motion.div>
         ) : (
           <motion.div key="capture" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -428,9 +453,20 @@ export default function PhotoChallenge({
                   <Camera className="w-5 h-5" />
                   Capture the memory
                 </Button>
-                <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => onSkip ? onSkip() : setSkipDialogOpen(true)}>
-                  {skipLabel ?? "Skip"}
-                </Button>
+                {partnerConfirmedHomeDate ? (
+                  <p className="text-lg text-center text-[rgb(var(--fg)/0.7)] mt-4">
+                    {`${partnerName ?? "Your partner"} already captured this moment — it's happening!`}
+                  </p>
+                ) : rerollAction ? (
+                  <Button variant="ghost" size="lg" className="w-full mt-1 gap-2" onClick={rerollAction}>
+                    <RefreshCw className="w-4 h-4" />
+                    Get a new idea
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setSkipDialogOpen(true)}>
+                    Skip
+                  </Button>
+                )}
               </>
             ) : (
               <button
@@ -461,11 +497,11 @@ export default function PhotoChallenge({
         <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip photo?</h3>
         <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">A photo turns tonight into a memory you can look back on. Skip and the moment stays just in your heads.</p>
         <div className="flex flex-col gap-2">
-          <Button type="button" onClick={() => setSkipDialogOpen(false)} className="w-full">
-            Never mind
+          <Button type="button" variant="danger" onClick={handleSkip} className="w-full">
+            Skip photo
           </Button>
-          <Button type="button" variant="ghost" onClick={handleSkip} className="w-full">
-            Skip anyway
+          <Button type="button" variant="outline" onClick={() => setSkipDialogOpen(false)} className="w-full">
+            Cancel
           </Button>
         </div>
       </Dialog>

@@ -7,6 +7,7 @@ import { firstDateReminderEmail } from "@/lib/email/templates/first-date-reminde
 import { reengagementEmail } from "@/lib/email/templates/reengagement";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import { safeLogValue } from "@/lib/log";
+import { expireProfileDate } from "@/lib/date-expiry";
 
 // Constant-time comparison so the secret can't be recovered byte-by-byte
 // via response-time side channels. Different lengths short-circuit to false
@@ -151,6 +152,36 @@ export async function GET(request: Request) {
 
   console.info(`[cron/notify-dates] sent=${sent} errors=${errors.length}`);
   if (errors.length) console.warn("[cron/notify-dates] errors:", errors);
+
+  // --- Auto-expire dates whose check-in deadline has passed. Client-side the
+  //     countdown fires expireCurrentDateIfDue() itself when it hits zero, but
+  //     that only runs while someone actually has the dashboard open — this is
+  //     the safety net for when nobody does.
+  const { data: expirableProfiles, error: expirableError } = await supabase
+    .from("profiles")
+    .select("id, plan_type, cadence, revealed_at, interests, checkin_owner_at, checkin_partner_at")
+    .not("date_accepted_at", "is", null)
+    .not("date_idea", "is", null)
+    .not("revealed_at", "is", null);
+
+  if (expirableError) {
+    console.error("[cron/notify-dates] expirable query error:", safeLogValue(expirableError.message));
+  } else {
+    let expiredCount = 0;
+    for (const p of expirableProfiles ?? []) {
+      const days = CADENCE_DAYS[(p.cadence as string) ?? "monthly"] ?? 30;
+      const deadline = new Date(p.revealed_at as string).getTime() + days * 24 * 60 * 60 * 1000;
+      if (now < deadline) continue;
+      const didExpire = await expireProfileDate(supabase, p.id as string, {
+        plan_type: p.plan_type as string,
+        interests: p.interests as string[] | null,
+        checkin_owner_at: p.checkin_owner_at as string | null,
+        checkin_partner_at: p.checkin_partner_at as string | null,
+      });
+      if (didExpire) expiredCount++;
+    }
+    console.info(`[cron/notify-dates] auto-expired=${expiredCount}`);
+  }
 
   // --- First-date reminder: users whose date was generated 5+ days ago but never
   //     completed. Date is already revealed (auto-generated at onboarding); this

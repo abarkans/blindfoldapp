@@ -251,6 +251,7 @@ export default function OnboardingFlow({
                     continueTrigger={continueTrigger}
                     onCanContinueChange={setCanContinue}
                     unitSystem={unitSystem}
+                    planType="trial"
                   />
                 )}
                 {step === 4 && (

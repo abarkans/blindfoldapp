@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { usePostHog } from "posthog-js/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, MapPin, MapPinOff, Camera, Timer, Wallet, CheckCircle2, AlertCircle, Navigation, Star, Shuffle, Check, X, Phone, Mail, ChevronRight, Target, PackageCheck, MessageCircle } from "lucide-react";
+import { Sparkles, MapPin, MapPinOff, Camera, Timer, Wallet, CheckCircle2, AlertCircle, Navigation, Star, RefreshCw, Check, Phone, Mail, ChevronRight, Target, PackageCheck, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
@@ -17,7 +17,7 @@ import { getCompletionResult } from "@/app/actions/get-completion-result";
 import { acceptDate } from "@/app/actions/accept-date";
 import { rerollDate } from "@/app/actions/reroll";
 import { sendPartnerInvite } from "@/app/actions/partner-invite";
-import { skipCheckIn } from "@/app/actions/check-in";
+import { skipCheckIn, markPartnerNotComing } from "@/app/actions/check-in";
 import { dismissDate, resetCheckinSkip } from "@/app/actions/dismiss-date";
 import { skipTrialDate } from "@/app/actions/skip-trial-date";
 import { pingPartner } from "@/app/actions/ping-partner";
@@ -28,8 +28,10 @@ import CheckInButton from "@/components/dashboard/CheckInButton";
 import HomeDateCard from "@/components/dashboard/HomeDateCard";
 import LocationPickerModal from "@/components/dashboard/LocationPickerModal";
 import PhotoChallenge from "@/components/dashboard/PhotoChallenge";
+import CheckInCountdown from "@/components/dashboard/CheckInCountdown";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
 import { type UnitSystem, getCurrencySymbol, formatBudgetRange } from "@/lib/units";
+import { getCheckinDeadlineMs } from "@/lib/cadence";
 
 const LOADING_MESSAGES = [
   "Scanning the city for your perfect spot...",
@@ -377,6 +379,7 @@ export default function DateCard({
   const [isCompletePending, startCompleteTransition] = useTransition();
   const [isRerollPending, startRerollTransition] = useTransition();
   const [isSkipPending, startSkipTransition] = useTransition();
+  const [isMarkPartnerPending, startMarkPartnerTransition] = useTransition();
   const [isDismissPending, startDismissTransition] = useTransition();
   const [isResetCheckinPending, startResetCheckinTransition] = useTransition();
   const [error, setError] = useState("");
@@ -404,7 +407,7 @@ export default function DateCard({
   const [pingError, setPingError] = useState("");
   const [localPingAt, setLocalPingAt] = useState<string | null>(partnerPingAt);
   const [skipDialogOpen, setSkipDialogOpen] = useState(false);
-  const [skipPhotoDialogOpen, setSkipPhotoDialogOpen] = useState(false);
+  const [markPartnerDialogOpen, setMarkPartnerDialogOpen] = useState(false);
   const bonusXpRef = useRef(0);
   const [activeSheet, setActiveSheet] = useState<"description" | "mission" | "preparation" | "conversation" | null>(null);
   const [locationPickerOpen, setLocationPickerOpen] = useState(false);
@@ -451,6 +454,9 @@ export default function DateCard({
 
   const isFree = planType !== "subscription" && planType !== "trial";
   const canReroll = isFree ? totalRerollsUsed < 1 : !currentDateRerolled;
+  // Trial's swap is a one-time lifetime allowance like free, not a per-date
+  // swap like subscription — reroll dialog copy should read the same for both.
+  const isLifetimeSwap = planType !== "subscription";
 
   const myDecided = memberRole === "owner" ? !!checkinOwnerAt : !!checkinPartnerAt;
   const mySkippedCheckIn = memberRole === "owner" ? checkinOwnerSkipped : checkinPartnerSkipped;
@@ -477,6 +483,7 @@ export default function DateCard({
   const currentUserReady = localRevealReady || (memberRole === "owner" ? !!ownerReadyAt : !!partnerReadyAt);
   const otherPartnerReady = memberRole === "owner" ? !!partnerReadyAt : !!ownerReadyAt;
   const nextRevealDate = revealedAt ? getNextRevealDate(revealedAt, cadence) : null;
+  const checkinDeadlineMs = revealedAt ? getCheckinDeadlineMs(revealedAt, cadence) : null;
   const showCompletedCooldown = completed && !canReveal;
   const countdown = useCountdown(showCompletedCooldown && nextRevealDate ? nextRevealDate : null);
   const venuePhoneNumber =
@@ -744,6 +751,15 @@ export default function DateCard({
       }
       await skipCheckIn();
       router.refresh();
+    });
+  }
+
+  function handleMarkPartnerNotComing() {
+    setMarkPartnerDialogOpen(false);
+    startMarkPartnerTransition(async () => {
+      const result = await markPartnerNotComing();
+      if (result.error) setError(result.error);
+      else router.refresh();
     });
   }
 
@@ -1171,7 +1187,7 @@ export default function DateCard({
                             })}
                           />
                         )
-                      ) : planType === "trial" && mySkippedCheckIn ? (
+                      ) : planType === "trial" && mySkippedCheckIn && !partnerDecided ? (
                         isResetCheckinPending ? (
                           <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                             <motion.div
@@ -1204,6 +1220,9 @@ export default function DateCard({
                             dateName={dateIdea.display_name}
                             planType={planType}
                             onComplete={handlePhotoComplete}
+                            partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "Partner"}
+                            onPartnerNotComing={partnerDecided ? undefined : () => setMarkPartnerDialogOpen(true)}
+                            markPartnerPending={isMarkPartnerPending}
                             onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
                         ) : null
@@ -1219,16 +1238,31 @@ export default function DateCard({
                           </span>
                         </div>
                       ) : myDecided && !effectivePartnerDecided ? (
-                        <div className="flex items-center justify-center gap-2.5 h-14 rounded-full bg-amber-500/10 border border-amber-500/25">
-                          <motion.div
-                            className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
-                          />
-                          <span className="text-sm font-semibold text-amber-300">
-                            Waiting for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}…
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex items-center justify-center gap-2.5 h-14">
+                            <motion.div
+                              className="w-3.5 h-3.5 rounded-full border-2 border-amber-400/40 border-t-amber-400"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                            />
+                            <span className="text-sm font-semibold text-amber-300">
+                              Waiting for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "partner"}…
+                            </span>
+                          </div>
+                          {isMarkPartnerPending ? (
+                            <div className="flex items-center justify-center gap-2 h-14 mt-1">
+                              <motion.div
+                                className="w-3 h-3 rounded-full border-2 border-[rgb(var(--fg)/0.2)] border-t-[rgb(var(--fg)/0.6)]"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                              />
+                            </div>
+                          ) : (
+                            <Button variant="secondary" size="lg" className="w-full mt-1" onClick={() => setMarkPartnerDialogOpen(true)}>
+                              Check in for {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "Partner"}
+                            </Button>
+                          )}
+                        </>
                       ) : isSkipPending ? (
                         <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                           <motion.div
@@ -1247,18 +1281,14 @@ export default function DateCard({
                             unitSystem={unitSystem}
                             onXpEarned={(xp) => { bonusXpRef.current += xp; }}
                           />
-                          {planType === "trial" && canReroll ? (
-                            <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => setRerollModalOpen(true)}>
-                              Re-roll date
+                          {planType === "trial" && canReroll && !partnerCheckedIn ? (
+                            <Button variant="ghost" size="lg" className="w-full mt-1 gap-2" onClick={() => setRerollModalOpen(true)}>
+                              <RefreshCw className="w-4 h-4" />
+                              Get a new idea
                             </Button>
-                          ) : (
-                            <Button variant="ghost" size="lg" className="w-full mt-1" onClick={() => {
-                              ph?.capture("checkin_skip_clicked", { planType, flow: "checkin", secondsSinceReveal: secondsSinceReveal() });
-                              setSkipDialogOpen(true);
-                            }}>
-                              Skip
-                            </Button>
-                          )}
+                          ) : checkinDeadlineMs ? (
+                            <CheckInCountdown deadlineMs={checkinDeadlineMs} />
+                          ) : null}
                         </>
                       )
                     ) : dateIdeaId ? (
@@ -1269,6 +1299,10 @@ export default function DateCard({
                         dateName={dateIdea.display_name}
                         planType={planType}
                         onComplete={() => router.refresh()}
+                        rerollAction={planType === "trial" && canReroll ? () => setRerollModalOpen(true) : undefined}
+                        partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "Partner"}
+                        onPartnerNotComing={() => setMarkPartnerDialogOpen(true)}
+                        markPartnerPending={isMarkPartnerPending}
                       />
                     ) : isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
@@ -1327,7 +1361,7 @@ export default function DateCard({
                             })}
                           />
                         )
-                      ) : planType === "trial" && mySkippedCheckIn ? (
+                      ) : planType === "trial" && mySkippedCheckIn && !partnerDecided ? (
                         isSkipPending ? (
                           <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-[rgb(var(--fg)/0.06)] border border-[rgb(var(--fg)/0.16)]">
                             <motion.div
@@ -1367,16 +1401,12 @@ export default function DateCard({
                             dateName={(dateIdea as AIDateIdea).title}
                             planType={planType}
                             onComplete={handlePhotoComplete}
-                            onSkip={planType === "trial" ? () => {
-                              if (canReroll) {
-                                setRerollModalOpen(true);
-                                return;
-                              }
-                              ph?.capture("checkin_skip_clicked", { planType, flow: "photo", secondsSinceReveal: secondsSinceReveal() });
-                              setSkipPhotoDialogOpen(true);
-                            } : undefined}
-                            skipLabel={planType === "trial" && canReroll ? "Re-roll date" : "Skip"}
+                            rerollAction={planType === "trial" && canReroll ? () => setRerollModalOpen(true) : undefined}
+                            partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "Partner"}
+                            onPartnerNotComing={partnerDecided ? undefined : () => setMarkPartnerDialogOpen(true)}
+                            markPartnerPending={isMarkPartnerPending}
                             onXpEarned={(xp) => { bonusXpRef.current += xp; }}
+                            isHomeDate
                           />
                         ) : null
                       )}
@@ -1442,6 +1472,10 @@ export default function DateCard({
                         dateName={(dateIdea as AIDateIdea).title}
                         planType={planType}
                         onComplete={() => router.refresh()}
+                        rerollAction={planType === "trial" && canReroll ? () => setRerollModalOpen(true) : undefined}
+                        partnerName={(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "Partner"}
+                        onPartnerNotComing={() => setMarkPartnerDialogOpen(true)}
+                        markPartnerPending={isMarkPartnerPending}
                       />
                     ) : isCompletePending ? (
                       <div className="flex items-center justify-center gap-2 h-14 rounded-full bg-green-500/20 border border-green-500/30">
@@ -1520,22 +1554,28 @@ export default function DateCard({
                       </div>
                     )}
                     {!currentUserReady && (
-                      <Button
-                        size="lg"
-                        variant="secondary"
-                        disabled={!canReroll}
-                        onClick={() => {
-                          if (!canReroll) return;
-                          if (otherPartnerReady) {
-                            setError("Your partner already accepted this date.");
-                            return;
-                          }
-                          setRerollModalOpen(true);
-                        }}
-                        className="w-full"
-                      >
-                        Not feeling it?
-                      </Button>
+                      !canReroll ? (
+                        <p className="text-lg text-center text-[rgb(var(--fg)/0.7)]">
+                          {isFree ? "You've used your 1 free swap." : "You've used your swap for this date."}
+                        </p>
+                      ) : (
+                        <Button
+                          size="lg"
+                          variant="secondary"
+                          disabled={!canReroll}
+                          onClick={() => {
+                            if (!canReroll) return;
+                            if (otherPartnerReady) {
+                              setError("Your partner already accepted this date.");
+                              return;
+                            }
+                            setRerollModalOpen(true);
+                          }}
+                          className="w-full"
+                        >
+                          Not feeling it?
+                        </Button>
+                      )
                     )}
                   </div>
                 ) : !hasAcceptedPartner && planType !== "trial" ? (
@@ -1615,40 +1655,23 @@ export default function DateCard({
         onSelect={executeStartDate}
       />
 
-      {/* Skip confirmation dialog — outside dates (GPS check-in) only */}
-      <Dialog open={skipDialogOpen} onClose={() => setSkipDialogOpen(false)} className="text-center">
-        <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
-          <MapPin className="w-5 h-5 text-rose-400" />
+      {/* Mark-partner-not-coming confirmation dialog */}
+      <Dialog open={markPartnerDialogOpen} onClose={() => setMarkPartnerDialogOpen(false)} className="text-center">
+        <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="w-5 h-5 text-amber-400" />
         </div>
-        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip check-in?</h3>
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">
+          No check-in from {(memberRole === "owner" ? partnerNames.partner2 : partnerNames.partner1) || "Partner"}?
+        </h3>
         <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">
-          {planType === "trial"
-            ? "This is a one-time trial date — skipping closes it out for good. Your next date unlocks in a month."
-            : "Check in at the venue for bonus XP and streak credit. You can skip if you're not going tonight."}
+          Doesn&apos;t mean they&apos;re not there — just means you&apos;re covering both sides tonight. We&apos;ll mark it and move on.
         </p>
         <div className="flex flex-col gap-2">
-          <Button type="button" onClick={() => setSkipDialogOpen(false)} className="w-full">
-            Back to check-in
+          <Button type="button" variant="danger" onClick={handleMarkPartnerNotComing} className="w-full">
+            Skip their check-in
           </Button>
-          <Button type="button" variant="ghost" onClick={() => handleSkipCheckIn("checkin")} className="w-full">
-            {planType === "trial" ? "Skip date" : "Skip check-in"}
-          </Button>
-        </div>
-      </Dialog>
-
-      {/* Skip confirmation dialog — home dates (photo capture), trial only */}
-      <Dialog open={skipPhotoDialogOpen} onClose={() => setSkipPhotoDialogOpen(false)} className="text-center">
-        <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mx-auto mb-4">
-          <Camera className="w-5 h-5 text-rose-400" />
-        </div>
-        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Skip photo?</h3>
-        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-6">This is a one-time trial date — skipping closes it out for good. Your next date unlocks in a month.</p>
-        <div className="flex flex-col gap-2">
-          <Button type="button" onClick={() => setSkipPhotoDialogOpen(false)} className="w-full">
-            Back to photo
-          </Button>
-          <Button type="button" variant="ghost" onClick={() => { setSkipPhotoDialogOpen(false); handleSkipCheckIn("photo"); }} className="w-full">
-            Skip date
+          <Button type="button" variant="outline" onClick={() => setMarkPartnerDialogOpen(false)} className="w-full">
+            Cancel
           </Button>
         </div>
       </Dialog>
@@ -1685,21 +1708,11 @@ export default function DateCard({
 
       {/* Partner invite modal */}
       <Dialog open={partnerInviteModalOpen} onClose={() => setPartnerInviteModalOpen(false)}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="w-11 h-11 rounded-2xl bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center">
-            <Mail className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
-          </div>
-          <button
-            type="button"
-            onClick={() => setPartnerInviteModalOpen(false)}
-            className="w-8 h-8 rounded-xl bg-[rgb(var(--fg)/0.035)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.075)] transition-colors"
-            aria-label="Close partner invite dialog"
-          >
-            <X className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
-          </button>
+        <div className="w-12 h-12 rounded-2xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
         </div>
 
-        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-3">
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-3 text-center">
           {partnerInviteState === "pending"
             ? `Invite sent to ${partnerNames.partner2 || "your partner"}`
             : `Invite ${partnerNames.partner2 || "your partner"}`}
@@ -1749,64 +1762,46 @@ export default function DateCard({
       </Dialog>
 
       {/* Re-roll confirmation modal */}
-      <Dialog open={rerollModalOpen} onClose={() => setRerollModalOpen(false)}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="w-11 h-11 rounded-2xl bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center">
-            <Shuffle className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
-          </div>
-          <button
-            type="button"
-            onClick={() => setRerollModalOpen(false)}
-            className="w-8 h-8 rounded-full bg-[rgb(var(--fg)/0.035)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.075)] transition-colors"
-          >
-            <X className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
-          </button>
+      <Dialog open={rerollModalOpen} onClose={() => setRerollModalOpen(false)} className="text-center">
+        <div className="w-12 h-12 rounded-2xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center mx-auto mb-4">
+          <RefreshCw className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
         </div>
 
-        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-2">Try a different date?</h3>
+        <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-1">Try a different date?</h3>
 
-        {isFree ? (
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
+        <p className="text-sm text-[rgb(var(--fg)/0.55)] mb-4">
+          The current date idea will be saved so you won&apos;t see it again.
+        </p>
+
+        {isLifetimeSwap ? (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-6">
             <p className="text-xs text-amber-300 leading-relaxed">
-              <span className="font-semibold">Starter plan:</span>{" "}
+              <span className="font-semibold">{isFree ? "Starter plan:" : "Trial:"}</span>{" "}
               <span className="font-bold">1 re-roll total. Use it wisely.</span> Once gone, dates are final.
             </p>
           </div>
         ) : (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl px-3 py-2.5 mb-4">
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl px-3 py-2.5 mb-6">
             <p className="text-xs text-blue-300 leading-relaxed">
               You get <span className="font-bold">1 swap per date</span>. We&apos;ll find you something different.
             </p>
           </div>
         )}
 
-        <p className="text-xs text-[rgb(var(--fg)/0.55)] mb-5">
-          The current date idea will be saved so you won&apos;t see it again.
-        </p>
-
         <div className="flex flex-col gap-2">
-          <Button className="w-full" onClick={handleRerollConfirm}>
-            {isFree ? "Yes, try another" : "Find another date"}
+          <Button variant="danger" className="w-full" onClick={handleRerollConfirm}>
+            Yes, swap it
           </Button>
           <Button variant="outline" className="w-full" onClick={() => setRerollModalOpen(false)}>
-            Keep this date
+            Cancel
           </Button>
         </div>
       </Dialog>
 
       {/* Accept confirmation modal */}
-      <Dialog open={acceptConfirmOpen} onClose={() => setAcceptConfirmOpen(false)}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="w-11 h-11 rounded-2xl bg-[rgb(var(--fg)/0.045)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center">
-            <Check className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
-          </div>
-          <button
-            type="button"
-            onClick={() => setAcceptConfirmOpen(false)}
-            className="w-8 h-8 rounded-xl bg-[rgb(var(--fg)/0.035)] flex items-center justify-center hover:bg-[rgb(var(--fg)/0.075)] transition-colors"
-          >
-            <X className="w-4 h-4 text-[rgb(var(--fg)/0.6)]" />
-          </button>
+      <Dialog open={acceptConfirmOpen} onClose={() => setAcceptConfirmOpen(false)} className="text-center">
+        <div className="w-12 h-12 rounded-2xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center mx-auto mb-4">
+          <Check className="w-5 h-5 text-[rgb(var(--fg)/0.65)]" />
         </div>
 
         <h3 className="text-lg font-bold text-[rgb(var(--fg))] mb-2">Reveal this date?</h3>
@@ -1814,7 +1809,7 @@ export default function DateCard({
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-3 py-2.5 mb-4">
           <p className="text-xs text-amber-300 leading-relaxed">
             Once revealed, you <span className="font-bold">won&apos;t be able to swap</span> this date.
-            {isFree && " You still have your 1 lifetime swap. Use it on this date or save it for a future one."}
+            {isLifetimeSwap && " You still have your 1 lifetime swap. Use it on this date or save it for a future one."}
           </p>
         </div>
 
