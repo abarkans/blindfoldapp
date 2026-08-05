@@ -80,7 +80,7 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
       </div>
 
       {isTrial && (
-        <div className="flex items-start gap-2 -mt-3">
+        <div className="flex items-start gap-2.5 bg-white/[0.035] border border-white/16 rounded-2xl px-4 py-3">
           <Info className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
           <p className="text-sm text-white/70 leading-relaxed">
             Starting with a night out. You&apos;ll unlock the choice between out and in after this one —
