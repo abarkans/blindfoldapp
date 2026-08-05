@@ -579,7 +579,7 @@ export default function SettingsPanel({
         </div>
         <div className="flex-1 text-left min-w-0">
           <p className="text-sm font-semibold text-[rgb(var(--fg))]">{label}</p>
-          <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5 truncate">{summary}</p>
+          <p className="text-sm text-[rgb(var(--fg)/0.55)] mt-0.5 truncate">{summary}</p>
         </div>
         <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
       </button>
@@ -617,7 +617,7 @@ export default function SettingsPanel({
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">App theme</p>
-                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">{theme === "dark" ? "Dark" : "Light"}</p>
+                  <p className="text-sm text-[rgb(var(--fg)/0.55)] mt-0.5">{theme === "dark" ? "Dark" : "Light"}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
               </button>
@@ -738,7 +738,7 @@ export default function SettingsPanel({
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">Send feedback</p>
-                  <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Report a bug or suggest an idea</p>
+                  <p className="text-sm text-[rgb(var(--fg)/0.55)] mt-0.5">Report a bug or suggest an idea</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
               </button>
@@ -754,7 +754,7 @@ export default function SettingsPanel({
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <p className="text-sm font-semibold text-[rgb(var(--fg))]">Rate the app</p>
-                    <p className="text-xs text-[rgb(var(--fg)/0.55)] mt-0.5">Rating helps other couples find us.</p>
+                    <p className="text-sm text-[rgb(var(--fg)/0.55)] mt-0.5">Rating helps other couples find us.</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-[rgb(var(--fg)/0.5)] shrink-0" />
                 </button>

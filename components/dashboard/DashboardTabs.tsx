@@ -380,6 +380,7 @@ export default function DashboardTabs({
                       historyPromise={historyPromise}
                       planType={profile.plan_type ?? "free"}
                       onOpenPlanSettings={openPlanSettings}
+                      onGoToDate={() => switchTab("date")}
                       theme={theme}
                     />
                   </Suspense>

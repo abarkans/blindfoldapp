@@ -1,16 +1,35 @@
 "use client";
 
 import { use, useState, useEffect } from "react";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Lock, Gem, CalendarDays, MapPin, X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
 import type { Theme } from "@/lib/types";
 
+// Same photos/scatter layout as the landing page's MemoriesSection (FAKE_MEMORIES +
+// MEMORY_CARD_CONFIGS), just static and scaled down to fit this smaller box — a
+// faint, near-invisible hint of what the scrapbook becomes.
+const PILE_SCALE = 0.65;
+const EMPTY_STATE_PILE = [
+  { image: "/memories/golden-hour-walk.jpg", x: 20, y: 10, rotate: -8 },
+  { image: "/memories/cosy-night-in.jpg", x: 220, y: -110, rotate: 32 },
+  { image: "/memories/surprise-cinema.jpg", x: -200, y: 90, rotate: -55 },
+  { image: "/memories/jazz-bar-night.jpg", x: 290, y: 140, rotate: 68 },
+  { image: "/memories/market-morning.jpg", x: -270, y: -130, rotate: -42 },
+  { image: "/memories/rooftop-sunset.jpg", x: 120, y: 220, rotate: 50 },
+  { image: "/memories/picnic-in-park.jpg", x: -100, y: -210, rotate: -72 },
+  { image: "/memories/cooking-together.jpg", x: 320, y: -40, rotate: 22 },
+  { image: "/memories/night-market.jpg", x: -310, y: 160, rotate: -28 },
+  { image: "/memories/lazy-sunday.jpg", x: 170, y: -190, rotate: 62 },
+].map((card) => ({ ...card, x: card.x * PILE_SCALE, y: card.y * PILE_SCALE }));
+
 interface HistoryTabProps {
   historyPromise: Promise<CompletedDateWithPhotos[]>;
   planType: string;
   onOpenPlanSettings: () => void;
+  onGoToDate: () => void;
   theme: Theme;
 }
 
@@ -287,23 +306,50 @@ function HistoryContent({
   history,
   isPaid,
   onOpenPlanSettings,
+  onGoToDate,
   theme,
 }: {
   history: CompletedDateWithPhotos[];
   isPaid: boolean;
   onOpenPlanSettings: () => void;
+  onGoToDate: () => void;
   theme: Theme;
 }) {
   const [inCapacitor, setInCapacitor] = useState(false);
   useEffect(() => { if ((window as any).Capacitor) setInCapacitor(true) }, []);
   if (history.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center mb-4">
-          <CalendarDays className={`w-7 h-7 ${theme === "dark" ? "text-[#383838]" : "text-[#d6d6d6]"}`} />
+      <div className="relative flex flex-col items-center justify-center min-h-[70dvh] text-center overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none">
+          <div className="relative w-[420px] h-[420px] max-w-[90vw]">
+            {EMPTY_STATE_PILE.map((card, i) => (
+              <div
+                key={card.image}
+                className="absolute top-1/2 left-1/2 w-[110px] rounded-xl bg-white overflow-hidden"
+                style={{
+                  transform: `translate(-50%, -50%) translate(${card.x}px, ${card.y}px) rotate(${card.rotate}deg)`,
+                  padding: "5px 5px 16px",
+                  zIndex: i,
+                }}
+              >
+                <div className="relative w-full aspect-[3/4] rounded-md overflow-hidden">
+                  <Image src={card.image} alt="" fill sizes="110px" className="object-cover" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-[rgb(var(--fg)/0.6)] text-sm">No completed dates yet.</p>
-        <p className="text-[rgb(var(--fg)/0.55)] text-xs mt-1">Finish a date to start your scrapbook.</p>
+
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center mb-4">
+            <CalendarDays className={`w-7 h-7 ${theme === "dark" ? "text-[#383838]" : "text-[#d6d6d6]"}`} />
+          </div>
+          <p className="text-lg font-semibold text-[rgb(var(--fg))]">No completed dates yet.</p>
+          <p className="text-base text-[rgb(var(--fg)/0.55)] mt-1">Finish a date to start your scrapbook.</p>
+          <Button size="md" className="mt-5" onClick={onGoToDate}>
+            Go to your date
+          </Button>
+        </div>
       </div>
     );
   }
@@ -344,6 +390,7 @@ export default function HistoryTab({
   historyPromise,
   planType,
   onOpenPlanSettings,
+  onGoToDate,
   theme,
 }: HistoryTabProps) {
   const history = use(historyPromise);
@@ -359,6 +406,7 @@ export default function HistoryTab({
         history={history}
         isPaid={isPaid}
         onOpenPlanSettings={onOpenPlanSettings}
+        onGoToDate={onGoToDate}
         theme={theme}
       />
     </div>
