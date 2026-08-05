@@ -53,8 +53,10 @@ export default function StepLogistics({ defaultValues, onNext, continueTrigger, 
   return (
     <div className="flex flex-col gap-7">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold text-white">How do you like to date?</h2>
-        <p className="text-white/50 text-sm">We&apos;ll only plan dates that fit your budget and style.</p>
+        <h2 className="text-2xl font-bold text-white">{isTrial ? "Set your budget" : "How do you like to date?"}</h2>
+        <p className="text-white/50 text-sm">
+          {isTrial ? "We'll only plan dates that fit your budget." : "We'll only plan dates that fit your budget and style."}
+        </p>
       </div>
 
       <div className="flex flex-col gap-2">
