@@ -341,8 +341,8 @@ function HistoryContent({
         </div>
 
         <div className="relative z-10 flex flex-col items-center">
-          <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--fg)/0.05)] border border-[rgb(var(--fg)/0.1)] flex items-center justify-center mb-4">
-            <CalendarDays className={`w-7 h-7 ${theme === "dark" ? "text-[#383838]" : "text-[#d6d6d6]"}`} />
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${theme === "dark" ? "bg-[#262626]" : "bg-[#e5e5e5]"}`}>
+            <CalendarDays className={`w-7 h-7 ${theme === "dark" ? "text-[#8a8a8a]" : "text-[#737373]"}`} />
           </div>
           <p className="text-lg font-semibold text-[rgb(var(--fg))]">No completed dates yet.</p>
           <p className="text-base text-[rgb(var(--fg)/0.55)] mt-1">Finish a date to start your scrapbook.</p>
