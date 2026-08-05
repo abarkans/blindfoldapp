@@ -38,6 +38,7 @@ import {
   Bell,
 } from "lucide-react";
 import { PLANS } from "@/lib/plans";
+import { PLUS_FEATURE_ICONS, FREE_FEATURE_ICONS } from "@/lib/plan-icons";
 import { getCurrencySymbol, formatBudgetRange, type UnitSystem } from "@/lib/units";
 
 const FEATURE_ITEMS = [
@@ -1222,12 +1223,16 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                       {!plan.highlighted && <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>}
                     </div>
                     <ul className="flex flex-col gap-3.5 flex-1">
-                      {plan.features.map((feat) => (
-                        <li key={feat} className="flex items-start gap-3">
-                          <Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400/70" />
-                          <span className="text-sm text-white/55">{feat}</span>
-                        </li>
-                      ))}
+                      {plan.features.map((feat, i) => {
+                        const icons = plan.id === "subscription" ? PLUS_FEATURE_ICONS : FREE_FEATURE_ICONS;
+                        const FeatIcon = icons[i] ?? Check;
+                        return (
+                          <li key={feat} className="flex items-start gap-3">
+                            <FeatIcon className="w-4 h-4 shrink-0 mt-0.5 text-rose-400/70" />
+                            <span className="text-sm text-white/55">{feat}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
                     <Link
                       href={`/register?plan=${plan.id}`}

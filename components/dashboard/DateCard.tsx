@@ -1085,7 +1085,7 @@ export default function DateCard({
                               className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
                               <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                                <Target className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                                <Target className="w-4 h-4 text-rose-400" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-semibold text-[rgb(var(--fg))]">Mission</p>
@@ -1109,7 +1109,7 @@ export default function DateCard({
                               className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
                               <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                                <PackageCheck className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                                <PackageCheck className="w-4 h-4 text-rose-400" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-semibold text-[rgb(var(--fg))]">Before you go</p>
@@ -1133,7 +1133,7 @@ export default function DateCard({
                               className="flex items-center gap-4 w-full px-4 py-1.5 md:p-4 text-left"
                             >
                               <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                                <MessageCircle className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                                <MessageCircle className="w-4 h-4 text-rose-400" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-semibold text-[rgb(var(--fg))]">Conversation starter</p>

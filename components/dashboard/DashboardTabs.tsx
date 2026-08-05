@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, use, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Camera, Mail, Moon, Sun } from "lucide-react";
+import { Sparkles, Medal, Settings, CalendarCheck, X, ArrowLeft, MapPin, Camera, Mail, Moon, Sun, Zap } from "lucide-react";
 import Image from "next/image";
 import DateCard from "@/components/dashboard/DateCard";
 import XPProgressBar from "@/components/dashboard/XPProgressBar";
@@ -17,6 +17,7 @@ import type { CoupleRole, PartnerInviteStatus } from "@/lib/partner-invites";
 import type { CompletedDateWithPhotos } from "@/app/actions/photo";
 import { usePushNotifications } from "@/lib/hooks/usePushNotifications";
 import Button from "@/components/ui/Button";
+import { SparklesFilled, MedalFilled, CameraFilled, SettingsFilled } from "@/components/dashboard/FilledNavIcons";
 
 type Tab = "date" | "progress" | "history" | "settings";
 type SettingsInitialView = "plan" | "partners";
@@ -61,11 +62,11 @@ interface DashboardTabsProps {
   partnerInviteStatus: PartnerInviteStatus;
 }
 
-const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: "date", label: "Date", icon: Sparkles },
-  { id: "progress", label: "Progress", icon: Medal },
-  { id: "history", label: "Memories", icon: Camera },
-  { id: "settings", label: "Settings", icon: Settings },
+const TABS: { id: Tab; label: string; icon: React.ElementType; filledIcon: React.ElementType }[] = [
+  { id: "date", label: "Date", icon: Sparkles, filledIcon: SparklesFilled },
+  { id: "progress", label: "Progress", icon: Medal, filledIcon: MedalFilled },
+  { id: "history", label: "Memories", icon: Camera, filledIcon: CameraFilled },
+  { id: "settings", label: "Settings", icon: Settings, filledIcon: SettingsFilled },
 ];
 
 export default function DashboardTabs({
@@ -217,11 +218,13 @@ export default function DashboardTabs({
 
         {/* Sidebar nav */}
         <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto">
-          {TABS.map(({ id, label, icon: Icon }) => (
+          {TABS.map(({ id, label, icon: Icon, filledIcon: FilledIcon }) => {
+            const ActiveIcon = activeTab === id ? FilledIcon : Icon;
+            return (
             <button
               key={id}
               onClick={() => switchTab(id)}
-              className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
+              className={`relative flex items-center gap-3 px-3 py-3 rounded-xl text-base font-medium transition-colors duration-150 ${
                 activeTab === id ? "text-[rgb(var(--fg))]" : "text-[rgb(var(--fg)/0.5)] hover:text-[rgb(var(--fg)/0.8)] hover:bg-[rgb(var(--fg)/0.04)]"
               }`}
             >
@@ -233,8 +236,8 @@ export default function DashboardTabs({
                 />
               )}
               <div className="relative shrink-0 z-10">
-                <Icon
-                  className={`w-4 h-4 ${
+                <ActiveIcon
+                  className={`w-5 h-5 ${
                     activeTab === id
                       ? theme === "dark" ? "text-[#d6d6d6]" : "text-[#404040]"
                       : theme === "dark" ? "text-[#8a8a8a]" : "text-[#737373]"
@@ -246,8 +249,24 @@ export default function DashboardTabs({
               </div>
               <span className="relative z-10">{label}</span>
             </button>
-          ))}
+            );
+          })}
         </nav>
+
+        {/* Upgrade CTA — free plan only */}
+        {(profile.plan_type === "free" || profile.plan_type === "trial") && (
+          <div className="px-3 pb-3 shrink-0">
+            <Button
+              variant="secondary"
+              size="md"
+              className="group w-full gap-2 border-[rgb(var(--fg)/0.16)] hover:border-rose-400 hover:bg-rose-500 text-rose-400 hover:text-white"
+              onClick={openPlanSettings}
+            >
+              <Zap className="w-5 h-5 text-rose-400 group-hover:text-white transition-colors" fill="currentColor" />
+              Upgrade
+            </Button>
+          </div>
+        )}
 
         {/* Theme switcher — desktop only; mobile/Capacitor gets the equivalent toggle row in Settings */}
         <div className="border-t border-[rgb(var(--fg)/0.08)] p-3 shrink-0">
@@ -394,7 +413,9 @@ export default function DashboardTabs({
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           <div className="max-w-sm mx-auto flex items-stretch h-16">
-            {TABS.map(({ id, label, icon: Icon }) => (
+            {TABS.map(({ id, label, icon: Icon, filledIcon: FilledIcon }) => {
+              const ActiveIcon = activeTab === id ? FilledIcon : Icon;
+              return (
               <button
                 key={id}
                 onClick={() => switchTab(id)}
@@ -408,7 +429,7 @@ export default function DashboardTabs({
                   />
                 )}
                 <div className="relative">
-                  <Icon
+                  <ActiveIcon
                     className={`w-5 h-5 transition-colors duration-150 ${
                       activeTab === id
                         ? theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"
@@ -429,7 +450,8 @@ export default function DashboardTabs({
                   {label}
                 </span>
               </button>
-            ))}
+              );
+            })}
           </div>
         </nav>
       </div>

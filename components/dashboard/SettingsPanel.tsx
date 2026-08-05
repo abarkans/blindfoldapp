@@ -12,6 +12,7 @@ import {
   MessageCircle, Bug, Lightbulb, HelpCircle, Gem, BadgeCheck, FileText, Shield,
 } from "lucide-react";
 import { FREE_INTERESTS, PLANS, FREE_MAX_RADIUS_KM, MIN_INTEREST_CATEGORIES, PAID_MAX_RADIUS_KM, type PlanId } from "@/lib/plans";
+import { PLUS_FEATURE_ICONS } from "@/lib/plan-icons";
 import { formatRadius, getCurrencySymbol, type UnitSystem } from "@/lib/units";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -571,16 +572,10 @@ export default function SettingsPanel({
         key={id}
         type="button"
         onClick={() => navigate(id)}
-        className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+        className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-rose-400/60 transition-colors active:scale-[0.98]"
       >
         <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-          <Icon
-            className={
-              id === "account" || id === "logistics" || id === "partners"
-                ? `w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`
-                : "w-4 h-4 text-[rgb(var(--fg)/0.65)]"
-            }
-          />
+          <Icon className="w-4 h-4 text-rose-400" />
         </div>
         <div className="flex-1 text-left min-w-0">
           <p className="text-sm font-semibold text-[rgb(var(--fg))]">{label}</p>
@@ -615,10 +610,10 @@ export default function SettingsPanel({
               <button
                 type="button"
                 onClick={() => setThemeSheetOpen(true)}
-                className="md:hidden flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+                className="md:hidden flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-rose-400/60 transition-colors active:scale-[0.98]"
               >
                 <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                  {theme === "dark" ? <Moon className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" /> : <Sun className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />}
+                  {theme === "dark" ? <Moon className="w-4 h-4 text-rose-400" /> : <Sun className="w-4 h-4 text-rose-400" />}
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">App theme</p>
@@ -736,10 +731,10 @@ export default function SettingsPanel({
               <button
                 type="button"
                 onClick={() => setFeedbackOpen(true)}
-                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-rose-400/60 transition-colors active:scale-[0.98]"
               >
                 <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                  <MessageCircle className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                  <MessageCircle className="w-4 h-4 text-rose-400" />
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">Send feedback</p>
@@ -752,10 +747,10 @@ export default function SettingsPanel({
                 <button
                   type="button"
                   onClick={() => openStoreListing()}
-                  className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+                  className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-rose-400/60 transition-colors active:scale-[0.98]"
                 >
                   <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                    <Star className="w-4 h-4 text-[rgb(var(--fg)/0.65)]" />
+                    <Star className="w-4 h-4 text-rose-400" />
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <p className="text-sm font-semibold text-[rgb(var(--fg))]">Rate the app</p>
@@ -774,10 +769,10 @@ export default function SettingsPanel({
               <button
                 type="button"
                 onClick={() => router.push("/legal/terms")}
-                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-rose-400/60 transition-colors active:scale-[0.98]"
               >
                 <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                  <FileText className={`w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
+                  <FileText className="w-4 h-4 text-rose-400" />
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">Terms of Service</p>
@@ -788,10 +783,10 @@ export default function SettingsPanel({
               <button
                 type="button"
                 onClick={() => router.push("/legal/privacy")}
-                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-[rgb(var(--fg)/0.28)] transition-colors active:scale-[0.98]"
+                className="flex items-center gap-4 p-4 bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl hover:border-rose-400/60 transition-colors active:scale-[0.98]"
               >
                 <div className="w-9 h-9 rounded-xl bg-[rgb(var(--fg)/0.07)] flex items-center justify-center shrink-0">
-                  <Shield className={`w-4 h-4 ${theme === "dark" ? "text-[#a6a6a6]" : "text-[#606060]"}`} />
+                  <Shield className="w-4 h-4 text-rose-400" />
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-semibold text-[rgb(var(--fg))]">Privacy Policy</p>
@@ -1375,23 +1370,27 @@ export default function SettingsPanel({
                         </button>
                       </div>
 
-                      <ul className="flex flex-col gap-2">
-                        {PLANS.find((p) => p.id === "subscription")!.features.map((text) => (
-                          <li key={text} className="flex items-start gap-2">
-                            <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[rgb(var(--fg)/0.65)]" />
-                            <span className="text-xs text-[rgb(var(--fg))] font-semibold">{text}</span>
-                          </li>
-                        ))}
+                      <ul className="grid grid-cols-2 gap-3 py-4">
+                        {PLANS.find((p) => p.id === "subscription")!.features.map((text, i) => {
+                          const FeatIcon = PLUS_FEATURE_ICONS[i] ?? Check;
+                          return (
+                            <li key={text} className="flex items-start gap-2">
+                              <FeatIcon className="w-5 h-5 shrink-0 mt-0.5 text-rose-400" />
+                              <span className="text-sm text-[rgb(var(--fg))] font-semibold">{text}</span>
+                            </li>
+                          );
+                        })}
                       </ul>
                       {!inCapacitor && (
                         <Button
                           type="button"
                           variant="primary"
+                          size="lg"
                           loading={upgradingPlan}
                           onClick={handleUpgradePlan}
-                          className="w-full h-auto py-3 text-sm font-bold gap-2"
+                          className="w-full gap-2"
                         >
-                          {billingInterval === "yearly" ? `Subscribe · ${getCurrencySymbol(unitSystem)}24.99/year` : `Subscribe · ${getCurrencySymbol(unitSystem)}0.99 first month`}
+                          Subscribe now
                         </Button>
                       )}
                     </div>
