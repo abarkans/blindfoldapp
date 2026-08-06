@@ -134,6 +134,7 @@ interface SettingsPanelProps {
   partnerInviteStatus: PartnerInviteStatus;
   initialView?: SettingsView;
   navigateToPartnersSeq?: number;
+  navigateToPlanSeq?: number;
   theme: Theme;
   onThemeChange: (next: Theme) => void;
 }
@@ -165,6 +166,7 @@ export default function SettingsPanel({
   partnerInviteStatus,
   initialView,
   navigateToPartnersSeq,
+  navigateToPlanSeq,
   theme,
   onThemeChange,
 }: SettingsPanelProps) {
@@ -553,6 +555,12 @@ export default function SettingsPanel({
     navigate("partners");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigateToPartnersSeq]);
+
+  useEffect(() => {
+    if (!navigateToPlanSeq) return;
+    navigate("plan");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigateToPlanSeq]);
 
   function navigate(to: SettingsView) {
     const dir = to === "list" ? -1 : 1;

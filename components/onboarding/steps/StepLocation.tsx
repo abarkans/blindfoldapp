@@ -328,10 +328,6 @@ export default function StepLocation({ defaultValues, onNext, planType, continue
           formatValue={(v) => formatRadius(v, unitSystem)}
           tone="neutral"
         />
-        <div className="flex justify-between text-[10px] text-white/55 px-1">
-          <span>Nearby</span>
-          <span>{planType === "subscription" ? "Far away" : `Upgrade to Plus for up to ${formatRadius(PAID_MAX_RADIUS_KM, unitSystem)}`}</span>
-        </div>
       </div>
 
     </div>

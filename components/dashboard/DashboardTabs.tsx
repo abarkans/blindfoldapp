@@ -98,6 +98,7 @@ export default function DashboardTabs({
   const [logoBeating, setLogoBeating] = useState(false);
   const [showCancelBanner, setShowCancelBanner] = useState(false);
   const [settingsInitialView, setSettingsInitialView] = useState<SettingsInitialView | undefined>();
+  const [planNavSeq, setPlanNavSeq] = useState(0);
   const [showSubscriberBadge, setShowSubscriberBadge] = useState(false);
 
   const mainRef = useRef<HTMLElement>(null);
@@ -182,6 +183,7 @@ export default function DashboardTabs({
 
   function openPlanSettings() {
     setSettingsInitialView("plan");
+    setPlanNavSeq((s) => s + 1);
     setActiveTab("settings");
     window.history.replaceState({}, "", "/dashboard?tab=settings");
     mainRef.current?.scrollTo({ top: 0 });
@@ -392,6 +394,7 @@ export default function DashboardTabs({
                     memberRole={memberRole}
                     partnerInviteStatus={partnerInviteStatus}
                     initialView={settingsInitialView}
+                    navigateToPlanSeq={planNavSeq}
                     showPartnerNudge={showPartnerNudge}
                     onInvitePartner={openPartnerSettings}
                     theme={theme}
@@ -713,6 +716,7 @@ function SettingsTabContent({
   memberRole,
   partnerInviteStatus,
   initialView,
+  navigateToPlanSeq,
   showPartnerNudge,
   onInvitePartner,
   theme,
@@ -723,6 +727,7 @@ function SettingsTabContent({
   memberRole: CoupleRole;
   partnerInviteStatus: PartnerInviteStatus;
   initialView?: SettingsInitialView;
+  navigateToPlanSeq?: number;
   showPartnerNudge?: boolean;
   onInvitePartner?: () => void;
   theme: Theme;
@@ -777,18 +782,27 @@ function SettingsTabContent({
         </AnimatePresence>
       </div>
 
-      {showPartnerNudge && !subpageHeader && (
-        <div className="mb-5 flex items-center gap-3 bg-rose-500/[0.08] border border-rose-500/20 rounded-2xl px-4 py-4">
-          <Mail className="w-5 h-5 text-rose-400 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-[rgb(var(--fg))]">Invite your partner</p>
-            <p className="text-xs text-[rgb(var(--fg)/0.5)] mt-0.5">Both of you need to be ready to reveal the next date together.</p>
-          </div>
-          <Button size="sm" onClick={() => setPartnerNavSeq(s => s + 1)} className="shrink-0">
-            Invite
-          </Button>
-        </div>
-      )}
+      <AnimatePresence>
+        {showPartnerNudge && !subpageHeader && (
+          <motion.div
+            key="partner-nudge"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: "easeInOut" }}
+            className="mb-5 flex items-center gap-3 bg-rose-500/[0.08] border border-rose-500/20 rounded-2xl px-4 py-4"
+          >
+            <Mail className="w-5 h-5 text-rose-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[rgb(var(--fg))]">Invite your partner</p>
+              <p className="text-xs text-[rgb(var(--fg)/0.5)] mt-0.5">Both of you need to be ready to reveal the next date together.</p>
+            </div>
+            <Button size="sm" onClick={() => setPartnerNavSeq(s => s + 1)} className="shrink-0">
+              Invite
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <SettingsPanel
         profile={profile}
@@ -798,6 +812,7 @@ function SettingsTabContent({
         partnerInviteStatus={partnerInviteStatus}
         initialView={initialView}
         navigateToPartnersSeq={partnerNavSeq}
+        navigateToPlanSeq={navigateToPlanSeq}
         theme={theme}
         onThemeChange={onThemeChange}
       />

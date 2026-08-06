@@ -152,7 +152,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
           animate={{ rotate: 360 }}
           transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
         />
-        <span className="text-sm font-semibold text-[rgb(var(--fg)/0.6)]">Finding you…</span>
+        <span className="text-lg font-semibold text-[rgb(var(--fg)/0.6)]">Finding you…</span>
       </div>
     );
   }
@@ -169,7 +169,7 @@ export default function CheckInButton({ partnerName, partnerCheckedIn, partnerSk
 
       <Button onClick={handleCheckIn} size="lg" className="w-full gap-2">
         <MapPin className="w-5 h-5" />
-        We&apos;re here
+        Check in
       </Button>
     </div>
   );
