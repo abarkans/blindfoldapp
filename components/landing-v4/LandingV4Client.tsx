@@ -578,8 +578,8 @@ function DateIdeasSection() {
     target: headingRef,
     offset: ["start 0.75", "start 0.35"],
   });
-  const strike1Color = useTransform(strikeProgress, [0, 0.5], ["rgba(251,113,133,0)", "rgba(251,113,133,1)"]);
-  const strike2Color = useTransform(strikeProgress, [0.4, 1], ["rgba(251,113,133,0)", "rgba(251,113,133,1)"]);
+  const strike1Color = useTransform(strikeProgress, [0, 0.5], ["rgba(244,63,94,0)", "rgba(244,63,94,1)"]);
+  const strike2Color = useTransform(strikeProgress, [0.4, 1], ["rgba(244,63,94,0)", "rgba(244,63,94,1)"]);
 
   return (
     <section id="benefits" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
@@ -636,7 +636,7 @@ function ScrollRevealStatement() {
     <section ref={ref} aria-label="The problem we solve" className="relative px-6 md:px-10 py-0 pb-16 md:pb-28 max-w-[1280px] mx-auto">
       {/* scroll-fill vertical line — extends up into hero, fills on scroll */}
       <div className="hidden xl:block absolute left-40 top-0 bottom-28 w-px bg-white/10 overflow-hidden">
-        <motion.div className="absolute inset-0 bg-rose-400 origin-top" style={{ scaleY: lineScaleY }} />
+        <motion.div className="absolute inset-0 bg-rose-500 origin-top" style={{ scaleY: lineScaleY }} />
       </div>
       <h2 className="sr-only">Why couples stop going on dates.</h2>
       <p className="text-[28px] md:text-[32px] lg:text-[36px] xl:text-[40px] 2xl:text-[44px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
