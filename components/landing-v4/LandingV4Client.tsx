@@ -337,11 +337,7 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
           <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.2] mb-4">
             Show up.{" "}
             <span className="relative inline-block">
-              <span
-                aria-hidden="true"
-                className="text-transparent"
-                style={{ WebkitTextStroke: "1.5px rgba(251,113,133,0.7)" }}
-              >
+              <span aria-hidden="true" className="text-white/25">
                 Level up.
               </span>
               <motion.span
