@@ -568,11 +568,35 @@ function DateIdeasMarqueeRow({ cards, reverse = false }: { cards: DateIdeaCard[]
 }
 
 function DateIdeasSection() {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const { scrollYProgress: strikeProgress } = useScroll({
+    target: headingRef,
+    offset: ["start 0.75", "start 0.35"],
+  });
+  const strike1 = useTransform(strikeProgress, [0, 0.5], [0, 1]);
+  const strike2 = useTransform(strikeProgress, [0.4, 1], [0, 1]);
+
   return (
     <section id="benefits" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-        <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
-          No more &ldquo;I don&rsquo;t know,<br className="hidden sm:block" /> what do you want to do?&rdquo;
+        <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
+          No more &ldquo;
+          <span className="relative inline-block">
+            I don&rsquo;t know,
+            <motion.span
+              className="absolute left-0 right-0 top-1/2 h-[3px] md:h-[5px] bg-rose-400 origin-left"
+              style={{ scaleX: strike1 }}
+            />
+          </span>
+          <br className="hidden sm:block" />{" "}
+          <span className="relative inline-block">
+            what do you want to do?
+            <motion.span
+              className="absolute left-0 right-0 top-1/2 h-[3px] md:h-[5px] bg-rose-400 origin-left"
+              style={{ scaleX: strike2 }}
+            />
+          </span>
+          &rdquo;
         </h2>
         <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] mb-10 md:mb-14 md:text-center md:mx-auto">
           Tell us what you&rsquo;re into. We handle the rest — venue, vibe, and a challenge to make it interesting.
@@ -610,7 +634,7 @@ function ScrollRevealStatement() {
     <section ref={ref} aria-label="The problem we solve" className="relative px-6 md:px-10 py-0 pb-16 md:pb-28 max-w-[1280px] mx-auto">
       {/* scroll-fill vertical line — extends up into hero, fills on scroll */}
       <div className="hidden xl:block absolute left-40 top-0 bottom-28 w-px bg-white/10 overflow-hidden">
-        <motion.div className="absolute inset-0 bg-white/40 origin-top" style={{ scaleY: lineScaleY }} />
+        <motion.div className="absolute inset-0 bg-rose-400 origin-top" style={{ scaleY: lineScaleY }} />
       </div>
       <h2 className="sr-only">Why couples stop going on dates.</h2>
       <p className="text-[28px] md:text-[32px] lg:text-[36px] xl:text-[40px] 2xl:text-[44px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
