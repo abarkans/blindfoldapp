@@ -573,30 +573,27 @@ function DateIdeasSection() {
     target: headingRef,
     offset: ["start 0.75", "start 0.35"],
   });
-  const strike1 = useTransform(strikeProgress, [0, 0.5], [0, 1]);
-  const strike2 = useTransform(strikeProgress, [0.4, 1], [0, 1]);
+  const strike1Color = useTransform(strikeProgress, [0, 0.5], ["rgba(251,113,133,0)", "rgba(251,113,133,1)"]);
+  const strike2Color = useTransform(strikeProgress, [0.4, 1], ["rgba(251,113,133,0)", "rgba(251,113,133,1)"]);
 
   return (
     <section id="benefits" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
           No more &ldquo;
-          <span className="relative inline-block">
+          <motion.span
+            className="line-through decoration-[3px] md:decoration-[5px]"
+            style={{ textDecorationColor: strike1Color }}
+          >
             I don&rsquo;t know,
-            <motion.span
-              className="absolute left-0 right-0 top-1/2 h-[3px] md:h-[5px] bg-rose-400 origin-left"
-              style={{ scaleX: strike1 }}
-            />
-          </span>
-          <br className="hidden sm:block" />{" "}
-          <span className="relative inline-block">
-            what do you want to do?
-            <motion.span
-              className="absolute left-0 right-0 top-1/2 h-[3px] md:h-[5px] bg-rose-400 origin-left"
-              style={{ scaleX: strike2 }}
-            />
-          </span>
-          &rdquo;
+          </motion.span>
+          <br />
+          <motion.span
+            className="line-through decoration-[3px] md:decoration-[5px]"
+            style={{ textDecorationColor: strike2Color }}
+          >
+            what do you want to do?&rdquo;
+          </motion.span>
         </h2>
         <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] mb-10 md:mb-14 md:text-center md:mx-auto">
           Tell us what you&rsquo;re into. We handle the rest — venue, vibe, and a challenge to make it interesting.
