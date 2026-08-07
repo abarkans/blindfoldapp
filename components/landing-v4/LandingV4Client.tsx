@@ -321,20 +321,32 @@ function MemoryPolaroidCard({
 
 function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
   const reducedMotion = useSafeReducedMotion();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const { scrollYProgress: levelProgress } = useScroll({
+    target: headingRef,
+    offset: ["start 0.85", "start 0.4"],
+  });
+  const levelY = useTransform(levelProgress, [0, 1], [26, 0]);
+  const levelScale = useTransform(levelProgress, [0, 1], [0.82, 1]);
+
   return (
     <section className="relative bg-black overflow-hidden">
       <div className="px-6 md:px-10 pt-16 md:pt-28 pb-16 md:pb-28 max-w-[1280px] mx-auto">
 
         {/* Title */}
         <div className="text-left md:text-center mb-10 md:mb-14">
-          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] mb-4">
+          <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] mb-4">
             Show up.{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
+            <motion.span
+              className="inline-block bg-clip-text text-transparent"
+              style={{
+                backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)",
+                y: reducedMotion ? 0 : levelY,
+                scale: reducedMotion ? 1 : levelScale,
+              }}
             >
               Level up.
-            </span>
+            </motion.span>
           </h2>
           <p className="text-white/55 text-base md:text-lg leading-[1.7]">
             Each completed date earns XP. Gain levels and unlock badges.{" "}<br />See where your streak takes you.
