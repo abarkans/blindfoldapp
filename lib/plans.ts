@@ -48,7 +48,7 @@ export const PLANS = [
       "Date memories & photo history",
       "Richer, more creative date experiences",
     ],
-    cta: "Take over my planning",
+    cta: "Plan our next date",
     highlighted: true,
   },
 ] as const;

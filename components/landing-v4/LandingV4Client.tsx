@@ -14,10 +14,12 @@ import {
   ArrowRight,
   Star,
   Lock,
+  Compass,
   MapPin,
   Check,
   Timer,
   Zap,
+  Dice5,
   X,
   Plus,
   Utensils,
@@ -121,23 +123,23 @@ const FAQ_ITEMS = [
 
 const DATE_IDEA_CARDS = [
   // Row 1
-  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Omakase for Two",          vibe: "A chef's table. No menu. Just trust." },
-  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Sunset Rooftop Drinks",    vibe: "Golden hour, cold glass, no agenda." },
-  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Sunrise Hike",             vibe: "Early alarm. Worth every minute." },
-  { interest: "Art & Culture",      icon: Palette,  color: "text-purple-300", bg: "bg-purple-500/15", border: "border-purple-400/20", title: "Gallery After Dark",       vibe: "Private viewing night. Wine included." },
-  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Speakeasy Night",          vibe: "Hidden bar. Secret knock optional." },
-  { interest: "Coffee & Cafés",     icon: Coffee,   color: "text-amber-300",  bg: "bg-amber-500/15",  border: "border-amber-400/20",  title: "Third Wave Coffee Tour",   vibe: "Four cafés. Rate them all." },
-  { interest: "Cinema",             icon: Film,     color: "text-sky-300",    bg: "bg-sky-500/15",    border: "border-sky-400/20",    title: "Outdoor Film Night",       vibe: "Blanket, popcorn, sky above." },
-  { interest: "Beach & Water",      icon: Waves,    color: "text-cyan-300",   bg: "bg-cyan-500/15",   border: "border-cyan-400/20",   title: "Kayak at Dusk",            vibe: "Paddle out. Watch the light change." },
+  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Omakase for Two",          vibe: "A chef's table. No menu. Just trust.",              challenge: "Guess the ingredient before the chef." },
+  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Sunset Rooftop Drinks",    vibe: "Golden hour, cold glass, no agenda.",                challenge: "Clink glasses without saying \"cheers.\"" },
+  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Sunrise Hike",             vibe: "Early alarm. Worth every minute.",                   challenge: "First to spot wildlife on the trail wins." },
+  { interest: "Art & Culture",      icon: Palette,  color: "text-purple-300", bg: "bg-purple-500/15", border: "border-purple-400/20", title: "Gallery After Dark",       vibe: "Private viewing night. Wine included.",              challenge: "Pick each other's favorite piece, blind." },
+  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Speakeasy Night",          vibe: "Hidden bar. Secret knock optional.",                 challenge: "Order for each other with zero hints." },
+  { interest: "Coffee & Cafés",     icon: Coffee,   color: "text-amber-300",  bg: "bg-amber-500/15",  border: "border-amber-400/20",  title: "Third Wave Coffee Tour",   vibe: "Four cafés. Rate them all.",                         challenge: "Rank all four cafés, no repeats allowed." },
+  { interest: "Cinema",             icon: Film,     color: "text-sky-300",    bg: "bg-sky-500/15",    border: "border-sky-400/20",    title: "Outdoor Film Night",       vibe: "Blanket, popcorn, sky above.",                       challenge: "Guess the ending before it starts." },
+  { interest: "Beach & Water",      icon: Waves,    color: "text-cyan-300",   bg: "bg-cyan-500/15",   border: "border-cyan-400/20",   title: "Kayak at Dusk",            vibe: "Paddle out. Watch the light change.",                challenge: "Race each other to the buoy and back." },
   // Row 2
-  { interest: "Fitness",            icon: Dumbbell, color: "text-lime-300",   bg: "bg-lime-500/15",   border: "border-lime-400/20",   title: "Bouldering Date",          vibe: "Trust your partner to catch you." },
-  { interest: "Photography",        icon: Camera,   color: "text-violet-300", bg: "bg-violet-500/15", border: "border-violet-400/20", title: "Golden Hour Shoot",        vibe: "You two. Best light of the day." },
-  { interest: "Books & Learning",   icon: BookOpen, color: "text-teal-300",   bg: "bg-teal-500/15",   border: "border-teal-400/20",   title: "Bookshop Trawl",           vibe: "£5 each. Find something for the other." },
-  { interest: "Gaming",             icon: Gamepad2, color: "text-indigo-300", bg: "bg-indigo-500/15", border: "border-indigo-400/20", title: "Arcade Night",             vibe: "Tokens, competition, bad winners." },
-  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Street Food Safari",       vibe: "Follow your nose through the market." },
-  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Candlelit Cinema",         vibe: "Old film. Dark room. Just you two." },
-  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Botanical Garden Wander",  vibe: "No destination. Just greenery." },
-  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Cocktail Lab",             vibe: "Build your own drink. Judge each other's." },
+  { interest: "Fitness",            icon: Dumbbell, color: "text-lime-300",   bg: "bg-lime-500/15",   border: "border-lime-400/20",   title: "Bouldering Date",          vibe: "Trust your partner to catch you.",                   challenge: "Spot each other on the hardest route." },
+  { interest: "Photography",        icon: Camera,   color: "text-violet-300", bg: "bg-violet-500/15", border: "border-violet-400/20", title: "Golden Hour Shoot",        vibe: "You two. Best light of the day.",                    challenge: "Ten shots each, zero retakes allowed." },
+  { interest: "Books & Learning",   icon: BookOpen, color: "text-teal-300",   bg: "bg-teal-500/15",   border: "border-teal-400/20",   title: "Bookshop Trawl",           vibe: "£5 each. Find something for the other.",             challenge: "Five minutes to pick the right book." },
+  { interest: "Gaming",             icon: Gamepad2, color: "text-indigo-300", bg: "bg-indigo-500/15", border: "border-indigo-400/20", title: "Arcade Night",             vibe: "Tokens, competition, bad winners.",                  challenge: "Loser buys the next round of tokens." },
+  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Street Food Safari",       vibe: "Follow your nose through the market.",               challenge: "Order in a language you don't speak." },
+  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Candlelit Cinema",         vibe: "Old film. Dark room. Just you two.",                 challenge: "No phones allowed until credits roll." },
+  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Botanical Garden Wander",  vibe: "No destination. Just greenery.",                     challenge: "Find the strangest plant in the garden." },
+  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Cocktail Lab",             vibe: "Build your own drink. Judge each other's.",          challenge: "Blind-taste it and guess the recipe." },
 ];
 
 const BADGE_PREVIEWS = [
@@ -327,16 +329,16 @@ function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
         {/* Title */}
         <div className="text-left md:text-center mb-10 md:mb-14">
           <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] mb-4">
-            Dates that leave{" "}
+            Show up.{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
             >
-              a mark.
+              Level up.
             </span>
           </h2>
           <p className="text-white/55 text-base md:text-lg leading-[1.7]">
-            Each completed date earns XP. Level up. Unlock badges.{" "}<br />See where your streak takes you.
+            Each completed date earns XP. Gain levels and unlock badges.{" "}<br />See where your streak takes you.
           </p>
         </div>
 
@@ -501,8 +503,8 @@ function FeaturesSection() {
     <section id="features" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <div className="flex flex-col items-start md:items-center mb-10 md:mb-16 gap-4">
-          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal text-white md:text-center max-w-[700px]">
-            How the date gets made.
+          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal text-white md:text-center">
+            We do the b<span className="text-[0.65em] align-middle">🥱</span>ring part.
           </h2>
           <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] md:text-center md:mx-auto">
             We handle the parts that usually kill date night. The idea, the venue, the nudge to actually go.
@@ -510,7 +512,7 @@ function FeaturesSection() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {FEATURE_ITEMS.map(({ icon: Icon, title, description, blob, blobPos, iconColor }) => (
-            <div key={title} className="relative overflow-hidden rounded-2xl bg-white/[0.04] border border-white/[0.08] p-7 flex flex-col gap-4">
+            <div key={title} className="relative overflow-hidden rounded-2xl bg-white/[0.04] p-7 flex flex-col gap-4">
               <div className={`absolute ${blobPos} w-40 h-40 ${blob} opacity-[0.08] rounded-full blur-2xl pointer-events-none`} />
               <div className="relative z-10 w-11 h-11 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
                 <Icon className={`w-5 h-5 ${iconColor}`} />
@@ -537,9 +539,16 @@ function DateIdeaCardItem({ card }: { card: DateIdeaCard }) {
         <Icon className={`w-3.5 h-3.5 ${card.color}`} />
         <span className={`text-xs font-semibold ${card.color}`}>{card.interest}</span>
       </div>
-      <div>
+      <div className="min-h-[88px]">
         <p className="text-white font-bold text-base leading-snug">{card.title}</p>
         <p className="text-white/60 text-sm mt-1 leading-snug">{card.vibe}</p>
+      </div>
+      <div className="flex flex-col gap-1 mt-2">
+        <div className="flex items-center gap-1.5">
+          <Dice5 className={`w-3.5 h-3.5 shrink-0 ${card.color}`} />
+          <span className={`text-xs font-semibold ${card.color}`}>Challenge</span>
+        </div>
+        <p className="text-white/50 text-xs leading-snug">{card.challenge}</p>
       </div>
     </div>
   );
@@ -563,9 +572,6 @@ function DateIdeasMarqueeRow({ cards, reverse = false }: { cards: DateIdeaCard[]
 }
 
 function DateIdeasSection() {
-  const reducedMotion = useSafeReducedMotion();
-  const row1 = DATE_IDEA_CARDS.slice(0, 8);
-  const row2 = DATE_IDEA_CARDS.slice(8, 16);
   return (
     <section id="benefits" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
@@ -580,13 +586,8 @@ function DateIdeasSection() {
           <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
           <div className="py-2">
-            <DateIdeasMarqueeRow cards={reducedMotion ? [...row1, ...row2] : row1} />
+            <DateIdeasMarqueeRow cards={DATE_IDEA_CARDS} />
           </div>
-          {!reducedMotion && (
-            <div className="py-2">
-              <DateIdeasMarqueeRow cards={row2} reverse />
-            </div>
-          )}
         </div>
       </div>
     </section>
@@ -1196,7 +1197,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                     <div>
                       <div className="flex items-center gap-3 mb-5">
                         <div className={["w-11 h-11 rounded-2xl flex items-center justify-center", plan.highlighted ? "bg-pink-500/20" : "bg-white/8"].join(" ")}>
-                          {plan.highlighted ? <Sparkles className="w-5 h-5 text-pink-400" /> : <Lock className="w-5 h-5 text-white/40" />}
+                          {plan.highlighted ? <Sparkles className="w-5 h-5 text-pink-400" /> : <Compass className="w-5 h-5 text-white/40" />}
                         </div>
                         <p className="font-bold text-white text-lg">{plan.name}</p>
                       </div>
@@ -1216,8 +1217,9 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                           </>
                         )
                       ) : (
-                        <p className="text-4xl md:text-[42px] font-black mb-1 text-white/50">
-                          {plan.priceLine.split("/")[0].trim()}
+                        <p className="text-4xl md:text-[42px] font-black mb-1 text-white">
+                          {plan.priceLine.split(" ")[0]}
+                          <span className="text-lg font-semibold text-white/55 ml-2">{plan.priceLine.split(" ").slice(1).join(" ")}</span>
                         </p>
                       )}
                       {!plan.highlighted && <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>}
@@ -1238,10 +1240,10 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                       href={`/register?plan=${plan.id}`}
                       rel="nofollow"
                       className={[
-                        "w-full text-center py-4 md:py-5 rounded-full text-sm font-bold transition-[background-color,color,border-color] duration-150",
+                        "w-full text-center py-4 md:py-5 rounded-full text-base md:text-xl font-bold transition-[background-color,color,border-color] duration-150",
                         plan.highlighted
                           ? "bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
-                          : "bg-white/8 text-white/60 border border-white/10 hover:bg-white/12 hover:text-white",
+                          : "bg-white/8 text-rose-400 border border-rose-400/45 hover:bg-white/12 hover:text-rose-300",
                       ].join(" ")}
                     >
                       {plan.cta}
