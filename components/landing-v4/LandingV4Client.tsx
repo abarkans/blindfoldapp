@@ -490,11 +490,8 @@ function MemoriesSection() {
             Remembered.
           </motion.span>
         </h2>
-        <p className="text-white/35 text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05]">
-          Your scrapbook, growing with you.
-        </p>
         <p className="text-white/55 text-base md:text-lg leading-[1.7] mt-3">
-          Plus subscribers unlock their full scrapbook. Every memory, always there.
+          Upgrade to Plus and keep the whole story.
         </p>
       </div>
 
