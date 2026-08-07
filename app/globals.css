@@ -192,3 +192,16 @@ input[type="range"]::-webkit-slider-thumb {
 .marquee-row:hover .marquee-track {
   animation-play-state: paused;
 }
+
+.marquee-track.is-paused {
+  animation-play-state: paused;
+}
+
+/* Lets touch users swipe the frozen track natively while paused, without a visible scrollbar. */
+.marquee-row {
+  scrollbar-width: none;
+}
+
+.marquee-row::-webkit-scrollbar {
+  display: none;
+}

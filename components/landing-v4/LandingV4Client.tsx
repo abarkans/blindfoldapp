@@ -553,10 +553,15 @@ function DateIdeaCardItem({ card }: { card: DateIdeaCard }) {
 function DateIdeasMarqueeRow({ cards, reverse = false }: { cards: DateIdeaCard[]; reverse?: boolean }) {
   const reducedMotion = useSafeReducedMotion();
   const doubled = reducedMotion ? cards : [...cards, ...cards];
+  const [paused, setPaused] = useState(false);
+
   return (
-    <div className="marquee-row flex overflow-hidden pt-3">
+    <div
+      className="marquee-row flex overflow-x-auto pt-3"
+      onTouchStart={() => setPaused(true)}
+    >
       <div
-        className={`flex gap-4 pr-4 ${reducedMotion ? "" : "marquee-track"}`}
+        className={`flex gap-4 pr-4 ${reducedMotion ? "" : "marquee-track"} ${paused ? "is-paused" : ""}`}
         style={reverse ? { animationDirection: "reverse" } : undefined}
       >
         {doubled.map((card, i) => (
