@@ -1105,7 +1105,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                     <path fill="#FBBC05" d="M20.3 10.37l-2.98-1.69-2.93 2.93 2.93 2.93 3-1.7a1.56 1.56 0 0 0 0-2.47z"/>
                     <path fill="#EA4335" d="M4.38.24 16.5 7.08l-2.61 2.61L3.18.29A1.37 1.37 0 0 1 4.38.24z"/>
                   </svg>
-                  Get it free on Google Play
+                  Get on Google Play
                 </a>
                 <a
                   href="https://www.trustpilot.com/review/blindfolddate.com"
