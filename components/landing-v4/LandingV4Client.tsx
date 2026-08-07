@@ -1082,10 +1082,10 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.42)_44%,rgba(0,0,0,0.14)_78%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/38 via-transparent to-black" />
 
-          <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-center px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
+          <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-center px-6 pb-16 pt-[150px] text-left md:px-10 md:pb-20 md:pt-[96px] xl:pt-[185px] lg:pb-28">
             <div className="w-full max-w-[960px] md:max-w-[1180px]">
               <p className="text-sm md:text-base font-semibold uppercase tracking-widest text-rose-300 mb-4 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-                For couples who are tired of being the one who plans
+                Always the one who plans?
               </p>
 
               <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
@@ -1165,9 +1165,6 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                 <br />
                 Upgrade if you fall for it.
               </h2>
-              <p className="text-white/50 text-base md:text-lg mt-4">
-                No card to start. Cancel Plus anytime.
-              </p>
             </div>
 
             {/* Billing toggle — desktop */}
