@@ -1031,7 +1031,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.42)_44%,rgba(0,0,0,0.14)_78%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/38 via-transparent to-black" />
 
-          <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-end px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
+          <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-center px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
             <div className="w-full max-w-[960px]">
               <h1 className="text-[48px] sm:text-[56px] lg:text-[60px] xl:text-[68px] 2xl:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
@@ -1064,7 +1064,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                     className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Plan my mystery date
+                    Plan our next date
                   </Link>
                 )}
                 <a
@@ -1238,7 +1238,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                         "w-full text-center py-4 md:py-5 rounded-full text-base md:text-xl font-bold transition-[background-color,color,border-color] duration-150",
                         plan.highlighted
                           ? "bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
-                          : "bg-white/8 text-rose-400 border border-rose-400/45 hover:bg-white/12 hover:text-rose-300",
+                          : "bg-white/8 text-rose-400 border border-rose-400 hover:bg-white/12 hover:text-rose-300",
                       ].join(" ")}
                     >
                       {plan.cta}
