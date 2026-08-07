@@ -19,7 +19,6 @@ import {
   Check,
   Timer,
   Zap,
-  Dice5,
   X,
   Plus,
   Utensils,
@@ -123,23 +122,23 @@ const FAQ_ITEMS = [
 
 const DATE_IDEA_CARDS = [
   // Row 1
-  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Omakase for Two",          vibe: "A chef's table. No menu. Just trust.",              challenge: "Guess the ingredient before the chef." },
-  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Sunset Rooftop Drinks",    vibe: "Golden hour, cold glass, no agenda.",                challenge: "Clink glasses without saying \"cheers.\"" },
-  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Sunrise Hike",             vibe: "Early alarm. Worth every minute.",                   challenge: "First to spot wildlife on the trail wins." },
-  { interest: "Art & Culture",      icon: Palette,  color: "text-purple-300", bg: "bg-purple-500/15", border: "border-purple-400/20", title: "Gallery After Dark",       vibe: "Private viewing night. Wine included.",              challenge: "Pick each other's favorite piece, blind." },
-  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Speakeasy Night",          vibe: "Hidden bar. Secret knock optional.",                 challenge: "Order for each other with zero hints." },
-  { interest: "Coffee & Cafés",     icon: Coffee,   color: "text-amber-300",  bg: "bg-amber-500/15",  border: "border-amber-400/20",  title: "Third Wave Coffee Tour",   vibe: "Four cafés. Rate them all.",                         challenge: "Rank all four cafés, no repeats allowed." },
-  { interest: "Cinema",             icon: Film,     color: "text-sky-300",    bg: "bg-sky-500/15",    border: "border-sky-400/20",    title: "Outdoor Film Night",       vibe: "Blanket, popcorn, sky above.",                       challenge: "Guess the ending before it starts." },
-  { interest: "Beach & Water",      icon: Waves,    color: "text-cyan-300",   bg: "bg-cyan-500/15",   border: "border-cyan-400/20",   title: "Kayak at Dusk",            vibe: "Paddle out. Watch the light change.",                challenge: "Race each other to the buoy and back." },
+  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Omakase for Two",          vibe: "A chef's table. No menu. Just trust.",              challenge: "Guess the ingredient before the chef.",         fill: "bg-orange-600" },
+  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Sunset Rooftop Drinks",    vibe: "Golden hour, cold glass, no agenda.",                challenge: "Clink glasses without saying \"cheers.\"",     fill: "bg-rose-500" },
+  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Sunrise Hike",             vibe: "Early alarm. Worth every minute.",                   challenge: "First to spot wildlife on the trail wins.",     fill: "bg-emerald-600" },
+  { interest: "Art & Culture",      icon: Palette,  color: "text-purple-300", bg: "bg-purple-500/15", border: "border-purple-400/20", title: "Gallery After Dark",       vibe: "Private viewing night. Wine included.",              challenge: "Pick each other's favorite piece, blind.",     fill: "bg-purple-500" },
+  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Speakeasy Night",          vibe: "Hidden bar. Secret knock optional.",                 challenge: "Order for each other with zero hints.",     fill: "bg-blue-500" },
+  { interest: "Coffee & Cafés",     icon: Coffee,   color: "text-amber-300",  bg: "bg-amber-500/15",  border: "border-amber-400/20",  title: "Third Wave Coffee Tour",   vibe: "Four cafés. Rate them all.",                         challenge: "Rank all four cafés, no repeats allowed.",     fill: "bg-amber-600" },
+  { interest: "Cinema",             icon: Film,     color: "text-sky-300",    bg: "bg-sky-500/15",    border: "border-sky-400/20",    title: "Outdoor Film Night",       vibe: "Blanket, popcorn, sky above.",                       challenge: "Guess the ending before it starts.",     fill: "bg-sky-600" },
+  { interest: "Beach & Water",      icon: Waves,    color: "text-cyan-300",   bg: "bg-cyan-500/15",   border: "border-cyan-400/20",   title: "Kayak at Dusk",            vibe: "Paddle out. Watch the light change.",                challenge: "Race each other to the buoy and back.",     fill: "bg-cyan-600" },
   // Row 2
-  { interest: "Fitness",            icon: Dumbbell, color: "text-lime-300",   bg: "bg-lime-500/15",   border: "border-lime-400/20",   title: "Bouldering Date",          vibe: "Trust your partner to catch you.",                   challenge: "Spot each other on the hardest route." },
-  { interest: "Photography",        icon: Camera,   color: "text-violet-300", bg: "bg-violet-500/15", border: "border-violet-400/20", title: "Golden Hour Shoot",        vibe: "You two. Best light of the day.",                    challenge: "Ten shots each, zero retakes allowed." },
-  { interest: "Books & Learning",   icon: BookOpen, color: "text-teal-300",   bg: "bg-teal-500/15",   border: "border-teal-400/20",   title: "Bookshop Trawl",           vibe: "£5 each. Find something for the other.",             challenge: "Five minutes to pick the right book." },
-  { interest: "Gaming",             icon: Gamepad2, color: "text-indigo-300", bg: "bg-indigo-500/15", border: "border-indigo-400/20", title: "Arcade Night",             vibe: "Tokens, competition, bad winners.",                  challenge: "Loser buys the next round of tokens." },
-  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Street Food Safari",       vibe: "Follow your nose through the market.",               challenge: "Order in a language you don't speak." },
-  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Candlelit Cinema",         vibe: "Old film. Dark room. Just you two.",                 challenge: "No phones allowed until credits roll." },
-  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Botanical Garden Wander",  vibe: "No destination. Just greenery.",                     challenge: "Find the strangest plant in the garden." },
-  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Cocktail Lab",             vibe: "Build your own drink. Judge each other's.",          challenge: "Blind-taste it and guess the recipe." },
+  { interest: "Fitness",            icon: Dumbbell, color: "text-lime-300",   bg: "bg-lime-500/15",   border: "border-lime-400/20",   title: "Bouldering Date",          vibe: "Trust your partner to catch you.",                   challenge: "Spot each other on the hardest route.",     fill: "bg-lime-600" },
+  { interest: "Photography",        icon: Camera,   color: "text-violet-300", bg: "bg-violet-500/15", border: "border-violet-400/20", title: "Golden Hour Shoot",        vibe: "You two. Best light of the day.",                    challenge: "Ten shots each, zero retakes allowed.",     fill: "bg-violet-500" },
+  { interest: "Books & Learning",   icon: BookOpen, color: "text-teal-300",   bg: "bg-teal-500/15",   border: "border-teal-400/20",   title: "Bookshop Trawl",           vibe: "£5 each. Find something for the other.",             challenge: "Five minutes to pick the right book.",     fill: "bg-teal-500" },
+  { interest: "Gaming",             icon: Gamepad2, color: "text-indigo-300", bg: "bg-indigo-500/15", border: "border-indigo-400/20", title: "Arcade Night",             vibe: "Tokens, competition, bad winners.",                  challenge: "Loser buys the next round of tokens.",     fill: "bg-indigo-500" },
+  { interest: "Food & Dining",      icon: Utensils, color: "text-orange-300", bg: "bg-orange-500/15", border: "border-orange-400/20", title: "Street Food Safari",       vibe: "Follow your nose through the market.",               challenge: "Order in a language you don't speak.",     fill: "bg-orange-600" },
+  { interest: "Romance",            icon: Heart,    color: "text-rose-300",   bg: "bg-rose-500/15",   border: "border-rose-400/20",   title: "Candlelit Cinema",         vibe: "Old film. Dark room. Just you two.",                 challenge: "No phones allowed until credits roll.",     fill: "bg-rose-500" },
+  { interest: "Nature",             icon: TreePine, color: "text-emerald-300",bg: "bg-emerald-500/15",border: "border-emerald-400/20",title: "Botanical Garden Wander",  vibe: "No destination. Just greenery.",                     challenge: "Find the strangest plant in the garden.",     fill: "bg-emerald-600" },
+  { interest: "Drinks & Nightlife", icon: Martini,  color: "text-blue-300",   bg: "bg-blue-500/15",   border: "border-blue-400/20",   title: "Cocktail Lab",             vibe: "Build your own drink. Judge each other's.",          challenge: "Blind-taste it and guess the recipe.",     fill: "bg-blue-500" },
 ];
 
 const BADGE_PREVIEWS = [
@@ -534,20 +533,17 @@ type DateIdeaCard = (typeof DATE_IDEA_CARDS)[number];
 function DateIdeaCardItem({ card }: { card: DateIdeaCard }) {
   const Icon = card.icon;
   return (
-    <div className={`shrink-0 w-64 rounded-2xl border ${card.border} bg-white/[0.05] p-5 flex flex-col gap-3`}>
-      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${card.bg} ${card.border} border w-fit`}>
-        <Icon className={`w-3.5 h-3.5 ${card.color}`} />
-        <span className={`text-xs font-semibold ${card.color}`}>{card.interest}</span>
+    <div className={`relative shrink-0 w-64 rounded-2xl border ${card.border} bg-white/[0.05] p-5 pt-6 flex flex-col gap-3`}>
+      <div className={`absolute -top-3 left-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${card.fill} w-fit`}>
+        <Icon className="w-3.5 h-3.5 text-white" />
+        <span className="text-xs font-semibold text-white">{card.interest}</span>
       </div>
-      <div className="min-h-[88px]">
+      <div className="min-h-[88px] mt-2">
         <p className="text-white font-bold text-base leading-snug">{card.title}</p>
         <p className="text-white/60 text-sm mt-1 leading-snug">{card.vibe}</p>
       </div>
       <div className="flex flex-col gap-1 mt-2">
-        <div className="flex items-center gap-1.5">
-          <Dice5 className={`w-3.5 h-3.5 shrink-0 ${card.color}`} />
-          <span className={`text-xs font-semibold ${card.color}`}>Challenge</span>
-        </div>
+        <span className="text-xs font-semibold text-white">Challenge</span>
         <p className="text-white/50 text-xs leading-snug">{card.challenge}</p>
       </div>
     </div>
@@ -558,7 +554,7 @@ function DateIdeasMarqueeRow({ cards, reverse = false }: { cards: DateIdeaCard[]
   const reducedMotion = useSafeReducedMotion();
   const doubled = reducedMotion ? cards : [...cards, ...cards];
   return (
-    <div className="marquee-row flex overflow-hidden">
+    <div className="marquee-row flex overflow-hidden pt-3">
       <div
         className={`flex gap-4 pr-4 ${reducedMotion ? "" : "marquee-track"}`}
         style={reverse ? { animationDirection: "reverse" } : undefined}
@@ -1075,7 +1071,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   href="https://play.google.com/store/apps/details?id=com.blindfolddate.app"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 px-7 h-14 md:h-16 rounded-full bg-white text-gray-900 hover:bg-white/90 text-base md:text-lg font-bold transition-[background-color] duration-150 shadow-lg shadow-black/30"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 h-14 md:h-16 rounded-full border-2 border-white text-white hover:bg-white/10 text-base md:text-lg font-bold transition-[background-color] duration-150"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                     <path fill="#34A853" d="M3.18 23.76c.37.21.8.22 1.2.05l12.1-6.84-2.61-2.61-10.69 9.4z"/>
@@ -1083,19 +1079,18 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                     <path fill="#FBBC05" d="M20.3 10.37l-2.98-1.69-2.93 2.93 2.93 2.93 3-1.7a1.56 1.56 0 0 0 0-2.47z"/>
                     <path fill="#EA4335" d="M4.38.24 16.5 7.08l-2.61 2.61L3.18.29A1.37 1.37 0 0 1 4.38.24z"/>
                   </svg>
-                  Get on Android
+                  Get it free on Google Play
+                </a>
+                <a
+                  href="https://www.trustpilot.com/review/blindfolddate.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 text-sm text-white/70 hover:text-white transition-colors [text-shadow:0_2px_10px_rgba(0,0,0,0.9)] mt-2 sm:mt-0 sm:ml-3"
+                >
+                  <Star className="w-4 h-4 text-emerald-400 fill-emerald-400" />
+                  Rated on Trustpilot
                 </a>
               </div>
-
-              <a
-                href="https://www.trustpilot.com/review/blindfolddate.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]"
-              >
-                <Star className="w-4 h-4 text-emerald-400 fill-emerald-400" />
-                Rated on Trustpilot
-              </a>
             </div>
           </div>
         </section>
