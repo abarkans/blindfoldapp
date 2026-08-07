@@ -321,19 +321,40 @@ function MemoryPolaroidCard({
 
 function GamificationSection({ unitSystem }: { unitSystem: UnitSystem }) {
   const reducedMotion = useSafeReducedMotion();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const { scrollYProgress: fillProgress } = useScroll({
+    target: headingRef,
+    offset: ["start 0.85", "start 0.4"],
+  });
+  const fillClip = useTransform(fillProgress, [0, 1], ["inset(-30% 100% -30% 0%)", "inset(-30% 0% -30% 0%)"]);
+
   return (
     <section className="relative bg-black overflow-hidden">
       <div className="px-6 md:px-10 pt-16 md:pt-28 pb-16 md:pb-28 max-w-[1280px] mx-auto">
 
         {/* Title */}
         <div className="text-left md:text-center mb-10 md:mb-14">
-          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] mb-4">
+          <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.2] mb-4">
             Show up.{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
-            >
-              Level up.
+            <span className="relative inline-block">
+              <span
+                aria-hidden="true"
+                className="text-transparent"
+                style={{ WebkitTextStroke: "1.5px rgba(251,113,133,0.7)" }}
+              >
+                Level up.
+              </span>
+              <motion.span
+                aria-hidden="true"
+                className="absolute inset-0 bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)",
+                  clipPath: reducedMotion ? "inset(-30% 0% -30% 0%)" : fillClip,
+                }}
+              >
+                Level up.
+              </motion.span>
+              <span className="sr-only">Level up.</span>
             </span>
           </h2>
           <p className="text-white/55 text-base md:text-lg leading-[1.7]">
