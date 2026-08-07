@@ -1076,7 +1076,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               </h1>
 
               <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                Tell us your taste once. We plan the whole date — a real venue near you, plus a playful twist — and reveal it to you both at the same moment. You just show up.
+                Pick your vibe — we handle the venue and give you both a little mission to make the night yours. Free, no card.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
