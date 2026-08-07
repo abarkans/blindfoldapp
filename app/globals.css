@@ -197,6 +197,15 @@ input[type="range"]::-webkit-slider-thumb {
   animation-play-state: paused;
 }
 
+/* Belt-and-suspenders: guarantee readable text for reduced-motion users even if
+   the JS-side prefers-reduced-motion check hasn't mounted yet or fails to fire. */
+@media (prefers-reduced-motion: reduce) {
+  .remembered-word {
+    filter: none !important;
+    opacity: 1 !important;
+  }
+}
+
 /* Lets touch users swipe the frozen track natively while paused, without a visible scrollbar. */
 .marquee-row {
   scrollbar-width: none;

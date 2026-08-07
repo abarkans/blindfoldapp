@@ -473,20 +473,28 @@ function MemoriesSection() {
     return () => mq.removeEventListener("change", handler);
   }, []);
   const scatterScale = isDesktop ? 1 : 0.45;
+  const rememberedBlur = useTransform(scrollYProgress, [0, 0.25], [8, 0]);
+  const rememberedOpacity = useTransform(scrollYProgress, [0, 0.25], [0.4, 1]);
+  const rememberedFilter = useTransform(rememberedBlur, (v) => `blur(${v}px)`);
 
   return (
     <section ref={sectionRef} className="relative bg-black h-dvh overflow-hidden flex flex-col">
       {/* Header — z-20 keeps it above cards that drift upward */}
       <div className="relative z-20 px-6 md:px-10 pt-10 md:pt-14 pb-6 md:pb-0 text-left md:text-center shrink-0 bg-black">
         <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
-          Every date, remembered.
+          Every date.{" "}
+          <motion.span
+            className="remembered-word"
+            style={reducedMotion ? undefined : { filter: rememberedFilter, opacity: rememberedOpacity }}
+          >
+            Remembered.
+          </motion.span>
         </h2>
         <p className="text-white/35 text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05]">
           Your scrapbook, growing with you.
         </p>
         <p className="text-white/55 text-base md:text-lg leading-[1.7] mt-3">
-          Plus subscribers unlock their full scrapbook.{" "}
-          <span className="text-white/80 font-semibold">Every memory, always there.</span>
+          Plus subscribers unlock their full scrapbook. Every memory, always there.
         </p>
       </div>
 
@@ -1153,10 +1161,13 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
             <div className="text-left md:text-center mb-8 md:mb-12">
               <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
-                The only decision
+                Start free.
                 <br />
-                you have to make.
+                Upgrade if you fall for it.
               </h2>
+              <p className="text-white/50 text-base md:text-lg mt-4">
+                No card to start. Cancel Plus anytime.
+              </p>
             </div>
 
             {/* Billing toggle — desktop */}
