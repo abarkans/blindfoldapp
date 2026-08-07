@@ -1058,21 +1058,25 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
           <div className="absolute inset-0 bg-gradient-to-b from-black/38 via-transparent to-black" />
 
           <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-center px-6 pb-16 pt-[120px] text-left md:px-10 md:pb-20 md:pt-[96px] lg:pb-28">
-            <div className="w-full max-w-[960px]">
-              <h1 className="text-[48px] sm:text-[56px] lg:text-[60px] xl:text-[68px] 2xl:text-[80px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
+            <div className="w-full max-w-[960px] md:max-w-[1180px]">
+              <p className="text-sm md:text-base font-semibold uppercase tracking-widest text-rose-300 mb-4 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+                For couples who are tired of being the one who plans
+              </p>
+
+              <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
-                  Date night, decided.
+                  Real place. Playful mission.
                 </span>
                 <span
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
                 >
-                  Just show up.
+                  Zero planning.
                 </span>
               </h1>
 
               <p className="max-w-[560px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                A mystery date, planned for you both. Free — no card needed.
+                Tell us your taste once. We plan the whole date — a real venue near you, plus a playful twist — and reveal it to you both at the same moment. You just show up.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
@@ -1106,15 +1110,6 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                     <path fill="#EA4335" d="M4.38.24 16.5 7.08l-2.61 2.61L3.18.29A1.37 1.37 0 0 1 4.38.24z"/>
                   </svg>
                   Get on Google Play
-                </a>
-                <a
-                  href="https://www.trustpilot.com/review/blindfolddate.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 text-sm text-white/70 hover:text-white transition-colors [text-shadow:0_2px_10px_rgba(0,0,0,0.9)] mt-2 sm:mt-0 sm:ml-3"
-                >
-                  <Star className="w-4 h-4 text-emerald-400 fill-emerald-400" />
-                  Rated on Trustpilot
                 </a>
               </div>
             </div>
