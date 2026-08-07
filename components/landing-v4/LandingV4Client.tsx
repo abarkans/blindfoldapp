@@ -491,7 +491,9 @@ function MemoriesSection() {
           </motion.span>
         </h2>
         <p className="text-white/55 text-base md:text-lg leading-[1.7] mt-3">
-          Upgrade to Plus and keep the whole story.
+          No more digging through your camera roll for that one date photo.
+          <br />
+          Plus keeps them together.
         </p>
       </div>
 
