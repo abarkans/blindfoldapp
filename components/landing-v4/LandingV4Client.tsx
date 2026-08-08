@@ -1083,8 +1083,8 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
 
           <div className="relative mx-auto flex min-h-[82dvh] max-w-[1280px] flex-col items-start justify-center px-6 pb-16 pt-[150px] text-left md:px-10 md:pb-20 md:pt-[96px] xl:pt-[185px] lg:pb-28">
             <div className="w-full max-w-[960px] md:max-w-[1180px]">
-              <p className="text-sm md:text-base font-semibold uppercase tracking-widest text-rose-300 mb-4 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-                Always the one who plans?
+              <p className="text-sm md:text-base font-semibold uppercase tracking-widest text-rose-300 mb-3 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+                Date night handled
               </p>
 
               <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
