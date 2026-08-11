@@ -1089,18 +1089,21 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
 
               <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
-                  Real place. Playful mission.
+                  Your next date.
+                </span>
+                <span className="block">
+                  Planned by AI.
                 </span>
                 <span
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
                 >
-                  Zero planning.
+                  Live tonight.
                 </span>
               </h1>
 
-              <p className="max-w-[720px] text-white/78 text-base md:text-xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                Pick your vibe — we handle the venue and give you both a little mission to make the night yours. Free, no card required.
+              <p className="max-w-[720px] text-white/78 text-lg md:text-2xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
+                No effort. Real venue. Free to start.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
@@ -1115,10 +1118,16 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                 ) : (
                   <Link
                     href="/register"
-                    className="group relative inline-flex items-center justify-center text-white font-bold px-8 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
+                    className="group relative inline-flex items-center justify-center text-white font-bold px-12 h-14 md:h-16 rounded-full text-base md:text-lg transition-[background-color] duration-150 overflow-hidden bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/25"
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Plan our next date
+                    <span className="inline-flex items-center gap-2">
+                      Surprise us
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M5 12h14" />
+                        <path d="M13 6l6 6-6 6" />
+                      </svg>
+                    </span>
                   </Link>
                 )}
                 <a
