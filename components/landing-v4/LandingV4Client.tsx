@@ -37,6 +37,8 @@ import {
   Users,
   Calendar,
   Bell,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { PLANS } from "@/lib/plans";
 import { PLUS_FEATURE_ICONS, FREE_FEATURE_ICONS } from "@/lib/plan-icons";
@@ -521,7 +523,28 @@ function MemoriesSection() {
   );
 }
 
+function FeatureCard({ icon: Icon, title, description, blob, blobPos, iconColor }: (typeof FEATURE_ITEMS)[number]) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-white/[0.04] p-7 flex flex-col gap-4 h-full">
+      <div className={`absolute ${blobPos} w-40 h-40 ${blob} opacity-[0.08] rounded-full blur-2xl pointer-events-none`} />
+      <div className="relative z-10 w-11 h-11 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
+        <Icon className={`w-5 h-5 ${iconColor}`} />
+      </div>
+      <div className="relative z-10">
+        <p className="font-bold text-white text-base mb-1">{title}</p>
+        <p className="text-white/60 text-sm leading-relaxed">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 function FeaturesSection() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: -1 | 1) => {
+    scrollRef.current?.scrollBy({ left: direction * 280, behavior: "smooth" });
+  };
+
   return (
     <section id="features" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
@@ -533,18 +556,40 @@ function FeaturesSection() {
             We handle the parts that usually kill date night. The idea, the venue, the nudge to actually go.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-          {FEATURE_ITEMS.map(({ icon: Icon, title, description, blob, blobPos, iconColor }) => (
-            <div key={title} className="relative overflow-hidden rounded-2xl bg-white/[0.04] p-7 flex flex-col gap-4">
-              <div className={`absolute ${blobPos} w-40 h-40 ${blob} opacity-[0.08] rounded-full blur-2xl pointer-events-none`} />
-              <div className="relative z-10 w-11 h-11 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                <Icon className={`w-5 h-5 ${iconColor}`} />
+
+        {/* Mobile: horizontal scroll with arrows */}
+        <div className="md:hidden -mx-6">
+          <div ref={scrollRef} className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-6 pb-1">
+            {FEATURE_ITEMS.map((item) => (
+              <div key={item.title} className="shrink-0 w-full snap-center snap-always">
+                <FeatureCard {...item} />
               </div>
-              <div className="relative z-10">
-                <p className="font-bold text-white text-base mb-1">{title}</p>
-                <p className="text-white/60 text-sm leading-relaxed">{description}</p>
-              </div>
-            </div>
+            ))}
+          </div>
+          <div className="flex gap-3 mt-4 px-6">
+            <button
+              type="button"
+              onClick={() => scroll(-1)}
+              aria-label="Scroll features left"
+              className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 flex items-center justify-center text-white"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scroll(1)}
+              aria-label="Scroll features right"
+              className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 flex items-center justify-center text-white"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop: grid */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+          {FEATURE_ITEMS.map((item) => (
+            <FeatureCard key={item.title} {...item} />
           ))}
         </div>
       </div>
