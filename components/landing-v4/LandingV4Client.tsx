@@ -227,7 +227,7 @@ const NAV_LINKS = [
   { label: "Features", href: "#features", scroll: false },
   { label: "Pricing", href: "#plans", scroll: false },
   { label: "FAQ", href: "#faq", scroll: false },
-  { label: "Ideas", href: "/blog", scroll: false },
+  { label: "Blog", href: "/blog", scroll: false },
 ];
 
 const HERO_VIDEOS = [
@@ -1433,7 +1433,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               {[{ label: "Features", href: "#features" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
                 <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
               ))}
-              <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Ideas</Link>
+              <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
               <a href="https://play.google.com/store/apps/details?id=com.blindfolddate.app" target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">Android App</a>
             </div>
             <div className="flex flex-col gap-3">

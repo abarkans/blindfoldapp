@@ -152,7 +152,7 @@ export default async function BlogPostPage({
             <ol className="flex items-center gap-1.5 text-sm flex-wrap">
               <li><Link href="/" className="text-white/40 hover:text-white transition-colors">BlindfoldDate</Link></li>
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
-              <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Ideas</Link></li>
+              <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Blog</Link></li>
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
               <li className="text-white/70 truncate max-w-[180px] md:max-w-xs">{post.title}</li>
             </ol>
