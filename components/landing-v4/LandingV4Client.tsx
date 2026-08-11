@@ -1089,21 +1089,18 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
 
               <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
-                  Your next date.
-                </span>
-                <span className="block">
-                  Planned by AI.
+                  Your date night, planned.
                 </span>
                 <span
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
                 >
-                  Live tonight.
+                  Zero effort.
                 </span>
               </h1>
 
               <p className="max-w-[720px] text-white/78 text-lg md:text-2xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                No effort. Real venue. Free to start.
+                No debating. Real venue. Free to start.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
