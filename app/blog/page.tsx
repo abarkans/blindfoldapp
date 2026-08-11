@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { getPostsForPage } from "@/lib/blog";
 import PostCard from "@/components/blog/PostCard";
 import FeaturedPostCard from "@/components/blog/FeaturedPostCard";
+import BlogPromoBanner from "@/components/blog/BlogPromoBanner";
 import Pagination from "@/components/blog/Pagination";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
@@ -57,7 +58,17 @@ export default function BlogPage() {
 
             {rest.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                {rest.map((post) => (
+                {rest.slice(0, 2).map((post) => (
+                  <PostCard key={post.slug} post={post} />
+                ))}
+              </div>
+            )}
+
+            {rest.length > 2 && <BlogPromoBanner />}
+
+            {rest.length > 2 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                {rest.slice(2).map((post) => (
                   <PostCard key={post.slug} post={post} />
                 ))}
               </div>
