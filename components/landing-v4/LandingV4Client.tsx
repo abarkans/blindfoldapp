@@ -246,7 +246,7 @@ const HERO_VIDEOS = [
 const REVEAL_LINES = [
   "Deciding where to go",
   "is not a date.",
-  "Neither is debating it, checking reviews, or calling it a night.*",
+  "Neither is debating it, checking reviews, or calling it a night.",
   "We make the call. You show up.",
 ];
 
@@ -663,26 +663,34 @@ function ScrollRevealStatement() {
         <motion.div className="absolute inset-0 bg-rose-500 origin-top" style={{ scaleY: lineScaleY }} />
       </div>
       <h2 className="sr-only">Why couples stop going on dates.</h2>
-      <p className="text-[28px] md:text-[32px] lg:text-[36px] xl:text-[40px] 2xl:text-[44px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
+      <div className="text-[28px] md:text-[32px] lg:text-[36px] xl:text-[40px] 2xl:text-[44px] font-black leading-[1.15] tracking-normal max-w-[700px] mx-auto">
         {REVEAL_LINES.map((line, i) => {
           const start = (i / total) * 0.9;
           const end = ((i + 1) / total) * 0.9;
           const isLast = i === total - 1;
-          const breakAfter = i === 1 || i === 2;
+          const breakAfter = i === 1;
           return (
-            <RevealLine
-              key={i}
-              line={line}
-              scrollYProgress={scrollYProgress}
-              start={start}
-              end={end}
-              isLast={isLast}
-              breakAfter={breakAfter}
-            />
+            <React.Fragment key={i}>
+              <RevealLine
+                line={line}
+                scrollYProgress={scrollYProgress}
+                start={start}
+                end={end}
+                isLast={isLast}
+                breakAfter={breakAfter}
+              />
+              {i === 2 && (
+                <>
+                  <span className="block mt-1 text-white/50 text-sm md:text-base font-normal leading-snug">
+                    (Some nights you don&apos;t want to go anywhere. We plan those too.)
+                  </span>
+                  <br />
+                </>
+              )}
+            </React.Fragment>
           );
         })}
-      </p>
-      <p className="text-white/50 text-sm md:text-base mt-6 max-w-[700px] mx-auto">* Some nights you don&apos;t want to go anywhere. We plan those too.</p>
+      </div>
     </section>
   );
 }
