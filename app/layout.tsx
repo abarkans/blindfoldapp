@@ -85,7 +85,7 @@ export default async function RootLayout({
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         )}
       </head>
-      <body className="min-h-full bg-black font-sans antialiased">
+      <body className="min-h-full bg-black font-sans antialiased overflow-x-hidden">
         <script
           type="application/ld+json"
           nonce={nonce}

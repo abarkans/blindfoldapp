@@ -10,7 +10,7 @@ export default function PublicPageShell({
   decorate?: boolean;
 }) {
   return (
-    <div className={cn("relative min-h-dvh overflow-hidden bg-black text-white", className)}>
+    <div className={cn("relative min-h-dvh bg-black text-white", className)}>
       {decorate && (
         <>
           <div

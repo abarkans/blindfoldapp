@@ -15,13 +15,41 @@ export interface BlogPostMeta {
   image?: string;
 }
 
+export interface BlogHeading {
+  text: string;
+  slug: string;
+}
+
 export interface BlogPost extends BlogPostMeta {
   content: string;
+  headings: BlogHeading[];
 }
 
 function estimateReadingTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
   return Math.max(1, Math.ceil(words / 200));
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function extractHeadings(content: string): BlogHeading[] {
+  const slugCounts = new Map<string, number>();
+  const headings: BlogHeading[] = [];
+  for (const line of content.split("\n")) {
+    const match = line.match(/^##\s+(.+)$/);
+    if (!match) continue;
+    const text = match[1].trim();
+    const base = slugify(text);
+    const count = slugCounts.get(base) ?? 0;
+    slugCounts.set(base, count + 1);
+    headings.push({ text, slug: count === 0 ? base : `${base}-${count}` });
+  }
+  return headings;
 }
 
 export function getAllPosts(): BlogPostMeta[] {
@@ -93,6 +121,7 @@ export function getPost(slug: string): BlogPost | null {
     readingTime: estimateReadingTime(content),
     image: data.image as string | undefined,
     content,
+    headings: extractHeadings(content),
   };
 }
 
