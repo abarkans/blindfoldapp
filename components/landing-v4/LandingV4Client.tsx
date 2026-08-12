@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform, useInView, useReducedMotion, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, useReducedMotion, useMotionValueEvent, type MotionValue } from "framer-motion";
 import Link from "next/link";
 import Script from "next/script";
 import LinkButton from "@/components/ui/LinkButton";
@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Star,
   Lock,
-  Compass,
   MapPin,
   Check,
   Timer,
@@ -41,8 +40,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { PLANS } from "@/lib/plans";
-import { PLUS_FEATURE_ICONS, FREE_FEATURE_ICONS } from "@/lib/plan-icons";
-import { getCurrencySymbol, formatBudgetRange, type UnitSystem } from "@/lib/units";
+import { formatBudgetRange, type UnitSystem } from "@/lib/units";
+
+const FREE_PLAN = PLANS.find((p) => p.id === "free")!;
 
 const FEATURE_ITEMS = [
   {
@@ -483,7 +483,7 @@ function MemoriesSection() {
     <section ref={sectionRef} className="relative bg-black h-dvh overflow-hidden flex flex-col">
       {/* Header — z-20 keeps it above cards that drift upward */}
       <div className="relative z-20 px-6 md:px-10 pt-10 md:pt-14 pb-6 md:pb-0 text-left md:text-center shrink-0 bg-black">
-        <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
+        <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.15] tracking-normal">
           Every date.{" "}
           <motion.span
             className="remembered-word"
@@ -549,7 +549,7 @@ function FeaturesSection() {
     <section id="features" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <div className="flex flex-col items-start md:items-center mb-10 md:mb-16 gap-4">
-          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal text-white md:text-center">
+          <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.15] tracking-normal text-white md:text-center">
             We do the b<span className="text-[0.65em] align-middle">🥱</span>ring part.
           </h2>
           <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] md:text-center md:mx-auto">
@@ -653,7 +653,7 @@ function DateIdeasSection() {
   return (
     <section id="benefits" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-        <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal mb-4 md:text-center">
+        <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.15] tracking-normal mb-4 md:text-center">
           No more &ldquo;
           <motion.span
             className="line-through decoration-[3px] md:decoration-[5px]"
@@ -661,7 +661,7 @@ function DateIdeasSection() {
           >
             I don&rsquo;t know,
           </motion.span>
-          <br />
+          <br className="hidden md:block" />{" "}
           <motion.span
             className="line-through decoration-[3px] md:decoration-[5px]"
             style={{ textDecorationColor: strike2Color }}
@@ -915,9 +915,15 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
   }, []);
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
   const [pastHero, setPastHero] = useState(false);
   const heroSectionRef = useRef<HTMLElement>(null);
+
+  const plansSectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: freeScrollProgress } = useScroll({ target: plansSectionRef, offset: ["start 0.85", "start 0.35"] });
+  const [extraFreeEs, setExtraFreeEs] = useState(0);
+  useMotionValueEvent(freeScrollProgress, "change", (v) => {
+    setExtraFreeEs(Math.round(Math.max(0, Math.min(1, v)) * 3));
+  });
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -1172,11 +1178,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="inline-flex items-center gap-2">
-                      Surprise us
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M5 12h14" />
-                        <path d="M13 6l6 6-6 6" />
-                      </svg>
+                      Surprise us — its free
                     </span>
                   </Link>
                 )}
@@ -1215,141 +1217,56 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
         <FeaturesSection />
 
         {/* ── Pricing ── */}
-        <section id="plans" className="relative bg-black scroll-mt-20 md:scroll-mt-28">
+        <section id="plans" ref={plansSectionRef} className="relative bg-black scroll-mt-20 md:scroll-mt-28">
           <div className="px-6 md:px-10 py-16 md:py-28 max-w-[1280px] mx-auto">
-            <div className="text-left md:text-center mb-8 md:mb-12">
-              <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.05] tracking-normal">
-                Start free.
+            <div className="flex flex-col items-start md:items-center mb-10 md:mb-16 gap-4">
+              <h2 className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.15] tracking-normal md:text-center">
+                Try our {FREE_PLAN.name} plan{" "}
+                for{" "}
+                <span className="relative inline-block">
+                  fre{"e".repeat(1 + extraFreeEs)}
+                  <span className="absolute left-0 right-0 -bottom-0.5 h-[3px] bg-rose-400/70 rounded-full" />
+                </span>!
                 <br />
                 Upgrade if you fall for it.
               </h2>
+              <p className="text-white/55 text-base md:text-lg max-w-[900px] md:text-center md:mx-auto">
+                Get one real, planned date a month — no card, no catch. Ready for more? Plus unlocks every category, near &amp; far venues, double XP, and richer picks.
+              </p>
             </div>
 
-            {/* Billing toggle — desktop */}
-            <div className="hidden md:flex justify-center mb-8 md:mb-10">
-              <div className="flex items-center gap-0.5 bg-white/5 border border-white/16 rounded-2xl p-1">
-                <button
-                  type="button"
-                  onClick={() => setBillingInterval("monthly")}
-                  className={`px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
-                    billingInterval === "monthly" ? "bg-white/15 text-white shadow" : "text-white/45 hover:text-white/70"
-                  }`}
-                >
-                  Monthly
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBillingInterval("yearly")}
-                  className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
-                    billingInterval === "yearly" ? "bg-white/15 text-white shadow" : "text-white/45 hover:text-white/70"
-                  }`}
-                >
-                  Yearly
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">-30%</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 max-w-sm md:max-w-[840px] mx-auto">
-              {PLANS.map((plan, i) => (
-                <React.Fragment key={plan.id}>
-                  {i === 1 && (
-                    <div className="md:hidden flex justify-center">
-                      <div className="flex items-center gap-0.5 bg-white/5 border border-white/16 rounded-2xl p-1">
-                        <button
-                          type="button"
-                          onClick={() => setBillingInterval("monthly")}
-                          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
-                            billingInterval === "monthly" ? "bg-white/15 text-white shadow" : "text-white/45 hover:text-white/70"
-                          }`}
-                        >
-                          Monthly
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setBillingInterval("yearly")}
-                          className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-[background-color,color,box-shadow] duration-150 ${
-                            billingInterval === "yearly" ? "bg-white/15 text-white shadow" : "text-white/45 hover:text-white/70"
-                          }`}
-                        >
-                          Yearly
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full leading-none">-30%</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  <div
-                    className={[
-                      "relative flex flex-col gap-8 rounded-3xl border p-8 md:p-10 transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-1.5 hover:shadow-[0_28px_80px_rgba(255,255,255,0.06)]",
-                      plan.highlighted
-                        ? "bg-[#050202] border-rose-400/45 hover:border-rose-300/70"
-                        : "bg-[#030303] border-white/14 hover:border-white/26",
-                    ].join(" ")}
+            <div className="max-w-sm md:max-w-[1120px] md:mx-auto">
+              <div className="relative flex flex-col items-stretch md:items-center gap-12 w-full">
+                <ul className="grid grid-cols-1 sm:grid-cols-[max-content_max-content_max-content] gap-x-16 gap-y-3.5 justify-center">
+                  {FREE_PLAN.features.map((feat) => (
+                    <li key={feat} className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3.5 h-3.5 text-black" strokeWidth={4} />
+                      </span>
+                      <span className="text-sm text-white/80">{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-col items-stretch md:items-center gap-3 w-full md:w-auto">
+                  <Link
+                    href={`/register?plan=${FREE_PLAN.id}`}
+                    rel="nofollow"
+                    className="w-full md:w-auto inline-block text-center px-10 md:px-20 py-4 md:py-5 rounded-full text-base md:text-xl font-bold transition-[background-color,color,border-color] duration-150 bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
                   >
-                    {plan.highlighted && billingInterval === "yearly" && (
-                      <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                        <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-lg shadow-pink-500/25">
-                          Best value
-                        </span>
-                      </div>
-                    )}
-                    <div>
-                      <div className="flex items-center gap-3 mb-5">
-                        <div className={["w-11 h-11 rounded-2xl flex items-center justify-center", plan.highlighted ? "bg-pink-500/20" : "bg-white/8"].join(" ")}>
-                          {plan.highlighted ? <Sparkles className="w-5 h-5 text-pink-400" /> : <Compass className="w-5 h-5 text-white/40" />}
-                        </div>
-                        <p className="font-bold text-white text-lg">{plan.name}</p>
-                      </div>
-                      {plan.highlighted ? (
-                        billingInterval === "yearly" ? (
-                          <>
-                            <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">{getCurrencySymbol(unitSystem)}{plan.yearlyPrice}<span className="text-lg font-semibold text-white/55 ml-2">per year</span></p>
-                            <p className="text-sm md:text-base text-white/55 mt-2"><span className="text-emerald-400">Save 30%</span> · Cancel anytime.</p>
-                          </>
-                        ) : (
-                          <>
-                            <p className="text-4xl md:text-[42px] font-black mb-0.5 text-white">
-                              {getCurrencySymbol(unitSystem)}{plan.introPrice}
-                              <span className="text-lg font-semibold text-white/55 ml-2">first month</span>
-                            </p>
-                            <p className="text-sm md:text-base text-white/55 mt-2">{getCurrencySymbol(unitSystem)}{plan.price}/mo after. Cancel anytime.</p>
-                          </>
-                        )
-                      ) : (
-                        <p className="text-4xl md:text-[42px] font-black mb-1 text-white">
-                          {plan.priceLine.split(" ")[0]}
-                          <span className="text-lg font-semibold text-white/55 ml-2">{plan.priceLine.split(" ").slice(1).join(" ")}</span>
-                        </p>
-                      )}
-                      {!plan.highlighted && <p className="text-sm md:text-base text-white/55 mt-3">{plan.tagline}</p>}
-                    </div>
-                    <ul className="flex flex-col gap-3.5 flex-1">
-                      {plan.features.map((feat, i) => {
-                        const icons = plan.id === "subscription" ? PLUS_FEATURE_ICONS : FREE_FEATURE_ICONS;
-                        const FeatIcon = icons[i] ?? Check;
-                        return (
-                          <li key={feat} className="flex items-start gap-3">
-                            <FeatIcon className="w-4 h-4 shrink-0 mt-0.5 text-rose-400/70" />
-                            <span className="text-sm text-white/55">{feat}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    {FREE_PLAN.cta}
+                  </Link>
+                  <p className="text-sm text-white/40 text-center">
                     <Link
-                      href={`/register?plan=${plan.id}`}
+                      href="/register?plan=subscription"
                       rel="nofollow"
-                      className={[
-                        "w-full text-center py-4 md:py-5 rounded-full text-base md:text-xl font-bold transition-[background-color,color,border-color] duration-150",
-                        plan.highlighted
-                          ? "bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
-                          : "bg-white/8 text-rose-400 border border-rose-400 hover:bg-white/12 hover:text-rose-300",
-                      ].join(" ")}
+                      className="underline hover:text-white/60"
                     >
-                      {plan.cta}
-                    </Link>
-                  </div>
-                </React.Fragment>
-              ))}
+                      Upgrade
+                    </Link>{" "}
+                    at any time
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -1411,7 +1328,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               <Image src="/icon.png" alt="Blindfold" width={112} height={112} className="w-full h-full object-contain" />
             </div>
 
-            <h2 className="text-[40px] sm:text-[44px] md:text-[50px] lg:text-[56px] xl:text-[62px] 2xl:text-[72px] font-black mb-7 md:mb-8 leading-[1.05] tracking-normal">
+            <h2 className="text-[40px] sm:text-[44px] md:text-[50px] lg:text-[56px] xl:text-[62px] 2xl:text-[72px] font-black mb-7 md:mb-8 leading-[1.15] tracking-normal">
               You&rsquo;ve been saying
               <br />
               <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #fb7185, #c026d3, #8b5cf6)" }}>

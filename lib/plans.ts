@@ -23,7 +23,7 @@ export const PLANS = [
       "1 swap, ever",
       "XP & milestone badges",
     ],
-    cta: "Start free",
+    cta: "Get started free",
     highlighted: false,
   },
   {
@@ -48,7 +48,7 @@ export const PLANS = [
       "Date memories & photo history",
       "Richer, more creative date experiences",
     ],
-    cta: "Plan our next date",
+    cta: "Upgrade to Plus",
     highlighted: true,
   },
 ] as const;
