@@ -726,9 +726,9 @@ function ScrollRevealStatement() {
               />
               {i === 2 && (
                 <>
-                  <span className="block mt-1 text-white/50 text-sm md:text-base font-normal leading-snug">
+                  <RevealSubLine scrollYProgress={scrollYProgress} start={start} end={end}>
                     (Some nights you don&apos;t want to go anywhere. We plan those too.)
-                  </span>
+                  </RevealSubLine>
                   <br />
                 </>
               )}
@@ -848,6 +848,28 @@ function RevealLine({
       <br />
       {breakAfter && <br />}
     </>
+  );
+}
+
+function RevealSubLine({
+  children,
+  scrollYProgress,
+  start,
+  end,
+}: {
+  children: React.ReactNode;
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  start: number;
+  end: number;
+}) {
+  const reducedMotion = useSafeReducedMotion();
+  const scrollOpacity = useTransform(scrollYProgress, [start, end], [0.3, 1]);
+  const opacity = reducedMotion ? 1 : scrollOpacity;
+
+  return (
+    <motion.span style={{ opacity }} className="block mt-1 text-white/50 text-sm md:text-base font-normal leading-snug">
+      {children}
+    </motion.span>
   );
 }
 
@@ -1225,7 +1247,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                 for{" "}
                 <span className="relative inline-block">
                   fre{"e".repeat(1 + extraFreeEs)}
-                  <span className="absolute left-0 right-0 -bottom-0.5 h-[3px] bg-rose-400/70 rounded-full" />
+                  <span className="absolute left-0 right-0 -bottom-0.5 h-[5px] bg-rose-500" />
                 </span>!
                 <br />
                 Upgrade if you fall for it.
