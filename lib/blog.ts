@@ -77,7 +77,7 @@ export function getAllPosts(): BlogPostMeta[] {
 
 const FEATURED_COUNT = 1;
 const FIRST_PAGE_GRID_SIZE = 6;
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 8;
 
 export function getTotalBlogPages(): number {
   const total = getAllPosts().length;
