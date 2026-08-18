@@ -1367,7 +1367,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               </span>
             </h2>
 
-            <p className="text-white/55 text-base md:text-xl mb-12 md:mb-16 leading-[1.7] max-w-lg mx-auto">
+            <p className="text-white/55 text-base md:text-lg mb-12 md:mb-16 leading-[1.7] max-w-[900px] mx-auto">
               This is something. Set your budget, pick in or out, and we handle the rest: venue, challenge, navigation. The only thing left to negotiate is when you&rsquo;re leaving.
             </p>
 
@@ -1463,10 +1463,10 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
             </div>
           </div>
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-white/20 text-xs">© {new Date().getFullYear()} BlindfoldDate. All rights reserved.</p>
+            <p className="text-white/40 text-xs">© {new Date().getFullYear()} BlindfoldDate. All rights reserved.</p>
             <div className="flex items-center gap-5">
-              <Link href="/legal/privacy" className="text-xs text-white/20 hover:text-white/50 transition-colors">Privacy</Link>
-              <Link href="/legal/terms" className="text-xs text-white/20 hover:text-white/50 transition-colors">Terms</Link>
+              <Link href="/legal/privacy" className="text-xs text-white/40 hover:text-white/50 transition-colors">Privacy</Link>
+              <Link href="/legal/terms" className="text-xs text-white/40 hover:text-white/50 transition-colors">Terms</Link>
             </div>
           </div>
         </div>
