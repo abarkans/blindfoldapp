@@ -121,6 +121,14 @@ const FAQ_ITEMS = [
     q: "What's the difference between free and Plus?",
     a: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €0.99 your first month, then €2.99.",
   },
+  {
+    q: "Is Plus a free trial?",
+    a: "No — it's a discounted first month. You're charged €0.99 (or $0.99) right away, then the regular €2.99/month rate after that. No trial, no surprise charge later.",
+  },
+  {
+    q: "Can I cancel anytime?",
+    a: "Yes. Manage or cancel your subscription yourself from Settings — no email, no support ticket. It takes effect at the end of your current billing period.",
+  },
 ];
 
 const DATE_IDEA_CARDS = [
@@ -504,7 +512,6 @@ function MemoriesSection() {
           className="w-full md:w-fit inline-flex items-center justify-center gap-2 text-base md:text-xl font-bold px-10 py-4 rounded-full text-white transition-[background-color,color,border-color] duration-150 bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/20 mt-4"
         >
           Start collecting memories
-          <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
@@ -689,6 +696,16 @@ function DateIdeasSection() {
             <DateIdeasMarqueeRow cards={DATE_IDEA_CARDS} />
           </div>
         </div>
+
+        <p className="text-base md:text-lg mt-8 md:text-center">
+          <span className="text-white/50">Need inspiration first?</span>{" "}
+          <Link
+            href="/blog/date-night-ideas-to-try-this-weekend"
+            className="text-rose-400 hover:text-rose-300 hover:underline"
+          >
+            30 date night ideas to try this weekend
+          </Link>
+        </p>
       </div>
     </section>
   );
@@ -1038,7 +1055,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               </Link>
             ) : (
               <>
-                <Link href="/login" className="text-sm text-white/40 hover:text-white transition-colors font-medium">
+                <Link href="/login" className="text-sm text-white/55 hover:text-white transition-colors font-medium">
                   Sign in
                 </Link>
                 <Link
@@ -1424,23 +1441,24 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Product</p>
               {[{ label: "Features", href: "#features" }, { label: "Pricing", href: "#plans" }].map(({ label, href }) => (
-                <a key={label} href={href} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
+                <a key={label} href={href} className="text-base text-white/50 hover:text-white hover:underline transition-colors">{label}</a>
               ))}
-              <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
-              <a href="https://play.google.com/store/apps/details?id=com.blindfolddate.app" target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">Android App</a>
+              <Link href="/blog" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Blog</Link>
+              <Link href="/about" className="text-base text-white/50 hover:text-white hover:underline transition-colors">About</Link>
+              <a href="https://play.google.com/store/apps/details?id=com.blindfolddate.app" target="_blank" rel="noopener noreferrer" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Android App</a>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Account</p>
-              <Link href="/register" className="text-sm text-white/50 hover:text-white transition-colors">Get started free</Link>
-              <Link href="/login" className="text-sm text-white/50 hover:text-white transition-colors">Sign in</Link>
+              <Link href="/register" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Get started free</Link>
+              <Link href="/login" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Sign in</Link>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-1">Legal</p>
-              <Link href="/legal/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="/legal/terms" className="text-sm text-white/50 hover:text-white transition-colors">Terms of Service</Link>
-              <Link href="/legal/accessibility" className="text-sm text-white/50 hover:text-white transition-colors">Accessibility</Link>
-              <CookieSettingsLink className="text-sm text-white/50 hover:text-white transition-colors text-left cursor-pointer" />
-              <a href="mailto:info@blindfolddate.com" className="text-sm text-white/50 hover:text-white transition-colors">Contact us</a>
+              <Link href="/legal/privacy" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Privacy Policy</Link>
+              <Link href="/legal/terms" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Terms of Service</Link>
+              <Link href="/legal/accessibility" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Accessibility</Link>
+              <CookieSettingsLink className="text-base text-white/50 hover:text-white hover:underline transition-colors text-left cursor-pointer" />
+              <a href="mailto:info@blindfolddate.com" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Contact us</a>
             </div>
           </div>
           <div className="pt-8">
@@ -1462,12 +1480,8 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               </a>
             </div>
           </div>
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-white/40 text-xs">© {new Date().getFullYear()} BlindfoldDate. All rights reserved.</p>
-            <div className="flex items-center gap-5">
-              <Link href="/legal/privacy" className="text-xs text-white/40 hover:text-white/50 transition-colors">Privacy</Link>
-              <Link href="/legal/terms" className="text-xs text-white/40 hover:text-white/50 transition-colors">Terms</Link>
-            </div>
+          <div className="pt-6">
+            <p className="text-white/40 text-sm text-center sm:text-left">© {new Date().getFullYear()} BlindfoldDate. All rights reserved.</p>
           </div>
         </div>
       </footer>

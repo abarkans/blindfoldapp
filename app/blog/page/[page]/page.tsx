@@ -24,7 +24,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = await params;
   return {
-    title: `Blog | Page ${page} | BlindfoldDate`,
+    title: `Blog - Page ${page} - BlindfoldDate`,
     robots: { index: true, follow: true },
     alternates: { canonical: `${SITE_URL}/blog/page/${page}` },
   };

@@ -27,7 +27,7 @@ export async function generateMetadata({
   const post = getPost(slug);
   if (!post) return {};
   return {
-    title: `${post.title} | BlindfoldDate`,
+    title: `${post.title} - BlindfoldDate`,
     description: post.description,
     robots: { index: true, follow: true },
     alternates: { canonical: `${SITE_URL}/blog/${slug}` },

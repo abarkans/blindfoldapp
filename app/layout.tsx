@@ -19,7 +19,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 const SITE_URL = "https://blindfolddate.com";
 
 export const metadata: Metadata = {
-  title: "BlindfoldDate | Date nights, planned for you",
+  title: "BlindfoldDate - Date nights, planned for you",
   description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",
   alternates: {
     canonical: SITE_URL,
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     apple: "/apple_icon.png",
   },
   openGraph: {
-    title: "BlindfoldDate | Date nights, planned for you",
+    title: "BlindfoldDate - Date nights, planned for you",
     description: "Surprise date experiences crafted just for you two. Tell us your preferences once and we handle everything.",
     url: SITE_URL,
     siteName: "BlindfoldDate",

@@ -134,6 +134,22 @@ const jsonLd = {
             text: "Free is one date a month from three categories, nearby venues only. Plus unlocks every category, near-and-far search, double XP, your full photo history, and richer, more creative dates. €0.99 your first month, then €2.99.",
           },
         },
+        {
+          "@type": "Question",
+          name: "Is Plus a free trial?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No — it's a discounted first month. You're charged €0.99 (or $0.99) right away, then the regular €2.99/month rate after that. No trial, no surprise charge later.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I cancel anytime?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. Manage or cancel your subscription yourself from Settings — no email, no support ticket. It takes effect at the end of your current billing period.",
+          },
+        },
       ],
     },
   ],

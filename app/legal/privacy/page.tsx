@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | BlindfoldDate",
+  title: "Privacy Policy - BlindfoldDate",
   robots: { index: true, follow: true },
 };
 
