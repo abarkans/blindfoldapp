@@ -40,9 +40,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { PLANS } from "@/lib/plans";
-import { formatBudgetRange, type UnitSystem } from "@/lib/units";
+import { formatBudgetRange, getCurrencySymbol, type UnitSystem } from "@/lib/units";
 
 const FREE_PLAN = PLANS.find((p) => p.id === "free")!;
+const SUBSCRIPTION_PLAN = PLANS.find((p) => p.id === "subscription")!;
 
 const FEATURE_ITEMS = [
   {
@@ -497,6 +498,14 @@ function MemoriesSection() {
           <br />
           Plus keeps them together.
         </p>
+        <Link
+          href="/register"
+          rel="nofollow"
+          className="w-full md:w-fit inline-flex items-center justify-center gap-2 text-base md:text-xl font-bold px-10 py-4 rounded-full text-white transition-[background-color,color,border-color] duration-150 bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/20 mt-4"
+        >
+          Start collecting memories
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* Cards */}
@@ -1277,15 +1286,15 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   >
                     {FREE_PLAN.cta}
                   </Link>
-                  <p className="text-sm text-white/40 text-center">
+                  <p className="text-sm text-white/70 text-center">
                     <Link
                       href="/register?plan=subscription"
                       rel="nofollow"
-                      className="underline hover:text-white/60"
+                      className="underline hover:text-white"
                     >
                       Upgrade
                     </Link>{" "}
-                    at any time
+                    from {getCurrencySymbol(unitSystem)}{SUBSCRIPTION_PLAN.introPrice} at any time
                   </p>
                 </div>
               </div>
