@@ -264,32 +264,18 @@ const REVEAL_LINES = [
 function MemoryPolaroidCard({
   memory,
   config,
-  scrollYProgress,
   index,
-  animateRotation,
   scatterScale,
 }: {
   memory: typeof FAKE_MEMORIES[0];
   config: typeof MEMORY_CARD_CONFIGS[0];
-  scrollYProgress: MotionValue<number>;
   index: number;
-  animateRotation: boolean;
   scatterScale: number;
 }) {
-  const dir = index % 2 === 0 ? 1 : -1;
-  const mag = 12 + (index % 3) * 5;
-  const rotate = useTransform(
-    scrollYProgress,
-    [0, 1],
-    animateRotation
-      ? [config.scatterRot - dir * mag, config.scatterRot + dir * mag]
-      : [config.scatterRot, config.scatterRot]
-  );
-
   return (
     <motion.div
       style={{
-        rotate,
+        rotate: config.scatterRot,
         position: "absolute",
         top: "50%",
         left: "50%",
@@ -523,9 +509,7 @@ function MemoriesSection() {
               key={memory.title}
               memory={memory}
               config={MEMORY_CARD_CONFIGS[i]}
-              scrollYProgress={scrollYProgress}
               index={i}
-              animateRotation={isDesktop && !reducedMotion}
               scatterScale={scatterScale}
             />
           ))}
