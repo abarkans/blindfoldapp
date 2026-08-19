@@ -1180,18 +1180,18 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
 
               <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
-                  Your date night, planned.
+                  Spontaneous date nights.
                 </span>
                 <span
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
                 >
-                  Zero effort.
+                  Planned for You.
                 </span>
               </h1>
 
               <p className="max-w-[720px] text-white/78 text-lg md:text-2xl leading-[1.7] mb-9 md:mb-10 [text-shadow:0_3px_18px_rgba(0,0,0,0.9)]">
-                No debating. Real venue. Free to start.
+                Takes less than 30 seconds. 100% free.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-start gap-3">
@@ -1210,7 +1210,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="inline-flex items-center gap-2">
-                      Surprise us — its free
+                      Plan our date
                     </span>
                   </Link>
                 )}
