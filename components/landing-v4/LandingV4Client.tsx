@@ -1186,7 +1186,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
                 >
-                  Planned for You.
+                  Planned for you two.
                 </span>
               </h1>
 
