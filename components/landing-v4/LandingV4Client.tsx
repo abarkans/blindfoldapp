@@ -976,7 +976,14 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
   const activeHeroVideo = heroVideo ?? HERO_VIDEOS[0];
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="landing-v4-root relative min-h-screen bg-black text-white overflow-x-hidden">
+      <style jsx global>{`
+        .landing-v4-root a:hover,
+        .landing-v4-root button:hover {
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+      `}</style>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:bg-violet-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-xl focus:text-sm focus:font-semibold"
