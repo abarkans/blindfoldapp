@@ -1178,7 +1178,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                 Date planner for couples
               </p>
 
-              <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.04] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
+              <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.2] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
                   Spontaneous date nights.
                 </span>
@@ -1210,6 +1210,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="inline-flex items-center gap-2">
+                      <Calendar className="w-4 h-4 md:w-5 md:h-5" aria-hidden="true" />
                       Plan our date
                     </span>
                   </Link>
