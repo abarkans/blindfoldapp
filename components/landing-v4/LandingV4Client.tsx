@@ -1187,13 +1187,13 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
 
               <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.2] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
-                  Spontaneous date nights.
+                  Your date night, planned.
                 </span>
                 <span
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
                 >
-                  Planned for you two.
+                  Zero effort.
                 </span>
               </h1>
 
