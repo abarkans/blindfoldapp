@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import LandingV4Client from "@/components/landing-v4/LandingV4Client";
 import AppIntroOverlay from "@/components/app/AppIntroOverlay";
 import { getUnitSystem } from "@/lib/get-unit-system";
+import { HERO_VARIANT_COOKIE, isHeroVariant } from "@/lib/hero-variant";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -160,6 +161,8 @@ export default async function LandingPage() {
   const unitSystem = await getUnitSystem();
   const cookieStore = await cookies();
   const initialLoggedIn = cookieStore.get("onboarding_complete")?.value === "1";
+  const cookieHeroVariant = cookieStore.get(HERO_VARIANT_COOKIE)?.value;
+  const heroVariant = isHeroVariant(cookieHeroVariant) ? cookieHeroVariant : "A";
   return (
     <>
       <script
@@ -167,7 +170,7 @@ export default async function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <AppIntroOverlay />
-      <LandingV4Client unitSystem={unitSystem} initialLoggedIn={initialLoggedIn} />
+      <LandingV4Client unitSystem={unitSystem} initialLoggedIn={initialLoggedIn} heroVariant={heroVariant} />
     </>
   );
 }

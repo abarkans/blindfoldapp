@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { unitSystemForCountry } from "@/lib/units";
 import { UNIT_SYSTEM_COOKIE } from "@/lib/get-unit-system";
+import { HERO_VARIANT_COOKIE, isHeroVariant, pickHeroVariant } from "@/lib/hero-variant";
 
 // Build a per-request CSP using a fresh nonce so we can drop
 // 'unsafe-inline' / 'unsafe-eval' from script-src in production.
@@ -129,6 +130,16 @@ export async function proxy(request: NextRequest) {
     request.cookies.set(UNIT_SYSTEM_COOKIE, system);
     pendingUnitCookie = system;
   }
+  // Hero H1 A/B test: assign once per visitor, sticky via cookie so the
+  // variant never flips (and RSCs render it server-side, no flicker).
+  const existingHeroVariant = request.cookies.get(HERO_VARIANT_COOKIE)?.value;
+  let pendingHeroVariant: string | null = null;
+  if (!isHeroVariant(existingHeroVariant)) {
+    const variant = pickHeroVariant();
+    request.cookies.set(HERO_VARIANT_COOKIE, variant);
+    pendingHeroVariant = variant;
+  }
+
   const applyResponseHeaders = (res: NextResponse) => {
     res.headers.set("Content-Security-Policy", csp);
     if (cspReportOnly) {
@@ -137,6 +148,13 @@ export async function proxy(request: NextRequest) {
     res.headers.set("x-nonce", nonce);
     if (pendingUnitCookie) {
       res.cookies.set(UNIT_SYSTEM_COOKIE, pendingUnitCookie, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: "lax",
+      });
+    }
+    if (pendingHeroVariant) {
+      res.cookies.set(HERO_VARIANT_COOKIE, pendingHeroVariant, {
         path: "/",
         maxAge: 60 * 60 * 24 * 365,
         sameSite: "lax",
