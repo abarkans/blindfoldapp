@@ -39,6 +39,21 @@ export async function getCoupleAccess(
   admin: SupabaseClient<Database>,
   userId: string
 ): Promise<CoupleAccess> {
+  // This function IS the authorization boundary: nearly every server action
+  // authenticates, calls getCoupleAccess, then acts through the admin client
+  // (service_role), which bypasses RLS. `role === "owner"` is the sole gate on
+  // billing (api/stripe/checkout, api/stripe/portal, dashboard/upgrade) and on
+  // sending partner invites.
+  //
+  // It must therefore FAIL CLOSED. Previously a transient DB error on either
+  // lookup was logged and fell through to the bootstrap at the bottom, which
+  // returns role "owner" — handing the highest privilege out precisely when we
+  // do not know the answer. For a partner that meant: dashboard renders their
+  // own orphaned profile, the "Upgrade to Plus" CTA appears, the owner gate in
+  // checkout passes, they subscribe, the webhook writes plan_type to that
+  // profile — and once the blip clears the profile is unreachable and the
+  // billing portal 403s them. Same billing-lockout end state as the partner-
+  // invite orphaning bug, reached by a database hiccup instead of a click.
   const { data: partnerMembership, error: partnerError } = await admin
     .from("couple_members")
     .select("profile_id, role")
@@ -47,8 +62,10 @@ export async function getCoupleAccess(
     .maybeSingle();
 
   if (partnerError) {
-    console.warn(`[couple-access] partner lookup failed uid=${userId} msg=${partnerError.message}`);
-  } else if (partnerMembership) {
+    console.error(`[couple-access] partner lookup failed uid=${userId} msg=${partnerError.message}`);
+    throw new Error("Could not resolve account access. Please try again.");
+  }
+  if (partnerMembership) {
     return {
       profileId: partnerMembership.profile_id,
       role: partnerMembership.role as CoupleRole,
@@ -63,14 +80,19 @@ export async function getCoupleAccess(
     .maybeSingle();
 
   if (ownerError) {
-    console.warn(`[couple-access] owner lookup failed uid=${userId} msg=${ownerError.message}`);
-  } else if (ownerMembership) {
+    console.error(`[couple-access] owner lookup failed uid=${userId} msg=${ownerError.message}`);
+    throw new Error("Could not resolve account access. Please try again.");
+  }
+  if (ownerMembership) {
     return {
       profileId: ownerMembership.profile_id,
       role: ownerMembership.role as CoupleRole,
     };
   }
 
+  // Genuinely no membership — both lookups succeeded and returned nothing.
+  // Happens on a first dashboard visit before the handle_new_user trigger row
+  // is visible, or for a legacy account. Bootstrap the owner shell.
   await admin
     .from("couple_members")
     .upsert({ profile_id: userId, user_id: userId, role: "owner" });

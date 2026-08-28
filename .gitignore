@@ -51,7 +51,9 @@ SECURITY_REPORT.md
 SECURITY_REPORT_*.md
 
 # local debug/test tools
-app/api/push/test/
+# NOTE: app/api/push/test/ was DELETED (2026-08-28) — it relayed pushes to any
+# caller-supplied FCM token with no ownership check or rate limit. Deliberately
+# not re-ignored: if it ever reappears it should be visible in git, not hidden.
 scripts/test-push.mjs
 
 # supabase CLI local state

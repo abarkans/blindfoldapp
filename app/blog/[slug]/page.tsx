@@ -11,6 +11,7 @@ import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 import ShareButtons from "@/components/blog/ShareButtons";
 import BlogToc from "@/components/blog/BlogToc";
+import { jsonLdSafe } from "@/lib/utils";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -104,13 +105,13 @@ export default async function BlogPostPage({
         type="application/ld+json"
         nonce={nonce}
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdSafe(articleJsonLd) }}
       />
       <script
         type="application/ld+json"
         nonce={nonce}
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbJsonLd) }}
       />
 
       <PublicNav />

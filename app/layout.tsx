@@ -8,6 +8,7 @@ import GoogleAdsLoader from "@/components/GoogleAdsLoader";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+import { jsonLdSafe } from "@/lib/utils";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -90,7 +91,7 @@ export default async function RootLayout({
           type="application/ld+json"
           nonce={nonce}
           suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(orgJsonLd) }}
         />
         {loadGoogleAds && (
           <>

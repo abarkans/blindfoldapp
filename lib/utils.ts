@@ -30,3 +30,22 @@ export function xpProgress(xp: number): {
   const required = nextLevelXp - currentLevelXp;
   return { level, current, required, percentage: Math.round((current / required) * 100) };
 }
+
+/**
+ * JSON.stringify made safe for embedding inside a <script> tag.
+ *
+ * JSON.stringify does not escape `<`, so any value containing "</script>"
+ * terminates the element early and everything after it is parsed as HTML.
+ * Today every JSON-LD input is static or MDX frontmatter we author, but these
+ * blocks are one field away from carrying user text — a venue name from Places,
+ * a review, a partner name — and at that point this becomes stored XSS.
+ *
+ * Escapes to \u-sequences, which are valid inside JSON string literals and
+ * parse back to the original characters.
+ */
+export function jsonLdSafe(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\u003c")
+    .replace(/>/g, "\u003e")
+    .replace(/&/g, "\u0026");
+}

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
+import { jsonLdSafe } from "@/lib/utils";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -55,7 +56,7 @@ export default function AboutPage() {
     <PublicPageShell>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdSafe(jsonLd) }}
       />
       <PublicNav />
       <div className="max-w-2xl mx-auto px-6 pb-24">

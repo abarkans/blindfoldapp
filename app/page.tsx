@@ -5,6 +5,7 @@ import LandingV4Client from "@/components/landing-v4/LandingV4Client";
 import AppIntroOverlay from "@/components/app/AppIntroOverlay";
 import { getUnitSystem } from "@/lib/get-unit-system";
 import { HERO_VARIANT_COOKIE, isHeroVariant } from "@/lib/hero-variant";
+import { jsonLdSafe } from "@/lib/utils";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -167,7 +168,7 @@ export default async function LandingPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdSafe(jsonLd) }}
       />
       <AppIntroOverlay />
       <LandingV4Client unitSystem={unitSystem} initialLoggedIn={initialLoggedIn} heroVariant={heroVariant} />
