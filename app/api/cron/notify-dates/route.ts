@@ -41,7 +41,25 @@ const R2_DELETE_CHUNK = 1000;         // DeleteObjects API limit
 async function reapOrphanedR2Objects(
   supabase: ReturnType<typeof createAdminClient>
 ): Promise<void> {
-  const enabled = process.env.R2_REAP_ENABLED === "true";
+  // Two conditions, both required. VERCEL_ENV is set by the platform and cannot
+  // be faked locally, so deletion is impossible outside a production deployment.
+  //
+  // This matters because dev and production share the R2 bucket
+  // (R2_BUCKET=blindfolddate-photos in both) but use SEPARATE databases. A local
+  // run would list production's objects, look them up in the dev date_photos
+  // table, find nothing, and delete every production photo. Gating on the env
+  // var alone left that one setting away from happening.
+  const isProdDeployment = process.env.VERCEL_ENV === "production";
+  const enabled = isProdDeployment && process.env.R2_REAP_ENABLED === "true";
+
+  if (!isProdDeployment && process.env.R2_REAP_ENABLED === "true") {
+    console.warn(
+      "[cron/notify-dates] r2 reap: R2_REAP_ENABLED=true but VERCEL_ENV is not " +
+      `'production' (${process.env.VERCEL_ENV ?? "unset"}) — forcing dry-run. ` +
+      "Deleting from a non-production deployment would purge production objects, " +
+      "because the bucket is shared but the database is not."
+    );
+  }
   const cutoff = Date.now() - R2_ORPHAN_AGE_MS;
   const orphans: string[] = [];
   let scanned = 0;
