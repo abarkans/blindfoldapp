@@ -48,6 +48,7 @@ next-env.d.ts
 security-audit-findings.txt
 SECURITY-TODO.txt
 SECURITY_REPORT.md
+SECURITY_REPORT_*.md
 
 # local debug/test tools
 app/api/push/test/

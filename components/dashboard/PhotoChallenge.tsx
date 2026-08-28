@@ -200,10 +200,13 @@ export default function PhotoChallenge({
     setUploadError("");
 
     try {
+      // contentLength is signed into the presigned URL server-side, so the PUT
+      // below must send exactly this many bytes. pendingBlob is not re-encoded
+      // between here and the upload, so the sizes match.
       const res = await fetch("/api/photo/presign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dateIdeaId }),
+        body: JSON.stringify({ dateIdeaId, contentLength: pendingBlob.size }),
       });
 
       if (res.status === 409) {
@@ -220,11 +223,17 @@ export default function PhotoChallenge({
 
       const { uploadUrl, key } = await res.json();
 
-      await fetch(uploadUrl, {
+      // Content-Length is set automatically from the Blob and must match the
+      // value signed into uploadUrl; a mismatch surfaces as 403 from R2.
+      const put = await fetch(uploadUrl, {
         method: "PUT",
         body: pendingBlob,
         headers: { "Content-Type": "image/jpeg" },
       });
+
+      if (!put.ok) {
+        throw new Error(`Upload rejected by storage (${put.status})`);
+      }
 
       const result = await savePhoto(dateIdeaId, key);
       if (result.error) throw new Error(result.error);

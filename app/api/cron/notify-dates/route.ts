@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
+import { ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { r2, R2_BUCKET } from "@/lib/r2";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateReadyEmail } from "@/lib/email/templates/date-ready";
@@ -26,6 +28,100 @@ const CADENCE_DAYS: Record<string, number> = {
   biweekly: 14,
   monthly: 30,
 };
+
+// --- R2 orphan reaper -------------------------------------------------------
+// Objects older than this with no matching date_photos row are abandoned
+// uploads. A legitimate upload gets its row seconds later, so 24h is generous.
+const R2_ORPHAN_AGE_MS = 24 * 60 * 60 * 1000;
+// Bound work per cron run so a large bucket can't blow the function timeout.
+const R2_MAX_PAGES_PER_RUN = 50;      // 50 × 1000 keys = 50k objects scanned
+const R2_DB_LOOKUP_CHUNK = 100;       // keeps the PostgREST .in() URL short
+const R2_DELETE_CHUNK = 1000;         // DeleteObjects API limit
+
+async function reapOrphanedR2Objects(
+  supabase: ReturnType<typeof createAdminClient>
+): Promise<void> {
+  const enabled = process.env.R2_REAP_ENABLED === "true";
+  const cutoff = Date.now() - R2_ORPHAN_AGE_MS;
+  const orphans: string[] = [];
+  let scanned = 0;
+  let pages = 0;
+  let token: string | undefined;
+  let truncated = false;
+
+  try {
+    do {
+      const page = await r2.send(
+        new ListObjectsV2Command({
+          Bucket: R2_BUCKET,
+          Prefix: "photos/",
+          ContinuationToken: token,
+        })
+      );
+      pages++;
+      scanned += page.Contents?.length ?? 0;
+
+      const staleKeys = (page.Contents ?? [])
+        .filter((o) => o.Key && o.LastModified && o.LastModified.getTime() < cutoff)
+        .map((o) => o.Key as string);
+
+      // Chunked lookup. FAIL CLOSED: if any lookup errors we abort the whole
+      // run rather than treating an empty result as "these are all orphans" —
+      // that mistake would delete every real photo in the bucket.
+      for (let i = 0; i < staleKeys.length; i += R2_DB_LOOKUP_CHUNK) {
+        const chunk = staleKeys.slice(i, i + R2_DB_LOOKUP_CHUNK);
+        const { data: known, error: lookupErr } = await supabase
+          .from("date_photos")
+          .select("r2_key")
+          .in("r2_key", chunk);
+
+        if (lookupErr) {
+          console.error(
+            `[cron/notify-dates] r2 reap ABORTED (db lookup failed, nothing deleted): ${safeLogValue(lookupErr.message)}`
+          );
+          return;
+        }
+
+        const knownSet = new Set((known ?? []).map((r) => r.r2_key));
+        for (const k of chunk) if (!knownSet.has(k)) orphans.push(k);
+      }
+
+      token = page.IsTruncated ? page.NextContinuationToken : undefined;
+      if (token && pages >= R2_MAX_PAGES_PER_RUN) {
+        truncated = true;
+        break;
+      }
+    } while (token);
+
+    if (!enabled) {
+      console.info(
+        `[cron/notify-dates] r2 reap DRY-RUN scanned=${scanned} orphans=${orphans.length} ` +
+        `truncated=${truncated} (set R2_REAP_ENABLED=true to delete) sample=${orphans.slice(0, 5).join(",")}`
+      );
+      return;
+    }
+
+    let deleted = 0;
+    for (let i = 0; i < orphans.length; i += R2_DELETE_CHUNK) {
+      const batch = orphans.slice(i, i + R2_DELETE_CHUNK).map((Key) => ({ Key }));
+      await r2.send(
+        new DeleteObjectsCommand({ Bucket: R2_BUCKET, Delete: { Objects: batch } })
+      );
+      deleted += batch.length;
+    }
+
+    console.info(
+      `[cron/notify-dates] r2 reap scanned=${scanned} deleted=${deleted} truncated=${truncated}`
+    );
+  } catch (err) {
+    // Non-fatal for the cron run — the reaper is a cost control, not a
+    // correctness requirement, and it will retry tomorrow.
+    console.warn(
+      `[cron/notify-dates] r2 reap failed after scanning ${scanned}: ` +
+      `${safeLogValue(err instanceof Error ? err.message : String(err))}`
+    );
+  }
+}
 
 export async function GET(request: Request) {
   // Verify the request comes from Vercel Cron (or an authorised caller)
@@ -318,6 +414,17 @@ export async function GET(request: Request) {
   } else {
     console.info(`[cron/notify-dates] partner_invites cleanup deleted=${deletedInvites ?? 0}`);
   }
+
+  // Reap abandoned R2 uploads. /api/photo/presign issues a unique key per call
+  // (Date.now() suffix); if the client never calls savePhoto() no date_photos
+  // row is ever created, nothing in the app references the object, and it would
+  // otherwise sit in the bucket forever. Unmetered presigns are therefore an
+  // unbounded storage-cost vector — this is the bound.
+  //
+  // Set R2_REAP_ENABLED=true to actually delete. Until then it logs what it
+  // WOULD delete so the matching logic can be verified against real data
+  // before anything is destroyed.
+  await reapOrphanedR2Objects(supabase);
 
   // --- Re-engagement: users who had at least one date but have been inactive
   //     for 30+ days (revealed_at is older than 30 days). Sent once per lapse;
