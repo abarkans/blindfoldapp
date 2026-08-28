@@ -158,6 +158,13 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Please sign in or create an account first." };
   if (!user.email) return { error: "Your account needs an email address to accept this invite." };
+  // The invite is bound to invited_email and matched against user.email below,
+  // so an unconfirmed address would let anyone who signed up with someone
+  // else's email claim their invite. Independent of the Supabase project's
+  // "Confirm email" setting, which this does not rely on.
+  if (!user.email_confirmed_at) {
+    return { error: "Confirm your email address before accepting this invite." };
+  }
 
   const admin = createAdminClient();
   const tokenHash = hashInviteToken(token);
@@ -201,6 +208,54 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
     return { error: "This account is already connected to another partner." };
   }
 
+  // Accepting deletes this user's own owner membership below, which makes their
+  // own profile permanently unreachable: getCoupleAccess() will resolve them to
+  // the inviter's profile from here on, and nothing points at their old row.
+  //
+  // That is fine for an empty shell (getCoupleAccess auto-creates one on first
+  // dashboard visit) and acceptable for an onboarding-only profile, whose
+  // preferences the couple's profile supersedes anyway. It is NOT acceptable
+  // when real, irreversible state is attached:
+  //
+  //   - Billing: /api/stripe/portal gates on access.role === "owner", so a Plus
+  //     subscriber who accepts loses the only in-app route to cancel while
+  //     Stripe keeps charging them.
+  //   - History: completed dates, XP, badges and R2 photos all hang off the
+  //     profile id and become unreachable.
+  //
+  // There is no "leave couple" action, so this is not self-recoverable. Refuse
+  // instead, before we mutate anything.
+  const { data: ownProfile, error: ownProfileError } = await admin
+    .from("profiles")
+    .select("plan_type, stripe_customer_id, dates_completed_count, total_xp")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (ownProfileError) {
+    console.error(`[partner-invite] own profile lookup failed uid=${user.id} msg=${ownProfileError.message}`);
+    return { error: "Could not connect your account. Please try again." };
+  }
+
+  if (ownProfile?.plan_type === "subscription" || ownProfile?.stripe_customer_id) {
+    console.warn(`[audit] partner-invite: blocked accept, own billing uid=${user.id} profile=${invite.profile_id}`);
+    return {
+      error:
+        "This account has its own Blindfold subscription. Joining your partner's account " +
+        "would leave you unable to manage that billing. Cancel it in Settings first, or " +
+        "accept the invite from a different email.",
+    };
+  }
+
+  if ((ownProfile?.dates_completed_count ?? 0) > 0 || (ownProfile?.total_xp ?? 0) > 0) {
+    console.warn(`[audit] partner-invite: blocked accept, own history uid=${user.id} profile=${invite.profile_id}`);
+    return {
+      error:
+        "This account already has its own date history. Joining your partner's account " +
+        "would make it unreachable. Ask them to accept your invite instead, or use a " +
+        "different email.",
+    };
+  }
+
   const now = new Date().toISOString();
   const { error: memberError } = await admin.from("couple_members").upsert({
     profile_id: invite.profile_id,
@@ -213,7 +268,9 @@ export async function acceptPartnerInvite(token: string): Promise<ActionResult> 
     return { error: "Could not connect your account. Please try again." };
   }
 
-  // Remove the orphaned owner row auto-created when the invited user first visited the dashboard.
+  // Remove the owner row auto-created when the invited user first visited the
+  // dashboard. Verified empty above (no subscription, no billing, no history),
+  // so nothing irreversible is lost.
   await admin
     .from("couple_members")
     .delete()
