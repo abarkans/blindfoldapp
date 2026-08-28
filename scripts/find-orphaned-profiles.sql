@@ -8,6 +8,11 @@
 -- from the app.
 --
 -- Run in the Supabase SQL editor. Read-only.
+--
+-- IMPORTANT: the Supabase SQL editor renders only the LAST statement's result
+-- when several are run together. Select and run each query on its own, or you
+-- will see query 2's count and silently miss query 1 — which is the one that
+-- lists actual victims.
 
 -- ── 1. Orphaned profiles that lost something that matters ───────────────────
 -- These are the users to contact. stripe_customer_id present is the urgent
