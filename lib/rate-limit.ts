@@ -175,6 +175,21 @@ export async function checkPublicDeletionRateLimit(ip: string): Promise<void> {
 }
 
 /**
+ * Enforce a per-TARGET cap on public deletion-request emails.
+ * The IP limiter above keys on the sender, not the recipient, so an attacker
+ * rotating IPs can send unlimited "Confirm your account deletion" mail to a
+ * known address — alarming by design, from your verified domain, and a fast
+ * route to spam complaints that damage deliverability for every other user.
+ * Limit: 3 per 24h per target account. Fails closed.
+ *
+ * Callers must swallow the throw and return the same response as the
+ * unregistered-email branch, or this becomes an account-enumeration oracle.
+ */
+export async function checkPublicDeletionTargetRateLimit(userId: string): Promise<void> {
+  await check(`delete-public-target:${userId}`, 3, 86400, true);
+}
+
+/**
  * Enforce per-user rate limits on push token registration.
  * Limit: 10 per 60 seconds. Fails open: cheap DB write, no paid APIs —
  * just throttles churn/spam against the push_token column.

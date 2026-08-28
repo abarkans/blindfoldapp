@@ -9,7 +9,11 @@ import { hashEmail, isCooldownActive, cooldownExpiry } from "@/lib/deletion-hold
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { deleteConfirmationEmail } from "@/lib/email/templates/delete-confirmation";
 import { safeLogValue } from "@/lib/log";
-import { checkDeletionRequestRateLimit, checkPublicDeletionRateLimit } from "@/lib/rate-limit";
+import {
+  checkDeletionRequestRateLimit,
+  checkPublicDeletionRateLimit,
+  checkPublicDeletionTargetRateLimit,
+} from "@/lib/rate-limit";
 import { z } from "zod";
 
 // Short TTL on an irreversible action. The legitimate flow is
@@ -142,7 +146,10 @@ export async function requestDeletionByEmail(
   const email = parsed.data.toLowerCase();
 
   const { ip } = await requestBindings();
-  if (ip) await checkPublicDeletionRateLimit(ip);
+  // Fail closed when no IP header is present: header-less callers share one
+  // bucket rather than skipping the limiter entirely. Matches the fail-closed
+  // posture this module documents for paid resources (Resend is one).
+  await checkPublicDeletionRateLimit(ip ?? "unknown");
 
   const admin = createAdminClient();
 
@@ -152,6 +159,21 @@ export async function requestDeletionByEmail(
 
   if (!userId) {
     // No account with that email — return silently to avoid enumeration.
+    return { ok: true };
+  }
+
+  // Cap by target as well as by sender. The IP limiter keys on whoever is
+  // asking, so IP rotation would otherwise allow unlimited deletion-confirmation
+  // mail to any known address.
+  //
+  // The throw is swallowed deliberately: this check runs after the email→user
+  // lookup, so surfacing "rate limited" here would distinguish a registered
+  // address from an unregistered one and undo the enumeration protection above.
+  // Both paths must return an identical { ok: true }.
+  try {
+    await checkPublicDeletionTargetRateLimit(userId);
+  } catch {
+    console.warn(`[audit] delete-request-public: target rate limit hit uid=${safeLogValue(userId)}`);
     return { ok: true };
   }
 
