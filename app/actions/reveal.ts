@@ -110,9 +110,13 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
     const { FREE_INTERESTS } = await import("@/lib/plans");
     const currentInterests = profile.interests as string[];
     const freeInterests = currentInterests.filter((i) => (FREE_INTERESTS as readonly string[]).includes(i));
+    // preferred_radius must drop with the plan: the profiles_radius_by_plan
+    // constraint (migration 066) caps free-tier radius at 15 km, so setting
+    // plan_type without it would fail this safety-net downgrade outright.
     await admin.from("profiles").update({
       plan_type: "free",
       interests: freeInterests.length >= 2 ? freeInterests : [...FREE_INTERESTS],
+      preferred_radius: 15000,
     }).eq("id", access.profileId);
     return { status: "error", error: "Your trial has ended. You're now on Starter." };
   }
