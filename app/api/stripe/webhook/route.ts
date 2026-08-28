@@ -7,6 +7,22 @@ import type Stripe from "stripe";
 
 const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
 
+// Shared by every downgrade path so they cannot drift apart.
+//
+// interests is NOT cosmetic here: the profiles_interests_by_plan CHECK from
+// migration 060 permits up to 12 interests only for subscription/trial. Setting
+// plan_type='free' while a former subscriber still holds 12 interests violates
+// the constraint, which would throw, 500 the webhook, and make Stripe retry the
+// same event indefinitely. cadence and preferred_radius are reset for the same
+// "return them to a valid free-tier row" reason.
+const FREE_PLAN_RESET = {
+  plan_type: "free" as const,
+  subscription_ends_at: null,
+  cadence: "monthly" as const,
+  preferred_radius: 15000,
+  interests: [...FREE_INTERESTS],
+};
+
 // Stripe sets different fields depending on how cancellation was scheduled
 // and on the API version pinned to the account:
 //   - explicit `cancel_at` future timestamp (custom scheduling)
@@ -111,15 +127,36 @@ export async function POST(req: Request) {
         const customerId = session.customer as string | null;
         if (!userId || !customerId) break;
 
+        // Session completion is not payment settlement. Delayed-settlement
+        // methods (SEPA, Bacs, bank transfer, Klarna…) complete the session with
+        // payment_status "unpaid" and leave the subscription "incomplete".
+        // dashboard/upgrade/page.tsx already gates on subscription status for
+        // the redirect path; this is the same guard for the webhook path.
+        const settled =
+          session.status === "complete" &&
+          (session.payment_status === "paid" || session.payment_status === "no_payment_required");
+
+        // Link the Stripe customer REGARDLESS of settlement. customer.subscription.
+        // updated below matches on stripe_customer_id, so skipping this write
+        // would leave the profile unfindable and the customer could pay and never
+        // receive Plus. Only the plan grant is gated.
         const { error } = await supabase
           .from("profiles")
           .update({
-            plan_type: "subscription",
             stripe_customer_id: customerId,
+            ...(settled ? { plan_type: "subscription" as const } : {}),
             ...(cadence ? { cadence } : {}),
           })
           .eq("id", userId);
         if (error) throw error;
+
+        if (!settled) {
+          console.info(
+            `[stripe/webhook] checkout.completed grant deferred uid=${userId} ` +
+            `cust=${customerId} status=${session.status} payment_status=${session.payment_status} ` +
+            `— awaiting customer.subscription.updated`
+          );
+        }
 
         break;
       }
@@ -129,12 +166,45 @@ export async function POST(req: Request) {
         const customerId = sub.customer as string;
         const endsAt = resolveSubscriptionEndsAt(sub);
 
+        // Subscription status is authoritative for entitlement; subscription_ends_at
+        // only drives UI copy. Previously this handler wrote ends_at and nothing
+        // else, so a subscription entering dunning kept full Plus until the
+        // eventual .deleted event — potentially weeks of unpaid access.
+        //
+        //   active / trialing        → entitled (also the settlement path for a
+        //                              deferred grant from checkout above, and for
+        //                              cancel_at_period_end, which stays active
+        //                              until the period actually ends)
+        //   past_due                 → keep access; Stripe is still retrying and
+        //                              revoking mid-dunning punishes a recoverable
+        //                              card failure
+        //   unpaid / incomplete_expired → retries exhausted, or the initial payment
+        //                              never completed. Revoke now.
+        //   canceled                 → handled by customer.subscription.deleted
+        if (sub.status === "unpaid" || sub.status === "incomplete_expired") {
+          const { error } = await supabase
+            .from("profiles")
+            .update(FREE_PLAN_RESET)
+            .eq("stripe_customer_id", customerId);
+          if (error) throw error;
+          console.warn(`[stripe/webhook] subscription.updated REVOKED cust=${customerId} status=${sub.status}`);
+          break;
+        }
+
+        const entitled = sub.status === "active" || sub.status === "trialing";
+
         const { error } = await supabase
           .from("profiles")
-          .update({ subscription_ends_at: endsAt })
+          .update({
+            subscription_ends_at: endsAt,
+            ...(entitled ? { plan_type: "subscription" as const } : {}),
+          })
           .eq("stripe_customer_id", customerId);
         if (error) throw error;
-        console.info(`[stripe/webhook] subscription.updated cust=${customerId} ends_at=${endsAt}`);
+        console.info(
+          `[stripe/webhook] subscription.updated cust=${customerId} status=${sub.status} ` +
+          `entitled=${entitled} ends_at=${endsAt}`
+        );
         break;
       }
 
@@ -143,13 +213,7 @@ export async function POST(req: Request) {
         const customerId = sub.customer as string;
         const { error } = await supabase
           .from("profiles")
-          .update({
-            plan_type: "free",
-            subscription_ends_at: null,
-            cadence: "monthly",
-            preferred_radius: 15000,
-            interests: [...FREE_INTERESTS],
-          })
+          .update(FREE_PLAN_RESET)
           .eq("stripe_customer_id", customerId);
         if (error) throw error;
         break;
