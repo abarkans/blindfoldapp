@@ -119,6 +119,39 @@ async function reapOrphanedR2Objects(
       return;
     }
 
+    // Circuit breaker. The reaper's correctness rests on date_photos.r2_key
+    // matching the key ListObjectsV2 returns, byte for byte. If that ever stops
+    // holding — a changed key scheme, a stored URL instead of a key, a migration
+    // that rewrites the column — then every real photo looks orphaned and this
+    // would delete the lot.
+    //
+    // So: if real photos exist AND we are about to delete nearly the whole
+    // bucket, that is not a bucket full of abandoned uploads, it is a broken
+    // match. Abort and shout. Costs one COUNT per run.
+    const { count: realPhotoCount, error: countErr } = await supabase
+      .from("date_photos")
+      .select("*", { count: "exact", head: true })
+      .not("r2_key", "is", null);
+
+    if (countErr) {
+      console.error(
+        `[cron/notify-dates] r2 reap ABORTED (safety count failed, nothing deleted): ${safeLogValue(countErr.message)}`
+      );
+      return;
+    }
+
+    const ratio = scanned > 0 ? orphans.length / scanned : 0;
+    if ((realPhotoCount ?? 0) > 0 && ratio > 0.9) {
+      console.error(
+        `[cron/notify-dates] r2 reap ABORTED: would delete ${orphans.length}/${scanned} ` +
+        `(${Math.round(ratio * 100)}%) of the bucket while date_photos holds ` +
+        `${realPhotoCount} keyed rows. That pattern means r2_key no longer matches ` +
+        `the object keys, not that the bucket is full of orphans. Nothing deleted. ` +
+        `sample=${orphans.slice(0, 5).join(",")}`
+      );
+      return;
+    }
+
     let deleted = 0;
     for (let i = 0; i < orphans.length; i += R2_DELETE_CHUNK) {
       const batch = orphans.slice(i, i + R2_DELETE_CHUNK).map((Key) => ({ Key }));
