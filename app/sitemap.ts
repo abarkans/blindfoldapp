@@ -1,10 +1,19 @@
 import { MetadataRoute } from "next";
-import { getAllPosts, getTotalBlogPages } from "@/lib/blog";
+import { getAllPosts, getPostsForPage, getTotalBlogPages } from "@/lib/blog";
 import { BLOG_CATEGORIES } from "@/lib/blog-meta";
 
 const SITE_URL = "https://blindfolddate.com";
 
+// Only blog URLs get a lastModified: their content is derived from post dates,
+// so the value is real. Static pages change on deploy, and a value of "now" on
+// every request is noise that teaches crawlers to distrust the whole file --
+// including the post dates, which are accurate. Omitting the field is honest.
+function newestDate(posts: { date: string }[]): Date | undefined {
+  return posts.length > 0 ? new Date(posts[0].date) : undefined;
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
+  // getAllPosts() is sorted newest first, so index 0 is the newest everywhere.
   const posts = getAllPosts();
   const totalPages = getTotalBlogPages();
 
@@ -19,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { length: Math.max(totalPages - 1, 0) },
     (_, i) => ({
       url: `${SITE_URL}/blog/page/${i + 2}`,
-      lastModified: new Date(),
+      lastModified: newestDate(getPostsForPage(i + 2).posts),
       changeFrequency: "weekly",
       priority: 0.6,
     })
@@ -27,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const categoryEntries: MetadataRoute.Sitemap = BLOG_CATEGORIES.map((c) => ({
     url: `${SITE_URL}/blog/${c.id}`,
-    lastModified: new Date(),
+    lastModified: newestDate(posts.filter((p) => p.category === c.id)),
     changeFrequency: "weekly",
     priority: 0.6,
   }));
@@ -35,13 +44,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: SITE_URL,
-      lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     },
     {
       url: `${SITE_URL}/blog`,
-      lastModified: new Date(),
+      lastModified: newestDate(posts),
       changeFrequency: "weekly",
       priority: 0.8,
     },
@@ -50,37 +58,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...blogPageEntries,
     {
       url: `${SITE_URL}/about`,
-      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.5,
     },
     {
       url: `${SITE_URL}/register`,
-      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.5,
     },
     {
       url: `${SITE_URL}/contact`,
-      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/legal/privacy`,
-      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.2,
     },
     {
       url: `${SITE_URL}/legal/terms`,
-      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.2,
     },
     {
       url: `${SITE_URL}/legal/accessibility`,
-      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.1,
     },
