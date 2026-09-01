@@ -2,6 +2,22 @@ import { getAllPosts } from "@/lib/blog";
 
 const SITE_URL = "https://blindfolddate.com";
 
+const MIME_BY_EXT: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  avif: "image/avif",
+  gif: "image/gif",
+};
+
+// Enclosures were hardcoded to image/png while every post image is a .jpg,
+// which strict readers reject. Derive it from the file instead.
+function imageMimeType(src: string): string {
+  const ext = src.split(".").pop()?.toLowerCase() ?? "";
+  return MIME_BY_EXT[ext] ?? "application/octet-stream";
+}
+
 export async function GET() {
   const posts = getAllPosts();
 
@@ -14,7 +30,7 @@ export async function GET() {
       <link>${SITE_URL}/blog/${post.slug}</link>
       <guid isPermaLink="true">${SITE_URL}/blog/${post.slug}</guid>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
-      ${post.image ? `<enclosure url="${SITE_URL}${post.image}" type="image/png" />` : ""}
+      ${post.image ? `<enclosure url="${SITE_URL}${post.image}" type="${imageMimeType(post.image)}" />` : ""}
     </item>`
     )
     .join("");
