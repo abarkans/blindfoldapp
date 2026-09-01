@@ -31,10 +31,10 @@ export default function BlogCategoryChips({
             key={chip.id}
             href={chip.href}
             aria-current={isActive && markCurrent ? "page" : undefined}
-            className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-full border text-sm font-medium transition-[background-color,border-color,color] ${
               isActive
                 ? "bg-white border-white text-black"
-                : "border-white/10 text-white/50 hover:text-white hover:border-white/30"
+                : "border-white/25 text-white hover:bg-white/12 hover:border-white/50"
             }`}
           >
             {chip.label}

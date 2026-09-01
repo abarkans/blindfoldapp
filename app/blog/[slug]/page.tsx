@@ -160,7 +160,7 @@ export default async function BlogPostPage({
         <div className="max-w-[720px] mx-auto lg:mx-0">
           <nav aria-label="Breadcrumb" className="mb-8">
             <ol className="flex items-center gap-1.5 text-sm flex-wrap">
-              <li><Link href="/" className="text-white/40 hover:text-white transition-colors">BlindfoldDate</Link></li>
+              <li><Link href="/" className="text-white/40 hover:text-white transition-colors">Home</Link></li>
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
               <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Blog</Link></li>
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
