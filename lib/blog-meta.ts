@@ -106,6 +106,15 @@ export interface BlogPost extends BlogPostMeta {
   headings: BlogHeading[];
 }
 
+// "Sep 1, 2026" -- used where the byline stacks under the author name.
+export function formatDateShort(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
     year: "numeric",

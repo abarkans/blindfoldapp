@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { getAllPosts, getPost, formatDate } from "@/lib/blog";
+import { getAllPosts, getPost, formatDateShort } from "@/lib/blog";
 import { getCategoryLabel } from "@/lib/blog-meta";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
@@ -125,10 +125,31 @@ export default async function BlogPostPage({
 
       <PublicNav showBlogLink={false} brand={<BlogNavBrand />} />
 
-      <div className="max-w-[1280px] mx-auto px-6 md:px-10 pb-10">
-        <div className="lg:flex lg:items-start lg:justify-center lg:gap-16">
+      {/* Same 1100px container as /blog, so the breadcrumb and content line
+          up when moving between the index and a post. */}
+      <div className="max-w-[1100px] mx-auto px-6 md:px-10 pb-10">
+        <nav aria-label="Breadcrumb" className="mb-12 md:mb-16">
+          <ol className="flex items-center gap-1.5 text-sm flex-wrap">
+            <li><Link href="/" className="text-white/40 hover:text-white transition-colors">Home</Link></li>
+            <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
+            <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Blog</Link></li>
+            <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
+            <li>
+              <Link
+                href={`/blog/${post.category}`}
+                className="text-white/40 hover:text-white transition-colors whitespace-nowrap"
+              >
+                {getCategoryLabel(post.category)}
+              </Link>
+            </li>
+            <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
+            <li className="text-white/70 truncate max-w-[180px] md:max-w-xs">{post.title}</li>
+          </ol>
+        </nav>
+
+        <div className="lg:flex lg:items-start lg:justify-center lg:gap-12">
           {post.headings.length > 0 && (
-            <aside className="hidden lg:block w-[300px] shrink-0 self-start sticky top-28">
+            <aside className="hidden lg:block w-[260px] shrink-0 self-start sticky top-28">
               <p className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-3">What&apos;s inside</p>
               <BlogToc headings={post.headings} />
 
@@ -158,25 +179,6 @@ export default async function BlogPostPage({
           )}
 
         <div className="max-w-[720px] mx-auto lg:mx-0">
-          <nav aria-label="Breadcrumb" className="mb-8">
-            <ol className="flex items-center gap-1.5 text-sm flex-wrap">
-              <li><Link href="/" className="text-white/40 hover:text-white transition-colors">Home</Link></li>
-              <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
-              <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Blog</Link></li>
-              <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
-              <li>
-                <Link
-                  href={`/blog/${post.category}`}
-                  className="text-white/40 hover:text-white transition-colors whitespace-nowrap"
-                >
-                  {getCategoryLabel(post.category)}
-                </Link>
-              </li>
-              <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
-              <li className="text-white/70 truncate max-w-[180px] md:max-w-xs">{post.title}</li>
-            </ol>
-          </nav>
-
           <article>
             <header className="mb-10">
               <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -196,21 +198,22 @@ export default async function BlogPostPage({
                 ))}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">{post.title}</h1>
-              <p className="text-xl text-white/50 leading-relaxed mb-5">{post.description}</p>
+              <p className="text-xl text-white/50 leading-relaxed mb-8">{post.description}</p>
               <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6 flex-wrap">
-                <div className="flex items-center gap-3 text-sm text-white/30">
+                <div className="flex items-center gap-3">
                   <Image
                     src="/blog/andris.jpg"
                     alt={post.author}
-                    width={28}
-                    height={28}
-                    className="rounded-full object-cover w-7 h-7"
+                    width={44}
+                    height={44}
+                    className="rounded-full object-cover w-11 h-11"
                   />
-                  <span>{post.author}</span>
-                  <span>·</span>
-                  <span>{formatDate(post.date)}</span>
-                  <span>·</span>
-                  <span>{post.readingTime} min read</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-white/70">{post.author}</span>
+                    <span className="text-sm text-white/30">
+                      {formatDateShort(post.date)} · {post.readingTime} min read
+                    </span>
+                  </div>
                 </div>
                 <ShareButtons url={`${SITE_URL}/blog/${slug}`} title={post.title} />
               </div>
