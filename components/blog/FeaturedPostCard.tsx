@@ -16,22 +16,23 @@ export default function FeaturedPostCard({ post }: { post: BlogPostMeta }) {
             className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
             priority
           />
+          {/* z-20 clears the title link's ::after overlay so the category chip
+              stays clickable; both chips carry their own scrim. */}
+          <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-white bg-rose-500/85 backdrop-blur-sm px-2.5 py-1 rounded-full">
+              Featured
+            </span>
+            <Link
+              href={`/blog/${post.category}`}
+              className="text-xs text-white bg-black/55 backdrop-blur-sm border border-white/20 px-2.5 py-1 rounded-full hover:bg-black/75 hover:border-white/40 transition-colors"
+            >
+              {getCategoryLabel(post.category)}
+            </Link>
+          </div>
         </div>
       )}
 
       <div className="flex flex-col justify-center p-8 md:p-10">
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <span className="inline-block text-xs font-medium text-rose-400/80 bg-rose-400/10 px-2.5 py-1 rounded-full w-fit">
-            Featured
-          </span>
-          <Link
-            href={`/blog/${post.category}`}
-            className="relative z-10 text-xs text-white/60 border border-white/15 px-2.5 py-1 rounded-full hover:text-white hover:border-white/35 transition-colors"
-          >
-            {getCategoryLabel(post.category)}
-          </Link>
-        </div>
-
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-snug">
           <Link
             href={`/blog/${post.slug}`}

@@ -19,20 +19,19 @@ export default function PostCard({ post }: { post: BlogPostMeta }) {
               sizes="(max-width: 640px) 100vw, 50vw"
               className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
             />
+            {/* z-20 clears the title link's ::after overlay so the chip stays
+                clickable; the scrim keeps it legible over light photos. */}
+            <Link
+              href={`/blog/${post.category}`}
+              className="absolute top-3 left-3 z-20 text-xs text-white bg-black/55 backdrop-blur-sm border border-white/20 px-2.5 py-1 rounded-full hover:bg-black/75 hover:border-white/40 transition-colors"
+            >
+              {getCategoryLabel(post.category)}
+            </Link>
           </div>
         </div>
       )}
 
       <div className="flex flex-col flex-1 p-5">
-        <div className="flex flex-wrap gap-2 mb-3">
-          <Link
-            href={`/blog/${post.category}`}
-            className="relative z-10 text-xs text-white/60 border border-white/15 px-2.5 py-0.5 rounded-full hover:text-white hover:border-white/35 transition-colors"
-          >
-            {getCategoryLabel(post.category)}
-          </Link>
-        </div>
-
         <h2 className="text-xl font-semibold text-white mb-2 leading-snug">
           <Link
             href={`/blog/${post.slug}`}

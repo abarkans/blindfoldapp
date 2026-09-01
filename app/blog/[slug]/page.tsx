@@ -129,7 +129,7 @@ export default async function BlogPostPage({
         <div className="lg:flex lg:items-start lg:justify-center lg:gap-16">
           {post.headings.length > 0 && (
             <aside className="hidden lg:block w-[300px] shrink-0 self-start sticky top-28">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-3">On this page</p>
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-3">What&apos;s inside</p>
               <BlogToc headings={post.headings} />
 
               <div className="relative overflow-hidden text-center border border-white/10 bg-black rounded-2xl p-6">
