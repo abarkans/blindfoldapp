@@ -1,7 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 
-export default function PublicNav({ showCta = true }: { showCta?: boolean }) {
+export default function PublicNav({
+  showCta = true,
+  showBlogLink = true,
+}: {
+  showCta?: boolean;
+  // Blog routes pass false: the link would point into the section you are
+  // already in. Those pages reach the index through the breadcrumb instead.
+  showBlogLink?: boolean;
+}) {
   return (
     <>
       {/* Spacer pushes content below fixed island — height matches top-4 + py-3 + logo */}
@@ -18,12 +26,14 @@ export default function PublicNav({ showCta = true }: { showCta?: boolean }) {
             />
           </Link>
           <div className="relative flex items-center gap-4 md:gap-6">
-            <Link
-              href="/blog"
-              className="text-sm text-white/55 hover:text-white font-medium transition-colors"
-            >
-              Blog
-            </Link>
+            {showBlogLink && (
+              <Link
+                href="/blog"
+                className="text-sm text-white/55 hover:text-white font-medium transition-colors"
+              >
+                Blog
+              </Link>
+            )}
             {showCta && (
               <Link
                 href="/register"

@@ -47,7 +47,7 @@ export default async function BlogPagedPage({
 
   return (
     <PublicPageShell>
-      <PublicNav />
+      <PublicNav showBlogLink={false} />
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 pb-16">
         <nav aria-label="Breadcrumb" className="mb-8">

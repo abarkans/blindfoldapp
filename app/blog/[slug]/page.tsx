@@ -122,7 +122,7 @@ export default async function BlogPostPage({
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbJsonLd) }}
       />
 
-      <PublicNav />
+      <PublicNav showBlogLink={false} />
 
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 pb-10">
         <div className="lg:flex lg:items-start lg:justify-center lg:gap-16">
