@@ -6,13 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { getAllPosts, getPost, formatDateShort } from "@/lib/blog";
+import { getAllPosts, getPost, getRelatedPosts, formatDateShort } from "@/lib/blog";
 import { getCategoryLabel } from "@/lib/blog-meta";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 import ShareButtons from "@/components/blog/ShareButtons";
 import BlogToc from "@/components/blog/BlogToc";
 import BlogNavBrand from "@/components/blog/BlogNavBrand";
+import RelatedPosts from "@/components/blog/RelatedPosts";
 import { jsonLdSafe } from "@/lib/utils";
 
 const SITE_URL = "https://blindfolddate.com";
@@ -75,6 +76,7 @@ export default async function BlogPostPage({
   const post = getPost(slug);
   if (!post) notFound();
 
+  const related = getRelatedPosts(slug);
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   let headingIndex = 0;
 
@@ -282,6 +284,8 @@ export default async function BlogPostPage({
               <p className="text-sm text-white/45">Founder of BlindfoldDate. Writes about dating, relationships, and the small decisions that make evenings memorable.</p>
             </div>
           </div>
+
+          <RelatedPosts posts={related} />
 
           <div className="mt-10 pt-6 border-t border-white/10 flex gap-6 text-sm text-white/30">
             <Link href="/blog" className="hover:text-white/60 transition-colors">All posts</Link>

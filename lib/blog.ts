@@ -88,6 +88,50 @@ export function getPostsByCategory(category: BlogCategoryId): BlogPostMeta[] {
   return getAllPosts().filter((post) => post.category === category);
 }
 
+// Tags used by more than this many posts are too generic to signal relatedness
+// ("couples" covers 7 of 17), so they are ignored when scoring.
+const RARE_TAG_MAX_POSTS = 3;
+const SAME_CATEGORY_WEIGHT = 3;
+const SHARED_RARE_TAG_WEIGHT = 1;
+
+export function getRelatedPosts(slug: string, limit = 3): BlogPostMeta[] {
+  const all = getAllPosts();
+  const current = all.find((p) => p.slug === slug);
+  if (!current) return [];
+
+  const tagCounts = new Map<string, number>();
+  for (const post of all) {
+    for (const tag of post.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+  const rareTags = new Set(
+    current.tags.filter((tag) => (tagCounts.get(tag) ?? 0) <= RARE_TAG_MAX_POSTS)
+  );
+
+  const candidates = all.filter((p) => p.slug !== slug);
+  const scored = candidates
+    .map((post) => ({
+      post,
+      score:
+        (post.category === current.category ? SAME_CATEGORY_WEIGHT : 0) +
+        post.tags.filter((tag) => rareTags.has(tag)).length * SHARED_RARE_TAG_WEIGHT,
+    }))
+    // getAllPosts() is already newest first, so a stable sort on score alone
+    // leaves the newer post ahead on ties.
+    .sort((a, b) => b.score - a.score);
+
+  const related = scored.filter((s) => s.score > 0).slice(0, limit).map((s) => s.post);
+
+  // Never render a half-empty section: top up with the newest posts not shown.
+  if (related.length < limit) {
+    for (const post of candidates) {
+      if (related.length >= limit) break;
+      if (!related.includes(post)) related.push(post);
+    }
+  }
+
+  return related;
+}
+
 export function getPostsForPage(page: number): {
   featured: BlogPostMeta | null;
   posts: BlogPostMeta[];
