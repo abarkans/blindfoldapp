@@ -48,6 +48,9 @@ export default function BlogNavBrand() {
 
       <Link
         href="/blog"
+        // "Back" alone does not say where to; the label keeps the destination
+        // available to screen readers without lengthening the visible text.
+        aria-label="Back to blog"
         aria-hidden={!scrolled}
         tabIndex={scrolled ? undefined : -1}
         className={`[grid-area:1/1] flex items-center gap-1.5 h-11 pr-2 text-sm font-semibold text-white/70 hover:text-white transition-[opacity,color] duration-200 ${
@@ -55,7 +58,7 @@ export default function BlogNavBrand() {
         }`}
       >
         <ArrowLeft className="w-4 h-4" />
-        Blog
+        Back
       </Link>
     </div>
   );

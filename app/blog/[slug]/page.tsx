@@ -130,14 +130,14 @@ export default async function BlogPostPage({
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 pb-10">
         <nav aria-label="Breadcrumb" className="mb-12 md:mb-16">
           <ol className="flex items-center gap-1.5 text-sm flex-wrap">
-            <li><Link href="/" className="text-white/40 hover:text-white transition-colors">Home</Link></li>
+            <li><Link href="/" className="text-white/40 hover:text-white hover:underline transition-colors">Home</Link></li>
             <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
-            <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Blog</Link></li>
+            <li><Link href="/blog" className="text-white/40 hover:text-white hover:underline transition-colors">Blog</Link></li>
             <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
             <li>
               <Link
                 href={`/blog/${post.category}`}
-                className="text-white/40 hover:text-white transition-colors whitespace-nowrap"
+                className="text-white/40 hover:text-white hover:underline transition-colors whitespace-nowrap"
               >
                 {getCategoryLabel(post.category)}
               </Link>
