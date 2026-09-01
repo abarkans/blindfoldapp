@@ -12,6 +12,7 @@ import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 import ShareButtons from "@/components/blog/ShareButtons";
 import BlogToc from "@/components/blog/BlogToc";
+import BlogNavBrand from "@/components/blog/BlogNavBrand";
 import { jsonLdSafe } from "@/lib/utils";
 
 const SITE_URL = "https://blindfolddate.com";
@@ -122,7 +123,7 @@ export default async function BlogPostPage({
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbJsonLd) }}
       />
 
-      <PublicNav showBlogLink={false} />
+      <PublicNav showBlogLink={false} brand={<BlogNavBrand />} />
 
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 pb-10">
         <div className="lg:flex lg:items-start lg:justify-center lg:gap-16">
