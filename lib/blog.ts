@@ -1,29 +1,18 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import {
+  isBlogCategoryId,
+  getPostCategory,
+  type BlogCategoryId,
+  type BlogHeading,
+  type BlogPost,
+  type BlogPostMeta,
+} from "./blog-meta";
+
+export * from "./blog-meta";
 
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
-
-export interface BlogPostMeta {
-  slug: string;
-  title: string;
-  description: string;
-  date: string;
-  author: string;
-  tags: string[];
-  readingTime: number;
-  image?: string;
-}
-
-export interface BlogHeading {
-  text: string;
-  slug: string;
-}
-
-export interface BlogPost extends BlogPostMeta {
-  content: string;
-  headings: BlogHeading[];
-}
 
 function estimateReadingTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
@@ -59,6 +48,14 @@ export function getAllPosts(): BlogPostMeta[] {
     .filter((f) => f.endsWith(".mdx"))
     .map((file) => {
       const slug = file.replace(".mdx", "");
+      // Category pages live at /blog/<category>, the same namespace as posts.
+      // A colliding slug would be silently shadowed by the static route, so
+      // fail the build instead of shipping an unreachable post.
+      if (isBlogCategoryId(slug)) {
+        throw new Error(
+          `Blog post slug "${slug}" collides with a category route at /blog/${slug}. Rename the post file.`
+        );
+      }
       const raw = fs.readFileSync(path.join(BLOG_DIR, file), "utf-8");
       const { data, content } = matter(raw);
       return {
@@ -68,6 +65,7 @@ export function getAllPosts(): BlogPostMeta[] {
         date: data.date as string,
         author: data.author as string,
         tags: (data.tags as string[]) ?? [],
+        category: getPostCategory(slug),
         readingTime: estimateReadingTime(content),
         image: data.image as string | undefined,
       };
@@ -86,13 +84,20 @@ export function getTotalBlogPages(): number {
   return 1 + Math.ceil(remaining / PAGE_SIZE);
 }
 
+export function getPostsByCategory(category: BlogCategoryId): BlogPostMeta[] {
+  return getAllPosts().filter((post) => post.category === category);
+}
+
 export function getPostsForPage(page: number): {
   featured: BlogPostMeta | null;
   posts: BlogPostMeta[];
   totalPages: number;
 } {
   const all = getAllPosts();
-  const totalPages = getTotalBlogPages();
+  // Derived from `all` rather than calling getTotalBlogPages(), which would
+  // re-read every post off disk on a request-rendered page.
+  const remaining = all.length - FEATURED_COUNT - FIRST_PAGE_GRID_SIZE;
+  const totalPages = remaining <= 0 ? 1 : 1 + Math.ceil(remaining / PAGE_SIZE);
   if (all.length === 0) return { featured: null, posts: [], totalPages };
 
   const [featured, ...rest] = all;
@@ -118,17 +123,10 @@ export function getPost(slug: string): BlogPost | null {
     date: data.date as string,
     author: data.author as string,
     tags: (data.tags as string[]) ?? [],
+    category: getPostCategory(slug),
     readingTime: estimateReadingTime(content),
     image: data.image as string | undefined,
     content,
     headings: extractHeadings(content),
   };
-}
-
-export function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }

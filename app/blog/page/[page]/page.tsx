@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { getPostsForPage, getTotalBlogPages } from "@/lib/blog";
 import PostCard from "@/components/blog/PostCard";
 import Pagination from "@/components/blog/Pagination";
+import BlogCategoryChips from "@/components/blog/BlogCategoryChips";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 
@@ -58,6 +59,16 @@ export default async function BlogPagedPage({
             <li className="text-white/70">Page {page}</li>
           </ol>
         </nav>
+
+        <header className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">Blog</h1>
+          <p className="text-white/50 text-base max-w-xl">
+            Page {page} of {totalPages} — date night ideas, relationship advice, and tips for couples
+            who want better evenings together.
+          </p>
+        </header>
+
+        <BlogCategoryChips active="all" markCurrent={false} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
           {posts.map((post) => (

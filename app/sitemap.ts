@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { getAllPosts, getTotalBlogPages } from "@/lib/blog";
+import { BLOG_CATEGORIES } from "@/lib/blog-meta";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -24,6 +25,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })
   );
 
+  const categoryEntries: MetadataRoute.Sitemap = BLOG_CATEGORIES.map((c) => ({
+    url: `${SITE_URL}/blog/${c.id}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
+
   return [
     {
       url: SITE_URL,
@@ -37,8 +45,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    ...categoryEntries,
     ...blogEntries,
     ...blogPageEntries,
+    {
+      url: `${SITE_URL}/about`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
     {
       url: `${SITE_URL}/register`,
       lastModified: new Date(),

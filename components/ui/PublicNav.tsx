@@ -17,14 +17,22 @@ export default function PublicNav({ showCta = true }: { showCta?: boolean }) {
               className="object-contain group-hover:opacity-75 transition-opacity"
             />
           </Link>
-          {showCta && (
+          <div className="relative flex items-center gap-4 md:gap-6">
             <Link
-              href="/register"
-              className="relative inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-[background-color] duration-150"
+              href="/blog"
+              className="text-sm text-white/55 hover:text-white font-medium transition-colors"
             >
-              Get started
+              Blog
             </Link>
-          )}
+            {showCta && (
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 text-sm text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-10 rounded-full transition-[background-color] duration-150"
+              >
+                Get started
+              </Link>
+            )}
+          </div>
         </nav>
       </header>
     </>

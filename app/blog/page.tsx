@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { getPostsForPage } from "@/lib/blog";
+import BlogCategoryChips from "@/components/blog/BlogCategoryChips";
 import PostCard from "@/components/blog/PostCard";
 import FeaturedPostCard from "@/components/blog/FeaturedPostCard";
 import BlogPromoBanner from "@/components/blog/BlogPromoBanner";
@@ -49,6 +50,15 @@ export default function BlogPage() {
             <li className="text-white/70">Blog</li>
           </ol>
         </nav>
+
+        <header className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">Blog</h1>
+          <p className="text-white/50 text-base max-w-xl">
+            Date night ideas, relationship advice, and tips for couples who want better evenings together.
+          </p>
+        </header>
+
+        <BlogCategoryChips active="all" />
 
         {!featured && rest.length === 0 ? (
           <p className="text-white/40 text-base">No posts yet.</p>

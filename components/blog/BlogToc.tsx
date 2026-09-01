@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { BlogHeading } from "@/lib/blog";
+import type { BlogHeading } from "@/lib/blog-meta";
 
 export default function BlogToc({ headings }: { headings: BlogHeading[] }) {
   const [activeSlug, setActiveSlug] = useState<string | null>(null);

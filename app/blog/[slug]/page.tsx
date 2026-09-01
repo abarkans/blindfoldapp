@@ -7,6 +7,7 @@ import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllPosts, getPost, formatDate } from "@/lib/blog";
+import { getCategoryLabel } from "@/lib/blog-meta";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 import ShareButtons from "@/components/blog/ShareButtons";
@@ -81,9 +82,10 @@ export default async function BlogPostPage({
     "@type": "Article",
     headline: post.title,
     description: post.description,
+    image: [post.image ? `${SITE_URL}${post.image}` : `${SITE_URL}/og-image.png`],
     datePublished: post.date,
     dateModified: post.date,
-    author: { "@type": "Person", name: post.author, url: SITE_URL },
+    author: { "@type": "Person", name: post.author, url: `${SITE_URL}/about` },
     publisher: { "@type": "Organization", name: "BlindfoldDate", url: SITE_URL },
     url: `${SITE_URL}/blog/${slug}`,
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${slug}` },
@@ -95,7 +97,13 @@ export default async function BlogPostPage({
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
       { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
-      { "@type": "ListItem", position: 3, name: post.title, item: `${SITE_URL}/blog/${slug}` },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: getCategoryLabel(post.category),
+        item: `${SITE_URL}/blog/${post.category}`,
+      },
+      { "@type": "ListItem", position: 4, name: post.title, item: `${SITE_URL}/blog/${slug}` },
     ],
   };
 
@@ -155,13 +163,28 @@ export default async function BlogPostPage({
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
               <li><Link href="/blog" className="text-white/40 hover:text-white transition-colors">Blog</Link></li>
               <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
+              <li>
+                <Link
+                  href={`/blog/${post.category}`}
+                  className="text-white/40 hover:text-white transition-colors whitespace-nowrap"
+                >
+                  {getCategoryLabel(post.category)}
+                </Link>
+              </li>
+              <li className="text-white/20"><ChevronRight className="w-3.5 h-3.5" /></li>
               <li className="text-white/70 truncate max-w-[180px] md:max-w-xs">{post.title}</li>
             </ol>
           </nav>
 
           <article>
             <header className="mb-10">
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <Link
+                  href={`/blog/${post.category}`}
+                  className="text-xs text-white/60 border border-white/15 px-2.5 py-0.5 rounded-full hover:text-white hover:border-white/35 transition-colors"
+                >
+                  {getCategoryLabel(post.category)}
+                </Link>
                 {post.tags.map((tag) => (
                   <span
                     key={tag}

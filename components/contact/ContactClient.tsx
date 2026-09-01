@@ -68,7 +68,7 @@ export default function ContactClient() {
             </div>
           ) : (
             <>
-              <h2 className="text-lg font-bold text-white mb-1">Get in touch</h2>
+              <h1 className="text-lg font-bold text-white mb-1">Get in touch</h1>
               <p className="text-sm text-white/45 mb-5">Have a question or feedback? We&apos;d love to hear from you.</p>
 
               {error && (
