@@ -42,6 +42,12 @@ export interface StoreProduct {
    * "application/zip".
    */
   files: StoreFile[];
+  /**
+   * Optional free teaser, served to anyone without payment via /api/store/sample.
+   * Lives in R2 alongside the paid files rather than in /public so it can be
+   * swapped without a deploy, and so the route can rate-limit egress.
+   */
+  sampleFile?: StoreFile;
   /** Path to cover art under /public. Empty string renders a gradient placeholder. */
   coverImage: string;
 }
@@ -72,6 +78,13 @@ export const STORE_PRODUCTS: StoreProduct[] = [
         contentType: "application/pdf",
       },
     ],
+    sampleFile: {
+      id: "sample",
+      label: "Free sample",
+      r2Key: "store/date-night-playbook/BlindfoldDate-LDR-sample.pdf",
+      fileName: "BlindfoldDate-LDR-sample.pdf",
+      contentType: "application/pdf",
+    },
     // Cached immutably for a year by the next.config image rule — replacing the
     // artwork means a new filename, not a re-upload over this one.
     coverImage: "/store/BlindfoldDate-LDR.jpg",

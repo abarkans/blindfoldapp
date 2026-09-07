@@ -3,6 +3,7 @@ import { LOGGED_IN_HINT_COOKIE } from "@/lib/hooks/useLoggedIn";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Download } from "lucide-react";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
 import BuyButton from "@/components/store/BuyButton";
@@ -84,6 +85,17 @@ export default async function StorePage({
                 <p className="mt-4 text-sm leading-relaxed text-white/55">{product.description}</p>
 
                 <div className="mt-auto pt-6">
+                  {product.sampleFile && (
+                    // Plain <a>, not <Link>: this is an API route that redirects to a
+                    // presigned URL, so client-side routing has nothing to do here.
+                    <a
+                      href={`/api/store/sample?product=${product.id}`}
+                      className="mb-3 flex w-full items-center justify-center gap-2 h-12 px-6 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/[0.04] text-sm font-semibold transition-[color,background-color,border-color] duration-150"
+                    >
+                      <Download className="w-4 h-4" aria-hidden="true" />
+                      Download free sample
+                    </a>
+                  )}
                   <BuyButton productId={product.id} label={`Buy · ${product.priceLine}`} />
                 </div>
               </div>

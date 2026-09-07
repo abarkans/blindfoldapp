@@ -257,3 +257,13 @@ export async function checkStoreResendRateLimit(ip: string): Promise<void> {
 export async function checkStoreResendTargetRateLimit(emailHash: string): Promise<void> {
   await check(`store-resend-target:${emailHash}`, 3, 86400, true);
 }
+
+/**
+ * Enforce per-IP rate limits on free sample downloads.
+ * The sample is public by design, so this is not an access control — it just
+ * stops one visitor turning a teaser into unbounded R2 egress.
+ * Limit: 30 per hour. Fails closed: egress is a paid resource.
+ */
+export async function checkStoreSampleRateLimit(ip: string): Promise<void> {
+  await check(`store-sample-ip:${ip}`, 30, 3600, true);
+}
