@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type React from "react";
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { LOGGED_IN_HINT_COOKIE } from "@/lib/hooks/useLoggedIn";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
@@ -110,6 +111,10 @@ export default async function BlogPostPage({
     ],
   };
 
+  // Cookie hint only — the nav uses it to draw Dashboard instead of Get started
+  // on the first paint. useLoggedIn() confirms against the real session on mount.
+  const loggedInHint = (await cookies()).get(LOGGED_IN_HINT_COOKIE)?.value === "1";
+
   return (
     <PublicPageShell>
       <script
@@ -125,7 +130,7 @@ export default async function BlogPostPage({
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbJsonLd) }}
       />
 
-      <PublicNav showBlogLink={false} brand={<BlogNavBrand />} />
+      <PublicNav brand={<BlogNavBrand />} initialLoggedIn={loggedInHint} />
 
       {/* Same 1100px container as /blog, so the breadcrumb and content line
           up when moving between the index and a post. */}

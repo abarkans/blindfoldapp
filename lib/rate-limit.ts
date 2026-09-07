@@ -206,3 +206,54 @@ export async function checkPushRegisterRateLimit(userId: string): Promise<void> 
 export async function checkAuthHandoffRateLimit(userId: string): Promise<void> {
   await check(`auth-handoff:${userId}`, 10, 3600, true);
 }
+
+/**
+ * Enforce per-IP rate limits on store checkout session creation.
+ * Guest checkout has no user ID to key on, so IP is the only handle.
+ * Limit: 10 per hour. Fails closed: every call is a Stripe API write.
+ */
+export async function checkStoreCheckoutRateLimit(ip: string): Promise<void> {
+  await check(`store-checkout-ip:${ip}`, 10, 3600, true);
+}
+
+/**
+ * Enforce per-IP rate limits on paid-file download URL issuance.
+ * A presigned R2 GET is shareable for its TTL, so an uncapped endpoint turns
+ * one purchase into unbounded egress. Limit: 20 per hour.
+ * Fails closed: R2 egress is a paid resource.
+ */
+export async function checkStoreDownloadRateLimit(ip: string): Promise<void> {
+  await check(`store-download-ip:${ip}`, 20, 3600, true);
+}
+
+/**
+ * Enforce per-IP rate limits on claim-link redemption.
+ * The claim token is random 256-bit, so brute force is not the threat model —
+ * this just stops an enumeration attempt from burning DB round-trips.
+ * Limit: 20 per hour. Fails closed.
+ */
+export async function checkStoreClaimRateLimit(ip: string): Promise<void> {
+  await check(`store-claim-ip:${ip}`, 20, 3600, true);
+}
+
+/**
+ * Enforce per-IP rate limits on "email me my download links" requests.
+ * Limit: 5 per hour. Fails closed: each send costs Resend quota.
+ */
+export async function checkStoreResendRateLimit(ip: string): Promise<void> {
+  await check(`store-resend-ip:${ip}`, 5, 3600, true);
+}
+
+/**
+ * Cap resends per TARGET address as well as per sender. The IP limiter keys on
+ * whoever is asking, so IP rotation would otherwise let anyone flood a known
+ * buyer's inbox with "your download is ready" mail from our verified domain —
+ * spam complaints there damage deliverability for every transactional email.
+ * Limit: 3 per 24h. Fails closed.
+ *
+ * Callers must swallow the throw and return the same response as the
+ * no-purchases branch, or this becomes an oracle for who has bought what.
+ */
+export async function checkStoreResendTargetRateLimit(emailHash: string): Promise<void> {
+  await check(`store-resend-target:${emailHash}`, 3, 86400, true);
+}

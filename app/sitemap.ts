@@ -57,6 +57,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...blogEntries,
     ...blogPageEntries,
     {
+      url: `${SITE_URL}/store`,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${SITE_URL}/about`,
       changeFrequency: "yearly",
       priority: 0.5,
