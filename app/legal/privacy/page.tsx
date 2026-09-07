@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <h1>Privacy Policy</h1>
-      <p className="!text-white/35 !text-xs !mb-8">Last updated: 23 July 2026</p>
+      <p className="!text-white/35 !text-xs !mb-8">Last updated: 8 September 2026</p>
 
       <nav className="!mb-8 not-prose">
         <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
@@ -102,6 +102,21 @@ export default function PrivacyPolicyPage() {
         reference.
       </p>
 
+      <h3>Store purchase data</h3>
+      <p>
+        If you buy a downloadable product from our store, we record the email address you
+        entered at checkout, which product you bought, the amount and currency, and Stripe&apos;s
+        references for the payment. We also store a one-way hash of the private link we email
+        you, and a count of how many times the files have been downloaded. Card details are
+        handled entirely by Stripe and never reach us.
+      </p>
+      <p>
+        You do not need an account to buy from the store. If you check out as a guest, the email
+        address you provide is the only personal data we hold about you, and it is what your
+        download link is tied to. If that address already belongs to a BlindfoldDate account, the
+        purchase is linked to it so the files also appear when you are signed in.
+      </p>
+
       <h3>Analytics &amp; session data</h3>
       <p>
         If you accept non-essential cookies in the cookie banner, we use PostHog (EU region) to
@@ -129,6 +144,8 @@ export default function PrivacyPolicyPage() {
         <li>To avoid repeating suggestions you have already seen</li>
         <li>To track your progress and award gamification milestones</li>
         <li>To send transactional emails (email confirmation, password reset)</li>
+        <li>To deliver products you buy from the store and re-send your download links on request</li>
+        <li>To keep records of sales as required by tax and accounting law</li>
         <li>To keep the service secure and prevent abuse</li>
         <li>To analyze how features are used and improve the product (PostHog analytics &amp; session recordings)</li>
       </ul>
@@ -147,6 +164,16 @@ export default function PrivacyPolicyPage() {
           in the cookie banner shown on your first visit. You can change or withdraw your choice
           at any time via the &quot;Cookie settings&quot; link in the page footer, which re-opens
           the banner.
+        </li>
+        <li>
+          <strong>Contract performance (Art. 6(1)(b)) — store purchases:</strong> Your email
+          address and purchase record are necessary to deliver a product you have paid for and to
+          let you download it again later.
+        </li>
+        <li>
+          <strong>Legal obligation (Art. 6(1)(c)):</strong> Records of sales are retained for the
+          period required by tax and accounting law, which is why a purchase record outlives the
+          deletion of an account.
         </li>
         <li>
           <strong>Legitimate interest (Art. 6(1)(f)):</strong> Technical data and error monitoring
@@ -210,17 +237,20 @@ export default function PrivacyPolicyPage() {
           </tr>
           <tr>
             <td>Stripe, Inc.</td>
-            <td>Subscription payments. Card details are handled entirely by Stripe.</td>
+            <td>Subscription payments and one-off store purchases, including collecting your
+              email address at checkout. Card details are handled entirely by Stripe.</td>
             <td>US / EU</td>
           </tr>
           <tr>
             <td>Resend, Inc.</td>
-            <td>Transactional email delivery (confirmation, password reset, contact form)</td>
+            <td>Transactional email delivery (confirmation, password reset, contact form,
+              store download links)</td>
             <td>US</td>
           </tr>
           <tr>
             <td>Cloudflare, Inc.</td>
-            <td>Bot protection on sign-in forms (Turnstile) &amp; private photo storage (R2)</td>
+            <td>Bot protection on sign-in forms (Turnstile), private photo storage and storage of
+              purchasable product files (R2)</td>
             <td>US / EU</td>
           </tr>
           <tr>
@@ -259,6 +289,14 @@ export default function PrivacyPolicyPage() {
         </li>
         <li>
           <strong>Session cookies:</strong> Expire when you sign out or after 7 days of inactivity.
+        </li>
+        <li>
+          <strong>Store purchase records:</strong> Retained for as long as tax and accounting law
+          requires us to keep records of a sale. This is the one exception to deletion: if you
+          close your account, the purchase record and the email address attached to it remain, so
+          that the sale stays documented and any download link you were sent keeps working. The
+          record is unlinked from your account at that point. You can still ask us to erase it
+          where the law allows.
         </li>
         <li>
           <strong>Backups:</strong> Purged within 30 days of account deletion.
