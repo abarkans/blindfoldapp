@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { LOGGED_IN_HINT_COOKIE } from "@/lib/hooks/useLoggedIn";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
@@ -45,9 +47,13 @@ export default async function BlogPagedPage({
   const { posts, totalPages } = getPostsForPage(page);
   if (page > totalPages) notFound();
 
+  // Cookie hint only — the nav uses it to draw Dashboard instead of Get started
+  // on the first paint. useLoggedIn() confirms against the real session on mount.
+  const loggedInHint = (await cookies()).get(LOGGED_IN_HINT_COOKIE)?.value === "1";
+
   return (
     <PublicPageShell>
-      <PublicNav showBlogLink={false} />
+      <PublicNav initialLoggedIn={loggedInHint} />
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 pb-16">
         <nav aria-label="Breadcrumb" className="mb-8">

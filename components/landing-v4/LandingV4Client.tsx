@@ -4,10 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, useInView, useReducedMotion, useMotionValueEvent, type MotionValue } from "framer-motion";
 import Link from "next/link";
 import Script from "next/script";
+import { NAV_LINKS } from "@/lib/nav-links";
+import { useLoggedIn } from "@/lib/hooks/useLoggedIn";
 import LinkButton from "@/components/ui/LinkButton";
 import CookieSettingsLink from "@/components/CookieSettingsLink";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/client";
 import { usePostHog } from "posthog-js/react";
 import type { HeroVariant } from "@/lib/hero-variant";
 import {
@@ -233,14 +234,6 @@ const SAMPLE_DATES = [
     tags: ["Indoor", "Cozy"],
     image: "/features/feat-4.jpg",
   },
-];
-
-const NAV_LINKS = [
-  { label: "Benefits", href: "#benefits", scroll: false },
-  { label: "Features", href: "#features", scroll: false },
-  { label: "Pricing", href: "#plans", scroll: false },
-  { label: "FAQ", href: "#faq", scroll: false },
-  { label: "Blog", href: "/blog", scroll: false },
 ];
 
 const HERO_VIDEOS = [
@@ -891,7 +884,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
   useEffect(() => {
     ph?.capture("hero_variant_view", { hero_variant: heroVariant });
   }, [ph, heroVariant]);
-  const [isLoggedIn, setIsLoggedIn] = useState(initialLoggedIn);
+  const isLoggedIn = useLoggedIn(initialLoggedIn);
   const [heroVideo, setHeroVideo] = useState<(typeof HERO_VIDEOS)[number] | null>(null);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
   const [activeSampleDate, setActiveSampleDate] = useState(0);
@@ -918,39 +911,6 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
     if (window.matchMedia("(max-width: 768px)").matches) return;
     setHeroVideoReady(false);
     setHeroVideo(HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)]);
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        await supabase.auth.signOut();
-        setIsLoggedIn(false);
-        return;
-      }
-      if (!session) {
-        setIsLoggedIn(false);
-        return;
-      }
-
-      if (document.cookie.includes("onboarding_complete=1")) {
-        setIsLoggedIn(true);
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_complete")
-        .eq("id", session.user.id)
-        .single();
-
-      if (profile?.onboarding_complete) {
-        const secure = location.protocol === "https:" ? "; secure" : "";
-        document.cookie = `onboarding_complete=1; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax${secure}`;
-        setIsLoggedIn(true);
-      }
-    })();
   }, []);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1444,6 +1404,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                 <a key={label} href={href} className="text-base text-white/50 hover:text-white hover:underline transition-colors">{label}</a>
               ))}
               <Link href="/blog" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Blog</Link>
+              <Link href="/store" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Store</Link>
               <Link href="/about" className="text-base text-white/50 hover:text-white hover:underline transition-colors">About</Link>
               <a href="https://play.google.com/store/apps/details?id=com.blindfolddate.app" target="_blank" rel="noopener noreferrer" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Android App</a>
             </div>

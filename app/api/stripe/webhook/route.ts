@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_INTERESTS } from "@/lib/plans";
 import { safeLogValue } from "@/lib/log";
+import { fulfillStorePurchase } from "@/lib/store/fulfill";
 import type Stripe from "stripe";
 
 const VALID_CADENCES = new Set(["weekly", "biweekly", "monthly"]);
@@ -119,6 +120,26 @@ export async function POST(req: Request) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // Store purchases (one-off digital downloads) run in payment mode and
+        // are fulfilled here rather than on their own endpoint: registering a
+        // second endpoint for this same event type would make Stripe fan it out
+        // to both, and whichever lost the processed_stripe_events INSERT race
+        // would bail as a duplicate — dropping the purchase.
+        if (session.mode === "payment") {
+          // Session completion is not settlement. Delayed methods complete the
+          // session unpaid; those arrive later as async_payment_succeeded.
+          if (session.payment_status === "paid" || session.payment_status === "no_payment_required") {
+            await fulfillStorePurchase(session);
+          } else {
+            console.info(
+              `[stripe/webhook] store fulfilment deferred session=${session.id} ` +
+              `payment_status=${session.payment_status} — awaiting async_payment_succeeded`
+            );
+          }
+          break;
+        }
+
         if (session.mode !== "subscription") break;
 
         const userId = session.metadata?.user_id;
@@ -218,6 +239,20 @@ export async function POST(req: Request) {
         if (error) throw error;
         break;
       }
+
+      case "checkout.session.async_payment_succeeded": {
+        // Delayed-settlement store purchase (SEPA, Bacs, bank transfer…).
+        // NOTE: this event type must be enabled on the endpoint in the Stripe
+        // dashboard — an unlisted type simply never arrives.
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (session.mode === "payment") await fulfillStorePurchase(session);
+        break;
+      }
+
+      case "checkout.session.async_payment_failed":
+        // Nothing to undo: fulfilment only happens on settlement, so no
+        // entitlement was ever granted.
+        break;
 
       case "invoice.payment_failed":
         // Acknowledged. Stripe runs the dunning sequence and fires

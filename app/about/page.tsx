@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { LOGGED_IN_HINT_COOKIE } from "@/lib/hooks/useLoggedIn";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -51,14 +53,18 @@ const jsonLd = {
   ],
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  // Cookie hint only — the nav uses it to draw Dashboard instead of Get started
+  // on the first paint. useLoggedIn() confirms against the real session on mount.
+  const loggedInHint = (await cookies()).get(LOGGED_IN_HINT_COOKIE)?.value === "1";
+
   return (
     <PublicPageShell>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(jsonLd) }}
       />
-      <PublicNav />
+      <PublicNav initialLoggedIn={loggedInHint} />
       <div className="max-w-2xl mx-auto px-6 pb-24">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-8">About</h1>
 

@@ -79,6 +79,54 @@ export interface Database {
         };
         Relationships: [];
       };
+      store_purchases: {
+        Row: {
+          id: string;
+          stripe_session_id: string;
+          stripe_payment_intent_id: string | null;
+          product_id: string;
+          email: string;
+          user_id: string | null;
+          amount_total: number | null;
+          currency: string | null;
+          claim_token_hash: string;
+          claimed_at: string | null;
+          download_count: number;
+          last_downloaded_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          stripe_session_id: string;
+          stripe_payment_intent_id?: string | null;
+          product_id: string;
+          email: string;
+          user_id?: string | null;
+          amount_total?: number | null;
+          currency?: string | null;
+          claim_token_hash: string;
+          claimed_at?: string | null;
+          download_count?: number;
+          last_downloaded_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          stripe_session_id?: string;
+          stripe_payment_intent_id?: string | null;
+          product_id?: string;
+          email?: string;
+          user_id?: string | null;
+          amount_total?: number | null;
+          currency?: string | null;
+          claim_token_hash?: string;
+          claimed_at?: string | null;
+          download_count?: number;
+          last_downloaded_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       app_feedback: {
         Row: {
           id: string;

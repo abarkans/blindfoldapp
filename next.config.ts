@@ -78,15 +78,24 @@ const nextConfig: NextConfig = {
       ...(process.env.NODE_ENV !== "development"
         ? [{ source: "/_next/static/(.*)", headers: immutableCache }]
         : []),
-      {
-        source: "/(.*\\.(?:jpg|jpeg|webp|avif|png|gif|ico|svg|woff2?|mp4|webm))",
-        headers: immutableCache,
-      },
+      // Dev is excluded for the same reason _next/static is: a 1-year immutable
+      // header means editing an image and reloading still serves the old one,
+      // with no way to bust it short of clearing the browser cache.
+      ...(process.env.NODE_ENV !== "development"
+        ? [{
+            source: "/(.*\\.(?:jpg|jpeg|webp|avif|png|gif|ico|svg|woff2?|mp4|webm))",
+            headers: immutableCache,
+          }]
+        : []),
       { source: "/login/:path*", headers: noIndex },
       { source: "/register/:path*", headers: noIndex },
       { source: "/auth/:path*", headers: noIndex },
       { source: "/account/:path*", headers: noIndex },
       { source: "/reset-password/:path*", headers: noIndex },
+      // Claim links and the personal download list — same reasoning as the auth
+      // routes above: keep paid-file credentials out of archives and crawlers.
+      { source: "/store/downloads/:path*", headers: noIndex },
+      { source: "/api/store/:path*", headers: noIndex },
     ];
   },
 };
