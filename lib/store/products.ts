@@ -87,7 +87,7 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     },
     // Cached immutably for a year by the next.config image rule — replacing the
     // artwork means a new filename, not a re-upload over this one.
-    coverImage: "/store/BlindfoldDate-LDR.jpg",
+    coverImage: "/store/LDR_cover.jpg",
   },
 ];
 
