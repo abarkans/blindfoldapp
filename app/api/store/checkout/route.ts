@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [{ price: resolvePriceId(product), quantity: 1 }],
+      line_items: [{ price: await resolvePriceId(product), quantity: 1 }],
       // Guest path: Stripe collects the address itself and we read it back off
       // customer_details in the webhook.
       ...(user?.email ? { customer_email: user.email } : {}),
