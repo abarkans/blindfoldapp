@@ -986,7 +986,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                 <button
                   key={label}
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="text-sm text-white/55 hover:text-white transition-colors font-medium"
+                  className="text-sm text-white/55 hover:text-white hover:underline underline-offset-4 transition-colors font-medium"
                 >
                   {label}
                 </button>
@@ -994,7 +994,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                 <a
                   key={label}
                   href={href}
-                  className="text-sm text-white/55 hover:text-white transition-colors font-medium"
+                  className="text-sm text-white/55 hover:text-white hover:underline underline-offset-4 transition-colors font-medium"
                 >
                   {label}
                 </a>
@@ -1013,7 +1013,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               </Link>
             ) : (
               <>
-                <Link href="/login" className="text-sm text-white/55 hover:text-white transition-colors font-medium">
+                <Link href="/login" className="text-sm text-white/55 hover:text-white hover:underline underline-offset-4 transition-colors font-medium">
                   Sign in
                 </Link>
                 <Link

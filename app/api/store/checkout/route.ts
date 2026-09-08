@@ -55,6 +55,19 @@ export async function POST(req: Request) {
       // Lands on a route handler, not a page: it fulfils immediately (the redirect
       // usually beats the webhook) and sets the access cookie, so no session ID
       // ever ends up in a page URL that analytics would record.
+      // The EU right of withdrawal on digital content survives unless the buyer
+      // expressly requests immediate delivery and acknowledges losing it
+      // (Directive 2011/83/EU Art. 16(m)). Terms acceptance is the record of
+      // that, so it is required rather than optional — without this the waiver
+      // in /legal/terms is asserted but never actually agreed to.
+      // Requires a Terms of service URL set in Stripe → Settings → Public details.
+      consent_collection: { terms_of_service: "required" as const },
+      custom_text: {
+        terms_of_service_acceptance: {
+          message:
+            "I request immediate delivery of this download and accept that I lose my 14-day right of withdrawal once it is available.",
+        },
+      },
       success_url: `${origin}/api/store/session-claim?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/store?checkout=cancelled`,
       metadata: {

@@ -67,7 +67,7 @@ export default function PublicNav({
               <Link
                 key={label}
                 href={publicNavHref(href)}
-                className="text-sm text-white/55 hover:text-white transition-colors font-medium"
+                className="text-sm text-white/55 hover:text-white hover:underline underline-offset-4 transition-colors font-medium"
               >
                 {label}
               </Link>
@@ -84,7 +84,7 @@ export default function PublicNav({
               <>
                 <Link
                   href="/login"
-                  className="text-sm text-white/55 hover:text-white transition-colors font-medium"
+                  className="text-sm text-white/55 hover:text-white hover:underline underline-offset-4 transition-colors font-medium"
                 >
                   Sign in
                 </Link>

@@ -291,8 +291,8 @@ export default function PrivacyPolicyPage() {
           <strong>Session cookies:</strong> Expire when you sign out or after 7 days of inactivity.
         </li>
         <li>
-          <strong>Store purchase records:</strong> Retained for as long as tax and accounting law
-          requires us to keep records of a sale. This is the one exception to deletion: if you
+          <strong>Store purchase records:</strong> Retained for 5 years, the period Latvian
+          accounting law requires records of a sale to be kept. This is the one exception to deletion: if you
           close your account, the purchase record and the email address attached to it remain, so
           that the sale stays documented and any download link you were sent keeps working. The
           record is unlinked from your account at that point. You can still ask us to erase it

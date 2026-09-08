@@ -11,19 +11,20 @@ const TOC = [
   { href: "#service", label: "3. The service" },
   { href: "#ai-content", label: "4. AI-generated content" },
   { href: "#plus", label: "5. Plus subscription" },
-  { href: "#acceptable-use", label: "6. Acceptable use" },
-  { href: "#liability", label: "7. Limitation of liability" },
-  { href: "#termination", label: "8. Termination" },
-  { href: "#changes", label: "9. Changes to terms" },
-  { href: "#law", label: "10. Governing law" },
-  { href: "#contact", label: "11. Contact" },
+  { href: "#store", label: "6. Store purchases" },
+  { href: "#acceptable-use", label: "7. Acceptable use" },
+  { href: "#liability", label: "8. Limitation of liability" },
+  { href: "#termination", label: "9. Termination" },
+  { href: "#changes", label: "10. Changes to terms" },
+  { href: "#law", label: "11. Governing law" },
+  { href: "#contact", label: "12. Contact" },
 ];
 
 export default function TermsPage() {
   return (
     <>
       <h1>Terms of Service</h1>
-      <p className="!text-white/35 !text-xs !mb-8">Last updated: 26 April 2026</p>
+      <p className="!text-white/35 !text-xs !mb-8">Last updated: 8 September 2026</p>
 
       <nav className="!mb-8 not-prose">
         <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-3">Contents</p>
@@ -38,8 +39,8 @@ export default function TermsPage() {
 
       <p>
         These Terms of Service (&quot;Terms&quot;) govern your use of BlindfoldDate
-        (&quot;the service&quot;), operated by <strong>BlindfoldDate</strong>. By creating an account
-        you agree to these Terms and our{" "}
+        (&quot;the service&quot;), operated by <strong>BlindfoldDate</strong>. By creating an account,
+        or by buying a downloadable product from our store, you agree to these Terms and our{" "}
         <a href="/legal/privacy">Privacy Policy</a>.
       </p>
 
@@ -109,7 +110,71 @@ export default function TermsPage() {
         acceptance of the new price.
       </p>
 
-      <h2 id="acceptable-use">6. Acceptable use</h2>
+      <h2 id="store">6. Store purchases (digital downloads)</h2>
+
+      <h3>What you are buying</h3>
+      <p>
+        Our store sells digital products delivered as file downloads. Each product page states
+        what is included. You do not need an account to buy; the email address you enter at
+        checkout is where we send your download link.
+      </p>
+
+      <h3>Delivery</h3>
+      <p>
+        Delivery is immediate. As soon as your payment is confirmed you are taken to a download
+        page, and we email you a private link to the same files. That link remains valid so you
+        can download again later. If the email does not arrive, you can request it again from the
+        downloads page, which invalidates any link we sent you previously.
+      </p>
+
+      <h3>Right of withdrawal (EU) — and your waiver of it</h3>
+      <p>
+        As an EU consumer you normally have 14 days to withdraw from a purchase of digital
+        content and receive a refund. Because our products are delivered immediately, you are
+        asked at checkout to expressly request immediate delivery and to acknowledge that you
+        therefore lose that right of withdrawal once the download becomes available to you. This
+        is permitted under Article 16(m) of Directive 2011/83/EU and the corresponding provisions
+        of Latvian consumer law.
+      </p>
+      <p>
+        If you would rather keep your withdrawal right, do not complete the purchase — contact us
+        instead and we will arrange delivery after the 14-day period.
+      </p>
+
+      <h3>Refunds</h3>
+      <p>
+        Because of the waiver above we do not offer refunds simply because you changed your mind
+        after downloading. We will of course refund you if the files are faulty, if they do not
+        match what the product page described, or if a technical problem on our side prevented
+        you from downloading them and we cannot fix it. Write to{" "}
+        <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a> and we will sort it out.
+        Nothing here limits your statutory rights in respect of defective digital content.
+      </p>
+
+      <h3>How you may use the files</h3>
+      <p>
+        Your purchase is a personal, non-exclusive, non-transferable licence for you and your
+        partner. You may print the files and use them privately as often as you like. You may not
+        resell them, redistribute them, publish them, or share your download link publicly. The
+        copyright remains ours.
+      </p>
+
+      <h3>Keeping your link private</h3>
+      <p>
+        Anyone holding your download link can download the files, so treat it like a receipt you
+        would not post publicly. If you believe your link has been shared, request a new one from
+        the downloads page — this replaces the old link and disables it.
+      </p>
+
+      <h3>Pricing and availability</h3>
+      <p>
+        Prices are shown in euro and include VAT where applicable. We may change prices or
+        withdraw a product at any time; the price you paid at checkout is the price that applies
+        to your purchase, and withdrawing a product does not affect downloads you have already
+        bought.
+      </p>
+
+      <h2 id="acceptable-use">7. Acceptable use</h2>
       <p>You must not:</p>
       <ul>
         <li>Use the service if you are under 18</li>
@@ -119,7 +184,7 @@ export default function TermsPage() {
         <li>Provide false information when registering or using the service</li>
       </ul>
 
-      <h2 id="liability">7. Limitation of liability</h2>
+      <h2 id="liability">8. Limitation of liability</h2>
       <p>
         BlindfoldDate is provided &quot;as is&quot; without warranties of any kind, express or
         implied. To the fullest extent permitted by law, we are not liable for any indirect,
@@ -131,21 +196,21 @@ export default function TermsPage() {
         (including consumer protection rights in your jurisdiction).
       </p>
 
-      <h2 id="termination">8. Termination</h2>
+      <h2 id="termination">9. Termination</h2>
       <p>
         We may suspend or terminate your account if you breach these Terms or if we have reason
         to believe your use of the service is harmful. Where possible we will give you notice
         before doing so. You may stop using the service and request account deletion at any time.
       </p>
 
-      <h2 id="changes">9. Changes to these terms</h2>
+      <h2 id="changes">10. Changes to these terms</h2>
       <p>
         We may update these Terms from time to time. We will notify you of material changes by
         email at least 14 days before they take effect. Continued use of the service after the
         effective date constitutes acceptance of the revised Terms.
       </p>
 
-      <h2 id="law">10. Governing law</h2>
+      <h2 id="law">11. Governing law</h2>
       <p>
         These Terms are governed by the laws of the Republic of Latvia. Any disputes that
         cannot be resolved informally will be referred to the courts of Latvia. If you are
@@ -155,7 +220,7 @@ export default function TermsPage() {
         </a>.
       </p>
 
-      <h2 id="contact">11. Contact</h2>
+      <h2 id="contact">12. Contact</h2>
       <p>
         Questions about these Terms:{" "}
         <a href="mailto:info@blindfolddate.com">info@blindfolddate.com</a>
