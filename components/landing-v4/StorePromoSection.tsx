@@ -41,9 +41,9 @@ export default function StorePromoSection() {
             <br />
             you can print.
           </h2>
-          <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] md:text-center md:mx-auto">
-            Date packs as PDFs. Pay once, download instantly, keep them forever.
-            No account needed — yours or theirs.
+          <p className="text-white/55 text-base md:text-lg max-w-[900px] md:text-center md:mx-auto">
+            Date packs as PDFs. Pay once, download instantly.
+            No account needed — yours to keep forever.
           </p>
         </div>
 
