@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useInView, useReducedMotion, useMotion
 import Link from "next/link";
 import Script from "next/script";
 import { NAV_LINKS } from "@/lib/nav-links";
+import StorePromoSection from "@/components/landing-v4/StorePromoSection";
 import { useLoggedIn } from "@/lib/hooks/useLoggedIn";
 import LinkButton from "@/components/ui/LinkButton";
 import CookieSettingsLink from "@/components/CookieSettingsLink";
@@ -1278,6 +1279,9 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
             </div>
           </div>
         </section>
+
+        {/* ── Store promo ── */}
+        <StorePromoSection />
 
         {/* ── FAQ ── */}
         <section id="faq" className="bg-black scroll-mt-20 md:scroll-mt-28">

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
-import { getStoreProduct, resolvePriceId } from "@/lib/store/products";
+import { getStoreProduct } from "@/lib/store/products";
+import { resolvePriceId } from "@/lib/store/pricing";
 import { checkStoreCheckoutRateLimit } from "@/lib/rate-limit";
 import { isAllowedOrigin } from "@/lib/origin";
 import { safeLogValue } from "@/lib/log";
