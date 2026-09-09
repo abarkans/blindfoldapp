@@ -94,6 +94,39 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     // artwork means a new filename, not a re-upload over this one.
     coverImage: "/store/LDR_cover.jpg",
   },
+  {
+    id: "sketch-and-reveal",
+    name: "Sketch & Reveal",
+    tagline: "One topic, two different instructions",
+    description:
+      "You both draw the same topic, but each of you is told something slightly different about it. Draw yours without peeking, then hold them up and work out what the other one was asked to draw.",
+    priceLine: "\u20ac8.99",
+    format: "2 PDFs \u00b7 one per partner",
+    files: [
+      {
+        id: "partner-a",
+        label: "Partner A",
+        r2Key: "store/sketch-and-reveal/blindfolddate-sketch-reveal-partner-A.pdf",
+        fileName: "blindfolddate-sketch-reveal-partner-A.pdf",
+        contentType: "application/pdf",
+      },
+      {
+        id: "partner-b",
+        label: "Partner B",
+        r2Key: "store/sketch-and-reveal/blindfolddate-sketch-reveal-partner-B.pdf",
+        fileName: "blindfolddate-sketch-reveal-partner-B.pdf",
+        contentType: "application/pdf",
+      },
+    ],
+    sampleFile: {
+      id: "sample",
+      label: "Free sample",
+      r2Key: "store/sketch-and-reveal/blindfolddate-sketch-sample.pdf",
+      fileName: "blindfolddate-sketch-sample.pdf",
+      contentType: "application/pdf",
+    },
+    coverImage: "/store/Sketch_cover.jpg",
+  },
 ];
 
 export function getStoreProduct(id: unknown): StoreProduct | null {

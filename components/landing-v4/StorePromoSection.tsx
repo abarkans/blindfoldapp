@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePostHog } from "posthog-js/react";
-import { Download, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { STORE_PRODUCTS } from "@/lib/store/products";
 
 // Sits between Pricing and the FAQ on purpose: someone who has just read the
@@ -93,33 +93,18 @@ export default function StorePromoSection() {
                 ))}
               </ul>
 
-              <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full max-w-[460px]">
+              {/* Store link only. The sample button lived here while there was
+                  one product; with several it could only ever advertise one of
+                  them, which is a choice better made on the store page itself. */}
+              <div className="mt-8">
                 <Link
                   href="/store"
                   onClick={() => ph?.capture("landing_store_click", { action: "browse" })}
-                  className="inline-flex w-full shrink-0 sm:flex-1 items-center justify-center gap-2 h-14 px-7 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-base font-bold transition-[background-color] duration-150"
+                  className="inline-flex items-center justify-center gap-2 h-14 px-8 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-base font-bold transition-[background-color] duration-150"
                 >
                   Browse the store
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </Link>
-
-                {products[0].sampleFile && (
-                  // Plain <a>: /api/store/sample is a route handler that redirects
-                  // to a presigned R2 URL, so client-side routing has no part in it.
-                  <a
-                    href={`/api/store/sample?product=${products[0].id}`}
-                    onClick={() =>
-                      ph?.capture("landing_store_click", {
-                        action: "sample",
-                        product_id: products[0].id,
-                      })
-                    }
-                    className="inline-flex w-full shrink-0 sm:flex-1 items-center justify-center gap-2 h-14 px-7 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/[0.04] text-base font-bold transition-[color,background-color,border-color] duration-150"
-                  >
-                    <Download className="w-4 h-4" aria-hidden="true" />
-                    Free sample
-                  </a>
-                )}
               </div>
             </div>
           </div>
