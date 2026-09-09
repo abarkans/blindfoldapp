@@ -97,7 +97,7 @@ export default function StorePromoSection() {
                 <Link
                   href="/store"
                   onClick={() => ph?.capture("landing_store_click", { action: "browse" })}
-                  className="inline-flex flex-1 items-center justify-center gap-2 h-14 px-7 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-base font-bold transition-[background-color] duration-150"
+                  className="inline-flex w-full shrink-0 sm:flex-1 items-center justify-center gap-2 h-14 px-7 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-base font-bold transition-[background-color] duration-150"
                 >
                   Browse the store
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -114,7 +114,7 @@ export default function StorePromoSection() {
                         product_id: products[0].id,
                       })
                     }
-                    className="inline-flex flex-1 items-center justify-center gap-2 h-14 px-7 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/[0.04] text-base font-bold transition-[color,background-color,border-color] duration-150"
+                    className="inline-flex w-full shrink-0 sm:flex-1 items-center justify-center gap-2 h-14 px-7 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/[0.04] text-base font-bold transition-[color,background-color,border-color] duration-150"
                   >
                     <Download className="w-4 h-4" aria-hidden="true" />
                     Free sample
