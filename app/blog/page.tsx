@@ -11,6 +11,7 @@ import BlogPromoBanner from "@/components/blog/BlogPromoBanner";
 import Pagination from "@/components/blog/Pagination";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
+import PublicFooter from "@/components/ui/PublicFooter";
 
 const SITE_URL = "https://blindfolddate.com";
 
@@ -94,12 +95,8 @@ export default async function BlogPage() {
 
         <Pagination currentPage={1} totalPages={totalPages} />
 
-        <div className="mt-16 pt-6 border-t border-white/10 flex gap-6 text-sm text-white/30">
-          <Link href="/legal/privacy" className="hover:text-white/60 transition-colors">Privacy</Link>
-          <Link href="/legal/terms" className="hover:text-white/60 transition-colors">Terms</Link>
-          <Link href="/contact" className="hover:text-white/60 transition-colors">Contact</Link>
-        </div>
       </div>
+      <PublicFooter />
     </PublicPageShell>
   );
 }

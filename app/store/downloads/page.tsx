@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { LOGGED_IN_HINT_COOKIE } from "@/lib/hooks/useLoggedIn";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
+import PublicFooter from "@/components/ui/PublicFooter";
 import DownloadButton from "@/components/store/DownloadButton";
 import ResendLinksForm from "@/components/store/ResendLinksForm";
 import { getStoreProduct } from "@/lib/store/products";
@@ -167,6 +168,7 @@ export default async function StoreDownloadsPage({
           </div>
         )}
       </div>
+      <PublicFooter />
     </PublicPageShell>
   );
 }

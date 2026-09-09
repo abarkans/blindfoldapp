@@ -11,6 +11,7 @@ import { getAllPosts, getPost, getRelatedPosts, formatDateShort } from "@/lib/bl
 import { getCategoryLabel } from "@/lib/blog-meta";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
+import PublicFooter from "@/components/ui/PublicFooter";
 import ShareButtons from "@/components/blog/ShareButtons";
 import BlogToc from "@/components/blog/BlogToc";
 import BlogNavBrand from "@/components/blog/BlogNavBrand";
@@ -294,12 +295,11 @@ export default async function BlogPostPage({
 
           <div className="mt-10 pt-6 border-t border-white/10 flex gap-6 text-sm text-white/30">
             <Link href="/blog" className="hover:text-white/60 transition-colors">All posts</Link>
-            <Link href="/legal/privacy" className="hover:text-white/60 transition-colors">Privacy</Link>
-            <Link href="/contact" className="hover:text-white/60 transition-colors">Contact</Link>
           </div>
         </div>
         </div>
       </div>
+      <PublicFooter />
     </PublicPageShell>
   );
 }

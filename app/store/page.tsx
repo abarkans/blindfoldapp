@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Download } from "lucide-react";
 import PublicPageShell from "@/components/ui/PublicPageShell";
 import PublicNav from "@/components/ui/PublicNav";
+import PublicFooter from "@/components/ui/PublicFooter";
 import BuyButton from "@/components/store/BuyButton";
 import { STORE_PRODUCTS } from "@/lib/store/products";
 
@@ -111,6 +112,7 @@ export default async function StorePage({
           .
         </p>
       </div>
+      <PublicFooter />
     </PublicPageShell>
   );
 }
