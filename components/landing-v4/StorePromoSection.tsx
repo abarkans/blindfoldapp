@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePostHog } from "posthog-js/react";
-import { ArrowRight } from "lucide-react";
 import { STORE_PRODUCTS } from "@/lib/store/products";
+import { LANDING_CTA } from "@/lib/landing-cta";
 
 // Sits between Pricing and the FAQ on purpose: someone who has just read the
 // plans and not clicked "Get started" is exactly the reader this section is
@@ -29,85 +29,63 @@ export default function StorePromoSection() {
       className="relative bg-black scroll-mt-20 md:scroll-mt-28"
     >
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-16 md:py-24">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-rose-500/[0.12] via-rose-500/[0.03] to-transparent">
-          <div className="grid gap-10 md:gap-14 lg:grid-cols-2 items-center p-6 sm:p-10 md:p-14">
-            {/* Covers. Tilted and overlapped so they read as objects you own
-                rather than another screenshot of the product. */}
-            <div className="relative flex justify-center lg:justify-start">
-              {products.map((product, i) => (
-                <div
-                  key={product.id}
-                  className={[
-                    "relative w-full max-w-[420px] aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50",
-                    i === 0 ? "rotate-[-2deg]" : "hidden sm:block -ml-16 rotate-[3deg]",
-                  ].join(" ")}
-                >
-                  {product.coverImage ? (
-                    <Image
-                      src={product.coverImage}
-                      alt={product.name}
-                      fill
-                      sizes="(min-width: 1024px) 420px, (min-width: 640px) 50vw, 90vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-rose-500/25 via-rose-500/5 to-transparent px-8 text-center text-xl font-bold text-white/85">
-                      {product.name}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        {/* Same heading rhythm as the Features and Pricing sections, so this
+            reads as another section of the page rather than a panel dropped
+            into it. */}
+        <div className="flex flex-col items-start md:items-center gap-4 mb-10 md:mb-16">
+          <h2
+            id="printables-heading"
+            className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.15] tracking-normal text-white md:text-center"
+          >
+            We also make things
+            <br />
+            you can print.
+          </h2>
+          <p className="text-white/50 text-base md:text-lg max-w-[520px] leading-[1.7] md:text-center md:mx-auto">
+            Date packs as PDFs. Pay once, download instantly, keep them forever.
+            No account needed — yours or theirs.
+          </p>
+        </div>
 
-            <div className="flex flex-col items-start">
-              <p className="text-xs font-semibold uppercase tracking-widest text-rose-400 mb-4">
-                Printable date packs
-              </p>
-
-              <h2
-                id="printables-heading"
-                className="text-[32px] md:text-[40px] lg:text-[44px] xl:text-[50px] font-black leading-[1.15] tracking-normal text-white"
-              >
-                Not an app person?
-              </h2>
-
-              <p className="mt-4 text-white/50 text-base md:text-lg leading-[1.7] max-w-[520px]">
-                We also make printable date packs you download once and keep. No account,
-                no subscription — pay once and it&rsquo;s yours.
-              </p>
-
-              <ul className="mt-8 flex flex-col gap-3 w-full max-w-[460px]">
-                {products.map((product) => (
-                  <li
-                    key={product.id}
-                    className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-white font-semibold truncate">{product.name}</p>
-                      <p className="text-sm text-white/40 truncate">{product.format}</p>
-                    </div>
-                    <span className="shrink-0 text-lg font-bold text-white">
-                      {product.priceLine}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Store link only. The sample button lived here while there was
-                  one product; with several it could only ever advertise one of
-                  them, which is a choice better made on the store page itself. */}
-              <div className="mt-8">
-                <Link
-                  href="/store"
-                  onClick={() => ph?.capture("landing_store_click", { action: "browse" })}
-                  className="inline-flex items-center justify-center gap-2 h-14 px-8 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-base font-bold transition-[background-color] duration-150"
-                >
-                  Browse the store
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
+        {/* One product per column. Two fill the row; a third would want this to
+            become a 3-col grid rather than a wrapped orphan. */}
+        <div className="grid gap-8 md:gap-10 sm:grid-cols-2 max-w-[920px] mx-auto">
+          {products.map((product) => (
+            <article key={product.id} className="flex flex-col">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03]">
+                {product.coverImage ? (
+                  <Image
+                    src={product.coverImage}
+                    alt={product.name}
+                    fill
+                    sizes="(min-width: 640px) 440px, 90vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-rose-500/25 via-rose-500/5 to-transparent px-8 text-center text-xl font-bold text-white/85">
+                    {product.name}
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+
+              <h3 className="mt-5 text-xl font-bold text-white">{product.name}</h3>
+              <p className="mt-1 text-sm text-white/45 leading-relaxed">{product.tagline}</p>
+              <p className="mt-3 text-sm text-white/40">
+                {product.format} ·{" "}
+                <span className="text-white font-semibold">{product.priceLine}</span>
+              </p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-10 md:mt-14 flex justify-center">
+          <Link
+            href="/store"
+            onClick={() => ph?.capture("landing_store_click", { action: "browse" })}
+            className={LANDING_CTA}
+          >
+            Browse the store
+          </Link>
         </div>
       </div>
     </section>

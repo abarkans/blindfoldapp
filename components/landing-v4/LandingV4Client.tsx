@@ -6,6 +6,7 @@ import Link from "next/link";
 import { NAV_LINKS } from "@/lib/nav-links";
 import StorePromoSection from "@/components/landing-v4/StorePromoSection";
 import PublicFooter from "@/components/ui/PublicFooter";
+import { LANDING_CTA } from "@/lib/landing-cta";
 import { useLoggedIn } from "@/lib/hooks/useLoggedIn";
 import LinkButton from "@/components/ui/LinkButton";
 import Image from "next/image";
@@ -490,7 +491,7 @@ function MemoriesSection() {
         <Link
           href="/register"
           rel="nofollow"
-          className="w-full md:w-fit inline-flex items-center justify-center gap-2 text-base md:text-xl font-bold px-10 py-4 rounded-full text-white transition-[background-color,color,border-color] duration-150 bg-rose-500 hover:bg-rose-400 shadow-lg shadow-rose-500/20 mt-4"
+          className={`${LANDING_CTA} mt-4`}
         >
           Start collecting memories
         </Link>
@@ -1243,7 +1244,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
               </p>
             </div>
 
-            <div className="max-w-sm md:max-w-[1120px] md:mx-auto">
+            <div className="w-full md:max-w-[1120px] md:mx-auto">
               <div className="relative flex flex-col items-stretch md:items-center gap-12 w-full">
                 <ul className="grid grid-cols-1 sm:grid-cols-[max-content_max-content_max-content] gap-x-16 gap-y-3.5 justify-center">
                   {FREE_PLAN.features.map((feat) => (
@@ -1259,7 +1260,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   <Link
                     href={`/register?plan=${FREE_PLAN.id}`}
                     rel="nofollow"
-                    className="w-full md:w-auto inline-block text-center px-10 md:px-20 py-4 md:py-5 rounded-full text-base md:text-xl font-bold transition-[background-color,color,border-color] duration-150 bg-rose-500 text-white hover:bg-rose-400 shadow-lg shadow-rose-500/20"
+                    className={LANDING_CTA}
                   >
                     {FREE_PLAN.cta}
                   </Link>
@@ -1353,7 +1354,7 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
 
             <Link
               href="/register"
-              className="group relative inline-flex items-center gap-3 font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-[background-color] duration-150 overflow-hidden bg-rose-500 text-white hover:bg-rose-400 shadow-2xl shadow-rose-500/30 focus-visible:outline-none"
+              className="group relative inline-flex w-full sm:w-auto justify-center items-center gap-3 font-bold px-10 py-5 md:px-14 md:py-6 rounded-full text-base md:text-xl transition-[background-color] duration-150 overflow-hidden bg-rose-500 text-white hover:bg-rose-400 shadow-2xl shadow-rose-500/30 focus-visible:outline-none"
             >
               Start free, no card needed
               <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />

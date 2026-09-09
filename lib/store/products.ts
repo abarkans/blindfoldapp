@@ -61,7 +61,7 @@ export interface StoreProduct {
 export const STORE_PRODUCTS: StoreProduct[] = [
   {
     id: "ldr-mission-pack",
-    name: "LDR Mission Pack",
+    name: "Long Distance Relationship Mission Pack",
     tagline: "For the nights you'd rather be on the same sofa",
     description:
       "You both get your own copy, so you're each planning something for the other instead of one of you carrying it. Open them together on your next call and you'll have a date lined up before you hang up.",
