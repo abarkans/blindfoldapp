@@ -60,6 +60,7 @@ const POST_CATEGORIES: Record<string, BlogCategoryId> = {
   "mystery-date-ideas-for-couples": "mystery-games",
   "surprise-date-night-ideas": "mystery-games",
   "date-night-challenges-for-couples": "mystery-games",
+  "how-blindfolddate-works": "mystery-games",
 
   "date-ideas-when-tired": "short-on-time",
   "last-minute-date-night-ideas": "short-on-time",
