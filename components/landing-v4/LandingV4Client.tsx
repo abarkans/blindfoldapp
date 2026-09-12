@@ -647,7 +647,7 @@ function DateIdeasSection() {
   const strike2Color = useTransform(strikeProgress, [0.4, 1], ["rgba(244,63,94,0)", "rgba(244,63,94,1)"]);
 
   return (
-    <section id="benefits" className="bg-black py-16 md:py-24 scroll-mt-20 md:scroll-mt-28">
+    <section id="benefits" className="bg-black pt-6 md:pt-10 pb-16 md:pb-24 scroll-mt-20 md:scroll-mt-28">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <h2 ref={headingRef} className="text-[36px] md:text-[44px] lg:text-[48px] xl:text-[54px] 2xl:text-[64px] font-black leading-[1.15] tracking-normal mb-4 md:text-center">
           No more &ldquo;
@@ -1155,13 +1155,13 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
 
               <h1 className="text-[40px] sm:text-[52px] lg:text-[56px] xl:text-[64px] 2xl:text-[76px] font-black leading-[1.2] tracking-tight mb-7 md:mb-8 [filter:drop-shadow(0_6px_24px_rgba(0,0,0,0.88))]">
                 <span className="block">
-                  {heroVariant === "B" ? "Out of date ideas?" : "Looking for new date ideas?"}
+                  {heroVariant === "B" ? "We plan your date." : "Your date night, planned."}
                 </span>
                 <span
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fb7185 0%, #c026d3 45%, #8b5cf6 100%)" }}
                 >
-                  {heroVariant === "B" ? "We'll plan one." : "Stop looking."}
+                  {heroVariant === "B" ? "Just show up." : "Zero effort."}
                 </span>
               </h1>
 
@@ -1210,8 +1210,8 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
           </div>
         </section>
 
-        {/* ── Problem statement scroll reveal ── */}
-        <ScrollRevealStatement />
+        {/* ── Problem statement scroll reveal (hidden) ── */}
+        {/* <ScrollRevealStatement /> */}
 
         {/* ── Date ideas marquee ── */}
         <DateIdeasSection />
