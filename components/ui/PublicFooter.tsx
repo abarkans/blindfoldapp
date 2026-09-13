@@ -62,6 +62,7 @@ export default function PublicFooter() {
               <Link key={label} href={publicNavHref(href)} className="text-base text-white/50 hover:text-white hover:underline transition-colors">{label}</Link>
             ))}
             <Link href="/blog" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Blog</Link>
+            <Link href="/random-date-generator" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Date idea generator</Link>
             <Link href="/store" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Store</Link>
             <Link href="/about" className="text-base text-white/50 hover:text-white hover:underline transition-colors">About</Link>
             <a href="https://play.google.com/store/apps/details?id=com.blindfolddate.app" target="_blank" rel="noopener noreferrer" className="text-base text-white/50 hover:text-white hover:underline transition-colors">Android App</a>

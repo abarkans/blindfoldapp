@@ -677,15 +677,20 @@ function DateIdeasSection() {
           </div>
         </div>
 
-        <p className="text-base md:text-lg mt-8 md:text-center">
-          <span className="text-white/50">Need inspiration first?</span>{" "}
-          <Link
-            href="/blog/date-night-ideas-to-try-this-weekend"
-            className="text-rose-400 hover:text-rose-300 hover:underline"
-          >
-            30 date night ideas to try this weekend
+        <div className="mt-8 flex flex-col items-center gap-4 text-center">
+          <Link href="/random-date-generator" className={LANDING_CTA}>
+            Try date idea generator
           </Link>
-        </p>
+          <p className="text-base md:text-lg">
+            <span className="text-white/50">or read</span>{" "}
+            <Link
+              href="/blog/date-night-ideas-to-try-this-weekend"
+              className="text-rose-400 hover:text-rose-300 hover:underline"
+            >
+              30 date night ideas to try this weekend
+            </Link>
+          </p>
+        </div>
       </div>
     </section>
   );
