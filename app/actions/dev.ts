@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { completeDate } from "@/app/actions/complete-date";
+import { getCadenceDays } from "@/lib/cadence";
 import type { CompleteDateResult } from "@/lib/types";
 
 export type DevResult = { ok: boolean; message?: string };
@@ -163,8 +164,7 @@ export async function devSetCountdown1Min(): Promise<DevResult> {
     .select("cadence")
     .eq("id", access.profileId)
     .single();
-  const cadenceDays: Record<string, number> = { weekly: 7, biweekly: 14, monthly: 30 };
-  const days = cadenceDays[profile?.cadence ?? "weekly"] ?? 7;
+  const days = getCadenceDays(profile?.cadence);
   const revealedAt = new Date(Date.now() - days * 86_400_000 + 60_000).toISOString();
   await admin
     .from("profiles")

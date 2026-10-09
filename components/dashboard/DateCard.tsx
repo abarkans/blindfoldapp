@@ -31,7 +31,7 @@ import PhotoChallenge from "@/components/dashboard/PhotoChallenge";
 import CheckInCountdown from "@/components/dashboard/CheckInCountdown";
 import { getPriceLevelLabel, type VenueAIEnrichment } from "@/lib/places/search";
 import { type UnitSystem, getCurrencySymbol, formatBudgetRange } from "@/lib/units";
-import { getCheckinDeadlineMs } from "@/lib/cadence";
+import { getCadenceDays, getCheckinDeadlineMs } from "@/lib/cadence";
 
 const LOADING_MESSAGES = [
   "Scanning the city for your perfect spot...",
@@ -151,16 +151,18 @@ interface DateCardProps {
   unitSystem?: UnitSystem;
 }
 
+/**
+ * Must agree with isRevealAvailableForProfile in app/actions/reveal.ts — the
+ * server is the authority, and a client that disagrees either offers a reveal
+ * the server rejects or hides one it would allow.
+ *
+ * Previously this added calendar days via setDate(), which preserves local
+ * wall-clock time, while the server adds fixed milliseconds. Across a DST
+ * boundary those differ by an hour. Both now go through getCadenceDays with
+ * millisecond arithmetic.
+ */
 function getNextRevealDate(revealedAt: string, cadence: string): Date {
-  const cadenceDays: Record<string, number> = {
-    weekly: 7,
-    biweekly: 14,
-    monthly: 30,
-  };
-  const days = cadenceDays[cadence] ?? 7;
-  const next = new Date(revealedAt);
-  next.setDate(next.getDate() + days);
-  return next;
+  return new Date(new Date(revealedAt).getTime() + getCadenceDays(cadence) * 86_400_000);
 }
 
 function isRevealAvailable(revealedAt: string | null, cadence: string): boolean {

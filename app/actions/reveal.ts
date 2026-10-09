@@ -10,6 +10,7 @@ import { checkRevealRateLimit, checkReadyRateLimit } from "@/lib/rate-limit";
 import { adoptDeletionHold } from "@/lib/deletion-hold";
 import { getCoupleAccess } from "@/lib/partner-invites";
 import { createDateTeaser } from "@/lib/date-teaser";
+import { getCadenceDays } from "@/lib/cadence";
 import { resend, FROM_ADDRESS } from "@/lib/email/resend";
 import { dateInitiatedEmail } from "@/lib/email/templates/date-initiated";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
@@ -38,12 +39,6 @@ const profileSchema = z.object({
   date_idea: z.unknown().nullable().optional(),
   date_accepted_at: z.string().nullable().optional(),
 });
-
-const CADENCE_DAYS: Record<string, number> = {
-  weekly: 7,
-  biweekly: 14,
-  monthly: 30,
-};
 
 const VALID_INTERESTS = new Set([
   "food", "music", "nature", "art", "fitness", "cinema",
@@ -143,7 +138,7 @@ export async function startDate(locationType?: "outside" | "home" | "auto"): Pro
   }
 
   const nowIso = new Date().toISOString();
-  const days = CADENCE_DAYS[profile.cadence];
+  const days = getCadenceDays(profile.cadence);
   const cooldownCutoff = new Date(Date.now() - days * 86_400_000).toISOString();
   let claimQuery = admin
     .from("profiles")
@@ -388,7 +383,7 @@ export async function revealDate(): Promise<RevealResult> {
 
 function isRevealAvailableForProfile(revealedAt: string | null, cadence: string): boolean {
   if (!revealedAt) return true;
-  const days = CADENCE_DAYS[cadence] ?? 7;
+  const days = getCadenceDays(cadence);
   return Date.now() >= new Date(revealedAt).getTime() + days * 86_400_000;
 }
 
