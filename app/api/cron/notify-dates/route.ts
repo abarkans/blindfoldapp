@@ -10,6 +10,7 @@ import { reengagementEmail } from "@/lib/email/templates/reengagement";
 import { generateUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import { safeLogValue } from "@/lib/log";
 import { expireProfileDate } from "@/lib/date-expiry";
+import { getCadenceDays, getCheckinDeadlineMs } from "@/lib/cadence";
 
 // Constant-time comparison so the secret can't be recovered byte-by-byte
 // via response-time side channels. Different lengths short-circuit to false
@@ -23,11 +24,6 @@ function safeBearerEquals(authHeader: string | null, expected: string): boolean 
 }
 
 // Cadence → cooldown in days (mirrors reveal.ts)
-const CADENCE_DAYS: Record<string, number> = {
-  weekly: 7,
-  biweekly: 14,
-  monthly: 30,
-};
 
 // --- R2 orphan reaper -------------------------------------------------------
 // Objects older than this with no matching date_photos row are abandoned
@@ -211,7 +207,10 @@ export async function GET(request: Request) {
   const notifiedThisRun = new Set<string>();
 
   for (const profile of profiles) {
-    const cadenceDays = CADENCE_DAYS[profile.cadence ?? "weekly"] ?? 7;
+    // Deliberately spelled out rather than reusing getCheckinDeadlineMs: this
+    // is the next-date-available gate, which only coincides with the check-in
+    // deadline because both currently anchor on revealed_at.
+    const cadenceDays = getCadenceDays(profile.cadence);
     const revealedAt = new Date(profile.revealed_at as string).getTime();
     const nextAvailable = revealedAt + cadenceDays * 24 * 60 * 60 * 1000;
 
@@ -316,8 +315,10 @@ export async function GET(request: Request) {
   } else {
     let expiredCount = 0;
     for (const p of expirableProfiles ?? []) {
-      const days = CADENCE_DAYS[(p.cadence as string) ?? "monthly"] ?? 30;
-      const deadline = new Date(p.revealed_at as string).getTime() + days * 24 * 60 * 60 * 1000;
+      // Must stay identical to the client-side countdown's deadline
+      // (CheckInCountdown -> getCheckinDeadlineMs), or this sweep expires dates
+      // on a different rule than the UI shows. Was a duplicated formula.
+      const deadline = getCheckinDeadlineMs(p.revealed_at as string, p.cadence as string);
       if (now < deadline) continue;
       const didExpire = await expireProfileDate(supabase, p.id as string, {
         plan_type: p.plan_type as string,

@@ -1,12 +1,7 @@
 import { createHash } from "crypto";
 import { domainToASCII } from "url";
 import type { SupabaseClient } from "@supabase/supabase-js";
-
-const CADENCE_DAYS: Record<string, number> = {
-  weekly: 7,
-  biweekly: 14,
-  monthly: 30,
-};
+import { getCheckinDeadlineMs } from "@/lib/cadence";
 
 // Server-side pepper bumps the hash from "trivially rainbow-tabled email
 // hash" toward "anonymized data". Required at runtime — fail loud rather
@@ -112,8 +107,7 @@ export async function adoptDeletionHold(
 }
 
 export function cooldownExpiry(revealedAtIso: string, cadence: string): Date {
-  const days = CADENCE_DAYS[cadence] ?? 30;
-  return new Date(new Date(revealedAtIso).getTime() + days * 86_400_000);
+  return new Date(getCheckinDeadlineMs(revealedAtIso, cadence));
 }
 
 export function isCooldownActive(revealedAtIso: string, cadence: string): boolean {
