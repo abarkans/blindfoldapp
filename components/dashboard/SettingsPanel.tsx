@@ -903,26 +903,18 @@ export default function SettingsPanel({
                   </div>
                 </div>
 
-                {/* Delete account */}
-                <div className="bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] rounded-2xl p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[rgb(var(--fg))]">Delete account</p>
-                      <p className="text-xs text-[rgb(var(--fg)/0.45)] mt-0.5">Permanently removes all your data</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteConfirm(true)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:bg-red-500/20 hover:border-red-500/40 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete my account
-                  </button>
-                </div>
+                {/* Delete account — deliberately the quietest control in this view.
+                    Last-resort destructive action: neutral card surface, no red
+                    accent, dim label. The confirmation Dialog carries the warning
+                    styling. */}
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirm(true)}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[rgb(var(--fg)/0.035)] border border-[rgb(var(--fg)/0.16)] text-xs text-[rgb(var(--fg)/0.45)] hover:text-[rgb(var(--fg)/0.75)] hover:border-[rgb(var(--fg)/0.28)] transition-all mt-2"
+                >
+                  <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                  Delete account
+                </button>
 
                 {/* Delete confirmation modal */}
                   <Dialog
