@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, X } from "lucide-react";
+import LinkButton from "@/components/ui/LinkButton";
 import { NAV_LINKS, publicNavHref } from "@/lib/nav-links";
 import { useLoggedIn } from "@/lib/hooks/useLoggedIn";
 
@@ -33,7 +34,7 @@ export default function PublicNav({
   const isLoggedIn = useLoggedIn(initialLoggedIn);
 
   const ctaClass =
-    "inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold bg-rose-500 hover:bg-rose-400 px-5 h-11 rounded-full transition-[background-color] duration-150";
+    "inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold bg-rose-500 hover:bg-rose-400 border-2 border-transparent px-5 h-11 rounded-full transition-[background-color] duration-150";
 
   return (
     <>
@@ -90,7 +91,7 @@ export default function PublicNav({
                 </Link>
                 {showCta && (
                   <Link href="/register" className={ctaClass}>
-                    Get started
+                    Get started free
                   </Link>
                 )}
               </>
@@ -171,14 +172,15 @@ export default function PublicNav({
           </nav>
           {(isLoggedIn || showCta) && (
             <div className="pt-4">
-              <Link
+              <LinkButton
                 href={isLoggedIn ? "/dashboard" : "/register"}
+                size="lg"
+                className="w-full gap-2"
                 onClick={() => setMenuOpen(false)}
-                className="inline-flex w-full items-center justify-center gap-2 h-12 px-6 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-sm font-semibold transition-[background-color] duration-150"
               >
                 {isLoggedIn ? "Go to Dashboard" : "Get started free"}
-                <ArrowRight className="w-4 h-4 text-rose-200" />
-              </Link>
+                {isLoggedIn && <ArrowRight className="w-4 h-4 text-rose-200" />}
+              </LinkButton>
             </div>
           )}
         </div>

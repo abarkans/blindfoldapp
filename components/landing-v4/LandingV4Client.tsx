@@ -1027,7 +1027,6 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
                   className={`inline-flex items-center justify-center gap-2 text-sm leading-none text-white font-semibold px-5 h-11 rounded-full transition-[color,background-color,border-color] duration-300 ${pastHero ? "bg-rose-500 hover:bg-rose-400 border-2 border-transparent" : "bg-black/90 border-2 border-rose-500/35 hover:border-rose-400/60 hover:bg-black/80 backdrop-blur-sm"}`}
                 >
                   Get started free
-                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </>
             )}
@@ -1109,7 +1108,6 @@ export default function LandingV4Client({ unitSystem = "metric", initialLoggedIn
             ) : (
               <LinkButton href="/register" size="lg" className="w-full gap-2" onClick={() => setMenuOpen(false)}>
                 Get started free
-                <ArrowRight className="w-4 h-4 text-rose-200" />
               </LinkButton>
             )}
           </div>
