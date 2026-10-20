@@ -69,6 +69,7 @@ const POST_CATEGORIES: Record<string, BlogCategoryId> = {
   "signs-relationship-rut": "relationship-advice",
   "why-couples-who-try-new-things": "relationship-advice",
   "why-you-hate-planning-dates": "relationship-advice",
+  "7-7-7-rule-for-marriage": "relationship-advice",
 };
 
 const DEFAULT_CATEGORY: BlogCategoryId = "date-ideas";
