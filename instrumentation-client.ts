@@ -9,3 +9,6 @@ Sentry.init({
   replaysOnErrorSampleRate: 0,
   debug: false,
 });
+
+// Lets Sentry trace App Router client-side navigations.
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
