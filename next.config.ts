@@ -18,6 +18,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    agentUpgrade: "security",
+  },
   poweredByHeader: false,
   // Pin Turbopack workspace root. Next 16.2.4 tightened root inference and
   // started panicking ("Next.js package not found") when it couldn't walk
