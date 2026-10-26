@@ -43,7 +43,7 @@
     "sharp": "^0.35.0",
     "stripe": "^22.1.0",
     "tailwind-merge": "3.5.0",
-    "zod": "4.3.6"
+    "zod": "4.6.7"
   },
   "overrides": {
     "dompurify": "^3.4.13",
