@@ -1,0 +1,33 @@
+# Free-tier Supabase projects pause after 7 days without activity. The
+# production project stays awake via real traffic and the Vercel cron, but
+# the dev project used by localhost (.env.local) has neither, so ping it.
+name: Dev Supabase keepalive
+
+on:
+  schedule:
+    - cron: "0 6 */3 * *" # every 3 days, 06:00 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Query dev database
+        env:
+          SUPABASE_URL: ${{ secrets.DEV_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.DEV_SUPABASE_ANON_KEY }}
+        run: |
+          # Real table read so Postgres registers activity. The anon role has
+          # no grant on profiles, so Postgres answers 42501; that still proves
+          # the query reached the database. Anything else (521, timeout) fails.
+          body=$(curl -s --max-time 30 \
+            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY")
+          echo "$body"
+          case "$body" in
+            \[*|*'"42501"'*) echo "Database reached" ;;
+            *) echo "Unexpected response"; exit 1 ;;
+          esac
