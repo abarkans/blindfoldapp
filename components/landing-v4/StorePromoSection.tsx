@@ -72,7 +72,14 @@ export default function StorePromoSection() {
               <p className="mt-1 text-sm text-white/45 leading-relaxed">{product.tagline}</p>
               <p className="mt-3 text-sm text-white/40">
                 {product.format} ·{" "}
-                <span className="text-white font-semibold">{product.priceLine}</span>
+                {product.salePriceLine && (
+                  <>
+                    <s className="text-white/40">{product.priceLine}</s>{" "}
+                  </>
+                )}
+                <span className="text-white font-semibold">
+                  {product.salePriceLine ?? product.priceLine}
+                </span>
               </p>
             </article>
           ))}

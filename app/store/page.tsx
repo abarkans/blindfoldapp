@@ -86,18 +86,30 @@ export default async function StorePage({
                 <p className="mt-4 text-sm leading-relaxed text-white/55">{product.description}</p>
 
                 <div className="mt-auto pt-6">
+                  {/* Price lives here, always, so the button doesn't repeat it. */}
+                  <p className="mb-3 flex items-baseline justify-center gap-2">
+                    {product.salePriceLine && (
+                      <s className="text-sm text-white/40">{product.priceLine}</s>
+                    )}
+                    <span className="text-lg font-semibold text-white">
+                      {product.salePriceLine ?? product.priceLine}
+                    </span>
+                    {product.salePriceLine && (
+                      <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-300">Sale</span>
+                    )}
+                  </p>
+                  <BuyButton productId={product.id} label="Buy now" />
                   {product.sampleFile && (
                     // Plain <a>, not <Link>: this is an API route that redirects to a
                     // presigned URL, so client-side routing has nothing to do here.
                     <a
                       href={`/api/store/sample?product=${product.id}`}
-                      className="mb-3 flex w-full items-center justify-center gap-2 h-12 px-6 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/[0.04] text-sm font-semibold transition-[color,background-color,border-color] duration-150"
+                      className="mt-3 flex w-full items-center justify-center gap-2 h-12 px-6 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/[0.04] text-sm font-semibold transition-[color,background-color,border-color] duration-150"
                     >
                       <Download className="w-4 h-4" aria-hidden="true" />
                       Download free sample
                     </a>
                   )}
-                  <BuyButton productId={product.id} label={`Buy · ${product.priceLine}`} />
                 </div>
               </div>
             </article>

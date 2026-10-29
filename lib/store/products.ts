@@ -35,6 +35,14 @@ export interface StoreProduct {
   description: string;
   /** Display only. Stripe's price object is what actually charges the card. */
   priceLine: string;
+  /**
+   * Display only. When set, the product is on sale: priceLine renders struck
+   * through next to this, and checkout applies STRIPE_STORE_COUPON_ID. Checkout
+   * refuses to run if this is set but the coupon env var is missing, so the page
+   * can never show a lower price than the card is charged. Keep it equal to the
+   * Stripe price minus the coupon.
+   */
+  salePriceLine?: string;
   format: string;
   /**
    * Everything the buyer gets. Key convention is `store/{product id}/{file}.ext`
@@ -66,6 +74,7 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     description:
       "You both get your own copy, so you're each planning something for the other instead of one of you carrying it. Open them together on your next call and you'll have a date lined up before you hang up.",
     priceLine: "€8.99",
+    salePriceLine: "€5.99",
     format: "2 PDFs · one per partner",
     files: [
       {
@@ -101,6 +110,7 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     description:
       "You both draw the same topic, but each of you is told something slightly different about it. Draw yours without peeking, then hold them up and work out what the other one was asked to draw.",
     priceLine: "\u20ac8.99",
+    salePriceLine: "\u20ac5.99",
     format: "2 PDFs \u00b7 one per partner",
     files: [
       {

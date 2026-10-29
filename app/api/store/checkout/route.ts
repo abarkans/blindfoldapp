@@ -41,6 +41,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unknown product" }, { status: 400 });
   }
 
+  // A product shown at a sale price must be charged at it. Fail loudly rather
+  // than quietly charge the struck-through price when the env var is missing.
+  const couponId = process.env.STRIPE_STORE_COUPON_ID;
+  if (product.salePriceLine && !couponId) {
+    console.error(`[store/checkout] product=${product.id} has salePriceLine but STRIPE_STORE_COUPON_ID is unset`);
+    return NextResponse.json({ error: "Checkout failed. Please try again." }, { status: 500 });
+  }
+
   // Optional: a signed-in buyer gets their email prefilled and the purchase
   // linked to their account up front. Absence of a session is not an error.
   const supabase = await createClient();
@@ -50,6 +58,7 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: await resolvePriceId(product), quantity: 1 }],
+      ...(product.salePriceLine ? { discounts: [{ coupon: couponId! }] } : {}),
       // Guest path: Stripe collects the address itself and we read it back off
       // customer_details in the webhook.
       ...(user?.email ? { customer_email: user.email } : {}),
