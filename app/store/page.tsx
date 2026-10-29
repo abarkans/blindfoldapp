@@ -94,9 +94,6 @@ export default async function StorePage({
                     <span className="text-lg font-semibold text-white">
                       {product.salePriceLine ?? product.priceLine}
                     </span>
-                    {product.salePriceLine && (
-                      <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-300">Sale</span>
-                    )}
                   </p>
                   <BuyButton productId={product.id} label="Buy now" />
                   {product.sampleFile && (
