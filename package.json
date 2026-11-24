@@ -54,7 +54,9 @@
     "fast-uri": "^3.1.5",
     "sharp": "^0.35.0",
     "postcss": "^8.5.12",
-    "postcss-selector-parser": "^6.1.5"
+    "postcss-selector-parser": "^6.1.5",
+    "glob": "^14.0.2",
+    "minimatch": "^11.0.1"
   },
   "browserslist": {
     "production": [
